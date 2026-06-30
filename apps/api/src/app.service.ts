@@ -22,6 +22,14 @@ export class AppService {
         'projects',
         'properties',
         'units',
+        'site-visits',
+        'reservations',
+        'payments',
+        'documents',
+        'contracts',
+        'notifications',
+        'reports',
+        'saas',
       ],
     };
   }

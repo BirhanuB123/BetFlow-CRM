@@ -13,14 +13,22 @@ const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const audit_logs_module_1 = require("./audit-logs/audit-logs.module");
 const auth_module_1 = require("./auth/auth.module");
+const contracts_module_1 = require("./contracts/contracts.module");
 const customers_module_1 = require("./customers/customers.module");
 const deals_module_1 = require("./deals/deals.module");
+const documents_module_1 = require("./documents/documents.module");
 const leads_module_1 = require("./leads/leads.module");
 const notes_module_1 = require("./notes/notes.module");
+const notifications_module_1 = require("./notifications/notifications.module");
+const payments_module_1 = require("./payments/payments.module");
 const permissions_module_1 = require("./permissions/permissions.module");
 const projects_module_1 = require("./projects/projects.module");
 const properties_module_1 = require("./properties/properties.module");
+const reservations_module_1 = require("./reservations/reservations.module");
+const reports_module_1 = require("./reports/reports.module");
 const roles_module_1 = require("./roles/roles.module");
+const saas_module_1 = require("./saas/saas.module");
+const site_visits_module_1 = require("./site-visits/site-visits.module");
 const tasks_module_1 = require("./tasks/tasks.module");
 const tenants_module_1 = require("./tenants/tenants.module");
 const units_module_1 = require("./units/units.module");
@@ -46,6 +54,14 @@ exports.AppModule = AppModule = __decorate([
             projects_module_1.ProjectsModule,
             properties_module_1.PropertiesModule,
             units_module_1.UnitsModule,
+            site_visits_module_1.SiteVisitsModule,
+            reservations_module_1.ReservationsModule,
+            payments_module_1.PaymentsModule,
+            documents_module_1.DocumentsModule,
+            contracts_module_1.ContractsModule,
+            notifications_module_1.NotificationsModule,
+            reports_module_1.ReportsModule,
+            saas_module_1.SaasModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
