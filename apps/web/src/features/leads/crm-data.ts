@@ -1,0 +1,279 @@
+export type LeadStage = "New" | "Qualified" | "Tour Scheduled" | "Proposal" | "Won" | "Lost";
+
+export type Lead = {
+  id: string;
+  name: string;
+  company: string;
+  email: string;
+  phone: string;
+  source: string;
+  budget: string;
+  stage: LeadStage;
+  assignedTo: string;
+  priority: "High" | "Medium" | "Low";
+  lastActivity: string;
+};
+
+export type Customer = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  type: "Buyer" | "Investor" | "Tenant";
+  owner: string;
+  lifetimeValue: string;
+  status: "Active" | "Onboarding" | "Dormant";
+};
+
+export type Deal = {
+  id: string;
+  leadId: string;
+  customer: string;
+  property: string;
+  value: string;
+  stage: LeadStage;
+  probability: number;
+  closeDate: string;
+  owner: string;
+};
+
+export type Task = {
+  id: string;
+  title: string;
+  owner: string;
+  relatedTo: string;
+  due: string;
+  status: "Open" | "In progress" | "Done";
+  priority: "High" | "Medium" | "Low";
+};
+
+export type Note = {
+  id: string;
+  relatedTo: string;
+  author: string;
+  body: string;
+  createdAt: string;
+};
+
+export type Activity = {
+  id: string;
+  actor: string;
+  action: string;
+  target: string;
+  time: string;
+  type: "Call" | "Email" | "Assignment" | "Task" | "Note" | "Deal";
+};
+
+export const pipelineStages: LeadStage[] = [
+  "New",
+  "Qualified",
+  "Tour Scheduled",
+  "Proposal",
+  "Won",
+];
+
+export const leads: Lead[] = [
+  {
+    id: "lead_001",
+    name: "Ari Kaplan",
+    company: "Kaplan Holdings",
+    email: "ari@kaplan.example",
+    phone: "+1 555 0182",
+    source: "Website",
+    budget: "$1.8M",
+    stage: "Qualified",
+    assignedTo: "Omar Haddad",
+    priority: "High",
+    lastActivity: "Called 18 min ago",
+  },
+  {
+    id: "lead_002",
+    name: "Priya Shah",
+    company: "Northline Capital",
+    email: "priya@northline.example",
+    phone: "+1 555 0144",
+    source: "Referral",
+    budget: "$920K",
+    stage: "Tour Scheduled",
+    assignedTo: "Noah Smith",
+    priority: "Medium",
+    lastActivity: "Tour set for Friday",
+  },
+  {
+    id: "lead_003",
+    name: "Marcus Bell",
+    company: "Bell Family Office",
+    email: "marcus@bell.example",
+    phone: "+1 555 0118",
+    source: "Campaign",
+    budget: "$2.4M",
+    stage: "Proposal",
+    assignedTo: "Maya Johnson",
+    priority: "High",
+    lastActivity: "Proposal sent yesterday",
+  },
+  {
+    id: "lead_004",
+    name: "Elena Torres",
+    company: "Torres Studio",
+    email: "elena@torres.example",
+    phone: "+1 555 0191",
+    source: "Open house",
+    budget: "$680K",
+    stage: "New",
+    assignedTo: "Unassigned",
+    priority: "Low",
+    lastActivity: "Captured today",
+  },
+];
+
+export const customers: Customer[] = [
+  {
+    id: "customer_001",
+    name: "Kaplan Holdings",
+    email: "ari@kaplan.example",
+    phone: "+1 555 0182",
+    type: "Investor",
+    owner: "Omar Haddad",
+    lifetimeValue: "$1.8M",
+    status: "Onboarding",
+  },
+  {
+    id: "customer_002",
+    name: "Bell Family Office",
+    email: "marcus@bell.example",
+    phone: "+1 555 0118",
+    type: "Buyer",
+    owner: "Maya Johnson",
+    lifetimeValue: "$2.4M",
+    status: "Active",
+  },
+  {
+    id: "customer_003",
+    name: "Northline Capital",
+    email: "priya@northline.example",
+    phone: "+1 555 0144",
+    type: "Investor",
+    owner: "Noah Smith",
+    lifetimeValue: "$920K",
+    status: "Active",
+  },
+];
+
+export const deals: Deal[] = [
+  {
+    id: "deal_001",
+    leadId: "lead_001",
+    customer: "Kaplan Holdings",
+    property: "Harbor Point Tower",
+    value: "$1.8M",
+    stage: "Qualified",
+    probability: 45,
+    closeDate: "Jul 18, 2026",
+    owner: "Omar Haddad",
+  },
+  {
+    id: "deal_002",
+    leadId: "lead_002",
+    customer: "Northline Capital",
+    property: "District 7 Offices",
+    value: "$920K",
+    stage: "Tour Scheduled",
+    probability: 55,
+    closeDate: "Jul 24, 2026",
+    owner: "Noah Smith",
+  },
+  {
+    id: "deal_003",
+    leadId: "lead_003",
+    customer: "Bell Family Office",
+    property: "Meridian Residences",
+    value: "$2.4M",
+    stage: "Proposal",
+    probability: 70,
+    closeDate: "Aug 2, 2026",
+    owner: "Maya Johnson",
+  },
+];
+
+export const tasks: Task[] = [
+  {
+    id: "task_001",
+    title: "Send updated unit availability",
+    owner: "Omar Haddad",
+    relatedTo: "Kaplan Holdings",
+    due: "Today",
+    status: "Open",
+    priority: "High",
+  },
+  {
+    id: "task_002",
+    title: "Confirm tour attendees",
+    owner: "Noah Smith",
+    relatedTo: "Northline Capital",
+    due: "Tomorrow",
+    status: "In progress",
+    priority: "Medium",
+  },
+  {
+    id: "task_003",
+    title: "Review proposal terms",
+    owner: "Maya Johnson",
+    relatedTo: "Bell Family Office",
+    due: "Friday",
+    status: "Open",
+    priority: "High",
+  },
+];
+
+export const notes: Note[] = [
+  {
+    id: "note_001",
+    relatedTo: "Kaplan Holdings",
+    author: "Omar Haddad",
+    body: "Buyer wants two comparable investment options before the next call.",
+    createdAt: "Today, 10:22 AM",
+  },
+  {
+    id: "note_002",
+    relatedTo: "Bell Family Office",
+    author: "Maya Johnson",
+    body: "Legal team asked for a cleaner milestone schedule in the offer pack.",
+    createdAt: "Yesterday, 3:40 PM",
+  },
+];
+
+export const activities: Activity[] = [
+  {
+    id: "activity_001",
+    actor: "Omar Haddad",
+    action: "Assigned lead to himself",
+    target: "Kaplan Holdings",
+    time: "18 min ago",
+    type: "Assignment",
+  },
+  {
+    id: "activity_002",
+    actor: "Noah Smith",
+    action: "Scheduled property tour",
+    target: "Northline Capital",
+    time: "1 hr ago",
+    type: "Task",
+  },
+  {
+    id: "activity_003",
+    actor: "Maya Johnson",
+    action: "Moved deal to Proposal",
+    target: "Bell Family Office",
+    time: "Yesterday",
+    type: "Deal",
+  },
+  {
+    id: "activity_004",
+    actor: "Omar Haddad",
+    action: "Added discovery note",
+    target: "Kaplan Holdings",
+    time: "Yesterday",
+    type: "Note",
+  },
+];

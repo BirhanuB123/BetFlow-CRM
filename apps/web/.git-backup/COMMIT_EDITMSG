@@ -1,0 +1,37 @@
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch master
+# Changes to be committed:
+#	deleted:    AGENTS.md
+#	deleted:    CLAUDE.md
+#	new file:   components.json
+#	modified:   package.json
+#	new file:   src/app/auth/page.tsx
+#	new file:   src/app/customers/page.tsx
+#	new file:   src/app/dashboard/page.tsx
+#	new file:   src/app/deals/page.tsx
+#	modified:   src/app/globals.css
+#	modified:   src/app/layout.tsx
+#	new file:   src/app/leads/page.tsx
+#	new file:   src/app/notes/page.tsx
+#	modified:   src/app/page.tsx
+#	new file:   src/app/projects/page.tsx
+#	new file:   src/app/properties/media/page.tsx
+#	new file:   src/app/properties/page.tsx
+#	new file:   src/app/reports/activity/page.tsx
+#	new file:   src/app/settings/audit-logs/page.tsx
+#	new file:   src/app/settings/page.tsx
+#	new file:   src/app/tasks/page.tsx
+#	new file:   src/app/units/page.tsx
+#	new file:   src/components/layout/dashboard-shell.tsx
+#	new file:   src/components/tables/crm-table.tsx
+#	new file:   src/components/tables/pipeline-board.tsx
+#	new file:   src/components/ui/button.tsx
+#	new file:   src/components/ui/stat-card.tsx
+#	new file:   src/features/auth/phase-one-data.ts
+#	new file:   src/features/leads/crm-data.ts
+#	new file:   src/features/properties/inventory-data.ts
+#	new file:   src/lib/utils.ts
+#
