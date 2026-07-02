@@ -14,47 +14,52 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LeadsController = void 0;
 const common_1 = require("@nestjs/common");
-const in_memory_service_1 = require("../database/in-memory.service");
+const leads_service_1 = require("./leads.service");
+const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
+const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 let LeadsController = class LeadsController {
-    store;
-    constructor(store) {
-        this.store = store;
+    leads;
+    constructor(leads) {
+        this.leads = leads;
     }
-    list(tenantId) {
-        return this.store.listLeads(tenantId);
+    list(user) {
+        return this.leads.list(user.tenantId);
     }
-    create(body) {
-        return this.store.createLead(body);
+    create(user, body) {
+        return this.leads.create(user.tenantId, user.id, body);
     }
-    assign(id, assignedToUserId) {
-        return this.store.assignLead(id, assignedToUserId);
+    updateStatus(user, id, body) {
+        return this.leads.updateStatus(user.tenantId, user.id, id, body.status);
     }
 };
 exports.LeadsController = LeadsController;
 __decorate([
     (0, common_1.Get)(),
-    __param(0, (0, common_1.Query)('tenantId')),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], LeadsController.prototype, "list", null);
 __decorate([
     (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], LeadsController.prototype, "create", null);
 __decorate([
-    (0, common_1.Patch)(':id/assignment'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)('assignedToUserId')),
+    (0, common_1.Patch)(':id/status'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", void 0)
-], LeadsController.prototype, "assign", null);
+], LeadsController.prototype, "updateStatus", null);
 exports.LeadsController = LeadsController = __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('leads'),
-    __metadata("design:paramtypes", [in_memory_service_1.InMemoryService])
+    __metadata("design:paramtypes", [leads_service_1.LeadsService])
 ], LeadsController);
 //# sourceMappingURL=leads.controller.js.map

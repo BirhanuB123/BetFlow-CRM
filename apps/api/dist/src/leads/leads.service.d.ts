@@ -1,10 +1,9 @@
-import { LeadsService } from './leads.service';
-import type { AuthenticatedUser } from '../auth/auth.types';
-import type { CreateLeadInput, UpdateLeadStatusInput } from './leads.types';
-export declare class LeadsController {
-    private readonly leads;
-    constructor(leads: LeadsService);
-    list(user: AuthenticatedUser): import("@prisma/client").Prisma.PrismaPromise<({
+import { PrismaService } from '../database/prisma.service';
+import { CreateLeadInput } from './leads.types';
+export declare class LeadsService {
+    private readonly prisma;
+    constructor(prisma: PrismaService);
+    list(tenantId: string): import("@prisma/client").Prisma.PrismaPromise<({
         source: {
             id: string;
             name: string;
@@ -20,7 +19,7 @@ export declare class LeadsController {
         phone: string | null;
         sourceId: string | null;
     })[]>;
-    create(user: AuthenticatedUser, body: CreateLeadInput): Promise<{
+    create(tenantId: string, userId: string, input: CreateLeadInput): Promise<{
         source: {
             id: string;
             name: string;
@@ -36,7 +35,7 @@ export declare class LeadsController {
         phone: string | null;
         sourceId: string | null;
     }>;
-    updateStatus(user: AuthenticatedUser, id: string, body: UpdateLeadStatusInput): Promise<{
+    updateStatus(tenantId: string, userId: string, id: string, status: string): Promise<{
         source: {
             id: string;
             name: string;
@@ -52,4 +51,7 @@ export declare class LeadsController {
         phone: string | null;
         sourceId: string | null;
     }>;
+    private normalizeStatus;
+    private assertSourceBelongsToTenant;
+    private recordAudit;
 }

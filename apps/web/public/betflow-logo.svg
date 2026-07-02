@@ -1,0 +1,10 @@
+<svg viewBox="180 30 372 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BetFlow">
+  <title>BetFlow</title>
+  <rect x="183" y="40" width="130" height="130" rx="26" fill="#0E6E63" />
+  <path d="M223 100 L248 72 L273 100" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+  <rect x="228" y="112" width="40" height="10" rx="5" fill="#FFFFFF" opacity="0.55" />
+  <rect x="218" y="128" width="60" height="10" rx="5" fill="#FFFFFF" opacity="0.9" />
+  <text x="337" y="118" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="44">
+    <tspan font-weight="600" fill="#141413">Bet</tspan><tspan font-weight="400" fill="#0E6E63">Flow</tspan>
+  </text>
+</svg>

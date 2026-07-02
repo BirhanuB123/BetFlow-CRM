@@ -3,6 +3,7 @@
 import { Building2, KeyRound, LockKeyhole, Mail, Sparkles, UserRound } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 
@@ -133,13 +134,20 @@ export default function AuthPage() {
   };
 
   return (
+
+    
     <main className="min-h-screen bg-[#f6f7f9] px-4 py-8 text-zinc-950">
       <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <section className="flex flex-col justify-between rounded-lg border border-zinc-200 bg-zinc-950 p-6 text-white">
           <div>
-            <div className="flex size-11 items-center justify-center rounded-lg bg-white text-sm font-semibold text-zinc-950">
-              BF
-            </div>
+            <Image
+              src="/betflow-mark.svg"
+              alt="BetFlow"
+              width={44}
+              height={44}
+              className="rounded-lg"
+              priority
+            />
             <h1 className="mt-8 max-w-md text-4xl font-semibold tracking-tight">
               Tenant registration and secure access for BetFlow CRM.
             </h1>

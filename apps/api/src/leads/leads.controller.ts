@@ -5,31 +5,38 @@ import {
   Param,
   Patch,
   Post,
-  Query,
+  UseGuards,
 } from '@nestjs/common';
-import { InMemoryService, Lead } from '../database/in-memory.service';
+import { LeadsService } from './leads.service';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import type { AuthenticatedUser } from '../auth/auth.types';
+import type { CreateLeadInput, UpdateLeadStatusInput } from './leads.types';
 
-type CreateLeadBody = Omit<Lead, 'id'>;
-
+@UseGuards(JwtAuthGuard)
 @Controller('leads')
 export class LeadsController {
-  constructor(private readonly store: InMemoryService) {}
+  constructor(private readonly leads: LeadsService) {}
 
   @Get()
-  list(@Query('tenantId') tenantId?: string) {
-    return this.store.listLeads(tenantId);
+  list(@CurrentUser() user: AuthenticatedUser) {
+    return this.leads.list(user.tenantId);
   }
 
   @Post()
-  create(@Body() body: CreateLeadBody) {
-    return this.store.createLead(body);
+  create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: CreateLeadInput,
+  ) {
+    return this.leads.create(user.tenantId, user.id, body);
   }
 
-  @Patch(':id/assignment')
-  assign(
+  @Patch(':id/status')
+  updateStatus(
+    @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
-    @Body('assignedToUserId') assignedToUserId: string,
+    @Body() body: UpdateLeadStatusInput,
   ) {
-    return this.store.assignLead(id, assignedToUserId);
+    return this.leads.updateStatus(user.tenantId, user.id, id, body.status);
   }
 }

@@ -1,0 +1,7 @@
+<svg viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BetFlow">
+  <title>BetFlow</title>
+  <rect width="130" height="130" rx="26" fill="#0E6E63" />
+  <path d="M40 60 L65 32 L90 60" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+  <rect x="45" y="72" width="40" height="10" rx="5" fill="#FFFFFF" opacity="0.55" />
+  <rect x="35" y="88" width="60" height="10" rx="5" fill="#FFFFFF" opacity="0.9" />
+</svg>
