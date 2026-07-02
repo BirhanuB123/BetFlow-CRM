@@ -1,5 +1,8 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { InMemoryService } from '../database/in-memory.service';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import type { AuthenticatedUser } from './auth.types';
 
 type LoginBody = {
   email: string;
@@ -12,34 +15,28 @@ type RegisterBody = {
   slug: string;
   ownerName: string;
   ownerEmail: string;
+  password?: string;
   region?: string;
   plan?: string;
 };
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly store: InMemoryService) {}
+  constructor(private readonly auth: AuthService) {}
 
   @Post('register')
   register(@Body() body: RegisterBody) {
-    return this.store.registerTenant(body);
+    return this.auth.register(body);
   }
 
   @Post('login')
   login(@Body() body: LoginBody) {
-    const tenant = this.store
-      .listTenants()
-      .find((item) => item.slug === body.tenantSlug);
-    const user = this.store
-      .listUsers(tenant?.id)
-      .find((item) => item.email === body.email);
+    return this.auth.login(body);
+  }
 
-    return {
-      accessToken: 'phase-one-dev-token',
-      tenant,
-      user,
-      expiresIn: 3600,
-      authMethod: body.password ? 'password' : 'unknown',
-    };
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  me(@CurrentUser() user: AuthenticatedUser) {
+    return this.auth.currentUser(user);
   }
 }

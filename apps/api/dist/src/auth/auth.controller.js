@@ -14,29 +14,22 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
-const in_memory_service_1 = require("../database/in-memory.service");
+const auth_service_1 = require("./auth.service");
+const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
+const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 let AuthController = class AuthController {
-    store;
-    constructor(store) {
-        this.store = store;
+    auth;
+    constructor(auth) {
+        this.auth = auth;
     }
     register(body) {
-        return this.store.registerTenant(body);
+        return this.auth.register(body);
     }
     login(body) {
-        const tenant = this.store
-            .listTenants()
-            .find((item) => item.slug === body.tenantSlug);
-        const user = this.store
-            .listUsers(tenant?.id)
-            .find((item) => item.email === body.email);
-        return {
-            accessToken: 'phase-one-dev-token',
-            tenant,
-            user,
-            expiresIn: 3600,
-            authMethod: body.password ? 'password' : 'unknown',
-        };
+        return this.auth.login(body);
+    }
+    me(user) {
+        return this.auth.currentUser(user);
     }
 };
 exports.AuthController = AuthController;
@@ -54,8 +47,16 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "login", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('me'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "me", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
-    __metadata("design:paramtypes", [in_memory_service_1.InMemoryService])
+    __metadata("design:paramtypes", [auth_service_1.AuthService])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map

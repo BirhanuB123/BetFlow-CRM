@@ -9,13 +9,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DatabaseModule = void 0;
 const common_1 = require("@nestjs/common");
 const in_memory_service_1 = require("./in-memory.service");
+const prisma_module_1 = require("./prisma.module");
 let DatabaseModule = class DatabaseModule {
 };
 exports.DatabaseModule = DatabaseModule;
 exports.DatabaseModule = DatabaseModule = __decorate([
     (0, common_1.Module)({
+        imports: [prisma_module_1.PrismaModule],
         providers: [in_memory_service_1.InMemoryService],
-        exports: [in_memory_service_1.InMemoryService],
+        exports: [in_memory_service_1.InMemoryService, prisma_module_1.PrismaModule],
     })
 ], DatabaseModule);
 //# sourceMappingURL=database.module.js.map

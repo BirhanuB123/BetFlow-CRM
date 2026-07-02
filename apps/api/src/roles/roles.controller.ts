@@ -1,19 +1,26 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { InMemoryService, Role } from '../database/in-memory.service';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import type { AuthenticatedUser } from '../auth/auth.types';
+import { RolesService } from './roles.service';
+import type { CreateRoleBody } from './roles.service';
 
-type CreateRoleBody = Omit<Role, 'id'>;
-
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('roles')
 export class RolesController {
-  constructor(private readonly store: InMemoryService) {}
+  constructor(private readonly roles: RolesService) {}
 
   @Get()
-  list(@Query('tenantId') tenantId?: string) {
-    return this.store.listRoles(tenantId);
+  @Roles('Owner', 'Admin')
+  list(@CurrentUser() user: AuthenticatedUser) {
+    return this.roles.listRoles(user.tenantId);
   }
 
   @Post()
-  create(@Body() body: CreateRoleBody) {
-    return this.store.createRole(body);
+  @Roles('Owner', 'Admin')
+  create(@CurrentUser() user: AuthenticatedUser, @Body() body: CreateRoleBody) {
+    return this.roles.createRole({ ...body, tenantId: user.tenantId });
   }
 }

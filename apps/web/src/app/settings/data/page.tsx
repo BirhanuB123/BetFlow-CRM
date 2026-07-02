@@ -3,7 +3,7 @@ import { Download, Upload } from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
-import { dataTransferJobs, statusClass } from "@/features/settings/saas-data";
+import { dataTransferJobs, excelImportTemplates, statusClass } from "@/features/settings/saas-data";
 
 export default function DataTransferPage() {
   return (
@@ -32,6 +32,25 @@ export default function DataTransferPage() {
             job.requestedAt,
             <span key="status" className={`rounded-md px-2 py-1 text-xs font-medium ${statusClass[job.status]}`}>
               {job.status}
+            </span>,
+          ])}
+        />
+      </section>
+
+      <section className="mt-6 rounded-lg border border-zinc-200 bg-white">
+        <div className="border-b border-zinc-200 p-4">
+          <h2 className="text-base font-semibold">Excel import templates</h2>
+          <p className="text-sm text-zinc-500">Workbook formats for tenant onboarding and bulk data migration.</p>
+        </div>
+        <CrmTable
+          columns={["Template", "Entity", "Required columns", "Last run", "Status"]}
+          rows={excelImportTemplates.map((template) => [
+            <span key="template" className="font-medium">{template.template}</span>,
+            template.entity,
+            template.requiredColumns.join(", "),
+            template.lastRun,
+            <span key="status" className={`rounded-md px-2 py-1 text-xs font-medium ${statusClass[template.status]}`}>
+              {template.status}
             </span>,
           ])}
         />

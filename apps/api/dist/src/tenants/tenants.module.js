@@ -8,8 +8,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TenantsModule = void 0;
 const common_1 = require("@nestjs/common");
+const password_service_1 = require("../auth/password.service");
+const jwt_service_1 = require("../auth/jwt.service");
 const database_module_1 = require("../database/database.module");
 const tenants_controller_1 = require("./tenants.controller");
+const tenants_service_1 = require("./tenants.service");
 let TenantsModule = class TenantsModule {
 };
 exports.TenantsModule = TenantsModule;
@@ -17,6 +20,8 @@ exports.TenantsModule = TenantsModule = __decorate([
     (0, common_1.Module)({
         imports: [database_module_1.DatabaseModule],
         controllers: [tenants_controller_1.TenantsController],
+        providers: [tenants_service_1.TenantsService, jwt_service_1.JwtService, password_service_1.PasswordService],
+        exports: [tenants_service_1.TenantsService],
     })
 ], TenantsModule);
 //# sourceMappingURL=tenants.module.js.map

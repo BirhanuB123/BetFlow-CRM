@@ -17,6 +17,7 @@ const contracts_module_1 = require("./contracts/contracts.module");
 const customers_module_1 = require("./customers/customers.module");
 const deals_module_1 = require("./deals/deals.module");
 const documents_module_1 = require("./documents/documents.module");
+const enterprise_module_1 = require("./enterprise/enterprise.module");
 const leads_module_1 = require("./leads/leads.module");
 const notes_module_1 = require("./notes/notes.module");
 const notifications_module_1 = require("./notifications/notifications.module");
@@ -62,6 +63,7 @@ exports.AppModule = AppModule = __decorate([
             notifications_module_1.NotificationsModule,
             reports_module_1.ReportsModule,
             saas_module_1.SaasModule,
+            enterprise_module_1.EnterpriseModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

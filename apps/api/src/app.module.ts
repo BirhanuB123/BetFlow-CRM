@@ -8,6 +8,7 @@ import { ContractsModule } from './contracts/contracts.module';
 import { CustomersModule } from './customers/customers.module';
 import { DealsModule } from './deals/deals.module';
 import { DocumentsModule } from './documents/documents.module';
+import { EnterpriseModule } from './enterprise/enterprise.module';
 import { LeadsModule } from './leads/leads.module';
 import { NotesModule } from './notes/notes.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -50,6 +51,7 @@ import { UsersModule } from './users/users.module';
     NotificationsModule,
     ReportsModule,
     SaasModule,
+    EnterpriseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

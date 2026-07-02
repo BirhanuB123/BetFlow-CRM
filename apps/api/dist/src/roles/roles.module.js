@@ -8,15 +8,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RolesModule = void 0;
 const common_1 = require("@nestjs/common");
+const jwt_service_1 = require("../auth/jwt.service");
 const database_module_1 = require("../database/database.module");
+const tenants_module_1 = require("../tenants/tenants.module");
 const roles_controller_1 = require("./roles.controller");
+const roles_service_1 = require("./roles.service");
 let RolesModule = class RolesModule {
 };
 exports.RolesModule = RolesModule;
 exports.RolesModule = RolesModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule],
+        imports: [database_module_1.DatabaseModule, tenants_module_1.TenantsModule],
         controllers: [roles_controller_1.RolesController],
+        providers: [roles_service_1.RolesService, jwt_service_1.JwtService],
     })
 ], RolesModule);
 //# sourceMappingURL=roles.module.js.map

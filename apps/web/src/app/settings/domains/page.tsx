@@ -1,6 +1,7 @@
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
+import { StatCard } from "@/components/ui/stat-card";
 import { customDomains, statusClass } from "@/features/settings/saas-data";
 
 export default function DomainsPage() {
@@ -10,6 +11,12 @@ export default function DomainsPage() {
       description="Tenant domain routing, DNS verification, and SSL status."
       active="Domains"
     >
+      <div className="grid gap-4 md:grid-cols-3">
+        <StatCard label="Verified domains" value="1" detail="Production traffic is routable" />
+        <StatCard label="Pending DNS" value="2" detail="CNAME records required" />
+        <StatCard label="SSL certificates" value="1/3" detail="Certificates issue after DNS verification" />
+      </div>
+
       <section className="rounded-lg border border-zinc-200 bg-white">
         <div className="flex items-center justify-between gap-4 border-b border-zinc-200 p-4">
           <div>

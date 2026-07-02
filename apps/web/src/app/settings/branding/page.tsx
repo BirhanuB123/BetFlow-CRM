@@ -1,6 +1,7 @@
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
+import { StatCard } from "@/components/ui/stat-card";
 import { brandingSettings, statusClass } from "@/features/settings/saas-data";
 
 export default function BrandingPage() {
@@ -10,6 +11,12 @@ export default function BrandingPage() {
       description="Tenant-specific visual identity and login experience."
       active="Branding"
     >
+      <div className="grid gap-4 md:grid-cols-3">
+        <StatCard label="White-label status" value="Enabled" detail="Tenant logo, colors, portal, and sender identity" />
+        <StatCard label="Brand assets" value="6" detail="Logo, favicon, palette, login, portal, email" />
+        <StatCard label="Draft changes" value="3" detail="Require publish before customer portal launch" />
+      </div>
+
       <section className="rounded-lg border border-zinc-200 bg-white">
         <div className="flex items-center justify-between gap-4 border-b border-zinc-200 p-4">
           <div>

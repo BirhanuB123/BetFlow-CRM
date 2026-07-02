@@ -1,14 +1,29 @@
-import { InMemoryService } from '../database/in-memory.service';
-type InviteUserBody = {
-    tenantId: string;
-    name: string;
-    email: string;
-    roleId: string;
-};
+import type { AuthenticatedUser } from '../auth/auth.types';
+import { UsersService } from './users.service';
+import type { InviteUserBody } from './users.service';
 export declare class UsersController {
-    private readonly store;
-    constructor(store: InMemoryService);
-    list(tenantId?: string): import("../database/in-memory.service").User[];
-    invite(body: InviteUserBody): import("../database/in-memory.service").User;
+    private readonly users;
+    constructor(users: UsersService);
+    list(user: AuthenticatedUser): Promise<{
+        id: string;
+        tenantId: string;
+        name: string;
+        email: string;
+        roleId: string | undefined;
+        roleName: string | undefined;
+        status: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }[]>;
+    invite(user: AuthenticatedUser, body: InviteUserBody): Promise<{
+        id: string;
+        tenantId: string;
+        name: string;
+        email: string;
+        roleId: string | undefined;
+        roleName: string | undefined;
+        status: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
 }
-export {};
