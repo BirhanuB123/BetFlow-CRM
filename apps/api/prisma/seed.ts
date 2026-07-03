@@ -359,56 +359,86 @@ async function main() {
     },
   });
 
-  const leads = [
+  const leads: [
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+  ][] = [
     [
       'lead_001',
       'Amira',
       'Saleh',
+      'Harbor Realty Group',
       'amira.saleh@example.com',
       '+1 555 0201',
       'NEW',
       'source_website',
+      owner.id,
     ],
     [
       'lead_002',
       'Diego',
       'Martinez',
+      'Skyline Ventures',
       'diego.martinez@example.com',
       '+1 555 0202',
       'QUALIFIED',
       'source_meta',
+      agent.id,
     ],
     [
       'lead_003',
       'Priya',
       'Kapoor',
+      'Meridian Holdings',
       'priya.kapoor@example.com',
       '+1 555 0203',
       'FOLLOW_UP',
       'source_referral',
+      agent.id,
     ],
   ];
   for (const [
     id,
     firstName,
     lastName,
+    company,
     email,
     phone,
     status,
     sourceId,
+    ownerId,
   ] of leads) {
     await prisma.lead.upsert({
       where: { id },
-      update: { tenantId, firstName, lastName, email, phone, status, sourceId },
+      update: {
+        tenantId,
+        firstName,
+        lastName,
+        company,
+        email,
+        phone,
+        status,
+        sourceId,
+        ownerId,
+      },
       create: {
         id,
         tenantId,
         firstName,
         lastName,
+        company,
         email,
         phone,
         status,
         sourceId,
+        ownerId,
       },
     });
   }

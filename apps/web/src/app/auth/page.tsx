@@ -1,13 +1,19 @@
 "use client";
 
-import { Building2, KeyRound, LockKeyhole, Mail, Sparkles, UserRound } from "lucide-react";
+import { Building2, CheckCircle2, KeyRound, LockKeyhole, Mail, Sparkles, UserRound } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
+
+const highlights = [
+  "Lead capture, qualification & assignment",
+  "Deal pipeline with revenue forecasting",
+  "Payments, contracts & a full audit trail",
+];
 
 type AuthMode = "register" | "login";
 
@@ -134,56 +140,69 @@ export default function AuthPage() {
   };
 
   return (
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#eef2f3] px-4 py-10 text-zinc-950">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(55%_55%_at_12%_8%,rgba(14,110,99,0.14),transparent_60%),radial-gradient(45%_45%_at_100%_100%,rgba(14,110,99,0.12),transparent_55%)]" />
 
-    
-    <main className="min-h-screen bg-[#f6f7f9] px-4 py-8 text-zinc-950">
-      <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <section className="flex flex-col justify-between rounded-lg border border-zinc-200 bg-zinc-950 p-6 text-white">
-          <div>
-            <Image
-              src="/betflow-mark.svg"
-              alt="BetFlow"
-              width={44}
-              height={44}
-              className="rounded-lg"
-              priority
-            />
-            <h1 className="mt-8 max-w-md text-4xl font-semibold tracking-tight">
-              Tenant registration and secure access for BetFlow CRM.
-            </h1>
-            <p className="mt-4 max-w-lg text-sm leading-6 text-zinc-300">
-              Create the tenant workspace, configure the owner identity, and start from an RBAC-ready access model.
-            </p>
-          </div>
-          <div className="mt-10 grid gap-3 text-sm text-zinc-300 sm:grid-cols-3">
-            <span className="rounded-md border border-white/15 px-3 py-2">Workspace slug</span>
-            <span className="rounded-md border border-white/15 px-3 py-2">Owner account</span>
-            <span className="rounded-md border border-white/15 px-3 py-2">Audit baseline</span>
-          </div>
-        </section>
-
-        <section className="rounded-lg border border-zinc-200 bg-white p-6">
-          <div className="flex items-center justify-between gap-3">
+      <div className="relative w-full max-w-4xl overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-[0_24px_60px_-24px_rgba(15,32,60,0.35)]">
+        <div className="grid lg:grid-cols-2">
+          <section className="relative hidden flex-col justify-between bg-gradient-to-br from-[#0E6E63] to-[#083f39] p-8 text-white lg:flex">
             <div>
-              <p className="text-sm font-medium text-zinc-500">Access workspace</p>
-              <h2 className="mt-2 text-2xl font-semibold tracking-tight">Sign in or create a tenant</h2>
+              <div className="flex items-center gap-3">
+                <Image
+                  src="/betflow-mark.svg"
+                  alt="BetFlow"
+                  width={40}
+                  height={40}
+                  className="rounded-lg ring-1 ring-white/25"
+                  priority
+                />
+                <span className="text-lg font-semibold">BetFlow CRM</span>
+              </div>
+              <h1 className="mt-10 text-3xl font-semibold leading-tight tracking-tight">
+                Run your entire real-estate pipeline from one workspace.
+              </h1>
+              <p className="mt-4 max-w-sm text-sm leading-6 text-white/80">
+                Tenant-scoped access with an RBAC-ready model for sales, finance, and admin teams.
+              </p>
+              <ul className="mt-8 space-y-3.5 text-sm text-white/90">
+                {highlights.map((item) => (
+                  <li key={item} className="flex items-start gap-3">
+                    <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-white/85" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-sm text-zinc-600">
-              Demo ready
-            </div>
-          </div>
+            <p className="mt-10 text-xs text-white/55">© 2026 BetFlow CRM · Multi-tenant real estate platform</p>
+          </section>
 
-          <div className="mt-6 flex rounded-full border border-zinc-200 bg-zinc-50 p-1">
+          <section className="p-6 sm:p-8">
+            <div className="mb-6 flex items-center gap-3 lg:hidden">
+              <Image src="/betflow-mark.svg" alt="BetFlow" width={36} height={36} className="rounded-lg" priority />
+              <span className="text-base font-semibold">BetFlow CRM</span>
+            </div>
+
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-[#0E6E63]">Access workspace</p>
+                <h2 className="mt-1 text-2xl font-semibold tracking-tight">Sign in or create a tenant</h2>
+              </div>
+              <div className="hidden rounded-full border border-[#0E6E63]/20 bg-[#0E6E63]/10 px-3 py-1 text-xs font-medium text-[#0b5c52] sm:block">
+                Demo ready
+              </div>
+            </div>
+
+          <div className="mt-6 flex rounded-full border border-zinc-200 bg-zinc-100 p-1">
             <button
               type="button"
-              className={`flex-1 rounded-full px-3 py-2 text-sm font-medium transition ${mode === "login" ? "bg-zinc-950 text-white" : "text-zinc-600"}`}
+              className={`flex-1 rounded-full px-3 py-2 text-sm font-medium transition ${mode === "login" ? "bg-[#0E6E63] text-white shadow-sm" : "text-zinc-600 hover:text-zinc-900"}`}
               onClick={() => setMode("login")}
             >
               Login
             </button>
             <button
               type="button"
-              className={`flex-1 rounded-full px-3 py-2 text-sm font-medium transition ${mode === "register" ? "bg-zinc-950 text-white" : "text-zinc-600"}`}
+              className={`flex-1 rounded-full px-3 py-2 text-sm font-medium transition ${mode === "register" ? "bg-[#0E6E63] text-white shadow-sm" : "text-zinc-600 hover:text-zinc-900"}`}
               onClick={() => setMode("register")}
             >
               Register
@@ -197,7 +216,7 @@ export default function AuthPage() {
             <form className="mt-6 grid gap-4" onSubmit={handleLogin}>
               <label className="grid gap-2 text-sm font-medium">
                 Email
-                <span className="flex h-11 items-center gap-3 rounded-md border border-zinc-200 px-3">
+                <span className="flex h-11 items-center gap-3 rounded-md border border-zinc-200 bg-white px-3 transition focus-within:border-[#0E6E63] focus-within:ring-2 focus-within:ring-[#0E6E63]/15">
                   <Mail className="size-4 text-zinc-500" />
                   <input
                     className="w-full bg-transparent text-sm outline-none placeholder:text-zinc-400"
@@ -211,7 +230,7 @@ export default function AuthPage() {
               </label>
               <label className="grid gap-2 text-sm font-medium">
                 Workspace slug
-                <span className="flex h-11 items-center gap-3 rounded-md border border-zinc-200 px-3">
+                <span className="flex h-11 items-center gap-3 rounded-md border border-zinc-200 bg-white px-3 transition focus-within:border-[#0E6E63] focus-within:ring-2 focus-within:ring-[#0E6E63]/15">
                   <LockKeyhole className="size-4 text-zinc-500" />
                   <input
                     className="w-full bg-transparent text-sm outline-none placeholder:text-zinc-400"
@@ -224,7 +243,7 @@ export default function AuthPage() {
               </label>
               <label className="grid gap-2 text-sm font-medium">
                 Password
-                <span className="flex h-11 items-center gap-3 rounded-md border border-zinc-200 px-3">
+                <span className="flex h-11 items-center gap-3 rounded-md border border-zinc-200 bg-white px-3 transition focus-within:border-[#0E6E63] focus-within:ring-2 focus-within:ring-[#0E6E63]/15">
                   <KeyRound className="size-4 text-zinc-500" />
                   <input
                     className="w-full bg-transparent text-sm outline-none placeholder:text-zinc-400"
@@ -236,7 +255,7 @@ export default function AuthPage() {
                   />
                 </span>
               </label>
-              <Button className="mt-2 h-10" disabled={loading}>
+              <Button className="mt-2 h-10 bg-[#0E6E63] text-white hover:bg-[#0b5c52]" disabled={loading}>
                 {loading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
@@ -244,7 +263,7 @@ export default function AuthPage() {
             <form className="mt-6 grid gap-4" onSubmit={handleRegister}>
               <label className="grid gap-2 text-sm font-medium">
                 Company name
-                <span className="flex h-11 items-center gap-3 rounded-md border border-zinc-200 px-3">
+                <span className="flex h-11 items-center gap-3 rounded-md border border-zinc-200 bg-white px-3 transition focus-within:border-[#0E6E63] focus-within:ring-2 focus-within:ring-[#0E6E63]/15">
                   <Building2 className="size-4 text-zinc-500" />
                   <input
                     className="w-full bg-transparent text-sm outline-none placeholder:text-zinc-400"
@@ -257,7 +276,7 @@ export default function AuthPage() {
               </label>
               <label className="grid gap-2 text-sm font-medium">
                 Workspace slug
-                <span className="flex h-11 items-center gap-3 rounded-md border border-zinc-200 px-3">
+                <span className="flex h-11 items-center gap-3 rounded-md border border-zinc-200 bg-white px-3 transition focus-within:border-[#0E6E63] focus-within:ring-2 focus-within:ring-[#0E6E63]/15">
                   <LockKeyhole className="size-4 text-zinc-500" />
                   <input
                     className="w-full bg-transparent text-sm outline-none placeholder:text-zinc-400"
@@ -270,7 +289,7 @@ export default function AuthPage() {
               </label>
               <label className="grid gap-2 text-sm font-medium">
                 Owner name
-                <span className="flex h-11 items-center gap-3 rounded-md border border-zinc-200 px-3">
+                <span className="flex h-11 items-center gap-3 rounded-md border border-zinc-200 bg-white px-3 transition focus-within:border-[#0E6E63] focus-within:ring-2 focus-within:ring-[#0E6E63]/15">
                   <UserRound className="size-4 text-zinc-500" />
                   <input
                     className="w-full bg-transparent text-sm outline-none placeholder:text-zinc-400"
@@ -283,7 +302,7 @@ export default function AuthPage() {
               </label>
               <label className="grid gap-2 text-sm font-medium">
                 Owner email
-                <span className="flex h-11 items-center gap-3 rounded-md border border-zinc-200 px-3">
+                <span className="flex h-11 items-center gap-3 rounded-md border border-zinc-200 bg-white px-3 transition focus-within:border-[#0E6E63] focus-within:ring-2 focus-within:ring-[#0E6E63]/15">
                   <Mail className="size-4 text-zinc-500" />
                   <input
                     className="w-full bg-transparent text-sm outline-none placeholder:text-zinc-400"
@@ -297,7 +316,7 @@ export default function AuthPage() {
               </label>
               <label className="grid gap-2 text-sm font-medium">
                 Password
-                <span className="flex h-11 items-center gap-3 rounded-md border border-zinc-200 px-3">
+                <span className="flex h-11 items-center gap-3 rounded-md border border-zinc-200 bg-white px-3 transition focus-within:border-[#0E6E63] focus-within:ring-2 focus-within:ring-[#0E6E63]/15">
                   <KeyRound className="size-4 text-zinc-500" />
                   <input
                     className="w-full bg-transparent text-sm outline-none placeholder:text-zinc-400"
@@ -309,23 +328,26 @@ export default function AuthPage() {
                   />
                 </span>
               </label>
-              <Button className="mt-2 h-10" disabled={loading}>
+              <Button className="mt-2 h-10 bg-[#0E6E63] text-white hover:bg-[#0b5c52]" disabled={loading}>
                 {loading ? "Creating tenant..." : "Create tenant"}
               </Button>
             </form>
           )}
 
-          <div className="mt-8 rounded-lg border border-zinc-200 bg-zinc-50 p-4">
-            <div className="flex items-center gap-2 text-sm font-semibold text-zinc-700">
-              <Sparkles className="size-4" />
-              Demo credentials
+            <div className="mt-8 rounded-lg border border-[#0E6E63]/15 bg-[#0E6E63]/[0.06] p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-[#0b5c52]">
+                <Sparkles className="size-4" />
+                Demo credentials
+              </div>
+              <p className="mt-2 text-sm leading-6 text-zinc-600">
+                Email <span className="font-medium text-zinc-800">admin@betflow.example</span>, slug{" "}
+                <span className="font-medium text-zinc-800">betflow-crm</span>, password{" "}
+                <span className="font-medium text-zinc-800">admin123</span>. New tenants are auto-logged in after
+                registration.
+              </p>
             </div>
-            <ul className="mt-3 grid gap-2 text-sm text-zinc-600">
-              <li>Use email admin@betflow.example, slug betflow-crm, and password admin123 to sign in immediately.</li>
-              <li>New tenants are created and auto-logged into the dashboard after registration.</li>
-            </ul>
-          </div>
-        </section>
+          </section>
+        </div>
       </div>
     </main>
   );

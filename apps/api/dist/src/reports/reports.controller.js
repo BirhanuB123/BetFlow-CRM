@@ -17,6 +17,9 @@ let ReportsController = class ReportsController {
     constructor(store) {
         this.store = store;
     }
+    catalog() {
+        return this.store.getReportsCatalog();
+    }
     salesDashboard() {
         return this.store.getSalesDashboardReport();
     }
@@ -37,6 +40,12 @@ let ReportsController = class ReportsController {
     }
 };
 exports.ReportsController = ReportsController;
+__decorate([
+    (0, common_1.Get)('catalog'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ReportsController.prototype, "catalog", null);
 __decorate([
     (0, common_1.Get)('sales'),
     __metadata("design:type", Function),

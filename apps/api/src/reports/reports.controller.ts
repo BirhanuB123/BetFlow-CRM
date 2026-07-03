@@ -5,6 +5,11 @@ import { InMemoryService } from '../database/in-memory.service';
 export class ReportsController {
   constructor(private readonly store: InMemoryService) {}
 
+  @Get('catalog')
+  catalog() {
+    return this.store.getReportsCatalog();
+  }
+
   @Get('sales')
   salesDashboard() {
     return this.store.getSalesDashboardReport();

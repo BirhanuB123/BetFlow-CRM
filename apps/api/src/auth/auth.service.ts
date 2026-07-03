@@ -59,7 +59,10 @@ export class AuthService {
       },
     });
 
-    if (!user || !(await this.passwords.verify(input.password, user.password))) {
+    if (
+      !user ||
+      !(await this.passwords.verify(input.password, user.password))
+    ) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -75,7 +78,6 @@ export class AuthService {
 
     const roles = (user.roles as UserRoleResult[]).map((item) => item.role.name);
     const expiresIn = 3600;
-
     return {
       accessToken: this.jwt.sign(
         {

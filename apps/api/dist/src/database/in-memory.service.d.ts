@@ -322,6 +322,15 @@ export type PaymentAgingReportRow = {
     amount: number;
     risk: 'low' | 'medium' | 'high';
 };
+export type ReportCatalogEntry = {
+    id: string;
+    name: string;
+    description: string;
+    folder: string;
+    href: string;
+    lastAccessedAt: string | null;
+    createdBy: string | null;
+};
 export type SubscriptionPlan = {
     id: string;
     tenantId?: string;
@@ -445,6 +454,7 @@ export declare class InMemoryService {
     private readonly notificationMessages;
     private readonly overduePaymentAlerts;
     private readonly followUpReminders;
+    private readonly reportCatalog;
     private readonly salesDashboardReport;
     private readonly agentPerformanceReport;
     private readonly revenueReportRows;
@@ -531,6 +541,7 @@ export declare class InMemoryService {
     createOverduePaymentAlert(input: CreateOverduePaymentAlertInput): OverduePaymentAlert;
     listFollowUpReminders(tenantId?: string): FollowUpReminder[];
     createFollowUpReminder(input: CreateFollowUpReminderInput): FollowUpReminder;
+    getReportsCatalog(): ReportCatalogEntry[];
     getSalesDashboardReport(): ReportMetric[];
     getAgentPerformanceReport(): AgentPerformanceReport[];
     getRevenueReport(): RevenueReportRow[];

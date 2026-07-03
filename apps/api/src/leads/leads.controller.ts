@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -11,7 +12,11 @@ import { LeadsService } from './leads.service';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import type { AuthenticatedUser } from '../auth/auth.types';
-import type { CreateLeadInput, UpdateLeadStatusInput } from './leads.types';
+import type {
+  CreateLeadInput,
+  UpdateLeadInput,
+  UpdateLeadStatusInput,
+} from './leads.types';
 
 @UseGuards(JwtAuthGuard)
 @Controller('leads')
@@ -21,6 +26,11 @@ export class LeadsController {
   @Get()
   list(@CurrentUser() user: AuthenticatedUser) {
     return this.leads.list(user.tenantId);
+  }
+
+  @Get('sources')
+  sources(@CurrentUser() user: AuthenticatedUser) {
+    return this.leads.listSources(user.tenantId);
   }
 
   @Post()
@@ -38,5 +48,19 @@ export class LeadsController {
     @Body() body: UpdateLeadStatusInput,
   ) {
     return this.leads.updateStatus(user.tenantId, user.id, id, body.status);
+  }
+
+  @Patch(':id')
+  update(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() body: UpdateLeadInput,
+  ) {
+    return this.leads.update(user.tenantId, user.id, id, body);
+  }
+
+  @Delete(':id')
+  remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.leads.remove(user.tenantId, user.id, id);
   }
 }

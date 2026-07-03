@@ -4,10 +4,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { CreateLeadInput, LEAD_STATUSES, LeadStatus } from './leads.types';
+import {
+  CreateLeadInput,
+  LEAD_STATUSES,
+  LeadStatus,
+  UpdateLeadInput,
+} from './leads.types';
 
 const leadInclude = {
   source: { select: { id: true, name: true } },
+  owner: { select: { id: true, firstName: true, lastName: true } },
 } as const;
 
 @Injectable()
@@ -19,6 +25,14 @@ export class LeadsService {
       where: { tenantId },
       include: leadInclude,
       orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  listSources(tenantId: string) {
+    return this.prisma.leadSource.findMany({
+      where: { tenantId },
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
     });
   }
 
@@ -41,10 +55,12 @@ export class LeadsService {
         tenantId,
         firstName,
         lastName,
+        company: input.company?.trim() || null,
         email: input.email?.trim() || null,
         phone: input.phone?.trim() || null,
         status,
         sourceId: input.sourceId || null,
+        ownerId: input.ownerId || userId,
       },
       include: leadInclude,
     });
@@ -52,6 +68,62 @@ export class LeadsService {
     await this.recordAudit(tenantId, userId, 'lead.created', lead.id);
 
     return lead;
+  }
+
+  async update(
+    tenantId: string,
+    userId: string,
+    id: string,
+    input: UpdateLeadInput,
+  ) {
+    const existing = await this.prisma.lead.findFirst({
+      where: { id, tenantId },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(`Lead ${id} was not found`);
+    }
+
+    if (input.sourceId) {
+      await this.assertSourceBelongsToTenant(tenantId, input.sourceId);
+    }
+
+    const data: Record<string, unknown> = {};
+    if (input.firstName !== undefined) data.firstName = input.firstName.trim();
+    if (input.lastName !== undefined) data.lastName = input.lastName.trim();
+    if (input.company !== undefined)
+      data.company = input.company?.trim() || null;
+    if (input.email !== undefined) data.email = input.email?.trim() || null;
+    if (input.phone !== undefined) data.phone = input.phone?.trim() || null;
+    if (input.status !== undefined)
+      data.status = this.normalizeStatus(input.status);
+    if (input.sourceId !== undefined) data.sourceId = input.sourceId || null;
+    if (input.ownerId !== undefined) data.ownerId = input.ownerId || null;
+
+    const lead = await this.prisma.lead.update({
+      where: { id },
+      data,
+      include: leadInclude,
+    });
+
+    await this.recordAudit(tenantId, userId, 'lead.updated', lead.id);
+
+    return lead;
+  }
+
+  async remove(tenantId: string, userId: string, id: string) {
+    const existing = await this.prisma.lead.findFirst({
+      where: { id, tenantId },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(`Lead ${id} was not found`);
+    }
+
+    await this.prisma.lead.delete({ where: { id } });
+    await this.recordAudit(tenantId, userId, 'lead.deleted', id);
+
+    return { id, deleted: true };
   }
 
   async updateStatus(

@@ -55,7 +55,8 @@ let AuthService = class AuthService {
                 },
             },
         });
-        if (!user || !(await this.passwords.verify(input.password, user.password))) {
+        if (!user ||
+            !(await this.passwords.verify(input.password, user.password))) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
         await this.prisma.auditLog.create({

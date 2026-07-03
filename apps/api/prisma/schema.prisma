@@ -62,6 +62,7 @@ model User {
   tasks         Task[]
   auditLogs     AuditLog[]
   notifications Notification[]
+  ownedLeads    Lead[]         @relation("LeadOwner")
 }
 
 model Role {
@@ -193,11 +194,14 @@ model Lead {
   tenant    Tenant      @relation(fields: [tenantId], references: [id])
   firstName String
   lastName  String
+  company   String?
   email     String?
   phone     String?
   status    String      @default("NEW")
   sourceId  String?
   source    LeadSource? @relation(fields: [sourceId], references: [id])
+  ownerId   String?
+  owner     User?       @relation("LeadOwner", fields: [ownerId], references: [id])
   createdAt DateTime    @default(now())
 
   siteVisits SiteVisit[]

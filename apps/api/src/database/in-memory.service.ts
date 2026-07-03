@@ -363,6 +363,16 @@ export type PaymentAgingReportRow = {
   risk: 'low' | 'medium' | 'high';
 };
 
+export type ReportCatalogEntry = {
+  id: string;
+  name: string;
+  description: string;
+  folder: string;
+  href: string;
+  lastAccessedAt: string | null;
+  createdBy: string | null;
+};
+
 export type SubscriptionPlan = {
   id: string;
   tenantId?: string;
@@ -1133,6 +1143,69 @@ export class InMemoryService {
       reason: 'Proposal follow-up after legal review',
       channel: 'email',
       priority: 'high',
+    },
+  ];
+
+  private readonly reportCatalog: ReportCatalogEntry[] = [
+    {
+      id: 'sales-dashboard',
+      name: 'Sales Dashboard',
+      description:
+        'Booked revenue, collected payments, and sales productivity at a glance.',
+      folder: 'Sales Metrics Reports',
+      href: '/reports/sales',
+      lastAccessedAt: '2026-06-29',
+      createdBy: null,
+    },
+    {
+      id: 'agent-performance',
+      name: 'Agent Performance',
+      description:
+        'Leads, visits, reservations, and revenue contributed by each sales agent.',
+      folder: 'Sales Metrics Reports',
+      href: '/reports/agents',
+      lastAccessedAt: '2026-06-28',
+      createdBy: null,
+    },
+    {
+      id: 'revenue-by-period',
+      name: 'Revenue by Period',
+      description:
+        'Monthly booked, collected, outstanding, and forecast revenue.',
+      folder: 'Revenue Reports',
+      href: '/reports/revenue',
+      lastAccessedAt: '2026-06-30',
+      createdBy: null,
+    },
+    {
+      id: 'inventory-status',
+      name: 'Inventory Status',
+      description:
+        'Unit availability, reservations, and sales across active projects.',
+      folder: 'Inventory Reports',
+      href: '/reports/inventory',
+      lastAccessedAt: null,
+      createdBy: null,
+    },
+    {
+      id: 'lead-conversion-funnel',
+      name: 'Lead Conversion Funnel',
+      description:
+        'Stage-by-stage conversion and drop-off from lead to signed contract.',
+      folder: 'Sales Metrics Reports',
+      href: '/reports/conversion',
+      lastAccessedAt: null,
+      createdBy: null,
+    },
+    {
+      id: 'payment-aging',
+      name: 'Payment Aging',
+      description:
+        'Outstanding invoices bucketed by age with collection risk levels.',
+      folder: 'Revenue Reports',
+      href: '/reports/payment-aging',
+      lastAccessedAt: null,
+      createdBy: null,
     },
   ];
 
@@ -2161,6 +2234,10 @@ export class InMemoryService {
     };
     this.followUpReminders.push(reminder);
     return reminder;
+  }
+
+  getReportsCatalog() {
+    return this.reportCatalog;
   }
 
   getSalesDashboardReport() {

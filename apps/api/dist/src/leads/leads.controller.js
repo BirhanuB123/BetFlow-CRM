@@ -25,11 +25,20 @@ let LeadsController = class LeadsController {
     list(user) {
         return this.leads.list(user.tenantId);
     }
+    sources(user) {
+        return this.leads.listSources(user.tenantId);
+    }
     create(user, body) {
         return this.leads.create(user.tenantId, user.id, body);
     }
     updateStatus(user, id, body) {
         return this.leads.updateStatus(user.tenantId, user.id, id, body.status);
+    }
+    update(user, id, body) {
+        return this.leads.update(user.tenantId, user.id, id, body);
+    }
+    remove(user, id) {
+        return this.leads.remove(user.tenantId, user.id, id);
     }
 };
 exports.LeadsController = LeadsController;
@@ -40,6 +49,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], LeadsController.prototype, "list", null);
+__decorate([
+    (0, common_1.Get)('sources'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], LeadsController.prototype, "sources", null);
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
@@ -57,6 +73,23 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", void 0)
 ], LeadsController.prototype, "updateStatus", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", void 0)
+], LeadsController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], LeadsController.prototype, "remove", null);
 exports.LeadsController = LeadsController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('leads'),
