@@ -4,82 +4,82 @@ export declare class PaymentsService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     list(tenantId: string): import("@prisma/client").Prisma.PrismaPromise<({
-        contract: {
+        reservation: {
             id: string;
             status: string;
         } | null;
-        reservation: {
+        contract: {
             id: string;
             status: string;
         } | null;
     } & {
         id: string;
         tenantId: string;
-        amount: import("@prisma/client-runtime-utils").Decimal;
-        date: Date;
-        method: string;
-        status: string;
         createdAt: Date;
+        status: string;
+        date: Date;
+        amount: import("@prisma/client-runtime-utils").Decimal;
+        method: string;
         contractId: string | null;
         reservationId: string | null;
     })[]>;
     get(tenantId: string, id: string): Promise<{
-        contract: {
+        reservation: {
             id: string;
             status: string;
         } | null;
-        reservation: {
+        contract: {
             id: string;
             status: string;
         } | null;
     } & {
         id: string;
         tenantId: string;
-        amount: import("@prisma/client-runtime-utils").Decimal;
-        date: Date;
-        method: string;
-        status: string;
         createdAt: Date;
+        status: string;
+        date: Date;
+        amount: import("@prisma/client-runtime-utils").Decimal;
+        method: string;
         contractId: string | null;
         reservationId: string | null;
     }>;
     create(tenantId: string, userId: string, input: CreatePaymentInput): Promise<{
-        contract: {
+        reservation: {
             id: string;
             status: string;
         } | null;
-        reservation: {
+        contract: {
             id: string;
             status: string;
         } | null;
     } & {
         id: string;
         tenantId: string;
-        amount: import("@prisma/client-runtime-utils").Decimal;
-        date: Date;
-        method: string;
-        status: string;
         createdAt: Date;
+        status: string;
+        date: Date;
+        amount: import("@prisma/client-runtime-utils").Decimal;
+        method: string;
         contractId: string | null;
         reservationId: string | null;
     }>;
     update(tenantId: string, userId: string, id: string, input: UpdatePaymentInput): Promise<{
-        contract: {
+        reservation: {
             id: string;
             status: string;
         } | null;
-        reservation: {
+        contract: {
             id: string;
             status: string;
         } | null;
     } & {
         id: string;
         tenantId: string;
-        amount: import("@prisma/client-runtime-utils").Decimal;
-        date: Date;
-        method: string;
-        status: string;
         createdAt: Date;
+        status: string;
+        date: Date;
+        amount: import("@prisma/client-runtime-utils").Decimal;
+        method: string;
         contractId: string | null;
         reservationId: string | null;
     }>;
