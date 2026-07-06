@@ -1,78 +1,56 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
   Post,
-  Query,
+  UseGuards,
 } from '@nestjs/common';
-import { InMemoryService } from '../database/in-memory.service';
+import { ContractsService } from './contracts.service';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import type { AuthenticatedUser } from '../auth/auth.types';
 import type {
-  ContractTemplate,
-  GeneratedContractPdf,
-  LegalContractApproval,
-  SignedContract,
-} from '../database/in-memory.service';
+  CreateContractInput,
+  UpdateContractInput,
+} from './contracts.types';
 
-type CreateContractTemplateBody = Omit<ContractTemplate, 'id' | 'updatedAt'>;
-type GenerateContractPdfBody = Omit<GeneratedContractPdf, 'id' | 'generatedAt'>;
-type CreateLegalApprovalBody = Omit<
-  LegalContractApproval,
-  'id' | 'submittedAt'
->;
-type CreateSignedContractBody = Omit<SignedContract, 'id'>;
-
+@UseGuards(JwtAuthGuard)
 @Controller('contracts')
 export class ContractsController {
-  constructor(private readonly store: InMemoryService) {}
+  constructor(private readonly contracts: ContractsService) {}
 
-  @Get('templates')
-  listTemplates(@Query('tenantId') tenantId?: string) {
-    return this.store.listContractTemplates(tenantId);
+  @Get()
+  list(@CurrentUser() user: AuthenticatedUser) {
+    return this.contracts.list(user.tenantId);
   }
 
-  @Post('templates')
-  createTemplate(@Body() body: CreateContractTemplateBody) {
-    return this.store.createContractTemplate(body);
+  @Get(':id')
+  get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.contracts.get(user.tenantId, id);
   }
 
-  @Get('generated')
-  listGenerated(@Query('tenantId') tenantId?: string) {
-    return this.store.listGeneratedContractPdfs(tenantId);
-  }
-
-  @Post('generate')
-  generatePdf(@Body() body: GenerateContractPdfBody) {
-    return this.store.generateContractPdf(body);
-  }
-
-  @Get('approvals')
-  listApprovals(@Query('tenantId') tenantId?: string) {
-    return this.store.listLegalContractApprovals(tenantId);
-  }
-
-  @Post('approvals')
-  createApproval(@Body() body: CreateLegalApprovalBody) {
-    return this.store.createLegalContractApproval(body);
-  }
-
-  @Patch('approvals/:id/status')
-  updateApprovalStatus(
-    @Param('id') id: string,
-    @Body('status') status: LegalContractApproval['status'],
-    @Body('note') note?: string,
+  @Post()
+  create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: CreateContractInput,
   ) {
-    return this.store.updateLegalContractApprovalStatus(id, status, note);
+    return this.contracts.create(user.tenantId, user.id, body);
   }
 
-  @Get('signed')
-  listSigned(@Query('tenantId') tenantId?: string) {
-    return this.store.listSignedContracts(tenantId);
+  @Patch(':id')
+  update(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() body: UpdateContractInput,
+  ) {
+    return this.contracts.update(user.tenantId, user.id, id, body);
   }
 
-  @Post('signed')
-  createSigned(@Body() body: CreateSignedContractBody) {
-    return this.store.createSignedContract(body);
+  @Delete(':id')
+  remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.contracts.remove(user.tenantId, user.id, id);
   }
 }

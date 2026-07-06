@@ -14,111 +14,74 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PaymentsController = void 0;
 const common_1 = require("@nestjs/common");
-const in_memory_service_1 = require("../database/in-memory.service");
+const payments_service_1 = require("./payments.service");
+const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
+const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 let PaymentsController = class PaymentsController {
-    store;
-    constructor(store) {
-        this.store = store;
+    payments;
+    constructor(payments) {
+        this.payments = payments;
     }
-    listSchedule(tenantId, reservationId) {
-        return this.store.listPaymentSchedule(tenantId, reservationId);
+    list(user) {
+        return this.payments.list(user.tenantId);
     }
-    createSchedule(body) {
-        return this.store.createPaymentScheduleItem(body);
+    get(user, id) {
+        return this.payments.get(user.tenantId, id);
     }
-    listTransactions(tenantId, reservationId) {
-        return this.store.listPaymentTransactions(tenantId, reservationId);
+    create(user, body) {
+        return this.payments.create(user.tenantId, user.id, body);
     }
-    createTransaction(body) {
-        return this.store.createPaymentTransaction(body);
+    update(user, id, body) {
+        return this.payments.update(user.tenantId, user.id, id, body);
     }
-    listReceipts(tenantId, paymentId) {
-        return this.store.listReceiptUploads(tenantId, paymentId);
-    }
-    createReceipt(body) {
-        return this.store.createReceiptUpload(body);
-    }
-    listApprovals(tenantId) {
-        return this.store.listFinanceApprovals(tenantId);
-    }
-    createApproval(body) {
-        return this.store.createFinanceApproval(body);
-    }
-    updateApprovalStatus(id, status, note) {
-        return this.store.updateFinanceApprovalStatus(id, status, note);
+    remove(user, id) {
+        return this.payments.remove(user.tenantId, user.id, id);
     }
 };
 exports.PaymentsController = PaymentsController;
 __decorate([
-    (0, common_1.Get)('schedule'),
-    __param(0, (0, common_1.Query)('tenantId')),
-    __param(1, (0, common_1.Query)('reservationId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
-    __metadata("design:returntype", void 0)
-], PaymentsController.prototype, "listSchedule", null);
-__decorate([
-    (0, common_1.Post)('schedule'),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.Get)(),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
-], PaymentsController.prototype, "createSchedule", null);
+], PaymentsController.prototype, "list", null);
 __decorate([
-    (0, common_1.Get)('transactions'),
-    __param(0, (0, common_1.Query)('tenantId')),
-    __param(1, (0, common_1.Query)('reservationId')),
+    (0, common_1.Get)(':id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
-], PaymentsController.prototype, "listTransactions", null);
+], PaymentsController.prototype, "get", null);
 __decorate([
-    (0, common_1.Post)('transactions'),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.Post)(),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
-], PaymentsController.prototype, "createTransaction", null);
+], PaymentsController.prototype, "create", null);
 __decorate([
-    (0, common_1.Get)('receipts'),
-    __param(0, (0, common_1.Query)('tenantId')),
-    __param(1, (0, common_1.Query)('paymentId')),
+    (0, common_1.Patch)(':id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", void 0)
-], PaymentsController.prototype, "listReceipts", null);
+], PaymentsController.prototype, "update", null);
 __decorate([
-    (0, common_1.Post)('receipts'),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
-], PaymentsController.prototype, "createReceipt", null);
-__decorate([
-    (0, common_1.Get)('approvals'),
-    __param(0, (0, common_1.Query)('tenantId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], PaymentsController.prototype, "listApprovals", null);
-__decorate([
-    (0, common_1.Post)('approvals'),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], PaymentsController.prototype, "createApproval", null);
-__decorate([
-    (0, common_1.Patch)('approvals/:id/status'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)('status')),
-    __param(2, (0, common_1.Body)('note')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, String]),
-    __metadata("design:returntype", void 0)
-], PaymentsController.prototype, "updateApprovalStatus", null);
+], PaymentsController.prototype, "remove", null);
 exports.PaymentsController = PaymentsController = __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('payments'),
-    __metadata("design:paramtypes", [in_memory_service_1.InMemoryService])
+    __metadata("design:paramtypes", [payments_service_1.PaymentsService])
 ], PaymentsController);
 //# sourceMappingURL=payments.controller.js.map

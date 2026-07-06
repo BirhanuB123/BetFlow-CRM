@@ -1,84 +1,56 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
   Post,
-  Query,
+  UseGuards,
 } from '@nestjs/common';
-import { InMemoryService } from '../database/in-memory.service';
+import { PaymentsService } from './payments.service';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import type { AuthenticatedUser } from '../auth/auth.types';
 import type {
-  FinanceApproval,
-  PaymentScheduleItem,
-  PaymentTransaction,
-  ReceiptUpload,
-} from '../database/in-memory.service';
+  CreatePaymentInput,
+  UpdatePaymentInput,
+} from './payments.types';
 
-type CreatePaymentScheduleBody = Omit<PaymentScheduleItem, 'id'>;
-type CreatePaymentTransactionBody = Omit<PaymentTransaction, 'id'>;
-type CreateReceiptUploadBody = Omit<ReceiptUpload, 'id' | 'uploadedAt'>;
-type CreateFinanceApprovalBody = Omit<FinanceApproval, 'id' | 'submittedAt'>;
-
+@UseGuards(JwtAuthGuard)
 @Controller('payments')
 export class PaymentsController {
-  constructor(private readonly store: InMemoryService) {}
+  constructor(private readonly payments: PaymentsService) {}
 
-  @Get('schedule')
-  listSchedule(
-    @Query('tenantId') tenantId?: string,
-    @Query('reservationId') reservationId?: string,
+  @Get()
+  list(@CurrentUser() user: AuthenticatedUser) {
+    return this.payments.list(user.tenantId);
+  }
+
+  @Get(':id')
+  get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.payments.get(user.tenantId, id);
+  }
+
+  @Post()
+  create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: CreatePaymentInput,
   ) {
-    return this.store.listPaymentSchedule(tenantId, reservationId);
+    return this.payments.create(user.tenantId, user.id, body);
   }
 
-  @Post('schedule')
-  createSchedule(@Body() body: CreatePaymentScheduleBody) {
-    return this.store.createPaymentScheduleItem(body);
-  }
-
-  @Get('transactions')
-  listTransactions(
-    @Query('tenantId') tenantId?: string,
-    @Query('reservationId') reservationId?: string,
-  ) {
-    return this.store.listPaymentTransactions(tenantId, reservationId);
-  }
-
-  @Post('transactions')
-  createTransaction(@Body() body: CreatePaymentTransactionBody) {
-    return this.store.createPaymentTransaction(body);
-  }
-
-  @Get('receipts')
-  listReceipts(
-    @Query('tenantId') tenantId?: string,
-    @Query('paymentId') paymentId?: string,
-  ) {
-    return this.store.listReceiptUploads(tenantId, paymentId);
-  }
-
-  @Post('receipts')
-  createReceipt(@Body() body: CreateReceiptUploadBody) {
-    return this.store.createReceiptUpload(body);
-  }
-
-  @Get('approvals')
-  listApprovals(@Query('tenantId') tenantId?: string) {
-    return this.store.listFinanceApprovals(tenantId);
-  }
-
-  @Post('approvals')
-  createApproval(@Body() body: CreateFinanceApprovalBody) {
-    return this.store.createFinanceApproval(body);
-  }
-
-  @Patch('approvals/:id/status')
-  updateApprovalStatus(
+  @Patch(':id')
+  update(
+    @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
-    @Body('status') status: FinanceApproval['status'],
-    @Body('note') note?: string,
+    @Body() body: UpdatePaymentInput,
   ) {
-    return this.store.updateFinanceApprovalStatus(id, status, note);
+    return this.payments.update(user.tenantId, user.id, id, body);
+  }
+
+  @Delete(':id')
+  remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.payments.remove(user.tenantId, user.id, id);
   }
 }

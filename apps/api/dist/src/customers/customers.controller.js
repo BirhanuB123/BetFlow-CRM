@@ -14,36 +14,74 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CustomersController = void 0;
 const common_1 = require("@nestjs/common");
-const in_memory_service_1 = require("../database/in-memory.service");
+const customers_service_1 = require("./customers.service");
+const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
+const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 let CustomersController = class CustomersController {
-    store;
-    constructor(store) {
-        this.store = store;
+    customers;
+    constructor(customers) {
+        this.customers = customers;
     }
-    list(tenantId) {
-        return this.store.listCustomers(tenantId);
+    list(user) {
+        return this.customers.list(user.tenantId);
     }
-    create(body) {
-        return this.store.createCustomer(body);
+    get(user, id) {
+        return this.customers.get(user.tenantId, id);
+    }
+    create(user, body) {
+        return this.customers.create(user.tenantId, user.id, body);
+    }
+    update(user, id, body) {
+        return this.customers.update(user.tenantId, user.id, id, body);
+    }
+    remove(user, id) {
+        return this.customers.remove(user.tenantId, user.id, id);
     }
 };
 exports.CustomersController = CustomersController;
 __decorate([
     (0, common_1.Get)(),
-    __param(0, (0, common_1.Query)('tenantId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], CustomersController.prototype, "list", null);
-__decorate([
-    (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
+], CustomersController.prototype, "list", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], CustomersController.prototype, "get", null);
+__decorate([
+    (0, common_1.Post)(),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", void 0)
 ], CustomersController.prototype, "create", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", void 0)
+], CustomersController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], CustomersController.prototype, "remove", null);
 exports.CustomersController = CustomersController = __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('customers'),
-    __metadata("design:paramtypes", [in_memory_service_1.InMemoryService])
+    __metadata("design:paramtypes", [customers_service_1.CustomersService])
 ], CustomersController);
 //# sourceMappingURL=customers.controller.js.map

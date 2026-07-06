@@ -1,20 +1,91 @@
-import { InMemoryService } from '../database/in-memory.service';
-import type { FinanceApproval, PaymentScheduleItem, PaymentTransaction, ReceiptUpload } from '../database/in-memory.service';
-type CreatePaymentScheduleBody = Omit<PaymentScheduleItem, 'id'>;
-type CreatePaymentTransactionBody = Omit<PaymentTransaction, 'id'>;
-type CreateReceiptUploadBody = Omit<ReceiptUpload, 'id' | 'uploadedAt'>;
-type CreateFinanceApprovalBody = Omit<FinanceApproval, 'id' | 'submittedAt'>;
+import { PaymentsService } from './payments.service';
+import type { AuthenticatedUser } from '../auth/auth.types';
+import type { CreatePaymentInput, UpdatePaymentInput } from './payments.types';
 export declare class PaymentsController {
-    private readonly store;
-    constructor(store: InMemoryService);
-    listSchedule(tenantId?: string, reservationId?: string): PaymentScheduleItem[];
-    createSchedule(body: CreatePaymentScheduleBody): PaymentScheduleItem;
-    listTransactions(tenantId?: string, reservationId?: string): PaymentTransaction[];
-    createTransaction(body: CreatePaymentTransactionBody): PaymentTransaction;
-    listReceipts(tenantId?: string, paymentId?: string): ReceiptUpload[];
-    createReceipt(body: CreateReceiptUploadBody): ReceiptUpload;
-    listApprovals(tenantId?: string): FinanceApproval[];
-    createApproval(body: CreateFinanceApprovalBody): FinanceApproval;
-    updateApprovalStatus(id: string, status: FinanceApproval['status'], note?: string): FinanceApproval;
+    private readonly payments;
+    constructor(payments: PaymentsService);
+    list(user: AuthenticatedUser): import("@prisma/client").Prisma.PrismaPromise<({
+        contract: {
+            id: string;
+            status: string;
+        } | null;
+        reservation: {
+            id: string;
+            status: string;
+        } | null;
+    } & {
+        id: string;
+        tenantId: string;
+        amount: import("@prisma/client-runtime-utils").Decimal;
+        date: Date;
+        method: string;
+        status: string;
+        createdAt: Date;
+        contractId: string | null;
+        reservationId: string | null;
+    })[]>;
+    get(user: AuthenticatedUser, id: string): Promise<{
+        contract: {
+            id: string;
+            status: string;
+        } | null;
+        reservation: {
+            id: string;
+            status: string;
+        } | null;
+    } & {
+        id: string;
+        tenantId: string;
+        amount: import("@prisma/client-runtime-utils").Decimal;
+        date: Date;
+        method: string;
+        status: string;
+        createdAt: Date;
+        contractId: string | null;
+        reservationId: string | null;
+    }>;
+    create(user: AuthenticatedUser, body: CreatePaymentInput): Promise<{
+        contract: {
+            id: string;
+            status: string;
+        } | null;
+        reservation: {
+            id: string;
+            status: string;
+        } | null;
+    } & {
+        id: string;
+        tenantId: string;
+        amount: import("@prisma/client-runtime-utils").Decimal;
+        date: Date;
+        method: string;
+        status: string;
+        createdAt: Date;
+        contractId: string | null;
+        reservationId: string | null;
+    }>;
+    update(user: AuthenticatedUser, id: string, body: UpdatePaymentInput): Promise<{
+        contract: {
+            id: string;
+            status: string;
+        } | null;
+        reservation: {
+            id: string;
+            status: string;
+        } | null;
+    } & {
+        id: string;
+        tenantId: string;
+        amount: import("@prisma/client-runtime-utils").Decimal;
+        date: Date;
+        method: string;
+        status: string;
+        createdAt: Date;
+        contractId: string | null;
+        reservationId: string | null;
+    }>;
+    remove(user: AuthenticatedUser, id: string): Promise<{
+        id: string;
+        deleted: boolean;
+    }>;
 }
-export {};

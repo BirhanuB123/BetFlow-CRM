@@ -1,19 +1,56 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { Customer, InMemoryService } from '../database/in-memory.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { CustomersService } from './customers.service';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import type { AuthenticatedUser } from '../auth/auth.types';
+import type {
+  CreateCustomerInput,
+  UpdateCustomerInput,
+} from './customers.types';
 
-type CreateCustomerBody = Omit<Customer, 'id'>;
-
+@UseGuards(JwtAuthGuard)
 @Controller('customers')
 export class CustomersController {
-  constructor(private readonly store: InMemoryService) {}
+  constructor(private readonly customers: CustomersService) {}
 
   @Get()
-  list(@Query('tenantId') tenantId?: string) {
-    return this.store.listCustomers(tenantId);
+  list(@CurrentUser() user: AuthenticatedUser) {
+    return this.customers.list(user.tenantId);
+  }
+
+  @Get(':id')
+  get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.customers.get(user.tenantId, id);
   }
 
   @Post()
-  create(@Body() body: CreateCustomerBody) {
-    return this.store.createCustomer(body);
+  create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: CreateCustomerInput,
+  ) {
+    return this.customers.create(user.tenantId, user.id, body);
+  }
+
+  @Patch(':id')
+  update(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() body: UpdateCustomerInput,
+  ) {
+    return this.customers.update(user.tenantId, user.id, id, body);
+  }
+
+  @Delete(':id')
+  remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.customers.remove(user.tenantId, user.id, id);
   }
 }

@@ -14,108 +14,74 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContractsController = void 0;
 const common_1 = require("@nestjs/common");
-const in_memory_service_1 = require("../database/in-memory.service");
+const contracts_service_1 = require("./contracts.service");
+const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
+const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 let ContractsController = class ContractsController {
-    store;
-    constructor(store) {
-        this.store = store;
+    contracts;
+    constructor(contracts) {
+        this.contracts = contracts;
     }
-    listTemplates(tenantId) {
-        return this.store.listContractTemplates(tenantId);
+    list(user) {
+        return this.contracts.list(user.tenantId);
     }
-    createTemplate(body) {
-        return this.store.createContractTemplate(body);
+    get(user, id) {
+        return this.contracts.get(user.tenantId, id);
     }
-    listGenerated(tenantId) {
-        return this.store.listGeneratedContractPdfs(tenantId);
+    create(user, body) {
+        return this.contracts.create(user.tenantId, user.id, body);
     }
-    generatePdf(body) {
-        return this.store.generateContractPdf(body);
+    update(user, id, body) {
+        return this.contracts.update(user.tenantId, user.id, id, body);
     }
-    listApprovals(tenantId) {
-        return this.store.listLegalContractApprovals(tenantId);
-    }
-    createApproval(body) {
-        return this.store.createLegalContractApproval(body);
-    }
-    updateApprovalStatus(id, status, note) {
-        return this.store.updateLegalContractApprovalStatus(id, status, note);
-    }
-    listSigned(tenantId) {
-        return this.store.listSignedContracts(tenantId);
-    }
-    createSigned(body) {
-        return this.store.createSignedContract(body);
+    remove(user, id) {
+        return this.contracts.remove(user.tenantId, user.id, id);
     }
 };
 exports.ContractsController = ContractsController;
 __decorate([
-    (0, common_1.Get)('templates'),
-    __param(0, (0, common_1.Query)('tenantId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], ContractsController.prototype, "listTemplates", null);
-__decorate([
-    (0, common_1.Post)('templates'),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.Get)(),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
-], ContractsController.prototype, "createTemplate", null);
+], ContractsController.prototype, "list", null);
 __decorate([
-    (0, common_1.Get)('generated'),
-    __param(0, (0, common_1.Query)('tenantId')),
+    (0, common_1.Get)(':id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
-], ContractsController.prototype, "listGenerated", null);
+], ContractsController.prototype, "get", null);
 __decorate([
-    (0, common_1.Post)('generate'),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.Post)(),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
-], ContractsController.prototype, "generatePdf", null);
+], ContractsController.prototype, "create", null);
 __decorate([
-    (0, common_1.Get)('approvals'),
-    __param(0, (0, common_1.Query)('tenantId')),
+    (0, common_1.Patch)(':id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", void 0)
-], ContractsController.prototype, "listApprovals", null);
+], ContractsController.prototype, "update", null);
 __decorate([
-    (0, common_1.Post)('approvals'),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
-], ContractsController.prototype, "createApproval", null);
-__decorate([
-    (0, common_1.Patch)('approvals/:id/status'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)('status')),
-    __param(2, (0, common_1.Body)('note')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, String]),
-    __metadata("design:returntype", void 0)
-], ContractsController.prototype, "updateApprovalStatus", null);
-__decorate([
-    (0, common_1.Get)('signed'),
-    __param(0, (0, common_1.Query)('tenantId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], ContractsController.prototype, "listSigned", null);
-__decorate([
-    (0, common_1.Post)('signed'),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], ContractsController.prototype, "createSigned", null);
+], ContractsController.prototype, "remove", null);
 exports.ContractsController = ContractsController = __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('contracts'),
-    __metadata("design:paramtypes", [in_memory_service_1.InMemoryService])
+    __metadata("design:paramtypes", [contracts_service_1.ContractsService])
 ], ContractsController);
 //# sourceMappingURL=contracts.controller.js.map

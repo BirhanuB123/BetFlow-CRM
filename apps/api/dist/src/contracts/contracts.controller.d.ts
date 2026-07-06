@@ -1,20 +1,135 @@
-import { InMemoryService } from '../database/in-memory.service';
-import type { ContractTemplate, GeneratedContractPdf, LegalContractApproval, SignedContract } from '../database/in-memory.service';
-type CreateContractTemplateBody = Omit<ContractTemplate, 'id' | 'updatedAt'>;
-type GenerateContractPdfBody = Omit<GeneratedContractPdf, 'id' | 'generatedAt'>;
-type CreateLegalApprovalBody = Omit<LegalContractApproval, 'id' | 'submittedAt'>;
-type CreateSignedContractBody = Omit<SignedContract, 'id'>;
+import { ContractsService } from './contracts.service';
+import type { AuthenticatedUser } from '../auth/auth.types';
+import type { CreateContractInput, UpdateContractInput } from './contracts.types';
 export declare class ContractsController {
-    private readonly store;
-    constructor(store: InMemoryService);
-    listTemplates(tenantId?: string): ContractTemplate[];
-    createTemplate(body: CreateContractTemplateBody): ContractTemplate;
-    listGenerated(tenantId?: string): GeneratedContractPdf[];
-    generatePdf(body: GenerateContractPdfBody): GeneratedContractPdf;
-    listApprovals(tenantId?: string): LegalContractApproval[];
-    createApproval(body: CreateLegalApprovalBody): LegalContractApproval;
-    updateApprovalStatus(id: string, status: LegalContractApproval['status'], note?: string): LegalContractApproval;
-    listSigned(tenantId?: string): SignedContract[];
-    createSigned(body: CreateSignedContractBody): SignedContract;
+    private readonly contracts;
+    constructor(contracts: ContractsService);
+    list(user: AuthenticatedUser): import("@prisma/client").Prisma.PrismaPromise<({
+        unit: {
+            id: string;
+            unitNumber: string;
+            type: string;
+        };
+        customer: {
+            id: string;
+            firstName: string;
+            lastName: string;
+        };
+        deal: {
+            id: string;
+            name: string;
+        } | null;
+        _count: {
+            payments: number;
+            schedules: number;
+        };
+    } & {
+        id: string;
+        tenantId: string;
+        createdAt: Date;
+        startDate: Date;
+        endDate: Date | null;
+        status: string;
+        customerId: string;
+        unitId: string;
+        dealId: string | null;
+        totalAmt: import("@prisma/client-runtime-utils").Decimal;
+    })[]>;
+    get(user: AuthenticatedUser, id: string): Promise<{
+        unit: {
+            id: string;
+            unitNumber: string;
+            type: string;
+        };
+        customer: {
+            id: string;
+            firstName: string;
+            lastName: string;
+        };
+        deal: {
+            id: string;
+            name: string;
+        } | null;
+        _count: {
+            payments: number;
+            schedules: number;
+        };
+    } & {
+        id: string;
+        tenantId: string;
+        createdAt: Date;
+        startDate: Date;
+        endDate: Date | null;
+        status: string;
+        customerId: string;
+        unitId: string;
+        dealId: string | null;
+        totalAmt: import("@prisma/client-runtime-utils").Decimal;
+    }>;
+    create(user: AuthenticatedUser, body: CreateContractInput): Promise<{
+        unit: {
+            id: string;
+            unitNumber: string;
+            type: string;
+        };
+        customer: {
+            id: string;
+            firstName: string;
+            lastName: string;
+        };
+        deal: {
+            id: string;
+            name: string;
+        } | null;
+        _count: {
+            payments: number;
+            schedules: number;
+        };
+    } & {
+        id: string;
+        tenantId: string;
+        createdAt: Date;
+        startDate: Date;
+        endDate: Date | null;
+        status: string;
+        customerId: string;
+        unitId: string;
+        dealId: string | null;
+        totalAmt: import("@prisma/client-runtime-utils").Decimal;
+    }>;
+    update(user: AuthenticatedUser, id: string, body: UpdateContractInput): Promise<{
+        unit: {
+            id: string;
+            unitNumber: string;
+            type: string;
+        };
+        customer: {
+            id: string;
+            firstName: string;
+            lastName: string;
+        };
+        deal: {
+            id: string;
+            name: string;
+        } | null;
+        _count: {
+            payments: number;
+            schedules: number;
+        };
+    } & {
+        id: string;
+        tenantId: string;
+        createdAt: Date;
+        startDate: Date;
+        endDate: Date | null;
+        status: string;
+        customerId: string;
+        unitId: string;
+        dealId: string | null;
+        totalAmt: import("@prisma/client-runtime-utils").Decimal;
+    }>;
+    remove(user: AuthenticatedUser, id: string): Promise<{
+        id: string;
+        deleted: boolean;
+    }>;
 }
-export {};

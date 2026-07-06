@@ -14,47 +14,85 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DealsController = void 0;
 const common_1 = require("@nestjs/common");
-const in_memory_service_1 = require("../database/in-memory.service");
+const deals_service_1 = require("./deals.service");
+const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
+const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 let DealsController = class DealsController {
-    store;
-    constructor(store) {
-        this.store = store;
+    deals;
+    constructor(deals) {
+        this.deals = deals;
     }
-    list(tenantId) {
-        return this.store.listDeals(tenantId);
+    list(user) {
+        return this.deals.list(user.tenantId);
     }
-    create(body) {
-        return this.store.createDeal(body);
+    stages(user) {
+        return this.deals.listStages(user.tenantId);
     }
-    move(id, stage) {
-        return this.store.moveDeal(id, stage);
+    create(user, body) {
+        return this.deals.create(user.tenantId, user.id, body);
+    }
+    moveStage(user, id, body) {
+        return this.deals.moveStage(user.tenantId, user.id, id, body.stageId);
+    }
+    update(user, id, body) {
+        return this.deals.update(user.tenantId, user.id, id, body);
+    }
+    remove(user, id) {
+        return this.deals.remove(user.tenantId, user.id, id);
     }
 };
 exports.DealsController = DealsController;
 __decorate([
     (0, common_1.Get)(),
-    __param(0, (0, common_1.Query)('tenantId')),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], DealsController.prototype, "list", null);
 __decorate([
-    (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.Get)('stages'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], DealsController.prototype, "stages", null);
+__decorate([
+    (0, common_1.Post)(),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], DealsController.prototype, "create", null);
 __decorate([
     (0, common_1.Patch)(':id/stage'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)('stage')),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", void 0)
-], DealsController.prototype, "move", null);
+], DealsController.prototype, "moveStage", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", void 0)
+], DealsController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], DealsController.prototype, "remove", null);
 exports.DealsController = DealsController = __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('deals'),
-    __metadata("design:paramtypes", [in_memory_service_1.InMemoryService])
+    __metadata("design:paramtypes", [deals_service_1.DealsService])
 ], DealsController);
 //# sourceMappingURL=deals.controller.js.map

@@ -1,33 +1,66 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
   Post,
-  Query,
+  UseGuards,
 } from '@nestjs/common';
-import { InMemoryService } from '../database/in-memory.service';
-import type { Deal, LeadStage } from '../database/in-memory.service';
+import { DealsService } from './deals.service';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import type { AuthenticatedUser } from '../auth/auth.types';
+import type {
+  CreateDealInput,
+  MoveDealStageInput,
+  UpdateDealInput,
+} from './deals.types';
 
-type CreateDealBody = Omit<Deal, 'id'>;
-
+@UseGuards(JwtAuthGuard)
 @Controller('deals')
 export class DealsController {
-  constructor(private readonly store: InMemoryService) {}
+  constructor(private readonly deals: DealsService) {}
 
   @Get()
-  list(@Query('tenantId') tenantId?: string) {
-    return this.store.listDeals(tenantId);
+  list(@CurrentUser() user: AuthenticatedUser) {
+    return this.deals.list(user.tenantId);
+  }
+
+  @Get('stages')
+  stages(@CurrentUser() user: AuthenticatedUser) {
+    return this.deals.listStages(user.tenantId);
   }
 
   @Post()
-  create(@Body() body: CreateDealBody) {
-    return this.store.createDeal(body);
+  create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: CreateDealInput,
+  ) {
+    return this.deals.create(user.tenantId, user.id, body);
   }
 
   @Patch(':id/stage')
-  move(@Param('id') id: string, @Body('stage') stage: string) {
-    return this.store.moveDeal(id, stage as LeadStage);
+  moveStage(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() body: MoveDealStageInput,
+  ) {
+    return this.deals.moveStage(user.tenantId, user.id, id, body.stageId);
+  }
+
+  @Patch(':id')
+  update(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() body: UpdateDealInput,
+  ) {
+    return this.deals.update(user.tenantId, user.id, id, body);
+  }
+
+  @Delete(':id')
+  remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.deals.remove(user.tenantId, user.id, id);
   }
 }

@@ -297,6 +297,7 @@ model Contract {
   endDate    DateTime?
   totalAmt   Decimal   @db.Decimal(10, 2)
   status     String    @default("ACTIVE")
+  createdAt  DateTime  @default(now())
 
   payments  Payment[]
   schedules PaymentSchedule[]
@@ -310,6 +311,7 @@ model Payment {
   date     DateTime @default(now())
   method   String // e.g., CASH, CARD, TRANSFER
   status   String   @default("COMPLETED")
+  createdAt DateTime @default(now())
 
   contractId    String?
   contract      Contract?    @relation(fields: [contractId], references: [id])
