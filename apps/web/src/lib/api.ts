@@ -1,5 +1,5 @@
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api";
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
 
 type Session = {
   accessToken: string;
@@ -9,7 +9,10 @@ type Session = {
 
 export function getSession(): Session | null {
   if (typeof window === "undefined") return null;
-  const saved = window.localStorage.getItem("betflow-auth");
+  // Rembeber me
+  const saved =
+    window.localStorage.getItem("betflow-auth") ??
+    window.sessionStorage.getItem("betflow-auth");
   if (!saved) return null;
   try {
     return JSON.parse(saved) as Session;
@@ -34,10 +37,23 @@ export async function apiFetch<T>(
     headers,
   });
 
+  if (response.status === 401 && typeof window !== "undefined") {
+    clearSession();
+    if (!window.location.pathname.startsWith("/auth")) {
+      window.location.href = "/auth";
+    }
+  }
+
   if (!response.ok) {
     const message = await response.text().catch(() => "");
     throw new Error(message || `Request failed (${response.status})`);
   }
 
   return (await response.json()) as T;
+}
+
+export function clearSession() {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem("betflow-auth");
+  window.sessionStorage.removeItem("betflow-auth");
 }

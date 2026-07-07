@@ -7,6 +7,7 @@ export declare class ContractsController {
     list(user: AuthenticatedUser): import("@prisma/client").Prisma.PrismaPromise<({
         unit: {
             id: string;
+            status: string;
             unitNumber: string;
             type: string;
         };
@@ -38,6 +39,7 @@ export declare class ContractsController {
     get(user: AuthenticatedUser, id: string): Promise<{
         unit: {
             id: string;
+            status: string;
             unitNumber: string;
             type: string;
         };
@@ -69,6 +71,7 @@ export declare class ContractsController {
     create(user: AuthenticatedUser, body: CreateContractInput): Promise<{
         unit: {
             id: string;
+            status: string;
             unitNumber: string;
             type: string;
         };
@@ -100,6 +103,7 @@ export declare class ContractsController {
     update(user: AuthenticatedUser, id: string, body: UpdateContractInput): Promise<{
         unit: {
             id: string;
+            status: string;
             unitNumber: string;
             type: string;
         };

@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import {
   CreateContractInput,
@@ -11,7 +12,7 @@ import {
 
 const contractInclude = {
   customer: { select: { id: true, firstName: true, lastName: true } },
-  unit: { select: { id: true, unitNumber: true, type: true } },
+  unit: { select: { id: true, unitNumber: true, type: true, status: true } },
   deal: { select: { id: true, name: true } },
   _count: { select: { payments: true, schedules: true } },
 } as const;
@@ -123,6 +124,45 @@ export class ContractsService {
       const status = input.status.trim();
       if (!status) throw new BadRequestException('status cannot be empty');
       data.status = status;
+    }
+
+    // Signing a contract marks the unit as SOLD in the same transaction.
+    const becomesSigned =
+      typeof data.status === 'string' &&
+      data.status.toUpperCase() === 'SIGNED' &&
+      existing.status.toUpperCase() !== 'SIGNED';
+
+    if (becomesSigned) {
+      const unitId = (data.unitId as string | undefined) ?? existing.unitId;
+
+      return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const contract = await tx.contract.update({
+          where: { id },
+          data,
+          include: contractInclude,
+        });
+
+        await tx.unit.update({
+          where: { id: unitId },
+          data: { status: 'SOLD' },
+        });
+
+        await tx.auditLog.create({
+          data: {
+            tenantId,
+            userId,
+            action: 'contract.signed',
+            entityType: 'Contract',
+            entityId: contract.id,
+            newValues: { unitStatus: 'SOLD' },
+          },
+        });
+
+        return {
+          ...contract,
+          unit: { ...contract.unit, status: 'SOLD' },
+        };
+      });
     }
 
     const contract = await this.prisma.contract.update({

@@ -14,7 +14,7 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../database/prisma.service");
 const contractInclude = {
     customer: { select: { id: true, firstName: true, lastName: true } },
-    unit: { select: { id: true, unitNumber: true, type: true } },
+    unit: { select: { id: true, unitNumber: true, type: true, status: true } },
     deal: { select: { id: true, name: true } },
     _count: { select: { payments: true, schedules: true } },
 };
@@ -111,6 +111,37 @@ let ContractsService = class ContractsService {
             if (!status)
                 throw new common_1.BadRequestException('status cannot be empty');
             data.status = status;
+        }
+        const becomesSigned = typeof data.status === 'string' &&
+            data.status.toUpperCase() === 'SIGNED' &&
+            existing.status.toUpperCase() !== 'SIGNED';
+        if (becomesSigned) {
+            const unitId = data.unitId ?? existing.unitId;
+            return this.prisma.$transaction(async (tx) => {
+                const contract = await tx.contract.update({
+                    where: { id },
+                    data,
+                    include: contractInclude,
+                });
+                await tx.unit.update({
+                    where: { id: unitId },
+                    data: { status: 'SOLD' },
+                });
+                await tx.auditLog.create({
+                    data: {
+                        tenantId,
+                        userId,
+                        action: 'contract.signed',
+                        entityType: 'Contract',
+                        entityId: contract.id,
+                        newValues: { unitStatus: 'SOLD' },
+                    },
+                });
+                return {
+                    ...contract,
+                    unit: { ...contract.unit, status: 'SOLD' },
+                };
+            });
         }
         const contract = await this.prisma.contract.update({
             where: { id },

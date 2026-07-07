@@ -1,40 +1,71 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { InMemoryService } from '../database/in-memory.service';
-import type { Unit, UnitStatus } from '../database/in-memory.service';
+import { UnitsService } from './units.service';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import type { AuthenticatedUser } from '../auth/auth.types';
+import type {
+  CreateUnitInput,
+  UpdateUnitInput,
+  UpdateUnitStatusInput,
+} from './units.types';
 
-type CreateUnitBody = Omit<Unit, 'id'>;
-
+@UseGuards(JwtAuthGuard)
 @Controller('units')
 export class UnitsController {
-  constructor(private readonly store: InMemoryService) {}
+  constructor(private readonly units: UnitsService) {}
 
   @Get()
   list(
-    @Query('tenantId') tenantId?: string,
-    @Query('status') status?: UnitStatus,
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('status') status?: string,
+    @Query('floorId') floorId?: string,
   ) {
-    return this.store.listUnits(tenantId, status);
+    return this.units.list(user.tenantId, { status, floorId });
+  }
+
+  @Get(':id')
+  get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.units.get(user.tenantId, id);
   }
 
   @Post()
-  create(@Body() body: CreateUnitBody) {
-    return this.store.createUnit(body);
+  create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: CreateUnitInput,
+  ) {
+    return this.units.create(user.tenantId, user.id, body);
   }
 
   @Patch(':id/status')
   updateStatus(
+    @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
-    @Body('status') status: UnitStatus,
-    @Body('availableFrom') availableFrom?: string,
+    @Body() body: UpdateUnitStatusInput,
   ) {
-    return this.store.updateUnitStatus(id, status, availableFrom);
+    return this.units.updateStatus(user.tenantId, user.id, id, body.status);
+  }
+
+  @Patch(':id')
+  update(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() body: UpdateUnitInput,
+  ) {
+    return this.units.update(user.tenantId, user.id, id, body);
+  }
+
+  @Delete(':id')
+  remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.units.remove(user.tenantId, user.id, id);
   }
 }

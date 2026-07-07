@@ -56,7 +56,11 @@ function useStoredSession(): StoredSession | null {
       window.addEventListener("storage", onChange);
       return () => window.removeEventListener("storage", onChange);
     },
-    () => (typeof window === "undefined" ? null : window.localStorage.getItem("betflow-auth")),
+    () =>
+      typeof window === "undefined"
+        ? null
+        : (window.localStorage.getItem("betflow-auth") ??
+          window.sessionStorage.getItem("betflow-auth")),
     () => null,
   );
 
@@ -79,7 +83,7 @@ const moduleNavItems = [
   { label: "Leads", href: "/leads", icon: UserRoundCheck },
   { label: "Contacts", href: "/customers", icon: UsersRound, aliases: ["Customers"] },
   { label: "Accounts", href: "/properties", icon: Building, aliases: ["Properties"] },
-  { label: "Deals", href: "/deals", icon: CircleDollarSign },
+  { label: "Deals", href: "/deals", icon: CircleDollarSign},
   { label: "Tasks", href: "/tasks", icon: ClipboardList },
   { label: "Meetings", href: "/site-visits", icon: CalendarDays, aliases: ["Site visits"] },
   { label: "Calls", href: "/notifications/follow-ups", icon: Phone },
@@ -378,6 +382,7 @@ export function DashboardShell({
   const signOut = () => {
     if (typeof window !== "undefined") {
       window.localStorage.removeItem("betflow-auth");
+      window.sessionStorage.removeItem("betflow-auth");
     }
     router.push("/auth");
   };

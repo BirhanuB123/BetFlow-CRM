@@ -1,10 +1,12 @@
-import { UnitsService } from './units.service';
-import type { AuthenticatedUser } from '../auth/auth.types';
-import type { CreateUnitInput, UpdateUnitInput, UpdateUnitStatusInput } from './units.types';
-export declare class UnitsController {
-    private readonly units;
-    constructor(units: UnitsService);
-    list(user: AuthenticatedUser, status?: string, floorId?: string): import("@prisma/client").Prisma.PrismaPromise<({
+import { PrismaService } from '../database/prisma.service';
+import { CreateUnitInput, UpdateUnitInput } from './units.types';
+export declare class UnitsService {
+    private readonly prisma;
+    constructor(prisma: PrismaService);
+    list(tenantId: string, filters?: {
+        status?: string;
+        floorId?: string;
+    }): import("@prisma/client").Prisma.PrismaPromise<({
         floor: {
             id: string;
             name: string | null;
@@ -33,7 +35,7 @@ export declare class UnitsController {
         area: number | null;
         floorId: string;
     })[]>;
-    get(user: AuthenticatedUser, id: string): Promise<{
+    get(tenantId: string, id: string): Promise<{
         floor: {
             id: string;
             name: string | null;
@@ -62,7 +64,7 @@ export declare class UnitsController {
         area: number | null;
         floorId: string;
     }>;
-    create(user: AuthenticatedUser, body: CreateUnitInput): Promise<{
+    create(tenantId: string, userId: string, input: CreateUnitInput): Promise<{
         floor: {
             id: string;
             name: string | null;
@@ -91,7 +93,7 @@ export declare class UnitsController {
         area: number | null;
         floorId: string;
     }>;
-    updateStatus(user: AuthenticatedUser, id: string, body: UpdateUnitStatusInput): Promise<{
+    update(tenantId: string, userId: string, id: string, input: UpdateUnitInput): Promise<{
         floor: {
             id: string;
             name: string | null;
@@ -120,7 +122,7 @@ export declare class UnitsController {
         area: number | null;
         floorId: string;
     }>;
-    update(user: AuthenticatedUser, id: string, body: UpdateUnitInput): Promise<{
+    updateStatus(tenantId: string, userId: string, id: string, status: string): Promise<{
         floor: {
             id: string;
             name: string | null;
@@ -149,8 +151,12 @@ export declare class UnitsController {
         area: number | null;
         floorId: string;
     }>;
-    remove(user: AuthenticatedUser, id: string): Promise<{
+    remove(tenantId: string, userId: string, id: string): Promise<{
         id: string;
         deleted: boolean;
     }>;
+    private normalizeStatus;
+    private normalizePrice;
+    private assertFloorBelongsToTenant;
+    private recordAudit;
 }

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
+import { clearSession, getSession } from "@/lib/api";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
 
@@ -51,14 +52,47 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("betflow-auth");
-    if (saved) {
-      router.replace("/dashboard");
+    // Only redirect if the saved session is still valid; otherwise clear it
+    // so the login/register forms stay reachable after token expiry.
+    const session = getSession();
+    if (!session?.accessToken) {
+      clearSession();
+      return;
     }
+
+    let cancelled = false;
+    fetch(`${API_BASE_URL}/auth/me`, {
+      headers: { Authorization: `Bearer ${session.accessToken}` },
+    })
+      .then((response) => {
+        if (cancelled) return;
+        if (response.ok) {
+          router.replace("/dashboard");
+        } else {
+          clearSession();
+        }
+      })
+      .catch(() => {
+        // API unreachable: keep the session, stay on the form.
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [router]);
 
   const persistSession = (payload: { accessToken: string; tenant: unknown; user: unknown }) => {
     window.localStorage.setItem("betflow-auth", JSON.stringify(payload));
+  };
+
+  const readErrorMessage = async (response: Response, fallback: string) => {
+    try {
+      const body = (await response.json()) as { message?: string | string[] };
+      if (Array.isArray(body.message)) return body.message.join(", ");
+      return body.message || fallback;
+    } catch {
+      return fallback;
+    }
   };
 
   const handleRegister = async (event: FormEvent<HTMLFormElement>) => {
@@ -83,7 +117,9 @@ export default function AuthPage() {
       });
 
       if (!registerResponse.ok) {
-        throw new Error("Unable to create the tenant workspace.");
+        throw new Error(
+          await readErrorMessage(registerResponse, "Unable to create the tenant workspace."),
+        );
       }
 
       const loginResponse = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -97,7 +133,9 @@ export default function AuthPage() {
       });
 
       if (!loginResponse.ok) {
-        throw new Error("Registration succeeded, but login failed.");
+        throw new Error(
+          await readErrorMessage(loginResponse, "Registration succeeded, but login failed."),
+        );
       }
 
       const session = await loginResponse.json();
@@ -125,7 +163,9 @@ export default function AuthPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Unable to sign in with those credentials.");
+        throw new Error(
+          await readErrorMessage(response, "Unable to sign in with those credentials."),
+        );
       }
 
       const session = await response.json();
@@ -255,7 +295,7 @@ export default function AuthPage() {
                   />
                 </span>
               </label>
-              <Button className="mt-2 h-10 bg-[#0E6E63] text-white hover:bg-[#0b5c52]" disabled={loading}>
+              <Button type="submit" className="mt-2 h-10 bg-[#0E6E63] text-white hover:bg-[#0b5c52]" disabled={loading}>
                 {loading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
@@ -322,13 +362,13 @@ export default function AuthPage() {
                     className="w-full bg-transparent text-sm outline-none placeholder:text-zinc-400"
                     value={registerState.password}
                     onChange={(event) => setRegisterState((current) => ({ ...current, password: event.target.value }))}
-                    placeholder="Minimum 12 characters"
+                    placeholder="Minimum 8 characters"
                     type="password"
                     required
                   />
                 </span>
               </label>
-              <Button className="mt-2 h-10 bg-[#0E6E63] text-white hover:bg-[#0b5c52]" disabled={loading}>
+              <Button type="submit" className="mt-2 h-10 bg-[#0E6E63] text-white hover:bg-[#0b5c52]" disabled={loading}>
                 {loading ? "Creating tenant..." : "Create tenant"}
               </Button>
             </form>

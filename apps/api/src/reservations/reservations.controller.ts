@@ -1,36 +1,71 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
   Post,
-  Query,
+  UseGuards,
 } from '@nestjs/common';
-import { InMemoryService } from '../database/in-memory.service';
-import type { Reservation } from '../database/in-memory.service';
+import { ReservationsService } from './reservations.service';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import type { AuthenticatedUser } from '../auth/auth.types';
+import type {
+  CreateReservationInput,
+  UpdateReservationInput,
+  UpdateReservationStatusInput,
+} from './reservations.types';
 
-type CreateReservationBody = Omit<Reservation, 'id'>;
-
+@UseGuards(JwtAuthGuard)
 @Controller('reservations')
 export class ReservationsController {
-  constructor(private readonly store: InMemoryService) {}
+  constructor(private readonly reservations: ReservationsService) {}
 
   @Get()
-  list(@Query('tenantId') tenantId?: string) {
-    return this.store.listReservations(tenantId);
+  list(@CurrentUser() user: AuthenticatedUser) {
+    return this.reservations.list(user.tenantId);
+  }
+
+  @Get(':id')
+  get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.reservations.get(user.tenantId, id);
   }
 
   @Post()
-  create(@Body() body: CreateReservationBody) {
-    return this.store.createReservation(body);
+  create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: CreateReservationInput,
+  ) {
+    return this.reservations.create(user.tenantId, user.id, body);
   }
 
   @Patch(':id/status')
   updateStatus(
+    @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
-    @Body('status') status: Reservation['status'],
+    @Body() body: UpdateReservationStatusInput,
   ) {
-    return this.store.updateReservationStatus(id, status);
+    return this.reservations.updateStatus(
+      user.tenantId,
+      user.id,
+      id,
+      body.status,
+    );
+  }
+
+  @Patch(':id')
+  update(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() body: UpdateReservationInput,
+  ) {
+    return this.reservations.update(user.tenantId, user.id, id, body);
+  }
+
+  @Delete(':id')
+  remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.reservations.remove(user.tenantId, user.id, id);
   }
 }
