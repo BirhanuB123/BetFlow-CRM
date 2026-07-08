@@ -19,12 +19,50 @@ export declare class CustomersService {
         phone: string | null;
     })[]>;
     get(tenantId: string, id: string): Promise<{
-        _count: {
-            deals: number;
-            reservations: number;
-            contracts: number;
-        };
-    } & {
+        payments: {
+            id: string;
+            status: string;
+            date: Date;
+            amount: import("@prisma/client-runtime-utils").Decimal;
+            method: string;
+            contractId: string | null;
+            reservationId: string | null;
+        }[];
+        deals: {
+            id: string;
+            createdAt: Date;
+            name: string;
+            unit: {
+                id: string;
+                unitNumber: string;
+            } | null;
+            value: import("@prisma/client-runtime-utils").Decimal;
+            stage: {
+                id: string;
+                name: string;
+                probability: number;
+            };
+        }[];
+        reservations: {
+            id: string;
+            status: string;
+            unit: {
+                id: string;
+                unitNumber: string;
+            };
+            date: Date;
+            amount: import("@prisma/client-runtime-utils").Decimal;
+        }[];
+        contracts: {
+            id: string;
+            startDate: Date;
+            status: string;
+            unit: {
+                id: string;
+                unitNumber: string;
+            };
+            totalAmt: import("@prisma/client-runtime-utils").Decimal;
+        }[];
         id: string;
         email: string | null;
         tenantId: string;

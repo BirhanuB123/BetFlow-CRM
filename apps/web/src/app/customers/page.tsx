@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { Plus, Trash2, X } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
@@ -161,9 +162,13 @@ export default function CustomersPage() {
           <CrmTable
             columns={["Customer", "Email", "Phone", "Deals", "Contracts", ""]}
             rows={customers.map((customer) => [
-              <p key="name" className="font-medium">
+              <Link
+                key="name"
+                href={`/customers/${customer.id}`}
+                className="font-medium text-[#334cff] hover:underline"
+              >
                 {customer.firstName} {customer.lastName}
-              </p>,
+              </Link>,
               customer.email ?? "—",
               customer.phone ?? "—",
               customer._count.deals,

@@ -30,12 +30,63 @@ let CustomersService = class CustomersService {
     async get(tenantId, id) {
         const customer = await this.prisma.customer.findFirst({
             where: { id, tenantId },
-            include: customerInclude,
+            include: {
+                deals: {
+                    select: {
+                        id: true,
+                        name: true,
+                        value: true,
+                        createdAt: true,
+                        stage: { select: { id: true, name: true, probability: true } },
+                        unit: { select: { id: true, unitNumber: true } },
+                    },
+                    orderBy: { createdAt: 'desc' },
+                },
+                contracts: {
+                    select: {
+                        id: true,
+                        totalAmt: true,
+                        status: true,
+                        startDate: true,
+                        unit: { select: { id: true, unitNumber: true } },
+                    },
+                    orderBy: { createdAt: 'desc' },
+                },
+                reservations: {
+                    select: {
+                        id: true,
+                        amount: true,
+                        status: true,
+                        date: true,
+                        unit: { select: { id: true, unitNumber: true } },
+                    },
+                    orderBy: { date: 'desc' },
+                },
+            },
         });
         if (!customer) {
             throw new common_1.NotFoundException(`Customer ${id} was not found`);
         }
-        return customer;
+        const payments = await this.prisma.payment.findMany({
+            where: {
+                tenantId,
+                OR: [
+                    { contract: { customerId: id } },
+                    { reservation: { customerId: id } },
+                ],
+            },
+            select: {
+                id: true,
+                amount: true,
+                method: true,
+                status: true,
+                date: true,
+                contractId: true,
+                reservationId: true,
+            },
+            orderBy: { date: 'desc' },
+        });
+        return { ...customer, payments };
     }
     async create(tenantId, userId, input) {
         const firstName = input.firstName?.trim();

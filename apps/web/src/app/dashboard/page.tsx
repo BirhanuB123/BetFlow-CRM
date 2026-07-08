@@ -211,7 +211,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="mt-3">
-        <ActivityTimeline title="Recent activity" limit={25} />
+        <ActivityTimeline title="Recent activity" limit={15} />
       </div>
     </DashboardShell>
   );
