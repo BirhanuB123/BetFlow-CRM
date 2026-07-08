@@ -1,9 +1,16 @@
-import { Activity, InMemoryService } from '../database/in-memory.service';
-type CreateActivityBody = Omit<Activity, 'id' | 'createdAt'>;
+import { ActivitiesService } from './activities.service';
+import type { AuthenticatedUser } from '../auth/auth.types';
 export declare class ActivitiesController {
-    private readonly store;
-    constructor(store: InMemoryService);
-    list(tenantId?: string): Activity[];
-    create(body: CreateActivityBody): Activity;
+    private readonly activities;
+    constructor(activities: ActivitiesService);
+    list(user: AuthenticatedUser, entityType?: string, entityId?: string, limit?: string): Promise<{
+        id: string;
+        action: string;
+        label: string;
+        detail: string | null;
+        entityType: string;
+        entityId: string;
+        actor: string;
+        createdAt: Date;
+    }[]>;
 }
-export {};

@@ -1,19 +1,25 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { Activity, InMemoryService } from '../database/in-memory.service';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { ActivitiesService } from './activities.service';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import type { AuthenticatedUser } from '../auth/auth.types';
 
-type CreateActivityBody = Omit<Activity, 'id' | 'createdAt'>;
-
+@UseGuards(JwtAuthGuard)
 @Controller('activities')
 export class ActivitiesController {
-  constructor(private readonly store: InMemoryService) {}
+  constructor(private readonly activities: ActivitiesService) {}
 
   @Get()
-  list(@Query('tenantId') tenantId?: string) {
-    return this.store.listActivities(tenantId);
-  }
-
-  @Post()
-  create(@Body() body: CreateActivityBody) {
-    return this.store.recordActivity(body);
+  list(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('entityType') entityType?: string,
+    @Query('entityId') entityId?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.activities.list(user.tenantId, {
+      entityType,
+      entityId,
+      limit: limit ? Number(limit) : undefined,
+    });
   }
 }

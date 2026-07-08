@@ -31,6 +31,7 @@ import {
   Plus,
   RotateCw,
   Route,
+  ScrollText,
   Search,
   Settings,
   ShoppingBag,
@@ -93,6 +94,7 @@ const moduleNavItems = [
   { label: "Projects", href: "/projects", icon: Building2 },
   { label: "Units", href: "/units", icon: SquareStack },
   { label: "Reservations", href: "/reservations", icon: ShoppingBag },
+  { label: "Contracts", href: "/contracts", icon: ScrollText },
 ];
 
 const utilityNavItems = [

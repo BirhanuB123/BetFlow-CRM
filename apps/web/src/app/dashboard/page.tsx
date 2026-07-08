@@ -1,6 +1,7 @@
 import { Building, CalendarDays, ChevronLeft, ChevronRight, ClipboardList, WalletCards } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { ActivityTimeline } from "@/components/activity/activity-timeline";
 
 const openTasks = [
   ["Register for upcoming CRM Webinars", "Jun 29, 2026", "Not Started", "Low", "King (Sample)", "Kristin Smith (Sample)"],
@@ -207,6 +208,10 @@ export default function DashboardPage() {
           rows={closingDeals}
           range="1 - 8"
         />
+      </div>
+
+      <div className="mt-3">
+        <ActivityTimeline title="Recent activity" limit={25} />
       </div>
     </DashboardShell>
   );

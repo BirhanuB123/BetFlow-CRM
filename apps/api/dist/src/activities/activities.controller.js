@@ -14,36 +14,36 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ActivitiesController = void 0;
 const common_1 = require("@nestjs/common");
-const in_memory_service_1 = require("../database/in-memory.service");
+const activities_service_1 = require("./activities.service");
+const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
+const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 let ActivitiesController = class ActivitiesController {
-    store;
-    constructor(store) {
-        this.store = store;
+    activities;
+    constructor(activities) {
+        this.activities = activities;
     }
-    list(tenantId) {
-        return this.store.listActivities(tenantId);
-    }
-    create(body) {
-        return this.store.recordActivity(body);
+    list(user, entityType, entityId, limit) {
+        return this.activities.list(user.tenantId, {
+            entityType,
+            entityId,
+            limit: limit ? Number(limit) : undefined,
+        });
     }
 };
 exports.ActivitiesController = ActivitiesController;
 __decorate([
     (0, common_1.Get)(),
-    __param(0, (0, common_1.Query)('tenantId')),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Query)('entityType')),
+    __param(2, (0, common_1.Query)('entityId')),
+    __param(3, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String, String, String]),
     __metadata("design:returntype", void 0)
 ], ActivitiesController.prototype, "list", null);
-__decorate([
-    (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], ActivitiesController.prototype, "create", null);
 exports.ActivitiesController = ActivitiesController = __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('activities'),
-    __metadata("design:paramtypes", [in_memory_service_1.InMemoryService])
+    __metadata("design:paramtypes", [activities_service_1.ActivitiesService])
 ], ActivitiesController);
 //# sourceMappingURL=activities.controller.js.map
