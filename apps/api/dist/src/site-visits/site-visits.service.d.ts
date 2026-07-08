@@ -1,10 +1,12 @@
-import { SiteVisitsService } from './site-visits.service';
-import type { AuthenticatedUser } from '../auth/auth.types';
-import type { CreateSiteVisitInput, UpdateSiteVisitInput, UpdateSiteVisitStatusInput } from './site-visits.types';
-export declare class SiteVisitsController {
-    private readonly siteVisits;
-    constructor(siteVisits: SiteVisitsService);
-    list(user: AuthenticatedUser, status?: string, upcoming?: string): import("@prisma/client").Prisma.PrismaPromise<({
+import { PrismaService } from '../database/prisma.service';
+import { CreateSiteVisitInput, UpdateSiteVisitInput } from './site-visits.types';
+export declare class SiteVisitsService {
+    private readonly prisma;
+    constructor(prisma: PrismaService);
+    list(tenantId: string, filters?: {
+        status?: string;
+        upcoming?: boolean;
+    }): import("@prisma/client").Prisma.PrismaPromise<({
         customer: {
             id: string;
             firstName: string;
@@ -24,7 +26,7 @@ export declare class SiteVisitsController {
         date: Date;
         leadId: string | null;
     })[]>;
-    get(user: AuthenticatedUser, id: string): Promise<{
+    get(tenantId: string, id: string): Promise<{
         customer: {
             id: string;
             firstName: string;
@@ -44,7 +46,7 @@ export declare class SiteVisitsController {
         date: Date;
         leadId: string | null;
     }>;
-    create(user: AuthenticatedUser, body: CreateSiteVisitInput): Promise<{
+    create(tenantId: string, userId: string, input: CreateSiteVisitInput): Promise<{
         customer: {
             id: string;
             firstName: string;
@@ -64,7 +66,7 @@ export declare class SiteVisitsController {
         date: Date;
         leadId: string | null;
     }>;
-    updateStatus(user: AuthenticatedUser, id: string, body: UpdateSiteVisitStatusInput): Promise<{
+    update(tenantId: string, userId: string, id: string, input: UpdateSiteVisitInput): Promise<{
         customer: {
             id: string;
             firstName: string;
@@ -84,7 +86,7 @@ export declare class SiteVisitsController {
         date: Date;
         leadId: string | null;
     }>;
-    update(user: AuthenticatedUser, id: string, body: UpdateSiteVisitInput): Promise<{
+    updateStatus(tenantId: string, userId: string, id: string, status: string): Promise<{
         customer: {
             id: string;
             firstName: string;
@@ -104,8 +106,13 @@ export declare class SiteVisitsController {
         date: Date;
         leadId: string | null;
     }>;
-    remove(user: AuthenticatedUser, id: string): Promise<{
+    remove(tenantId: string, userId: string, id: string): Promise<{
         id: string;
         deleted: boolean;
     }>;
+    private normalizeStatus;
+    private normalizeDate;
+    private assertLeadBelongsToTenant;
+    private assertCustomerBelongsToTenant;
+    private recordAudit;
 }

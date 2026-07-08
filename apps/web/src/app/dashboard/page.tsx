@@ -1,218 +1,335 @@
-import { Building, CalendarDays, ChevronLeft, ChevronRight, ClipboardList, WalletCards } from "lucide-react";
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import {
+  CalendarDays,
+  ClipboardList,
+  UserRoundCheck,
+  WalletCards,
+} from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { ActivityTimeline } from "@/components/activity/activity-timeline";
+import { apiFetch } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
-const openTasks = [
-  ["Register for upcoming CRM Webinars", "Jun 29, 2026", "Not Started", "Low", "King (Sample)", "Kristin Smith (Sample)"],
-  ["Refer CRM Videos", "Jul 1, 2026", "In Progress", "Normal", "Morlong Associates", "Mitchel Tollner (Sample)"],
-  ["Competitor Comparison Document", "Jun 27, 2026", "Not Started", "Highest", "Feltz Printing Service", "Capla Paprocki (Sample)"],
-  ["Get Approval from Manager", "Jun 28, 2026", "Not Started", "Low", "Chapman", "Sira Morres (Sample)"],
-  ["Invite prospects for product demo", "Jun 30, 2026", "Deferred", "Normal", "Commercial Press", "Leota Dilliard (Sample)"],
-];
+type Assignee = { id: string; firstName: string; lastName: string } | null;
+type PersonRef = { id: string; firstName: string; lastName: string } | null;
 
-const meetings = [
-  ["Demo", "Jun 29, 2026 01:26 PM", "Jun 29, 2026 02:26 PM", "Printing Dimensions", "Donette Foller (Sample)"],
-  ["Webinar", "Jun 29, 2026 03:26 PM", "Jun 29, 2026 04:26 PM", "Commercial Press (Sample)", "Leota Dilliard (Sample)"],
-  ["TradeShow", "Jun 28, 2026 08:00 PM", "Jun 29, 2026 07:59 PM", "Chemel", "James Venere (Sample)"],
-  ["Webinar", "Jun 29, 2026 02:26 PM", "Jun 29, 2026 05:26 PM", "Chanay (Sample)", "Josephine Darakjy (Sample)"],
-  ["Seminar", "Jun 29, 2026 01:26 PM", "Jun 29, 2026 03:26 PM", "Carissa Kidman (Sample)", ""],
-  ["Attend Customer conference", "Jun 28, 2026 08:00 PM", "Jun 29, 2026 07:59 PM", "Feltz Printing Service", "Capla Paprocki (Sample)"],
-];
+type Task = {
+  id: string;
+  title: string;
+  status: string;
+  dueDate: string | null;
+  assignee: Assignee;
+  entityType: string | null;
+  entityId: string | null;
+};
 
-const closingDeals = [
-  ["King", "$ 60,000.00", "Id. Decision Makers", "Jul 2, 2026", "King (Sample)", "Kristin Smith (Sample)"],
-  ["Commercial Press", "$ 45,000.00", "Closed Lost", "Jul 1, 2026", "Commercial Press (Sample)", "Leota Dilliard (Sample)"],
-  ["Morlong Associates", "$ 35,000.00", "Closed Won", "Jul 2, 2026", "Morlong Associates (Sample)", "Mitchel Tollner (Sample)"],
-  ["Printing Dimensions", "$ 25,000.00", "Proposal/Price Quote", "Jul 5, 2026", "Printing Dimensions", "Donette Foller (Sample)"],
-  ["Feltz Printing Service", "$ 18,500.00", "Negotiation", "Jul 8, 2026", "Feltz Printing Service", "Capla Paprocki (Sample)"],
-];
+type SiteVisit = {
+  id: string;
+  date: string;
+  status: string;
+  notes: string | null;
+  lead: PersonRef;
+  customer: PersonRef;
+};
 
-const avatarColors = ["bg-[#d9b18f]", "bg-[#9ec4d8]", "bg-[#7ea46d]", "bg-[#c89a72]", "bg-[#b4c99a]"];
+type Deal = {
+  id: string;
+  name: string;
+  value: string;
+  stage: { id: string; name: string };
+  customer: { id: string; firstName: string; lastName: string };
+  unit: { id: string; unitNumber: string } | null;
+};
 
-function initials(name: string) {
-  return name
-    .replace("(Sample)", "")
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
+type Lead = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  company: string | null;
+  status: string;
+  createdAt: string;
+  source: { id: string; name: string } | null;
+};
+
+const currency = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
+function money(value: string | number) {
+  const parsed = typeof value === "string" ? Number(value) : value;
+  return Number.isNaN(parsed) ? String(value) : currency.format(parsed);
+}
+function fmtDate(iso: string | null) {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+function isToday(iso: string) {
+  const d = new Date(iso);
+  const now = new Date();
+  return (
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  );
 }
 
-function ContactCell({ name, index }: { name: string; index: number }) {
-  if (!name) {
-    return <span className="text-[#7d8aa0]">-</span>;
-  }
-
+const badge = "rounded-md px-2 py-0.5 text-xs font-medium";
+const statusTone: Record<string, string> = {
+  TODO: "bg-zinc-100 text-zinc-700",
+  IN_PROGRESS: "bg-blue-50 text-blue-700",
+  DONE: "bg-emerald-50 text-emerald-700",
+  SCHEDULED: "bg-blue-50 text-blue-700",
+  COMPLETED: "bg-emerald-50 text-emerald-700",
+  CANCELLED: "bg-rose-50 text-rose-700",
+  NO_SHOW: "bg-amber-50 text-amber-700",
+  NEW: "bg-zinc-100 text-zinc-700",
+  QUALIFIED: "bg-emerald-50 text-emerald-700",
+  CONTACTED: "bg-blue-50 text-blue-700",
+  FOLLOW_UP: "bg-amber-50 text-amber-700",
+};
+function StatusBadge({ status }: { status: string }) {
   return (
-    <span className="flex min-w-[155px] items-center gap-2">
-      <span
-        className={`flex size-5 shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white ${
-          avatarColors[index % avatarColors.length]
-        }`}
-      >
-        {initials(name)}
-      </span>
-      <a href="#" className="leading-4 text-[#334cff] hover:underline">
-        {name}
-      </a>
+    <span className={cn(badge, statusTone[status] ?? "bg-zinc-100 text-zinc-700")}>
+      {status.replace(/_/g, " ")}
     </span>
   );
 }
 
-function RelatedCell({ value }: { value: string }) {
+function customerLink(person: NonNullable<PersonRef>) {
   return (
-    <span className="flex min-w-[150px] items-start gap-1.5">
-      <Building className="mt-0.5 size-4 shrink-0 text-[#404a5c]" />
-      <a href="#" className="leading-4 text-[#334cff] hover:underline">
-        {value}
-      </a>
-    </span>
+    <Link
+      href={`/customers/${person.id}`}
+      className="text-[#334cff] hover:underline"
+    >
+      {person.firstName} {person.lastName}
+    </Link>
   );
 }
 
-function CrmTableCard({
+function Card({
   title,
-  icon,
-  columns,
-  rows,
-  range,
+  icon: Icon,
+  href,
+  children,
 }: {
   title: string;
-  icon: "tasks" | "meetings" | "deals";
-  columns: string[];
-  rows: string[][];
-  range: string;
+  icon: typeof ClipboardList;
+  href: string;
+  children: React.ReactNode;
 }) {
-  const HeaderIcon = icon === "tasks" ? ClipboardList : icon === "meetings" ? CalendarDays : WalletCards;
-
   return (
-    <section className="min-w-0 rounded-lg bg-white shadow-[0_1px_0_rgba(17,31,57,0.06)]">
-      <div className="flex h-16 items-center gap-2 border-b border-[#edf0f5] px-5">
-        <HeaderIcon className="size-4 text-[#32445f]" />
-        <h2 className="text-base font-semibold">{title}</h2>
-      </div>
-      <div className="mx-5 overflow-hidden">
-        <div className="max-h-[336px] overflow-auto pb-1">
-          <table className="min-w-[780px] table-fixed border-collapse text-left text-sm">
-            <thead className="sticky top-0 z-[1] bg-white">
-              <tr className="border-b border-[#e5e9f1]">
-                {columns.map((column) => (
-                  <th key={column} className="h-8 border-r border-[#dce3ef] px-3 font-normal text-[#071426] last:border-r-0">
-                    {column}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, rowIndex) => (
-                <tr key={`${title}-${row[0]}`} className="border-b border-[#edf0f5] align-top">
-                  {row.map((cell, cellIndex) => {
-                    const isFirst = cellIndex === 0;
-                    const isRelated = columns[cellIndex] === "Related To" || columns[cellIndex] === "Account Name";
-                    const isContact = columns[cellIndex] === "Contact Name";
-
-                    return (
-                      <td key={`${row[0]}-${columns[cellIndex]}`} className="px-3 py-3 leading-4 text-[#071426]">
-                        {isFirst ? (
-                          <a href="#" className="text-[#334cff] hover:underline">
-                            {cell}
-                          </a>
-                        ) : isContact ? (
-                          <ContactCell name={cell} index={rowIndex} />
-                        ) : isRelated ? (
-                          <RelatedCell value={cell} />
-                        ) : (
-                          cell
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <section className="min-w-0 rounded-lg border border-zinc-200 bg-white">
+      <div className="flex h-14 items-center justify-between border-b border-zinc-200 px-4">
+        <div className="flex items-center gap-2">
+          <Icon className="size-4 text-zinc-500" />
+          <h2 className="text-base font-semibold">{title}</h2>
         </div>
-        <div className="flex h-12 items-center justify-end gap-5 border-t border-[#edf0f5] text-sm font-semibold">
-          <span>{range}</span>
-          <button className="text-[#63718a]" aria-label={`Previous ${title}`}>
-            <ChevronLeft className="size-5" />
-          </button>
-          <button className="text-[#63718a]" aria-label={`Next ${title}`}>
-            <ChevronRight className="size-5" />
-          </button>
-        </div>
+        <Link href={href} className="text-sm text-[#334cff] hover:underline">
+          View all
+        </Link>
       </div>
+      <div className="overflow-x-auto">{children}</div>
     </section>
   );
 }
 
-function TodaysLeadsCard() {
-  return (
-    <section className="min-h-[330px] rounded-lg bg-white shadow-[0_1px_0_rgba(17,31,57,0.06)]">
-      <div className="flex h-16 items-center border-b border-[#edf0f5] px-5">
-        <h2 className="text-base font-semibold">Today&apos;s Leads</h2>
-      </div>
-      <div className="flex min-h-[260px] items-center justify-center">
-        <div className="relative size-[142px] rounded-xl border-2 border-dashed border-[#dce5f1] bg-[#f8fbff]">
-          <div className="absolute left-5 top-7 h-[88px] w-[106px] rounded-lg border-2 border-[#cfdae9] bg-white shadow-sm">
-            <div className="h-7 border-b border-[#e5ebf4]" />
-            <div className="grid grid-cols-3 gap-2 p-3">
-              <span className="h-2 rounded bg-[#e5ebf4]" />
-              <span className="h-2 rounded bg-[#e5ebf4]" />
-              <span className="h-2 rounded bg-[#e5ebf4]" />
-              <span className="h-3 rounded bg-[#eef3fa]" />
-              <span className="h-3 rounded bg-[#eef3fa]" />
-              <span className="h-3 rounded bg-[#eef3fa]" />
-              <span className="h-3 rounded bg-[#eef3fa]" />
-              <span className="h-3 rounded bg-[#eef3fa]" />
-              <span className="h-3 rounded bg-[#eef3fa]" />
-            </div>
-          </div>
-          <div className="absolute left-9 top-8 h-1.5 w-10 rounded-full border border-[#c4d1e2]" />
-        </div>
-      </div>
-    </section>
-  );
+function Empty({ label }: { label: string }) {
+  return <p className="px-4 py-8 text-center text-sm text-zinc-500">{label}</p>;
 }
 
 export default function DashboardPage() {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [visits, setVisits] = useState<SiteVisit[]>([]);
+  const [deals, setDeals] = useState<Deal[]>([]);
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [tasksData, visitsData, dealsData, leadsData] = await Promise.all([
+        apiFetch<Task[]>("/tasks?open=true"),
+        apiFetch<SiteVisit[]>("/site-visits"),
+        apiFetch<Deal[]>("/deals"),
+        apiFetch<Lead[]>("/leads"),
+      ]);
+      setTasks(tasksData);
+      setVisits(visitsData);
+      setDeals(
+        [...dealsData].sort((a, b) => Number(b.value) - Number(a.value)),
+      );
+      setLeads(leadsData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load dashboard");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const todaysLeads = leads.filter((lead) => isToday(lead.createdAt));
+
   return (
     <DashboardShell
-      title="Dashboard"
-      description="CRM home overview for daily tasks, meetings, leads, and closing deals."
+      title="Home"
+      description="CRM home overview for daily tasks, meetings, leads, and deals."
       active="Dashboard"
     >
-      <div className="grid gap-3 xl:grid-cols-2">
-        <CrmTableCard
-          title="My Open Tasks"
-          icon="tasks"
-          columns={["Subject", "Due Date", "Status", "Priority", "Related To", "Contact Name"]}
-          rows={openTasks}
-          range="1 - 10"
-        />
-        <CrmTableCard
-          title="My Meetings"
-          icon="meetings"
-          columns={["Title", "From", "To", "Related To", "Contact Name"]}
-          rows={meetings}
-          range="1 - 9"
-        />
-        <TodaysLeadsCard />
-        <CrmTableCard
-          title="My Deals Closing This Month"
-          icon="deals"
-          columns={["Deal Name", "Amount", "Stage", "Closing Date", "Account Name", "Contact Name"]}
-          rows={closingDeals}
-          range="1 - 8"
-        />
-      </div>
+      {error && (
+        <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {error}
+        </p>
+      )}
 
-      <div className="mt-3">
-        <ActivityTimeline title="Recent activity" limit={15} />
-      </div>
+      {loading ? (
+        <p className="p-6 text-sm text-zinc-500">Loading dashboard…</p>
+      ) : (
+        <>
+          <div className="grid gap-4 xl:grid-cols-2">
+            {/* Open tasks */}
+            <Card title="My Open Tasks" icon={ClipboardList} href="/tasks">
+              {tasks.length === 0 ? (
+                <Empty label="No open tasks." />
+              ) : (
+                <table className="w-full min-w-[560px] text-left text-sm">
+                  <thead className="bg-zinc-50 text-zinc-500">
+                    <tr>
+                      <th className="px-4 py-2.5 font-medium">Subject</th>
+                      <th className="px-4 py-2.5 font-medium">Due date</th>
+                      <th className="px-4 py-2.5 font-medium">Status</th>
+                      <th className="px-4 py-2.5 font-medium">Assignee</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-100">
+                    {tasks.map((task) => (
+                      <tr key={task.id}>
+                        <td className="px-4 py-2.5 font-medium">{task.title}</td>
+                        <td className="px-4 py-2.5 text-zinc-600">{fmtDate(task.dueDate)}</td>
+                        <td className="px-4 py-2.5"><StatusBadge status={task.status} /></td>
+                        <td className="px-4 py-2.5 text-zinc-600">
+                          {task.assignee
+                            ? `${task.assignee.firstName} ${task.assignee.lastName}`
+                            : "Unassigned"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </Card>
+
+            {/* Meetings */}
+            <Card title="My Meetings" icon={CalendarDays} href="/site-visits">
+              {visits.length === 0 ? (
+                <Empty label="No scheduled meetings." />
+              ) : (
+                <table className="w-full min-w-[560px] text-left text-sm">
+                  <thead className="bg-zinc-50 text-zinc-500">
+                    <tr>
+                      <th className="px-4 py-2.5 font-medium">Date</th>
+                      <th className="px-4 py-2.5 font-medium">With</th>
+                      <th className="px-4 py-2.5 font-medium">Status</th>
+                      <th className="px-4 py-2.5 font-medium">Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-100">
+                    {visits.map((visit) => (
+                      <tr key={visit.id}>
+                        <td className="px-4 py-2.5 text-zinc-600">{fmtDate(visit.date)}</td>
+                        <td className="px-4 py-2.5">
+                          {visit.customer
+                            ? customerLink(visit.customer)
+                            : visit.lead
+                              ? `${visit.lead.firstName} ${visit.lead.lastName}`
+                              : "—"}
+                        </td>
+                        <td className="px-4 py-2.5"><StatusBadge status={visit.status} /></td>
+                        <td className="px-4 py-2.5 text-zinc-500">{visit.notes ?? "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </Card>
+
+            {/* Today's leads */}
+            <Card title="Today's Leads" icon={UserRoundCheck} href="/leads">
+              {todaysLeads.length === 0 ? (
+                <Empty label="No new leads today." />
+              ) : (
+                <table className="w-full min-w-[560px] text-left text-sm">
+                  <thead className="bg-zinc-50 text-zinc-500">
+                    <tr>
+                      <th className="px-4 py-2.5 font-medium">Name</th>
+                      <th className="px-4 py-2.5 font-medium">Company</th>
+                      <th className="px-4 py-2.5 font-medium">Source</th>
+                      <th className="px-4 py-2.5 font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-100">
+                    {todaysLeads.map((lead) => (
+                      <tr key={lead.id}>
+                        <td className="px-4 py-2.5 font-medium">
+                          {lead.firstName} {lead.lastName}
+                        </td>
+                        <td className="px-4 py-2.5 text-zinc-600">{lead.company ?? "—"}</td>
+                        <td className="px-4 py-2.5 text-zinc-600">{lead.source?.name ?? "—"}</td>
+                        <td className="px-4 py-2.5"><StatusBadge status={lead.status} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </Card>
+
+            {/* Top deals */}
+            <Card title="My Top Deals" icon={WalletCards} href="/deals">
+              {deals.length === 0 ? (
+                <Empty label="No open deals." />
+              ) : (
+                <table className="w-full min-w-[560px] text-left text-sm">
+                  <thead className="bg-zinc-50 text-zinc-500">
+                    <tr>
+                      <th className="px-4 py-2.5 font-medium">Deal</th>
+                      <th className="px-4 py-2.5 font-medium">Amount</th>
+                      <th className="px-4 py-2.5 font-medium">Stage</th>
+                      <th className="px-4 py-2.5 font-medium">Customer</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-100">
+                    {deals.slice(0, 6).map((deal) => (
+                      <tr key={deal.id}>
+                        <td className="px-4 py-2.5 font-medium">{deal.name}</td>
+                        <td className="px-4 py-2.5 text-zinc-600">{money(deal.value)}</td>
+                        <td className="px-4 py-2.5 text-zinc-600">{deal.stage.name}</td>
+                        <td className="px-4 py-2.5">{customerLink(deal.customer)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </Card>
+          </div>
+
+          <div className="mt-4">
+            <ActivityTimeline title="Recent activity" limit={25} />
+          </div>
+        </>
+      )}
     </DashboardShell>
   );
 }

@@ -1,10 +1,13 @@
-import { TasksService } from './tasks.service';
-import type { AuthenticatedUser } from '../auth/auth.types';
-import type { CreateTaskInput, UpdateTaskInput, UpdateTaskStatusInput } from './tasks.types';
-export declare class TasksController {
-    private readonly tasks;
-    constructor(tasks: TasksService);
-    list(user: AuthenticatedUser, status?: string, assigneeId?: string, open?: string): import("@prisma/client").Prisma.PrismaPromise<({
+import { PrismaService } from '../database/prisma.service';
+import { CreateTaskInput, UpdateTaskInput } from './tasks.types';
+export declare class TasksService {
+    private readonly prisma;
+    constructor(prisma: PrismaService);
+    list(tenantId: string, filters?: {
+        status?: string;
+        assigneeId?: string;
+        open?: boolean;
+    }): import("@prisma/client").Prisma.PrismaPromise<({
         assignee: {
             id: string;
             firstName: string;
@@ -21,7 +24,7 @@ export declare class TasksController {
         title: string;
         assigneeId: string | null;
     })[]>;
-    get(user: AuthenticatedUser, id: string): Promise<{
+    get(tenantId: string, id: string): Promise<{
         assignee: {
             id: string;
             firstName: string;
@@ -38,7 +41,7 @@ export declare class TasksController {
         title: string;
         assigneeId: string | null;
     }>;
-    create(user: AuthenticatedUser, body: CreateTaskInput): Promise<{
+    create(tenantId: string, userId: string, input: CreateTaskInput): Promise<{
         assignee: {
             id: string;
             firstName: string;
@@ -55,7 +58,7 @@ export declare class TasksController {
         title: string;
         assigneeId: string | null;
     }>;
-    updateStatus(user: AuthenticatedUser, id: string, body: UpdateTaskStatusInput): Promise<{
+    update(tenantId: string, userId: string, id: string, input: UpdateTaskInput): Promise<{
         assignee: {
             id: string;
             firstName: string;
@@ -72,7 +75,7 @@ export declare class TasksController {
         title: string;
         assigneeId: string | null;
     }>;
-    update(user: AuthenticatedUser, id: string, body: UpdateTaskInput): Promise<{
+    updateStatus(tenantId: string, userId: string, id: string, status: string): Promise<{
         assignee: {
             id: string;
             firstName: string;
@@ -89,8 +92,12 @@ export declare class TasksController {
         title: string;
         assigneeId: string | null;
     }>;
-    remove(user: AuthenticatedUser, id: string): Promise<{
+    remove(tenantId: string, userId: string, id: string): Promise<{
         id: string;
         deleted: boolean;
     }>;
+    private normalizeStatus;
+    private normalizeDate;
+    private assertUserBelongsToTenant;
+    private recordAudit;
 }
