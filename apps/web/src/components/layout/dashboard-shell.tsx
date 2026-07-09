@@ -4,12 +4,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
+  cloneElement,
+  createContext,
+  isValidElement,
+  useContext,
   useEffect,
   useMemo,
   useRef,
   useState,
   useSyncExternalStore,
   type ElementType,
+  type MouseEvent as ReactMouseEvent,
   type ReactNode,
 } from "react";
 import {
@@ -159,6 +164,10 @@ function SidebarLink({
   );
 }
 
+// Lets menu items close the dropdown without putting a click handler on a
+// role-less container (keeps axe happy: no orphaned menu/menuitem roles).
+const DropdownCloseContext = createContext<() => void>(() => {});
+
 function Dropdown({
   trigger,
   children,
@@ -191,46 +200,47 @@ function Dropdown({
     };
   }, [open]);
 
+  // Attach the toggle + ARIA to the real trigger button instead of wrapping it
+  // in a role="button" div (which nested one interactive control inside another).
+  const triggerNode = isValidElement<Record<string, unknown>>(trigger)
+    ? cloneElement(trigger, {
+        onClick: (event: ReactMouseEvent) => {
+          (trigger.props.onClick as ((e: ReactMouseEvent) => void) | undefined)?.(
+            event,
+          );
+          setOpen((value) => !value);
+        },
+        "aria-haspopup": "menu",
+        "aria-expanded": open,
+      })
+    : trigger;
+
   return (
     <div ref={ref} className="relative">
-      <div
-        role="button"
-        tabIndex={0}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        className="inline-flex"
-        onClick={() => setOpen((value) => !value)}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            setOpen((value) => !value);
-          }
-        }}
-      >
-        {trigger}
-      </div>
+      {triggerNode}
       {open ? (
-        <div
-          role="menu"
-          onClick={() => setOpen(false)}
-          className={cn(
-            "absolute top-full z-40 mt-2 min-w-[220px] rounded-lg border border-[#dbe2ee] bg-white p-1.5 shadow-[0_14px_34px_rgba(15,32,60,0.16)]",
-            align === "end" ? "right-0" : "left-0",
-            panelClassName,
-          )}
-        >
-          {children}
-        </div>
+        <DropdownCloseContext.Provider value={() => setOpen(false)}>
+          <div
+            className={cn(
+              "absolute top-full z-40 mt-2 min-w-[220px] rounded-lg border border-[#dbe2ee] bg-white p-1.5 shadow-[0_14px_34px_rgba(15,32,60,0.16)]",
+              align === "end" ? "right-0" : "left-0",
+              panelClassName,
+            )}
+          >
+            {children}
+          </div>
+        </DropdownCloseContext.Provider>
       ) : null}
     </div>
   );
 }
 
 function MenuLink({ href, icon: Icon, children }: { href: string; icon: ElementType; children: ReactNode }) {
+  const close = useContext(DropdownCloseContext);
   return (
     <Link
       href={href}
-      role="menuitem"
+      onClick={close}
       className="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-[#243350] hover:bg-[#eef2fb]"
     >
       <Icon className="size-4 text-[#6a789a]" />
@@ -250,11 +260,14 @@ function MenuButton({
   children: ReactNode;
   danger?: boolean;
 }) {
+  const close = useContext(DropdownCloseContext);
   return (
     <button
       type="button"
-      role="menuitem"
-      onClick={onClick}
+      onClick={() => {
+        onClick();
+        close();
+      }}
       className={cn(
         "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-sm hover:bg-[#eef2fb]",
         danger ? "text-[#c02a4a] hover:bg-[#fdeef1]" : "text-[#243350]",
@@ -263,6 +276,21 @@ function MenuButton({
       <Icon className={cn("size-4", danger ? "text-[#c02a4a]" : "text-[#6a789a]")} />
       {children}
     </button>
+  );
+}
+
+function ModuleGridLink({ item }: { item: NavItem }) {
+  const close = useContext(DropdownCloseContext);
+  const Icon = item.icon;
+  return (
+    <Link
+      href={item.href}
+      onClick={close}
+      className="flex flex-col items-center gap-1 rounded-md px-1 py-2 text-center text-[11px] text-[#3d4a63] hover:bg-[#eef2fb]"
+    >
+      <Icon className="size-4 text-[#5a6a88]" />
+      <span className="truncate">{item.label}</span>
+    </Link>
   );
 }
 
@@ -608,19 +636,9 @@ export function DashboardShell({
                   Modules
                 </p>
                 <div className="grid grid-cols-3 gap-1">
-                  {moduleNavItems.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <Link
-                        key={`${item.href}-${item.label}`}
-                        href={item.href}
-                        className="flex flex-col items-center gap-1 rounded-md px-1 py-2 text-center text-[11px] text-[#3d4a63] hover:bg-[#eef2fb]"
-                      >
-                        <Icon className="size-4 text-[#5a6a88]" />
-                        <span className="truncate">{item.label}</span>
-                      </Link>
-                    );
-                  })}
+                  {moduleNavItems.map((item) => (
+                    <ModuleGridLink key={`${item.href}-${item.label}`} item={item} />
+                  ))}
                 </div>
               </Dropdown>
             </div>
