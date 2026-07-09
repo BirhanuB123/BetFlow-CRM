@@ -14,36 +14,53 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotesController = void 0;
 const common_1 = require("@nestjs/common");
-const in_memory_service_1 = require("../database/in-memory.service");
+const notes_service_1 = require("./notes.service");
+const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
+const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 let NotesController = class NotesController {
-    store;
-    constructor(store) {
-        this.store = store;
+    notes;
+    constructor(notes) {
+        this.notes = notes;
     }
-    list(tenantId) {
-        return this.store.listNotes(tenantId);
+    list(user, entityType, entityId) {
+        return this.notes.list(user.tenantId, { entityType, entityId });
     }
-    create(body) {
-        return this.store.createNote(body);
+    create(user, body) {
+        return this.notes.create(user.tenantId, user.id, body);
+    }
+    remove(user, id) {
+        return this.notes.remove(user.tenantId, user.id, id);
     }
 };
 exports.NotesController = NotesController;
 __decorate([
     (0, common_1.Get)(),
-    __param(0, (0, common_1.Query)('tenantId')),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Query)('entityType')),
+    __param(2, (0, common_1.Query)('entityId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String, String]),
     __metadata("design:returntype", void 0)
 ], NotesController.prototype, "list", null);
 __decorate([
     (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], NotesController.prototype, "create", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], NotesController.prototype, "remove", null);
 exports.NotesController = NotesController = __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('notes'),
-    __metadata("design:paramtypes", [in_memory_service_1.InMemoryService])
+    __metadata("design:paramtypes", [notes_service_1.NotesService])
 ], NotesController);
 //# sourceMappingURL=notes.controller.js.map

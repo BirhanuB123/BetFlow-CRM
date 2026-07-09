@@ -52,8 +52,6 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Only redirect if the saved session is still valid; otherwise clear it
-    // so the login/register forms stay reachable after token expiry.
     const session = getSession();
     if (!session?.accessToken) {
       clearSession();

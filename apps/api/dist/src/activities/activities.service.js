@@ -40,6 +40,8 @@ const ACTION_LABELS = {
     'payment.created': 'Payment recorded',
     'payment.updated': 'Payment updated',
     'payment.deleted': 'Payment deleted',
+    'note.created': 'Note added',
+    'note.deleted': 'Note deleted',
     'tenant.registered': 'Workspace created',
     'tenant.updated': 'Workspace settings updated',
     'demo.seeded': 'Demo data seeded',
@@ -86,6 +88,9 @@ let ActivitiesService = class ActivitiesService {
         if (!newValues || typeof newValues !== 'object')
             return null;
         const values = newValues;
+        if (typeof values.preview === 'string') {
+            return `“${values.preview}”`;
+        }
         if (typeof values.from === 'string' && typeof values.to === 'string') {
             const suffix = typeof values.unitStatus === 'string' ? ` · unit ${values.unitStatus}` : '';
             return `${values.from} → ${values.to}${suffix}`;

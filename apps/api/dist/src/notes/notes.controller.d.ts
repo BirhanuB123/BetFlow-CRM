@@ -1,9 +1,41 @@
-import { InMemoryService, Note } from '../database/in-memory.service';
-type CreateNoteBody = Omit<Note, 'id' | 'createdAt'>;
+import { NotesService } from './notes.service';
+import type { AuthenticatedUser } from '../auth/auth.types';
+import type { CreateNoteInput } from './notes.types';
 export declare class NotesController {
-    private readonly store;
-    constructor(store: InMemoryService);
-    list(tenantId?: string): Note[];
-    create(body: CreateNoteBody): Note;
+    private readonly notes;
+    constructor(notes: NotesService);
+    list(user: AuthenticatedUser, entityType?: string, entityId?: string): import("@prisma/client").Prisma.PrismaPromise<({
+        author: {
+            id: string;
+            firstName: string;
+            lastName: string;
+        };
+    } & {
+        entityType: string;
+        entityId: string;
+        id: string;
+        tenantId: string;
+        content: string;
+        authorId: string;
+        createdAt: Date;
+    })[]>;
+    create(user: AuthenticatedUser, body: CreateNoteInput): Promise<{
+        author: {
+            id: string;
+            firstName: string;
+            lastName: string;
+        };
+    } & {
+        entityType: string;
+        entityId: string;
+        id: string;
+        tenantId: string;
+        content: string;
+        authorId: string;
+        createdAt: Date;
+    }>;
+    remove(user: AuthenticatedUser, id: string): Promise<{
+        id: string;
+        deleted: boolean;
+    }>;
 }
-export {};

@@ -9,6 +9,7 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
 import { StatCard } from "@/components/ui/stat-card";
 import { ActivityTimeline } from "@/components/activity/activity-timeline";
+import { NotesPanel } from "@/components/notes/notes-panel";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -90,6 +91,8 @@ export default function CustomerDetailPage() {
   const [customer, setCustomer] = useState<CustomerDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Bumped when a note is added/removed to force the timeline to refetch.
+  const [timelineKey, setTimelineKey] = useState(0);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -105,7 +108,9 @@ export default function CustomerDetailPage() {
   }, [id]);
 
   useEffect(() => {
-    void load();
+    queueMicrotask(() => {
+      void load();
+    });
   }, [load]);
 
   const totals = useMemo(() => {
@@ -259,13 +264,18 @@ export default function CustomerDetailPage() {
             </section>
           </div>
 
-          {/* Timeline */}
-          <div className="lg:col-span-1">
+          {/* Notes + timeline */}
+          <div className="space-y-6 lg:col-span-1">
+            <NotesPanel
+              entityType="Customer"
+              entityId={customer.id}
+              onChange={() => setTimelineKey((k) => k + 1)}
+            />
             <ActivityTimeline
+              key={timelineKey}
               entityType="Customer"
               entityId={customer.id}
               title="Customer activity"
-              className="lg:sticky lg:top-4"
             />
           </div>
         </div>

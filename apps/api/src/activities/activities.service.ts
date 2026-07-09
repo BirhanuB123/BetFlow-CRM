@@ -33,6 +33,8 @@ const ACTION_LABELS: Record<string, string> = {
   'payment.created': 'Payment recorded',
   'payment.updated': 'Payment updated',
   'payment.deleted': 'Payment deleted',
+  'note.created': 'Note added',
+  'note.deleted': 'Note deleted',
   'tenant.registered': 'Workspace created',
   'tenant.updated': 'Workspace settings updated',
   'demo.seeded': 'Demo data seeded',
@@ -89,6 +91,9 @@ export class ActivitiesService {
     if (!newValues || typeof newValues !== 'object') return null;
     const values = newValues as Record<string, unknown>;
 
+    if (typeof values.preview === 'string') {
+      return `“${values.preview}”`;
+    }
     if (typeof values.from === 'string' && typeof values.to === 'string') {
       const suffix =
         typeof values.unitStatus === 'string' ? ` · unit ${values.unitStatus}` : '';

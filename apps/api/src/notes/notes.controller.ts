@@ -1,19 +1,40 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { InMemoryService, Note } from '../database/in-memory.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { NotesService } from './notes.service';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import type { AuthenticatedUser } from '../auth/auth.types';
+import type { CreateNoteInput } from './notes.types';
 
-type CreateNoteBody = Omit<Note, 'id' | 'createdAt'>;
-
+@UseGuards(JwtAuthGuard)
 @Controller('notes')
 export class NotesController {
-  constructor(private readonly store: InMemoryService) {}
+  constructor(private readonly notes: NotesService) {}
 
   @Get()
-  list(@Query('tenantId') tenantId?: string) {
-    return this.store.listNotes(tenantId);
+  list(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('entityType') entityType?: string,
+    @Query('entityId') entityId?: string,
+  ) {
+    return this.notes.list(user.tenantId, { entityType, entityId });
   }
 
   @Post()
-  create(@Body() body: CreateNoteBody) {
-    return this.store.createNote(body);
+  create(@CurrentUser() user: AuthenticatedUser, @Body() body: CreateNoteInput) {
+    return this.notes.create(user.tenantId, user.id, body);
+  }
+
+  @Delete(':id')
+  remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.notes.remove(user.tenantId, user.id, id);
   }
 }

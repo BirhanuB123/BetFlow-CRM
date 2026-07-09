@@ -63,6 +63,7 @@ model User {
   auditLogs     AuditLog[]
   notifications Notification[]
   ownedLeads    Lead[]         @relation("LeadOwner")
+  notes         Note[]
 }
 
 model Role {
@@ -366,6 +367,7 @@ model Note {
   tenant     Tenant   @relation(fields: [tenantId], references: [id])
   content    String
   authorId   String
+  author     User     @relation(fields: [authorId], references: [id])
   entityType String
   entityId   String
   createdAt  DateTime @default(now())
