@@ -15,6 +15,7 @@ const prisma_service_1 = require("../database/prisma.service");
 const dealInclude = {
     stage: { select: { id: true, name: true, order: true, probability: true } },
     customer: { select: { id: true, firstName: true, lastName: true } },
+    account: { select: { id: true, name: true } },
     unit: { select: { id: true, unitNumber: true, type: true } },
 };
 let DealsService = class DealsService {
@@ -48,8 +49,19 @@ let DealsService = class DealsService {
             throw new common_1.BadRequestException('customerId is required');
         await this.assertStageBelongsToTenant(tenantId, input.stageId);
         await this.assertCustomerBelongsToTenant(tenantId, input.customerId);
+        if (input.accountId) {
+            await this.assertAccountBelongsToTenant(tenantId, input.accountId);
+        }
         if (input.unitId) {
             await this.assertUnitBelongsToTenant(tenantId, input.unitId);
+        }
+        let accountId = input.accountId || null;
+        if (!accountId) {
+            const customer = await this.prisma.customer.findFirst({
+                where: { id: input.customerId, tenantId },
+                select: { accountId: true },
+            });
+            accountId = customer?.accountId ?? null;
         }
         const deal = await this.prisma.deal.create({
             data: {
@@ -58,6 +70,7 @@ let DealsService = class DealsService {
                 value,
                 stageId: input.stageId,
                 customerId: input.customerId,
+                accountId,
                 unitId: input.unitId || null,
             },
             include: dealInclude,
@@ -78,6 +91,9 @@ let DealsService = class DealsService {
         if (input.customerId) {
             await this.assertCustomerBelongsToTenant(tenantId, input.customerId);
         }
+        if (input.accountId) {
+            await this.assertAccountBelongsToTenant(tenantId, input.accountId);
+        }
         if (input.unitId) {
             await this.assertUnitBelongsToTenant(tenantId, input.unitId);
         }
@@ -94,6 +110,8 @@ let DealsService = class DealsService {
             data.stageId = input.stageId;
         if (input.customerId !== undefined)
             data.customerId = input.customerId;
+        if (input.accountId !== undefined)
+            data.accountId = input.accountId || null;
         if (input.unitId !== undefined)
             data.unitId = input.unitId || null;
         const deal = await this.prisma.deal.update({
@@ -164,6 +182,14 @@ let DealsService = class DealsService {
         });
         if (!customer) {
             throw new common_1.BadRequestException(`Customer ${customerId} was not found`);
+        }
+    }
+    async assertAccountBelongsToTenant(tenantId, accountId) {
+        const account = await this.prisma.account.findFirst({
+            where: { id: accountId, tenantId },
+        });
+        if (!account) {
+            throw new common_1.BadRequestException(`Account ${accountId} was not found`);
         }
     }
     async assertUnitBelongsToTenant(tenantId, unitId) {

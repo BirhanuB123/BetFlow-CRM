@@ -15,10 +15,10 @@ export declare class TasksController {
         tenantId: string;
         description: string | null;
         status: string;
+        title: string;
         dueDate: Date | null;
         entityType: string | null;
         entityId: string | null;
-        title: string;
         assigneeId: string | null;
     })[]>;
     get(user: AuthenticatedUser, id: string): Promise<{
@@ -32,10 +32,10 @@ export declare class TasksController {
         tenantId: string;
         description: string | null;
         status: string;
+        title: string;
         dueDate: Date | null;
         entityType: string | null;
         entityId: string | null;
-        title: string;
         assigneeId: string | null;
     }>;
     create(user: AuthenticatedUser, body: CreateTaskInput): Promise<{
@@ -49,10 +49,10 @@ export declare class TasksController {
         tenantId: string;
         description: string | null;
         status: string;
+        title: string;
         dueDate: Date | null;
         entityType: string | null;
         entityId: string | null;
-        title: string;
         assigneeId: string | null;
     }>;
     updateStatus(user: AuthenticatedUser, id: string, body: UpdateTaskStatusInput): Promise<{
@@ -66,10 +66,10 @@ export declare class TasksController {
         tenantId: string;
         description: string | null;
         status: string;
+        title: string;
         dueDate: Date | null;
         entityType: string | null;
         entityId: string | null;
-        title: string;
         assigneeId: string | null;
     }>;
     update(user: AuthenticatedUser, id: string, body: UpdateTaskInput): Promise<{
@@ -83,10 +83,10 @@ export declare class TasksController {
         tenantId: string;
         description: string | null;
         status: string;
+        title: string;
         dueDate: Date | null;
         entityType: string | null;
         entityId: string | null;
-        title: string;
         assigneeId: string | null;
     }>;
     remove(user: AuthenticatedUser, id: string): Promise<{

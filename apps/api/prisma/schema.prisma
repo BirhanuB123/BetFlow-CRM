@@ -28,6 +28,7 @@ model Tenant {
   units         Unit[]
   leadSources   LeadSource[]
   leads         Lead[]
+  accounts      Account[]
   customers     Customer[]
   dealStages    DealStage[]
   deals         Deal[]
@@ -58,12 +59,13 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  roles         UserRole[]
-  tasks         Task[]
-  auditLogs     AuditLog[]
-  notifications Notification[]
-  ownedLeads    Lead[]         @relation("LeadOwner")
-  notes         Note[]
+  roles          UserRole[]
+  tasks          Task[]
+  auditLogs      AuditLog[]
+  notifications  Notification[]
+  ownedLeads     Lead[]         @relation("LeadOwner")
+  ownedAccounts  Account[]      @relation("AccountOwner")
+  notes          Note[]
 }
 
 model Role {
@@ -208,20 +210,66 @@ model Lead {
   siteVisits SiteVisit[]
 }
 
+// Zoho-style company/organization accounts
+model Account {
+  id             String   @id @default(uuid())
+  tenantId       String
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  name           String
+  accountType    String? // CUSTOMER, INVESTOR, PARTNER, DEVELOPER, SUPPLIER, OTHER
+  industry       String?
+  rating         String? // HOT, WARM, COLD
+  phone          String?
+  email          String?
+  website        String?
+  billingStreet  String?
+  billingCity    String?
+  billingState   String?
+  billingCountry String?
+  billingZip     String?
+  shippingStreet String?
+  shippingCity   String?
+  shippingState  String?
+  shippingCountry String?
+  shippingZip    String?
+  annualRevenue  Decimal? @db.Decimal(18, 2)
+  employees      Int?
+  description    String?
+  parentAccountId String?
+  parentAccount  Account?  @relation("AccountHierarchy", fields: [parentAccountId], references: [id], onDelete: SetNull)
+  childAccounts  Account[] @relation("AccountHierarchy")
+  ownerId        String?
+  owner          User?     @relation("AccountOwner", fields: [ownerId], references: [id])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  customers Customer[]
+  deals     Deal[]
+
+  @@index([tenantId, name])
+  @@index([tenantId, accountType])
+  @@index([tenantId, ownerId])
+}
+
 model Customer {
   id        String   @id @default(uuid())
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  accountId String?
+  account   Account? @relation(fields: [accountId], references: [id], onDelete: SetNull)
   firstName String
   lastName  String
   email     String?
   phone     String?
+  title     String? // job title on the account (Zoho Contact field)
   createdAt DateTime @default(now())
 
   deals        Deal[]
   siteVisits   SiteVisit[]
   reservations Reservation[]
   contracts    Contract[]
+
+  @@index([tenantId, accountId])
 }
 
 model DealStage {
@@ -245,11 +293,15 @@ model Deal {
   stage      DealStage @relation(fields: [stageId], references: [id])
   customerId String
   customer   Customer  @relation(fields: [customerId], references: [id])
+  accountId  String?
+  account    Account?  @relation(fields: [accountId], references: [id], onDelete: SetNull)
   unitId     String?
   unit       Unit?     @relation(fields: [unitId], references: [id])
   createdAt  DateTime  @default(now())
 
   contracts Contract[]
+
+  @@index([tenantId, accountId])
 }
 
 // --------------------------------------

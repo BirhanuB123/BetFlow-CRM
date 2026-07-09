@@ -3,6 +3,8 @@ export type CreateCustomerInput = {
   lastName: string;
   email?: string;
   phone?: string;
+  title?: string | null;
+  accountId?: string | null;
 };
 
 export type UpdateCustomerInput = {
@@ -10,4 +12,6 @@ export type UpdateCustomerInput = {
   lastName?: string;
   email?: string | null;
   phone?: string | null;
+  title?: string | null;
+  accountId?: string | null;
 };

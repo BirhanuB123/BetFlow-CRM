@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Mail, Phone } from "lucide-react";
+import { ArrowLeft, Building2, Mail, Phone } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
@@ -22,6 +22,7 @@ type CustomerDetail = {
   email: string | null;
   phone: string | null;
   createdAt: string;
+  account: { id: string; name: string } | null;
   deals: {
     id: string;
     name: string;
@@ -165,6 +166,14 @@ export default function CustomerDetailPage() {
                   <span className="inline-flex items-center gap-1.5">
                     <Phone className="size-4 text-zinc-400" />
                     {customer.phone}
+                  </span>
+                )}
+                {customer.account && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Building2 className="size-4 text-zinc-400" />
+                    <Link href={`/accounts/${customer.account.id}`} className="text-[#334cff] hover:underline">
+                      {customer.account.name}
+                    </Link>
                   </span>
                 )}
                 <span className="text-zinc-400">

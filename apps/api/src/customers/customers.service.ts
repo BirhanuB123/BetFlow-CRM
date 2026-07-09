@@ -10,6 +10,7 @@ import {
 } from './customers.types';
 
 const customerInclude = {
+  account: { select: { id: true, name: true } },
   _count: { select: { deals: true, contracts: true, reservations: true } },
 } as const;
 
@@ -29,6 +30,7 @@ export class CustomersService {
     const customer = await this.prisma.customer.findFirst({
       where: { id, tenantId },
       include: {
+        account: { select: { id: true, name: true } },
         deals: {
           select: {
             id: true,
@@ -99,6 +101,10 @@ export class CustomersService {
       throw new BadRequestException('firstName and lastName are required');
     }
 
+    if (input.accountId) {
+      await this.assertAccountBelongsToTenant(tenantId, input.accountId);
+    }
+
     const customer = await this.prisma.customer.create({
       data: {
         tenantId,
@@ -106,6 +112,8 @@ export class CustomersService {
         lastName,
         email: input.email?.trim() || null,
         phone: input.phone?.trim() || null,
+        title: input.title?.trim() || null,
+        accountId: input.accountId || null,
       },
       include: customerInclude,
     });
@@ -142,6 +150,13 @@ export class CustomersService {
     }
     if (input.email !== undefined) data.email = input.email?.trim() || null;
     if (input.phone !== undefined) data.phone = input.phone?.trim() || null;
+    if (input.title !== undefined) data.title = input.title?.trim() || null;
+    if (input.accountId !== undefined) {
+      if (input.accountId) {
+        await this.assertAccountBelongsToTenant(tenantId, input.accountId);
+      }
+      data.accountId = input.accountId || null;
+    }
 
     const customer = await this.prisma.customer.update({
       where: { id },
@@ -174,6 +189,19 @@ export class CustomersService {
     await this.recordAudit(tenantId, userId, 'customer.deleted', id);
 
     return { id, deleted: true };
+  }
+
+  private async assertAccountBelongsToTenant(
+    tenantId: string,
+    accountId: string,
+  ) {
+    const account = await this.prisma.account.findFirst({
+      where: { id: accountId, tenantId },
+      select: { id: true },
+    });
+    if (!account) {
+      throw new BadRequestException(`Account ${accountId} was not found`);
+    }
   }
 
   private recordAudit(

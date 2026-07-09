@@ -18,10 +18,10 @@ export declare class TasksService {
         tenantId: string;
         description: string | null;
         status: string;
+        title: string;
         dueDate: Date | null;
         entityType: string | null;
         entityId: string | null;
-        title: string;
         assigneeId: string | null;
     })[]>;
     get(tenantId: string, id: string): Promise<{
@@ -35,10 +35,10 @@ export declare class TasksService {
         tenantId: string;
         description: string | null;
         status: string;
+        title: string;
         dueDate: Date | null;
         entityType: string | null;
         entityId: string | null;
-        title: string;
         assigneeId: string | null;
     }>;
     create(tenantId: string, userId: string, input: CreateTaskInput): Promise<{
@@ -52,10 +52,10 @@ export declare class TasksService {
         tenantId: string;
         description: string | null;
         status: string;
+        title: string;
         dueDate: Date | null;
         entityType: string | null;
         entityId: string | null;
-        title: string;
         assigneeId: string | null;
     }>;
     update(tenantId: string, userId: string, id: string, input: UpdateTaskInput): Promise<{
@@ -69,10 +69,10 @@ export declare class TasksService {
         tenantId: string;
         description: string | null;
         status: string;
+        title: string;
         dueDate: Date | null;
         entityType: string | null;
         entityId: string | null;
-        title: string;
         assigneeId: string | null;
     }>;
     updateStatus(tenantId: string, userId: string, id: string, status: string): Promise<{
@@ -86,10 +86,10 @@ export declare class TasksService {
         tenantId: string;
         description: string | null;
         status: string;
+        title: string;
         dueDate: Date | null;
         entityType: string | null;
         entityId: string | null;
-        title: string;
         assigneeId: string | null;
     }>;
     remove(tenantId: string, userId: string, id: string): Promise<{

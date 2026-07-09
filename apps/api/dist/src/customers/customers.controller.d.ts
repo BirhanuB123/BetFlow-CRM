@@ -5,6 +5,10 @@ export declare class CustomersController {
     private readonly customers;
     constructor(customers: CustomersService);
     list(user: AuthenticatedUser): import("@prisma/client").Prisma.PrismaPromise<({
+        account: {
+            id: string;
+            name: string;
+        } | null;
         _count: {
             deals: number;
             reservations: number;
@@ -12,67 +16,79 @@ export declare class CustomersController {
         };
     } & {
         id: string;
-        email: string | null;
         tenantId: string;
+        accountId: string | null;
         firstName: string;
         lastName: string;
-        createdAt: Date;
+        email: string | null;
         phone: string | null;
+        title: string | null;
+        createdAt: Date;
     })[]>;
     get(user: AuthenticatedUser, id: string): Promise<{
         payments: {
             id: string;
             status: string;
-            date: Date;
             amount: import("@prisma/client-runtime-utils").Decimal;
+            date: Date;
             method: string;
             contractId: string | null;
             reservationId: string | null;
         }[];
+        account: {
+            id: string;
+            name: string;
+        } | null;
         deals: {
             id: string;
             createdAt: Date;
             name: string;
-            unit: {
-                id: string;
-                unitNumber: string;
-            } | null;
             value: import("@prisma/client-runtime-utils").Decimal;
             stage: {
                 id: string;
                 name: string;
                 probability: number;
             };
+            unit: {
+                id: string;
+                unitNumber: string;
+            } | null;
         }[];
         reservations: {
             id: string;
-            status: string;
             unit: {
                 id: string;
                 unitNumber: string;
             };
-            date: Date;
+            status: string;
             amount: import("@prisma/client-runtime-utils").Decimal;
+            date: Date;
         }[];
         contracts: {
             id: string;
-            startDate: Date;
-            status: string;
             unit: {
                 id: string;
                 unitNumber: string;
             };
+            status: string;
+            startDate: Date;
             totalAmt: import("@prisma/client-runtime-utils").Decimal;
         }[];
         id: string;
-        email: string | null;
         tenantId: string;
+        accountId: string | null;
         firstName: string;
         lastName: string;
-        createdAt: Date;
+        email: string | null;
         phone: string | null;
+        title: string | null;
+        createdAt: Date;
     }>;
     create(user: AuthenticatedUser, body: CreateCustomerInput): Promise<{
+        account: {
+            id: string;
+            name: string;
+        } | null;
         _count: {
             deals: number;
             reservations: number;
@@ -80,14 +96,20 @@ export declare class CustomersController {
         };
     } & {
         id: string;
-        email: string | null;
         tenantId: string;
+        accountId: string | null;
         firstName: string;
         lastName: string;
-        createdAt: Date;
+        email: string | null;
         phone: string | null;
+        title: string | null;
+        createdAt: Date;
     }>;
     update(user: AuthenticatedUser, id: string, body: UpdateCustomerInput): Promise<{
+        account: {
+            id: string;
+            name: string;
+        } | null;
         _count: {
             deals: number;
             reservations: number;
@@ -95,12 +117,14 @@ export declare class CustomersController {
         };
     } & {
         id: string;
-        email: string | null;
         tenantId: string;
+        accountId: string | null;
         firstName: string;
         lastName: string;
-        createdAt: Date;
+        email: string | null;
         phone: string | null;
+        title: string | null;
+        createdAt: Date;
     }>;
     remove(user: AuthenticatedUser, id: string): Promise<{
         id: string;

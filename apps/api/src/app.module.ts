@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AccountsModule } from './accounts/accounts.module';
 import { ActivitiesModule } from './activities/activities.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -34,6 +35,7 @@ import { UsersModule } from './users/users.module';
     RolesModule,
     PermissionsModule,
     AuditLogsModule,
+    AccountsModule,
     LeadsModule,
     CustomersModule,
     DealsModule,

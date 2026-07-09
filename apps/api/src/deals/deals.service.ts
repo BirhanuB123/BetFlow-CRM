@@ -12,6 +12,7 @@ import {
 const dealInclude = {
   stage: { select: { id: true, name: true, order: true, probability: true } },
   customer: { select: { id: true, firstName: true, lastName: true } },
+  account: { select: { id: true, name: true } },
   unit: { select: { id: true, unitNumber: true, type: true } },
 } as const;
 
@@ -49,8 +50,21 @@ export class DealsService {
 
     await this.assertStageBelongsToTenant(tenantId, input.stageId);
     await this.assertCustomerBelongsToTenant(tenantId, input.customerId);
+    if (input.accountId) {
+      await this.assertAccountBelongsToTenant(tenantId, input.accountId);
+    }
     if (input.unitId) {
       await this.assertUnitBelongsToTenant(tenantId, input.unitId);
+    }
+
+    // Prefer explicit accountId; otherwise inherit from the contact when present.
+    let accountId = input.accountId || null;
+    if (!accountId) {
+      const customer = await this.prisma.customer.findFirst({
+        where: { id: input.customerId, tenantId },
+        select: { accountId: true },
+      });
+      accountId = customer?.accountId ?? null;
     }
 
     const deal = await this.prisma.deal.create({
@@ -60,6 +74,7 @@ export class DealsService {
         value,
         stageId: input.stageId,
         customerId: input.customerId,
+        accountId,
         unitId: input.unitId || null,
       },
       include: dealInclude,
@@ -90,6 +105,9 @@ export class DealsService {
     if (input.customerId) {
       await this.assertCustomerBelongsToTenant(tenantId, input.customerId);
     }
+    if (input.accountId) {
+      await this.assertAccountBelongsToTenant(tenantId, input.accountId);
+    }
     if (input.unitId) {
       await this.assertUnitBelongsToTenant(tenantId, input.unitId);
     }
@@ -103,6 +121,7 @@ export class DealsService {
     if (input.value !== undefined) data.value = this.normalizeValue(input.value);
     if (input.stageId !== undefined) data.stageId = input.stageId;
     if (input.customerId !== undefined) data.customerId = input.customerId;
+    if (input.accountId !== undefined) data.accountId = input.accountId || null;
     if (input.unitId !== undefined) data.unitId = input.unitId || null;
 
     const deal = await this.prisma.deal.update({
@@ -201,6 +220,18 @@ export class DealsService {
     });
     if (!customer) {
       throw new BadRequestException(`Customer ${customerId} was not found`);
+    }
+  }
+
+  private async assertAccountBelongsToTenant(
+    tenantId: string,
+    accountId: string,
+  ) {
+    const account = await this.prisma.account.findFirst({
+      where: { id: accountId, tenantId },
+    });
+    if (!account) {
+      throw new BadRequestException(`Account ${accountId} was not found`);
     }
   }
 

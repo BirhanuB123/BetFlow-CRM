@@ -71,7 +71,6 @@ export default function AuthPage() {
         }
       })
       .catch(() => {
-        // API unreachable: keep the session, stay on the form.
       });
 
     return () => {

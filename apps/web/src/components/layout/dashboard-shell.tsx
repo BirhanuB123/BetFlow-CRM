@@ -88,7 +88,7 @@ const primaryNavItems = [
 const moduleNavItems = [
   { label: "Leads", href: "/leads", icon: UserRoundCheck },
   { label: "Contacts", href: "/customers", icon: UsersRound, aliases: ["Customers"] },
-  { label: "Accounts", href: "/properties", icon: Building, aliases: ["Properties"] },
+  { label: "Accounts", href: "/accounts", icon: Building, aliases: ["Companies"] },
   { label: "Deals", href: "/deals", icon: CircleDollarSign},
   { label: "Tasks", href: "/tasks", icon: ClipboardList },
   { label: "Meetings", href: "/site-visits", icon: CalendarDays, aliases: ["Site visits"] },

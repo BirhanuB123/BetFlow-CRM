@@ -11,13 +11,13 @@ export declare class NotesController {
             lastName: string;
         };
     } & {
-        entityType: string;
-        entityId: string;
         id: string;
         tenantId: string;
+        createdAt: Date;
+        entityType: string;
+        entityId: string;
         content: string;
         authorId: string;
-        createdAt: Date;
     })[]>;
     create(user: AuthenticatedUser, body: CreateNoteInput): Promise<{
         author: {
@@ -26,13 +26,13 @@ export declare class NotesController {
             lastName: string;
         };
     } & {
-        entityType: string;
-        entityId: string;
         id: string;
         tenantId: string;
+        createdAt: Date;
+        entityType: string;
+        entityId: string;
         content: string;
         authorId: string;
-        createdAt: Date;
     }>;
     remove(user: AuthenticatedUser, id: string): Promise<{
         id: string;

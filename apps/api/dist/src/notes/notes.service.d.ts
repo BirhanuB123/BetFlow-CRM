@@ -15,11 +15,11 @@ export declare class NotesService {
     } & {
         id: string;
         tenantId: string;
-        content: string;
-        authorId: string;
+        createdAt: Date;
         entityType: string;
         entityId: string;
-        createdAt: Date;
+        content: string;
+        authorId: string;
     })[]>;
     create(tenantId: string, userId: string, input: CreateNoteInput): Promise<{
         author: {
@@ -30,11 +30,11 @@ export declare class NotesService {
     } & {
         id: string;
         tenantId: string;
-        content: string;
-        authorId: string;
+        createdAt: Date;
         entityType: string;
         entityId: string;
-        createdAt: Date;
+        content: string;
+        authorId: string;
     }>;
     remove(tenantId: string, userId: string, id: string): Promise<{
         id: string;

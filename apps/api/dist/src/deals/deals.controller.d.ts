@@ -10,6 +10,10 @@ export declare class DealsController {
             unitNumber: string;
             type: string;
         } | null;
+        account: {
+            id: string;
+            name: string;
+        } | null;
         customer: {
             id: string;
             firstName: string;
@@ -26,6 +30,7 @@ export declare class DealsController {
         tenantId: string;
         createdAt: Date;
         name: string;
+        accountId: string | null;
         value: import("@prisma/client-runtime-utils").Decimal;
         stageId: string;
         customerId: string;
@@ -43,6 +48,10 @@ export declare class DealsController {
             unitNumber: string;
             type: string;
         } | null;
+        account: {
+            id: string;
+            name: string;
+        } | null;
         customer: {
             id: string;
             firstName: string;
@@ -59,6 +68,7 @@ export declare class DealsController {
         tenantId: string;
         createdAt: Date;
         name: string;
+        accountId: string | null;
         value: import("@prisma/client-runtime-utils").Decimal;
         stageId: string;
         customerId: string;
@@ -70,32 +80,9 @@ export declare class DealsController {
             unitNumber: string;
             type: string;
         } | null;
-        customer: {
-            id: string;
-            firstName: string;
-            lastName: string;
-        };
-        stage: {
+        account: {
             id: string;
             name: string;
-            order: number;
-            probability: number;
-        };
-    } & {
-        id: string;
-        tenantId: string;
-        createdAt: Date;
-        name: string;
-        value: import("@prisma/client-runtime-utils").Decimal;
-        stageId: string;
-        customerId: string;
-        unitId: string | null;
-    }>;
-    update(user: AuthenticatedUser, id: string, body: UpdateDealInput): Promise<{
-        unit: {
-            id: string;
-            unitNumber: string;
-            type: string;
         } | null;
         customer: {
             id: string;
@@ -113,6 +100,39 @@ export declare class DealsController {
         tenantId: string;
         createdAt: Date;
         name: string;
+        accountId: string | null;
+        value: import("@prisma/client-runtime-utils").Decimal;
+        stageId: string;
+        customerId: string;
+        unitId: string | null;
+    }>;
+    update(user: AuthenticatedUser, id: string, body: UpdateDealInput): Promise<{
+        unit: {
+            id: string;
+            unitNumber: string;
+            type: string;
+        } | null;
+        account: {
+            id: string;
+            name: string;
+        } | null;
+        customer: {
+            id: string;
+            firstName: string;
+            lastName: string;
+        };
+        stage: {
+            id: string;
+            name: string;
+            order: number;
+            probability: number;
+        };
+    } & {
+        id: string;
+        tenantId: string;
+        createdAt: Date;
+        name: string;
+        accountId: string | null;
         value: import("@prisma/client-runtime-utils").Decimal;
         stageId: string;
         customerId: string;
