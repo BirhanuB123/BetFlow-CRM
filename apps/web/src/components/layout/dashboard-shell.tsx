@@ -15,6 +15,7 @@ import {
   useSyncExternalStore,
   type ElementType,
   type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
 import {
@@ -49,6 +50,9 @@ import {
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+const SIDEBAR_MIN = 200;
+const SIDEBAR_MAX = 460;
 
 type StoredSession = {
   accessToken: string;
@@ -375,6 +379,9 @@ export function DashboardShell({
   const [collapsed, setCollapsed] = useState(false);
   const [moduleQuery, setModuleQuery] = useState("");
   const [spinning, setSpinning] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(240);
+  const [resizing, setResizing] = useState(false);
+  const shellRef = useRef<HTMLDivElement>(null);
   const session = useStoredSession();
 
   const user = (session?.user ?? {}) as {
@@ -388,6 +395,14 @@ export function DashboardShell({
     user.name ||
     user.email ||
     "Birhanu Baynesagn";
+  const initials =
+    displayName
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase() || "U";
 
   const filteredModules = useMemo(() => {
     const term = moduleQuery.trim().toLowerCase();
@@ -417,8 +432,52 @@ export function DashboardShell({
     router.push("/auth");
   };
 
+  // Restore the saved sidebar width, then keep it applied via a CSS variable
+  // so the docked sidebar (lg+) and the content padding stay in sync.
+  useEffect(() => {
+    const saved = Number(window.localStorage.getItem("betflow-sidebar-w"));
+    if (saved >= SIDEBAR_MIN && saved <= SIDEBAR_MAX) {
+      queueMicrotask(() => setSidebarWidth(saved));
+    }
+  }, []);
+
+  useEffect(() => {
+    shellRef.current?.style.setProperty("--sidebar-w", `${sidebarWidth}px`);
+  }, [sidebarWidth]);
+
+  const clampWidth = (x: number) =>
+    Math.min(SIDEBAR_MAX, Math.max(SIDEBAR_MIN, Math.round(x)));
+
+  const startResize = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    setResizing(true);
+    const onMove = (e: PointerEvent) => setSidebarWidth(clampWidth(e.clientX));
+    const onUp = (e: PointerEvent) => {
+      setResizing(false);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.localStorage.setItem("betflow-sidebar-w", String(clampWidth(e.clientX)));
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  };
+
+  const nudgeWidth = (delta: number) => {
+    setSidebarWidth((w) => {
+      const next = clampWidth(w + delta);
+      window.localStorage.setItem("betflow-sidebar-w", String(next));
+      return next;
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-[#e9edf5] text-[#071426]">
+    <div
+      ref={shellRef}
+      className={cn(
+        "min-h-screen bg-[#e9edf5] text-[#071426]",
+        resizing && "cursor-col-resize select-none",
+      )}
+    >
       {navOpen ? (
         <button
           type="button"
@@ -431,9 +490,10 @@ export function DashboardShell({
       <aside
         data-collapsed={collapsed ? "true" : "false"}
         className={cn(
-          "group/side fixed inset-y-0 left-0 z-40 w-60 bg-[#233b66] text-white transition-all duration-200 lg:translate-x-0",
+          "group/side fixed inset-y-0 left-0 z-40 flex w-60 flex-col bg-[#233b66] text-white lg:translate-x-0",
+          !resizing && "transition-all duration-200",
           navOpen ? "translate-x-0" : "-translate-x-full",
-          collapsed ? "lg:w-14" : "lg:w-60",
+          collapsed ? "lg:w-14" : "lg:w-[var(--sidebar-w,240px)]",
         )}
       >
         <div className="flex h-12 items-center justify-between px-3 group-data-[collapsed=true]/side:lg:justify-center group-data-[collapsed=true]/side:lg:px-0">
@@ -454,15 +514,6 @@ export function DashboardShell({
               BetFlow CRM
             </span>
           </Link>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="text-[#cbd7ef] hover:bg-white/10 hover:text-white group-data-[collapsed=true]/side:lg:hidden"
-            aria-label="Collapse navigation"
-            onClick={toggleSidebar}
-          >
-            <Menu className="size-4" />
-          </Button>
         </div>
 
         <nav className="space-y-1 px-2 pb-3">
@@ -471,7 +522,7 @@ export function DashboardShell({
           ))}
         </nav>
 
-        <div className="border-t border-white/14 px-2 pt-3">
+        <div className="flex min-h-0 flex-1 flex-col border-t border-white/14 px-2 pt-3">
           <div className="mb-2 flex items-center gap-2 px-1 text-[15px] font-semibold text-white group-data-[collapsed=true]/side:lg:justify-center group-data-[collapsed=true]/side:lg:px-0">
             <div className="grid size-5 grid-cols-2 gap-0.5 rounded bg-[#ff4e96] p-0.5">
               <span className="rounded-sm bg-white/70" />
@@ -491,7 +542,7 @@ export function DashboardShell({
               placeholder="Search"
             />
           </label>
-          <nav className="max-h-[calc(100vh-220px)] space-y-1 overflow-y-auto pr-1">
+          <nav className="flex-1 space-y-1 overflow-y-auto pr-1">
             {filteredModules.map((item) => (
               <SidebarLink
                 key={`${item.href}-${item.label}`}
@@ -513,9 +564,60 @@ export function DashboardShell({
             ) : null}
           </nav>
         </div>
+
+        {/* Account + sign out, pinned to the bottom of the sidebar */}
+        <div className="mt-auto shrink-0 border-t border-white/14 p-2">
+          <div className="flex items-center gap-2.5 px-1 py-1 group-data-[collapsed=true]/side:lg:justify-center group-data-[collapsed=true]/side:lg:px-0">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-xs font-semibold text-white">
+              {initials}
+            </span>
+            <div className="min-w-0 group-data-[collapsed=true]/side:lg:hidden">
+              <p className="truncate text-sm font-medium text-white">{displayName}</p>
+              {user.email ? (
+                <p className="truncate text-xs text-[#9fb0cd]">{user.email}</p>
+              ) : null}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={signOut}
+            title="Sign out"
+            className="mt-1 flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-[#f3adba] transition hover:bg-white/10 hover:text-white group-data-[collapsed=true]/side:lg:justify-center group-data-[collapsed=true]/side:lg:px-0"
+          >
+            <LogOut className="size-4 shrink-0" />
+            <span className="group-data-[collapsed=true]/side:lg:hidden">Sign out</span>
+          </button>
+        </div>
+
+        {/* Drag handle: resize the docked sidebar left/right (desktop only) */}
+        <button
+          type="button"
+          aria-label={`Resize sidebar, currently ${sidebarWidth} pixels`}
+          onPointerDown={startResize}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowLeft") {
+              event.preventDefault();
+              nudgeWidth(-16);
+            } else if (event.key === "ArrowRight") {
+              event.preventDefault();
+              nudgeWidth(16);
+            }
+          }}
+          className={cn(
+            "absolute inset-y-0 -right-1 z-50 hidden w-2 cursor-col-resize touch-none outline-none lg:block",
+            "group-data-[collapsed=true]/side:lg:hidden",
+            "after:absolute after:inset-y-0 after:left-1/2 after:w-0.5 after:-translate-x-1/2 after:bg-transparent after:transition-colors hover:after:bg-[#70a0ff]/70 focus-visible:after:bg-[#70a0ff]",
+            resizing && "after:bg-[#70a0ff]",
+          )}
+        />
       </aside>
 
-      <div className={cn("transition-[padding] duration-200", collapsed ? "lg:pl-14" : "lg:pl-60")}>
+      <div
+        className={cn(
+          !resizing && "transition-[padding] duration-200",
+          collapsed ? "lg:pl-14" : "lg:pl-[var(--sidebar-w,240px)]",
+        )}
+      >
         <header className="sticky top-0 z-10 border-b border-[#d4dceb] bg-white">
           <div className="flex h-12 items-center justify-between gap-4 px-4">
             <div className="flex min-w-0 items-center gap-3">
@@ -645,6 +747,8 @@ export function DashboardShell({
           </div>
         </header>
 
+        {/* Welcome / record toolbar: only on the Home dashboard (redundant elsewhere) */}
+        {active === "Dashboard" ? (
         <div className="flex h-[56px] items-center justify-between gap-3 border-b border-[#d9e1ee] bg-[#eef2f8] px-4">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex size-12 items-center justify-center rounded-md border border-[#d5deeb] bg-[#e3e9f2] text-[#9badc5]">
@@ -708,6 +812,7 @@ export function DashboardShell({
             </Dropdown>
           </div>
         </div>
+        ) : null}
 
         <main className="px-3 py-3 sm:px-4">{children}</main>
       </div>

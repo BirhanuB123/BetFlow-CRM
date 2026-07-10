@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Modern real estate skyline at dawn">
+  <defs>
+    <!-- dawn sky: cool up top, warm near the horizon -->
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#dfe9f2"/>
+      <stop offset="0.42" stop-color="#e6eef5"/>
+      <stop offset="0.66" stop-color="#f2ece0"/>
+      <stop offset="0.78" stop-color="#f7e6cf"/>
+      <stop offset="1" stop-color="#f3decf"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.66" cy="0.74" r="0.42">
+      <stop offset="0" stop-color="#ffe9c4" stop-opacity="0.95"/>
+      <stop offset="0.45" stop-color="#ffdca3" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#ffdca3" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="teal" cx="0.85" cy="0.16" r="0.4">
+      <stop offset="0" stop-color="#0E6E63" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#0E6E63" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c7d4e2"/>
+      <stop offset="0.5" stop-color="#b7c6d8"/>
+      <stop offset="1" stop-color="#aebfd2"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#0b2e3a" stop-opacity="0.10"/>
+    </linearGradient>
+    <linearGradient id="reflFade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="leftFade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e9eff5" stop-opacity="0.85"/>
+      <stop offset="0.4" stop-color="#e9eff5" stop-opacity="0.28"/>
+      <stop offset="0.66" stop-color="#e9eff5" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- window grids -->
+    <pattern id="winFar" width="26" height="34" patternUnits="userSpaceOnUse">
+      <rect x="6" y="7" width="12" height="18" fill="#ffffff" opacity="0.14"/>
+    </pattern>
+    <pattern id="winMid" width="24" height="30" patternUnits="userSpaceOnUse">
+      <rect x="5" y="5" width="12" height="16" fill="#ffffff" opacity="0.20"/>
+      <rect x="5" y="5" width="12" height="16" fill="#5b6b80" opacity="0.10"/>
+    </pattern>
+    <pattern id="winWarm" width="24" height="30" patternUnits="userSpaceOnUse">
+      <rect x="5" y="5" width="12" height="16" fill="#ffd7a0" opacity="0.55"/>
+    </pattern>
+    <pattern id="winFront" width="22" height="28" patternUnits="userSpaceOnUse">
+      <rect x="5" y="5" width="11" height="15" fill="#0c3946" opacity="0.14"/>
+      <rect x="5" y="5" width="11" height="15" fill="#ffffff" opacity="0.08"/>
+    </pattern>
+  </defs>
+
+  <!-- sky + glows -->
+  <rect width="1920" height="1080" fill="#e6eef5"/>
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+  <rect width="1920" height="1080" fill="url(#teal)"/>
+  <rect width="1920" height="820" fill="url(#sun)"/>
+
+  <!-- distant hazy skyline along the horizon -->
+  <g fill="#cbd8e6" opacity="0.75">
+    <rect x="720" y="600" width="70" height="160"/>
+    <rect x="800" y="560" width="54" height="200"/>
+    <rect x="864" y="620" width="80" height="140"/>
+    <rect x="1660" y="560" width="70" height="200"/>
+    <rect x="1740" y="600" width="60" height="160"/>
+    <rect x="1810" y="540" width="80" height="220"/>
+  </g>
+
+  <!-- soft horizon haze -->
+  <rect x="600" y="690" width="1320" height="70" fill="#f6ead6" opacity="0.55"/>
+
+  <!-- mid towers -->
+  <g>
+    <rect x="980" y="470" width="120" height="290" fill="#b6c5d7"/>
+    <rect x="980" y="470" width="120" height="290" fill="url(#winMid)"/>
+    <rect x="1180" y="380" width="150" height="380" fill="#adbdd0"/>
+    <rect x="1180" y="380" width="150" height="380" fill="url(#winMid)"/>
+    <rect x="1560" y="410" width="150" height="350" fill="#b2c1d4"/>
+    <rect x="1560" y="410" width="150" height="350" fill="url(#winMid)"/>
+    <!-- a few warm-lit sections -->
+    <rect x="1180" y="470" width="150" height="120" fill="url(#winWarm)" opacity="0.5"/>
+    <rect x="1560" y="500" width="150" height="90" fill="url(#winWarm)" opacity="0.45"/>
+  </g>
+
+  <!-- front hero glass towers -->
+  <g>
+    <!-- tallest -->
+    <rect x="1330" y="250" width="200" height="510" fill="#9fb2c8"/>
+    <rect x="1330" y="250" width="200" height="510" fill="url(#winFront)"/>
+    <rect x="1330" y="250" width="200" height="510" fill="url(#glass)"/>
+    <rect x="1400" y="250" width="3" height="510" fill="#ffffff" opacity="0.14"/>
+    <rect x="1470" y="250" width="3" height="510" fill="#ffffff" opacity="0.14"/>
+    <rect x="1524" y="250" width="6" height="510" fill="#ffe6c0" opacity="0.5"/>   <!-- sunlit edge -->
+    <rect x="1330" y="250" width="8" height="510" fill="#ffffff" opacity="0.22"/>
+    <!-- rooftop crown -->
+    <rect x="1418" y="222" width="24" height="28" fill="#9fb2c8"/>
+    <rect x="1428" y="196" width="4" height="26" fill="#8fa2b8"/>
+
+    <!-- second front tower -->
+    <rect x="1540" y="330" width="170" height="430" fill="#a7b8cc"/>
+    <rect x="1540" y="330" width="170" height="430" fill="url(#winFront)"/>
+    <rect x="1540" y="330" width="170" height="430" fill="url(#glass)"/>
+    <rect x="1704" y="330" width="6" height="430" fill="#ffe6c0" opacity="0.45"/>
+
+    <!-- left-of-center block -->
+    <rect x="1060" y="540" width="150" height="220" fill="#aebdd0"/>
+    <rect x="1060" y="540" width="150" height="220" fill="url(#winFar)"/>
+  </g>
+
+  <!-- construction crane (real-estate development cue) -->
+  <g stroke="#7d8da5" stroke-width="4" fill="none" opacity="0.8">
+    <line x1="1256" y1="300" x2="1256" y2="760"/>
+    <line x1="1150" y1="330" x2="1360" y2="330"/>
+    <line x1="1256" y1="300" x2="1150" y2="330"/>
+    <line x1="1256" y1="300" x2="1360" y2="330"/>
+    <line x1="1300" y1="330" x2="1300" y2="392"/>
+  </g>
+  <rect x="1294" y="392" width="12" height="10" fill="#7d8da5" opacity="0.8"/>
+
+  <!-- water -->
+  <rect x="0" y="760" width="1920" height="320" fill="url(#water)"/>
+  <!-- tower reflections as soft vertical streaks -->
+  <g opacity="0.5">
+    <rect x="1330" y="760" width="200" height="150" fill="#9fb2c8"/>
+    <rect x="1540" y="760" width="170" height="120" fill="#a7b8cc"/>
+    <rect x="1180" y="760" width="150" height="90" fill="#adbdd0"/>
+    <rect x="1524" y="760" width="6" height="150" fill="#ffe6c0"/>
+  </g>
+  <rect x="0" y="760" width="1920" height="320" fill="url(#reflFade)"/>
+  <!-- gentle ripples -->
+  <g fill="#ffffff" opacity="0.10">
+    <rect x="0" y="812" width="1920" height="3"/>
+    <rect x="0" y="864" width="1920" height="2"/>
+    <rect x="0" y="928" width="1920" height="3"/>
+  </g>
+
+  <!-- keep the left clean for the login card -->
+  <rect width="1920" height="1080" fill="url(#leftFade)"/>
+</svg>
