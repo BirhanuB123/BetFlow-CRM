@@ -24,6 +24,8 @@ import {
   X,
 } from "lucide-react";
 
+import Link from "next/link";
+
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
@@ -52,6 +54,7 @@ type ApiLead = {
   phone: string | null;
   status: string;
   createdAt: string;
+  convertedCustomerId: string | null;
   source: LeadSource | null;
   owner: LeadOwner | null;
 };
@@ -122,6 +125,7 @@ export default function LeadsPage() {
   const [form, setForm] = useState(emptyForm);
   const [creating, setCreating] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [convertLead, setConvertLead] = useState<ApiLead | null>(null);
 
   const loadLeads = useCallback(async () => {
     try {
@@ -581,9 +585,29 @@ export default function LeadsPage() {
                           />
                         </td>
                         <td className="px-4 py-3">
-                          <span className="font-medium text-blue-600">
-                            {fullName(lead)}
-                          </span>
+                          {lead.convertedCustomerId ? (
+                            <Link
+                              href={`/customers/${lead.convertedCustomerId}`}
+                              className="font-medium text-blue-600 hover:underline"
+                            >
+                              {fullName(lead)}
+                            </Link>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-blue-600">
+                                {fullName(lead)}
+                              </span>
+                              {lead.status !== "LOST" && (
+                                <button
+                                  type="button"
+                                  onClick={() => setConvertLead(lead)}
+                                  className="rounded border border-zinc-200 px-1.5 py-0.5 text-[11px] font-medium text-zinc-600 opacity-0 transition hover:border-emerald-300 hover:text-emerald-700 group-hover:opacity-100"
+                                >
+                                  Convert
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-zinc-700">
                           {lead.company ?? "—"}
@@ -611,26 +635,32 @@ export default function LeadsPage() {
                           {lead.source?.name ?? "—"}
                         </td>
                         <td className="px-4 py-3">
-                          <select
-                            className={cn(
-                              "cursor-pointer rounded-md px-2 py-1 text-xs font-medium outline-none",
-                              statusClass[lead.status] ??
-                                "bg-zinc-100 text-zinc-700",
-                            )}
-                            value={lead.status}
-                            onChange={(e) =>
-                              handleStatusChange(
-                                lead.id,
-                                e.target.value as LeadStatus,
-                              )
-                            }
-                          >
-                            {LEAD_STATUSES.map((status) => (
-                              <option key={status} value={status}>
-                                {titleCase(status)}
-                              </option>
-                            ))}
-                          </select>
+                          {lead.convertedCustomerId ? (
+                            <span className="rounded-md bg-violet-100 px-2 py-1 text-xs font-medium text-violet-700">
+                              Converted
+                            </span>
+                          ) : (
+                            <select
+                              className={cn(
+                                "cursor-pointer rounded-md px-2 py-1 text-xs font-medium outline-none",
+                                statusClass[lead.status] ??
+                                  "bg-zinc-100 text-zinc-700",
+                              )}
+                              value={lead.status}
+                              onChange={(e) =>
+                                handleStatusChange(
+                                  lead.id,
+                                  e.target.value as LeadStatus,
+                                )
+                              }
+                            >
+                              {LEAD_STATUSES.map((status) => (
+                                <option key={status} value={status}>
+                                  {titleCase(status)}
+                                </option>
+                              ))}
+                            </select>
+                          )}
                         </td>
                         <td className="px-4 py-3">
                           <span className="flex items-center gap-2 text-zinc-700">
@@ -694,7 +724,170 @@ export default function LeadsPage() {
           onSubmit={handleCreate}
         />
       ) : null}
+
+      {convertLead ? (
+        <ConvertLeadModal
+          lead={convertLead}
+          onClose={() => setConvertLead(null)}
+          onConverted={() => {
+            setConvertLead(null);
+            void loadLeads();
+          }}
+        />
+      ) : null}
     </DashboardShell>
+  );
+}
+
+function ConvertLeadModal({
+  lead,
+  onClose,
+  onConverted,
+}: {
+  lead: ApiLead;
+  onClose: () => void;
+  onConverted: () => void;
+}) {
+  const [stages, setStages] = useState<{ id: string; name: string }[]>([]);
+  const [createAccount, setCreateAccount] = useState(true);
+  const [createDeal, setCreateDeal] = useState(false);
+  const [dealName, setDealName] = useState(`${fullName(lead)} - Deal`);
+  const [dealValue, setDealValue] = useState("");
+  const [dealStageId, setDealStageId] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    queueMicrotask(async () => {
+      try {
+        const s = await apiFetch<{ id: string; name: string }[]>("/deals/stages");
+        setStages(s);
+        if (s[0]) setDealStageId(s[0].id);
+      } catch {
+        /* stages optional */
+      }
+    });
+  }, []);
+
+  const accountName = (lead.company?.trim() || fullName(lead)).trim();
+
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSaving(true);
+    setError(null);
+    try {
+      await apiFetch(`/leads/${lead.id}/convert`, {
+        method: "POST",
+        body: JSON.stringify({
+          createAccount,
+          deal: createDeal
+            ? { name: dealName, value: dealValue, stageId: dealStageId }
+            : null,
+        }),
+      });
+      onConverted();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to convert lead");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-lg rounded-lg bg-white shadow-xl">
+        <div className="flex items-center justify-between border-b border-zinc-200 px-5 py-3">
+          <h2 className="text-base font-semibold text-zinc-900">
+            Convert {fullName(lead)}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-md p-1 text-zinc-400 hover:bg-zinc-100"
+            aria-label="Close"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+        <form onSubmit={submit} className="space-y-4 p-5">
+          {error && (
+            <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+          )}
+          <p className="text-sm text-zinc-500">
+            Creates a contact from this lead and marks the lead as converted.
+          </p>
+
+          <label className="flex items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={createAccount}
+              onChange={(e) => setCreateAccount(e.target.checked)}
+              className="mt-0.5 size-4 rounded border-zinc-300 accent-[#0E6E63]"
+            />
+            <span>
+              Create an account{" "}
+              <span className="font-medium text-zinc-700">“{accountName}”</span> and
+              link the contact to it
+            </span>
+          </label>
+
+          <div className="rounded-md border border-zinc-200 p-3">
+            <label className="flex items-center gap-2 text-sm font-medium">
+              <input
+                type="checkbox"
+                checked={createDeal}
+                onChange={(e) => setCreateDeal(e.target.checked)}
+                className="size-4 rounded border-zinc-300 accent-[#0E6E63]"
+              />
+              Also open a deal
+            </label>
+            {createDeal && (
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <input
+                  required
+                  className="h-9 rounded-md border border-zinc-200 px-3 text-sm sm:col-span-2"
+                  placeholder="Deal name"
+                  value={dealName}
+                  onChange={(e) => setDealName(e.target.value)}
+                />
+                <input
+                  required
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className="h-9 rounded-md border border-zinc-200 px-3 text-sm"
+                  placeholder="Value"
+                  value={dealValue}
+                  onChange={(e) => setDealValue(e.target.value)}
+                />
+                <select
+                  required
+                  aria-label="Deal stage"
+                  className="h-9 rounded-md border border-zinc-200 px-3 text-sm"
+                  value={dealStageId}
+                  onChange={(e) => setDealStageId(e.target.value)}
+                >
+                  {stages.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={saving}>
+              {saving ? "Converting…" : "Convert lead"}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
 

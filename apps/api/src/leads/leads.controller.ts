@@ -13,6 +13,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import type { AuthenticatedUser } from '../auth/auth.types';
 import type {
+  ConvertLeadInput,
   CreateLeadInput,
   UpdateLeadInput,
   UpdateLeadStatusInput,
@@ -48,6 +49,15 @@ export class LeadsController {
     @Body() body: UpdateLeadStatusInput,
   ) {
     return this.leads.updateStatus(user.tenantId, user.id, id, body.status);
+  }
+
+  @Post(':id/convert')
+  convert(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() body: ConvertLeadInput,
+  ) {
+    return this.leads.convert(user.tenantId, user.id, id, body);
   }
 
   @Patch(':id')

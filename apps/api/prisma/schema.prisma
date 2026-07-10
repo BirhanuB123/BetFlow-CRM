@@ -207,6 +207,10 @@ model Lead {
   owner     User?       @relation("LeadOwner", fields: [ownerId], references: [id])
   createdAt DateTime    @default(now())
 
+  // Zoho-style conversion: links the lead to the contact it became.
+  convertedAt         DateTime?
+  convertedCustomerId String?
+
   siteVisits SiteVisit[]
 }
 

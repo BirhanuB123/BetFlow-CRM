@@ -1,55 +1,97 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { InMemoryService } from '../database/in-memory.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { PropertiesService } from './properties.service';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import type { AuthenticatedUser } from '../auth/auth.types';
 import type {
-  Building,
-  Floor,
-  PropertyMedia,
-} from '../database/in-memory.service';
+  CreateBuildingInput,
+  CreateFloorInput,
+  UpdateBuildingInput,
+  UpdateFloorInput,
+} from './properties.types';
 
-type CreateBuildingBody = Omit<Building, 'id'>;
-type CreateFloorBody = Omit<Floor, 'id'>;
-type CreatePropertyMediaBody = Omit<PropertyMedia, 'id' | 'updatedAt'>;
-
+@UseGuards(JwtAuthGuard)
 @Controller('properties')
 export class PropertiesController {
-  constructor(private readonly store: InMemoryService) {}
+  constructor(private readonly properties: PropertiesService) {}
 
+  // ---- Buildings ----
   @Get('buildings')
   listBuildings(
-    @Query('tenantId') tenantId?: string,
+    @CurrentUser() user: AuthenticatedUser,
     @Query('projectId') projectId?: string,
   ) {
-    return this.store.listBuildings(tenantId, projectId);
+    return this.properties.listBuildings(user.tenantId, projectId);
+  }
+
+  @Get('buildings/:id')
+  getBuilding(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.properties.getBuilding(user.tenantId, id);
   }
 
   @Post('buildings')
-  createBuilding(@Body() body: CreateBuildingBody) {
-    return this.store.createBuilding(body);
+  createBuilding(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: CreateBuildingInput,
+  ) {
+    return this.properties.createBuilding(user.tenantId, user.id, body);
   }
 
+  @Patch('buildings/:id')
+  updateBuilding(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() body: UpdateBuildingInput,
+  ) {
+    return this.properties.updateBuilding(user.tenantId, user.id, id, body);
+  }
+
+  @Delete('buildings/:id')
+  removeBuilding(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
+    return this.properties.removeBuilding(user.tenantId, user.id, id);
+  }
+
+  // ---- Floors ----
   @Get('floors')
   listFloors(
-    @Query('tenantId') tenantId?: string,
+    @CurrentUser() user: AuthenticatedUser,
     @Query('buildingId') buildingId?: string,
   ) {
-    return this.store.listFloors(tenantId, buildingId);
+    return this.properties.listFloors(user.tenantId, buildingId);
   }
 
   @Post('floors')
-  createFloor(@Body() body: CreateFloorBody) {
-    return this.store.createFloor(body);
-  }
-
-  @Get('media')
-  listMedia(
-    @Query('tenantId') tenantId?: string,
-    @Query('projectId') projectId?: string,
+  createFloor(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: CreateFloorInput,
   ) {
-    return this.store.listPropertyMedia(tenantId, projectId);
+    return this.properties.createFloor(user.tenantId, user.id, body);
   }
 
-  @Post('media')
-  createMedia(@Body() body: CreatePropertyMediaBody) {
-    return this.store.createPropertyMedia(body);
+  @Patch('floors/:id')
+  updateFloor(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() body: UpdateFloorInput,
+  ) {
+    return this.properties.updateFloor(user.tenantId, user.id, id, body);
+  }
+
+  @Delete('floors/:id')
+  removeFloor(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.properties.removeFloor(user.tenantId, user.id, id);
   }
 }

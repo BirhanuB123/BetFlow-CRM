@@ -5,9 +5,22 @@ export const LEAD_STATUSES = [
   'FOLLOW_UP',
   'WON',
   'LOST',
+  'CONVERTED',
 ] as const;
 
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
+
+export type ConvertLeadInput = {
+  // Link the new contact to an account.
+  createAccount?: boolean; // create an account from the lead's company/name
+  accountId?: string | null; // or attach to an existing account
+  // Optionally open a deal for the new contact.
+  deal?: {
+    name: string;
+    value: number | string;
+    stageId: string;
+  } | null;
+};
 
 export type CreateLeadInput = {
   firstName: string;

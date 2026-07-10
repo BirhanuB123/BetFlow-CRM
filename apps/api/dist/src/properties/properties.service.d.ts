@@ -1,10 +1,9 @@
-import { PropertiesService } from './properties.service';
-import type { AuthenticatedUser } from '../auth/auth.types';
-import type { CreateBuildingInput, CreateFloorInput, UpdateBuildingInput, UpdateFloorInput } from './properties.types';
-export declare class PropertiesController {
-    private readonly properties;
-    constructor(properties: PropertiesService);
-    listBuildings(user: AuthenticatedUser, projectId?: string): Promise<{
+import { PrismaService } from '../database/prisma.service';
+import { CreateBuildingInput, CreateFloorInput, UpdateBuildingInput, UpdateFloorInput } from './properties.types';
+export declare class PropertiesService {
+    private readonly prisma;
+    constructor(prisma: PrismaService);
+    listBuildings(tenantId: string, projectId?: string): Promise<{
         unitsCount: number;
         project: {
             id: string;
@@ -19,7 +18,7 @@ export declare class PropertiesController {
         projectId: string;
         floorsCount: number;
     }[]>;
-    getBuilding(user: AuthenticatedUser, id: string): Promise<{
+    getBuilding(tenantId: string, id: string): Promise<{
         floors: ({
             _count: {
                 units: number;
@@ -42,7 +41,7 @@ export declare class PropertiesController {
         projectId: string;
         floorsCount: number;
     }>;
-    createBuilding(user: AuthenticatedUser, body: CreateBuildingInput): Promise<{
+    createBuilding(tenantId: string, userId: string, input: CreateBuildingInput): Promise<{
         project: {
             id: string;
             name: string;
@@ -57,7 +56,7 @@ export declare class PropertiesController {
         projectId: string;
         floorsCount: number;
     }>;
-    updateBuilding(user: AuthenticatedUser, id: string, body: UpdateBuildingInput): Promise<{
+    updateBuilding(tenantId: string, userId: string, id: string, input: UpdateBuildingInput): Promise<{
         project: {
             id: string;
             name: string;
@@ -72,11 +71,11 @@ export declare class PropertiesController {
         projectId: string;
         floorsCount: number;
     }>;
-    removeBuilding(user: AuthenticatedUser, id: string): Promise<{
+    removeBuilding(tenantId: string, userId: string, id: string): Promise<{
         id: string;
         deleted: boolean;
     }>;
-    listFloors(user: AuthenticatedUser, buildingId?: string): import("@prisma/client").Prisma.PrismaPromise<({
+    listFloors(tenantId: string, buildingId?: string): import("@prisma/client").Prisma.PrismaPromise<({
         building: {
             id: string;
             name: string;
@@ -91,7 +90,7 @@ export declare class PropertiesController {
         buildingId: string;
         floorNumber: number;
     })[]>;
-    createFloor(user: AuthenticatedUser, body: CreateFloorInput): Promise<{
+    createFloor(tenantId: string, userId: string, input: CreateFloorInput): Promise<{
         building: {
             id: string;
             name: string;
@@ -106,7 +105,7 @@ export declare class PropertiesController {
         buildingId: string;
         floorNumber: number;
     }>;
-    updateFloor(user: AuthenticatedUser, id: string, body: UpdateFloorInput): Promise<{
+    updateFloor(tenantId: string, userId: string, id: string, input: UpdateFloorInput): Promise<{
         building: {
             id: string;
             name: string;
@@ -121,8 +120,12 @@ export declare class PropertiesController {
         buildingId: string;
         floorNumber: number;
     }>;
-    removeFloor(user: AuthenticatedUser, id: string): Promise<{
+    removeFloor(tenantId: string, userId: string, id: string): Promise<{
         id: string;
         deleted: boolean;
     }>;
+    private normalizeCount;
+    private assertProjectBelongsToTenant;
+    private assertBuildingBelongsToTenant;
+    private recordAudit;
 }

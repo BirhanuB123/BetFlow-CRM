@@ -3,8 +3,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import {
+  ConvertLeadInput,
   CreateLeadInput,
   LEAD_STATUSES,
   LeadStatus,
@@ -153,6 +155,155 @@ export class LeadsService {
     });
 
     return lead;
+  }
+
+  async convert(
+    tenantId: string,
+    userId: string,
+    id: string,
+    input: ConvertLeadInput,
+  ) {
+    const lead = await this.prisma.lead.findFirst({ where: { id, tenantId } });
+    if (!lead) throw new NotFoundException(`Lead ${id} was not found`);
+    if (lead.convertedAt) {
+      throw new BadRequestException('Lead has already been converted');
+    }
+
+    // Validate the optional deal + account up front (outside the transaction).
+    let dealValue: string | undefined;
+    if (input.deal) {
+      if (!input.deal.name?.trim())
+        throw new BadRequestException('deal.name is required');
+      if (!input.deal.stageId)
+        throw new BadRequestException('deal.stageId is required');
+      const stage = await this.prisma.dealStage.findFirst({
+        where: { id: input.deal.stageId, tenantId },
+      });
+      if (!stage)
+        throw new BadRequestException(
+          `Deal stage ${input.deal.stageId} was not found`,
+        );
+      const parsed = Number(input.deal.value);
+      if (Number.isNaN(parsed) || parsed < 0)
+        throw new BadRequestException('deal.value must be a non-negative number');
+      dealValue = parsed.toFixed(2);
+    }
+
+    if (input.accountId) {
+      const account = await this.prisma.account.findFirst({
+        where: { id: input.accountId, tenantId },
+        select: { id: true },
+      });
+      if (!account)
+        throw new BadRequestException(`Account ${input.accountId} was not found`);
+    }
+
+    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      // 1. Resolve or create the account.
+      let account: { id: string; name: string } | null = null;
+      if (input.accountId) {
+        account = await tx.account.findUnique({
+          where: { id: input.accountId },
+          select: { id: true, name: true },
+        });
+      } else if (input.createAccount) {
+        const name =
+          lead.company?.trim() || `${lead.firstName} ${lead.lastName}`.trim();
+        account = await tx.account.create({
+          data: {
+            tenantId,
+            name,
+            accountType: 'CUSTOMER',
+            ownerId: lead.ownerId ?? userId,
+          },
+          select: { id: true, name: true },
+        });
+        await tx.auditLog.create({
+          data: {
+            tenantId,
+            userId,
+            action: 'account.created',
+            entityType: 'Account',
+            entityId: account.id,
+          },
+        });
+      }
+      const accountId = account?.id ?? null;
+
+      // 2. Create the contact (Customer) from the lead.
+      const customer = await tx.customer.create({
+        data: {
+          tenantId,
+          firstName: lead.firstName,
+          lastName: lead.lastName,
+          email: lead.email,
+          phone: lead.phone,
+          accountId,
+        },
+        select: { id: true, firstName: true, lastName: true },
+      });
+      await tx.auditLog.create({
+        data: {
+          tenantId,
+          userId,
+          action: 'customer.created',
+          entityType: 'Customer',
+          entityId: customer.id,
+        },
+      });
+
+      // 3. Optionally open a deal.
+      let deal: { id: string; name: string } | null = null;
+      if (input.deal && dealValue) {
+        deal = await tx.deal.create({
+          data: {
+            tenantId,
+            name: input.deal.name.trim(),
+            value: dealValue,
+            stageId: input.deal.stageId,
+            customerId: customer.id,
+            accountId,
+          },
+          select: { id: true, name: true },
+        });
+        await tx.auditLog.create({
+          data: {
+            tenantId,
+            userId,
+            action: 'deal.created',
+            entityType: 'Deal',
+            entityId: deal.id,
+          },
+        });
+      }
+
+      // 4. Mark the lead converted and link it to the new contact.
+      const updatedLead = await tx.lead.update({
+        where: { id },
+        data: {
+          status: 'CONVERTED',
+          convertedAt: new Date(),
+          convertedCustomerId: customer.id,
+        },
+        include: leadInclude,
+      });
+      await tx.auditLog.create({
+        data: {
+          tenantId,
+          userId,
+          action: 'lead.converted',
+          entityType: 'Lead',
+          entityId: id,
+          newValues: {
+            customerId: customer.id,
+            ...(accountId ? { accountId } : {}),
+            ...(deal ? { dealId: deal.id } : {}),
+          },
+        },
+      });
+
+      return { lead: updatedLead, customer, account, deal };
+    });
   }
 
   private normalizeStatus(status: string): LeadStatus {

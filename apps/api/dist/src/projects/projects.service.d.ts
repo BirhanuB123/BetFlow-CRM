@@ -1,10 +1,9 @@
-import { ProjectsService } from './projects.service';
-import type { AuthenticatedUser } from '../auth/auth.types';
-import type { CreateProjectInput, UpdateProjectInput } from './projects.types';
-export declare class ProjectsController {
-    private readonly projects;
-    constructor(projects: ProjectsService);
-    list(user: AuthenticatedUser): Promise<{
+import { PrismaService } from '../database/prisma.service';
+import { CreateProjectInput, UpdateProjectInput } from './projects.types';
+export declare class ProjectsService {
+    private readonly prisma;
+    constructor(prisma: PrismaService);
+    list(tenantId: string): Promise<{
         unitsCount: number;
         _count: {
             buildings: number;
@@ -15,7 +14,7 @@ export declare class ProjectsController {
         description: string | null;
         status: string;
     }[]>;
-    get(user: AuthenticatedUser, id: string): Promise<{
+    get(tenantId: string, id: string): Promise<{
         buildings: {
             unitsCount: number;
             _count: {
@@ -37,7 +36,7 @@ export declare class ProjectsController {
         description: string | null;
         status: string;
     }>;
-    create(user: AuthenticatedUser, body: CreateProjectInput): Promise<{
+    create(tenantId: string, userId: string, input: CreateProjectInput): Promise<{
         _count: {
             buildings: number;
         };
@@ -48,7 +47,7 @@ export declare class ProjectsController {
         description: string | null;
         status: string;
     }>;
-    update(user: AuthenticatedUser, id: string, body: UpdateProjectInput): Promise<{
+    update(tenantId: string, userId: string, id: string, input: UpdateProjectInput): Promise<{
         _count: {
             buildings: number;
         };
@@ -59,8 +58,10 @@ export declare class ProjectsController {
         description: string | null;
         status: string;
     }>;
-    remove(user: AuthenticatedUser, id: string): Promise<{
+    remove(tenantId: string, userId: string, id: string): Promise<{
         id: string;
         deleted: boolean;
     }>;
+    private normalizeStatus;
+    private recordAudit;
 }

@@ -15,73 +15,73 @@ export declare class CustomersService {
         };
     } & {
         id: string;
+        email: string | null;
         tenantId: string;
-        accountId: string | null;
         firstName: string;
         lastName: string;
-        email: string | null;
-        phone: string | null;
-        title: string | null;
         createdAt: Date;
+        phone: string | null;
+        accountId: string | null;
+        title: string | null;
     })[]>;
     get(tenantId: string, id: string): Promise<{
         payments: {
             id: string;
             status: string;
-            amount: import("@prisma/client-runtime-utils").Decimal;
             date: Date;
+            amount: import("@prisma/client-runtime-utils").Decimal;
             method: string;
             contractId: string | null;
             reservationId: string | null;
         }[];
-        account: {
-            id: string;
-            name: string;
-        } | null;
         deals: {
             id: string;
             createdAt: Date;
             name: string;
+            unit: {
+                id: string;
+                unitNumber: string;
+            } | null;
             value: import("@prisma/client-runtime-utils").Decimal;
             stage: {
                 id: string;
                 name: string;
                 probability: number;
             };
-            unit: {
-                id: string;
-                unitNumber: string;
-            } | null;
         }[];
         reservations: {
             id: string;
+            status: string;
             unit: {
                 id: string;
                 unitNumber: string;
             };
-            status: string;
-            amount: import("@prisma/client-runtime-utils").Decimal;
             date: Date;
+            amount: import("@prisma/client-runtime-utils").Decimal;
         }[];
         contracts: {
             id: string;
+            startDate: Date;
+            status: string;
             unit: {
                 id: string;
                 unitNumber: string;
             };
-            status: string;
-            startDate: Date;
             totalAmt: import("@prisma/client-runtime-utils").Decimal;
         }[];
+        account: {
+            id: string;
+            name: string;
+        } | null;
         id: string;
+        email: string | null;
         tenantId: string;
-        accountId: string | null;
         firstName: string;
         lastName: string;
-        email: string | null;
-        phone: string | null;
-        title: string | null;
         createdAt: Date;
+        phone: string | null;
+        accountId: string | null;
+        title: string | null;
     }>;
     create(tenantId: string, userId: string, input: CreateCustomerInput): Promise<{
         account: {
@@ -95,14 +95,14 @@ export declare class CustomersService {
         };
     } & {
         id: string;
+        email: string | null;
         tenantId: string;
-        accountId: string | null;
         firstName: string;
         lastName: string;
-        email: string | null;
-        phone: string | null;
-        title: string | null;
         createdAt: Date;
+        phone: string | null;
+        accountId: string | null;
+        title: string | null;
     }>;
     update(tenantId: string, userId: string, id: string, input: UpdateCustomerInput): Promise<{
         account: {
@@ -116,14 +116,14 @@ export declare class CustomersService {
         };
     } & {
         id: string;
+        email: string | null;
         tenantId: string;
-        accountId: string | null;
         firstName: string;
         lastName: string;
-        email: string | null;
-        phone: string | null;
-        title: string | null;
         createdAt: Date;
+        phone: string | null;
+        accountId: string | null;
+        title: string | null;
     }>;
     remove(tenantId: string, userId: string, id: string): Promise<{
         id: string;

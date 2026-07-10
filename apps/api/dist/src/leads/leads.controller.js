@@ -34,6 +34,9 @@ let LeadsController = class LeadsController {
     updateStatus(user, id, body) {
         return this.leads.updateStatus(user.tenantId, user.id, id, body.status);
     }
+    convert(user, id, body) {
+        return this.leads.convert(user.tenantId, user.id, id, body);
+    }
     update(user, id, body) {
         return this.leads.update(user.tenantId, user.id, id, body);
     }
@@ -73,6 +76,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", void 0)
 ], LeadsController.prototype, "updateStatus", null);
+__decorate([
+    (0, common_1.Post)(':id/convert'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", void 0)
+], LeadsController.prototype, "convert", null);
 __decorate([
     (0, common_1.Patch)(':id'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),

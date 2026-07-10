@@ -8,5 +8,6 @@ exports.LEAD_STATUSES = [
     'FOLLOW_UP',
     'WON',
     'LOST',
+    'CONVERTED',
 ];
 //# sourceMappingURL=leads.types.js.map

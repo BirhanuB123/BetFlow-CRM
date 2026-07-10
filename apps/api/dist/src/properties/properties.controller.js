@@ -14,79 +14,120 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PropertiesController = void 0;
 const common_1 = require("@nestjs/common");
-const in_memory_service_1 = require("../database/in-memory.service");
+const properties_service_1 = require("./properties.service");
+const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
+const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 let PropertiesController = class PropertiesController {
-    store;
-    constructor(store) {
-        this.store = store;
+    properties;
+    constructor(properties) {
+        this.properties = properties;
     }
-    listBuildings(tenantId, projectId) {
-        return this.store.listBuildings(tenantId, projectId);
+    listBuildings(user, projectId) {
+        return this.properties.listBuildings(user.tenantId, projectId);
     }
-    createBuilding(body) {
-        return this.store.createBuilding(body);
+    getBuilding(user, id) {
+        return this.properties.getBuilding(user.tenantId, id);
     }
-    listFloors(tenantId, buildingId) {
-        return this.store.listFloors(tenantId, buildingId);
+    createBuilding(user, body) {
+        return this.properties.createBuilding(user.tenantId, user.id, body);
     }
-    createFloor(body) {
-        return this.store.createFloor(body);
+    updateBuilding(user, id, body) {
+        return this.properties.updateBuilding(user.tenantId, user.id, id, body);
     }
-    listMedia(tenantId, projectId) {
-        return this.store.listPropertyMedia(tenantId, projectId);
+    removeBuilding(user, id) {
+        return this.properties.removeBuilding(user.tenantId, user.id, id);
     }
-    createMedia(body) {
-        return this.store.createPropertyMedia(body);
+    listFloors(user, buildingId) {
+        return this.properties.listFloors(user.tenantId, buildingId);
+    }
+    createFloor(user, body) {
+        return this.properties.createFloor(user.tenantId, user.id, body);
+    }
+    updateFloor(user, id, body) {
+        return this.properties.updateFloor(user.tenantId, user.id, id, body);
+    }
+    removeFloor(user, id) {
+        return this.properties.removeFloor(user.tenantId, user.id, id);
     }
 };
 exports.PropertiesController = PropertiesController;
 __decorate([
     (0, common_1.Get)('buildings'),
-    __param(0, (0, common_1.Query)('tenantId')),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Query)('projectId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], PropertiesController.prototype, "listBuildings", null);
 __decorate([
-    (0, common_1.Post)('buildings'),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.Get)('buildings/:id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], PropertiesController.prototype, "getBuilding", null);
+__decorate([
+    (0, common_1.Post)('buildings'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], PropertiesController.prototype, "createBuilding", null);
 __decorate([
+    (0, common_1.Patch)('buildings/:id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", void 0)
+], PropertiesController.prototype, "updateBuilding", null);
+__decorate([
+    (0, common_1.Delete)('buildings/:id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], PropertiesController.prototype, "removeBuilding", null);
+__decorate([
     (0, common_1.Get)('floors'),
-    __param(0, (0, common_1.Query)('tenantId')),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Query)('buildingId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], PropertiesController.prototype, "listFloors", null);
 __decorate([
     (0, common_1.Post)('floors'),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], PropertiesController.prototype, "createFloor", null);
 __decorate([
-    (0, common_1.Get)('media'),
-    __param(0, (0, common_1.Query)('tenantId')),
-    __param(1, (0, common_1.Query)('projectId')),
+    (0, common_1.Patch)('floors/:id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", void 0)
-], PropertiesController.prototype, "listMedia", null);
+], PropertiesController.prototype, "updateFloor", null);
 __decorate([
-    (0, common_1.Post)('media'),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.Delete)('floors/:id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
-], PropertiesController.prototype, "createMedia", null);
+], PropertiesController.prototype, "removeFloor", null);
 exports.PropertiesController = PropertiesController = __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('properties'),
-    __metadata("design:paramtypes", [in_memory_service_1.InMemoryService])
+    __metadata("design:paramtypes", [properties_service_1.PropertiesService])
 ], PropertiesController);
 //# sourceMappingURL=properties.controller.js.map
