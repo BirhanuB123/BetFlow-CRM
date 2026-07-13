@@ -20,6 +20,7 @@ export declare class AuthService {
             name: string;
             slug: string | null;
             domain: string | null;
+            currency: string;
             region: string;
             plan: string;
             status: string;

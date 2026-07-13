@@ -3,7 +3,7 @@ export const API_BASE_URL =
 
 type Session = {
   accessToken: string;
-  tenant?: unknown;
+  tenant?: { currency?: string };
   user?: unknown;
 };
 
@@ -56,4 +56,22 @@ export function clearSession() {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem("betflow-auth");
   window.sessionStorage.removeItem("betflow-auth");
+}
+
+export function updateSessionCurrency(currency: string) {
+  if (typeof window === "undefined") return;
+  const storage = window.localStorage.getItem("betflow-auth")
+    ? window.localStorage
+    : window.sessionStorage;
+  const raw = storage.getItem("betflow-auth");
+  if (!raw) return;
+  try {
+    const session = JSON.parse(raw) as Session;
+    storage.setItem("betflow-auth", JSON.stringify({
+      ...session,
+      tenant: { ...session.tenant, currency },
+    }));
+  } catch {
+    // A malformed session is handled by getSession on the next API request.
+  }
 }

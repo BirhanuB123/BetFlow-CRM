@@ -5,27 +5,27 @@ export declare class LeadsService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     list(tenantId: string): Prisma.PrismaPromise<({
-        source: {
-            id: string;
-            name: string;
-        } | null;
         owner: {
             id: string;
             firstName: string;
             lastName: string;
         } | null;
+        source: {
+            id: string;
+            name: string;
+        } | null;
     } & {
         id: string;
+        email: string | null;
         tenantId: string;
         firstName: string;
         lastName: string;
-        company: string | null;
-        email: string | null;
-        phone: string | null;
-        status: string;
-        sourceId: string | null;
-        ownerId: string | null;
         createdAt: Date;
+        status: string;
+        phone: string | null;
+        ownerId: string | null;
+        company: string | null;
+        sourceId: string | null;
         convertedAt: Date | null;
         convertedCustomerId: string | null;
     })[]>;
@@ -34,52 +34,52 @@ export declare class LeadsService {
         name: string;
     }[]>;
     create(tenantId: string, userId: string, input: CreateLeadInput): Promise<{
-        source: {
-            id: string;
-            name: string;
-        } | null;
         owner: {
             id: string;
             firstName: string;
             lastName: string;
         } | null;
+        source: {
+            id: string;
+            name: string;
+        } | null;
     } & {
         id: string;
+        email: string | null;
         tenantId: string;
         firstName: string;
         lastName: string;
-        company: string | null;
-        email: string | null;
-        phone: string | null;
-        status: string;
-        sourceId: string | null;
-        ownerId: string | null;
         createdAt: Date;
+        status: string;
+        phone: string | null;
+        ownerId: string | null;
+        company: string | null;
+        sourceId: string | null;
         convertedAt: Date | null;
         convertedCustomerId: string | null;
     }>;
     update(tenantId: string, userId: string, id: string, input: UpdateLeadInput): Promise<{
-        source: {
-            id: string;
-            name: string;
-        } | null;
         owner: {
             id: string;
             firstName: string;
             lastName: string;
         } | null;
+        source: {
+            id: string;
+            name: string;
+        } | null;
     } & {
         id: string;
+        email: string | null;
         tenantId: string;
         firstName: string;
         lastName: string;
-        company: string | null;
-        email: string | null;
-        phone: string | null;
-        status: string;
-        sourceId: string | null;
-        ownerId: string | null;
         createdAt: Date;
+        status: string;
+        phone: string | null;
+        ownerId: string | null;
+        company: string | null;
+        sourceId: string | null;
         convertedAt: Date | null;
         convertedCustomerId: string | null;
     }>;
@@ -88,53 +88,53 @@ export declare class LeadsService {
         deleted: boolean;
     }>;
     updateStatus(tenantId: string, userId: string, id: string, status: string): Promise<{
-        source: {
-            id: string;
-            name: string;
-        } | null;
         owner: {
             id: string;
             firstName: string;
             lastName: string;
         } | null;
+        source: {
+            id: string;
+            name: string;
+        } | null;
     } & {
         id: string;
+        email: string | null;
         tenantId: string;
         firstName: string;
         lastName: string;
-        company: string | null;
-        email: string | null;
-        phone: string | null;
-        status: string;
-        sourceId: string | null;
-        ownerId: string | null;
         createdAt: Date;
+        status: string;
+        phone: string | null;
+        ownerId: string | null;
+        company: string | null;
+        sourceId: string | null;
         convertedAt: Date | null;
         convertedCustomerId: string | null;
     }>;
     convert(tenantId: string, userId: string, id: string, input: ConvertLeadInput): Promise<{
         lead: {
-            source: {
-                id: string;
-                name: string;
-            } | null;
             owner: {
                 id: string;
                 firstName: string;
                 lastName: string;
             } | null;
+            source: {
+                id: string;
+                name: string;
+            } | null;
         } & {
             id: string;
+            email: string | null;
             tenantId: string;
             firstName: string;
             lastName: string;
-            company: string | null;
-            email: string | null;
-            phone: string | null;
-            status: string;
-            sourceId: string | null;
-            ownerId: string | null;
             createdAt: Date;
+            status: string;
+            phone: string | null;
+            ownerId: string | null;
+            company: string | null;
+            sourceId: string | null;
             convertedAt: Date | null;
             convertedCustomerId: string | null;
         };

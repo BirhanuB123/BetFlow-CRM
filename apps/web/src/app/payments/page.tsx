@@ -8,6 +8,7 @@ import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
 import { apiFetch } from "@/lib/api";
+import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
 type ApiPayment = {
@@ -40,15 +41,8 @@ const statusClass: Record<string, string> = {
   FAILED: "bg-rose-100 text-rose-700",
 };
 
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
-
 function formatAmount(value: string | number) {
-  const parsed = typeof value === "string" ? Number(value) : value;
-  return Number.isNaN(parsed) ? String(value) : currency.format(parsed);
+  return formatCurrency(value);
 }
 
 export default function PaymentsPage() {

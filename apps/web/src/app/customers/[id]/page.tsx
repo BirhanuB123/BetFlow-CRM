@@ -11,6 +11,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { ActivityTimeline } from "@/components/activity/activity-timeline";
 import { NotesPanel } from "@/components/notes/notes-panel";
 import { apiFetch } from "@/lib/api";
+import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
 type UnitRef = { id: string; unitNumber: string } | null;
@@ -56,15 +57,8 @@ type CustomerDetail = {
   }[];
 };
 
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
-
 function money(value: string | number) {
-  const parsed = typeof value === "string" ? Number(value) : value;
-  return Number.isNaN(parsed) ? String(value) : currency.format(parsed);
+  return formatCurrency(value);
 }
 
 const badge = "rounded-md px-2 py-1 text-xs font-medium";

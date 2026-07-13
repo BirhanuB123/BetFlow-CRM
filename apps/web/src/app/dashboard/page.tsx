@@ -12,6 +12,7 @@ import {
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { ActivityTimeline } from "@/components/activity/activity-timeline";
 import { apiFetch } from "@/lib/api";
+import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
 type Assignee = { id: string; firstName: string; lastName: string } | null;
@@ -55,14 +56,8 @@ type Lead = {
   source: { id: string; name: string } | null;
 };
 
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
 function money(value: string | number) {
-  const parsed = typeof value === "string" ? Number(value) : value;
-  return Number.isNaN(parsed) ? String(value) : currency.format(parsed);
+  return formatCurrency(value);
 }
 function fmtDate(iso: string | null) {
   if (!iso) return "—";

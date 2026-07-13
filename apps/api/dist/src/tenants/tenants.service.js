@@ -9,11 +9,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TenantsService = void 0;
+exports.TenantsService = exports.SUPPORTED_CURRENCIES = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const password_service_1 = require("../auth/password.service");
 const prisma_service_1 = require("../database/prisma.service");
+exports.SUPPORTED_CURRENCIES = ['ETB', 'USD', 'EUR', 'GBP', 'KES', 'AED'];
 let TenantsService = class TenantsService {
     prisma;
     passwords;
@@ -33,6 +34,7 @@ let TenantsService = class TenantsService {
                     data: {
                         name: input.companyName.trim(),
                         domain,
+                        currency: 'ETB',
                     },
                 });
                 const ownerRole = await tx.role.create({
@@ -143,12 +145,16 @@ let TenantsService = class TenantsService {
             throw new common_1.ForbiddenException('Tenant settings can only be changed for the authenticated tenant');
         }
         await this.getTenant(id);
+        const data = {};
+        if (input.name !== undefined)
+            data.name = input.name.trim();
+        if (input.domain !== undefined)
+            data.domain = input.domain.trim().toLowerCase();
+        if (input.currency !== undefined)
+            data.currency = this.normalizeCurrency(input.currency);
         const tenant = await this.prisma.tenant.update({
             where: { id },
-            data: {
-                name: input.name,
-                domain: input.domain,
-            },
+            data,
         });
         await this.prisma.auditLog.create({
             data: {
@@ -156,7 +162,7 @@ let TenantsService = class TenantsService {
                 action: 'tenant.updated',
                 entityType: 'Tenant',
                 entityId: id,
-                newValues: input,
+                newValues: data,
             },
         });
         return this.serializeTenant(tenant);
@@ -206,12 +212,20 @@ let TenantsService = class TenantsService {
         const lastName = parts.join(' ') || 'User';
         return { firstName, lastName };
     }
+    normalizeCurrency(value) {
+        const currency = value.trim().toUpperCase();
+        if (!exports.SUPPORTED_CURRENCIES.includes(currency)) {
+            throw new common_1.BadRequestException(`currency must be one of: ${exports.SUPPORTED_CURRENCIES.join(', ')}`);
+        }
+        return currency;
+    }
     serializeTenant(tenant) {
         return {
             id: tenant.id,
             name: tenant.name,
             slug: tenant.domain,
             domain: tenant.domain,
+            currency: tenant.currency ?? 'ETB',
             region: 'US East',
             plan: tenant.plan ?? 'Starter',
             status: 'active',

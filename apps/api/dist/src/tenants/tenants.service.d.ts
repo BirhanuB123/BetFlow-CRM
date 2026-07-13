@@ -1,6 +1,7 @@
 import { User } from '@prisma/client';
 import { PasswordService } from '../auth/password.service';
 import { PrismaService } from '../database/prisma.service';
+export declare const SUPPORTED_CURRENCIES: readonly ["ETB", "USD", "EUR", "GBP", "KES", "AED"];
 export type RegisterTenantBody = {
     companyName: string;
     slug: string;
@@ -13,6 +14,7 @@ export type RegisterTenantBody = {
 export type UpdateTenantBody = {
     name?: string;
     domain?: string;
+    currency?: string;
 };
 export declare class TenantsService {
     private readonly prisma;
@@ -24,6 +26,7 @@ export declare class TenantsService {
             name: string;
             slug: string | null;
             domain: string | null;
+            currency: string;
             region: string;
             plan: string;
             status: string;
@@ -54,6 +57,7 @@ export declare class TenantsService {
         name: string;
         slug: string | null;
         domain: string | null;
+        currency: string;
         region: string;
         plan: string;
         status: string;
@@ -66,6 +70,7 @@ export declare class TenantsService {
         name: string;
         slug: string | null;
         domain: string | null;
+        currency: string;
         region: string;
         plan: string;
         status: string;
@@ -78,6 +83,7 @@ export declare class TenantsService {
         name: string;
         slug: string | null;
         domain: string | null;
+        currency: string;
         region: string;
         plan: string;
         status: string;
@@ -116,6 +122,7 @@ export declare class TenantsService {
     };
     private assertTenantRegistration;
     private splitName;
+    private normalizeCurrency;
     private serializeTenant;
     private isUniqueViolation;
     private readonly userInclude;

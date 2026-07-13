@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { ActivityTimeline } from "@/components/activity/activity-timeline";
 import { NotesPanel } from "@/components/notes/notes-panel";
 import { apiFetch } from "@/lib/api";
+import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
 const ACCOUNT_TYPES = ["CUSTOMER", "INVESTOR", "PARTNER", "DEVELOPER", "SUPPLIER", "OTHER"] as const;
@@ -72,15 +73,9 @@ type AccountDetail = {
   _count: { customers: number; deals: number };
 };
 
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
 function money(value: string | null) {
   if (value == null) return "—";
-  const n = Number(value);
-  return Number.isNaN(n) ? value : currency.format(n);
+  return formatCurrency(value);
 }
 
 const ratingClass: Record<string, string> = {

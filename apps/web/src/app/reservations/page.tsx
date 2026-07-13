@@ -7,6 +7,7 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
+import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
 type ApiReservation = {
@@ -29,15 +30,8 @@ const statusClass: Record<string, string> = {
   EXPIRED: "bg-zinc-200 text-zinc-600",
 };
 
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
-
 function formatAmount(value: string) {
-  const parsed = Number(value);
-  return Number.isNaN(parsed) ? value : currency.format(parsed);
+  return formatCurrency(value);
 }
 
 export default function ReservationsPage() {

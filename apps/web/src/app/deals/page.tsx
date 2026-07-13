@@ -7,6 +7,7 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
+import { formatCurrency } from "@/lib/currency";
 
 type Stage = { id: string; name: string; order: number; probability: number };
 type DealCustomer = { id: string; firstName: string; lastName: string };
@@ -31,15 +32,8 @@ type NewDeal = {
   stageId: string;
 };
 
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
-
 function formatValue(value: string) {
-  const parsed = Number(value);
-  return Number.isNaN(parsed) ? value : currency.format(parsed);
+  return formatCurrency(value);
 }
 
 export default function DealsPage() {

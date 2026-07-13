@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
 import { apiFetch } from "@/lib/api";
+import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
 const UNIT_STATUSES = ["AVAILABLE", "RESERVED", "SOLD"] as const;
@@ -36,15 +37,8 @@ const statusClass: Record<string, string> = {
   SOLD: "bg-zinc-200 text-zinc-700",
 };
 
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
-
 function formatPrice(value: string) {
-  const parsed = Number(value);
-  return Number.isNaN(parsed) ? value : currency.format(parsed);
+  return formatCurrency(value);
 }
 
 export default function UnitsPage() {

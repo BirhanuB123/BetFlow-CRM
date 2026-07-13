@@ -23,6 +23,7 @@ export declare class AuthController {
             name: string;
             slug: string | null;
             domain: string | null;
+            currency: string;
             region: string;
             plan: string;
             status: string;

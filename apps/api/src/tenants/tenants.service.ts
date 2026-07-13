@@ -9,6 +9,9 @@ import { Prisma, User } from '@prisma/client';
 import { PasswordService } from '../auth/password.service';
 import { PrismaService } from '../database/prisma.service';
 
+export const SUPPORTED_CURRENCIES = ['ETB', 'USD', 'EUR', 'GBP', 'KES', 'AED'] as const;
+type SupportedCurrency = (typeof SUPPORTED_CURRENCIES)[number];
+
 export type RegisterTenantBody = {
   companyName: string;
   slug: string;
@@ -22,6 +25,7 @@ export type RegisterTenantBody = {
 export type UpdateTenantBody = {
   name?: string;
   domain?: string;
+  currency?: string;
 };
 
 type TenantListResult = {
@@ -55,6 +59,7 @@ export class TenantsService {
           data: {
             name: input.companyName.trim(),
             domain,
+            currency: 'ETB',
           },
         });
         const ownerRole = await tx.role.create({
@@ -177,12 +182,14 @@ export class TenantsService {
 
     await this.getTenant(id);
 
+    const data: { name?: string; domain?: string; currency?: SupportedCurrency } = {};
+    if (input.name !== undefined) data.name = input.name.trim();
+    if (input.domain !== undefined) data.domain = input.domain.trim().toLowerCase();
+    if (input.currency !== undefined) data.currency = this.normalizeCurrency(input.currency);
+
     const tenant = await this.prisma.tenant.update({
       where: { id },
-      data: {
-        name: input.name,
-        domain: input.domain,
-      },
+      data,
     });
 
     await this.prisma.auditLog.create({
@@ -191,7 +198,7 @@ export class TenantsService {
         action: 'tenant.updated',
         entityType: 'Tenant',
         entityId: id,
-        newValues: input,
+        newValues: data,
       },
     });
 
@@ -253,10 +260,21 @@ export class TenantsService {
     return { firstName, lastName };
   }
 
+  private normalizeCurrency(value: string): SupportedCurrency {
+    const currency = value.trim().toUpperCase();
+    if (!SUPPORTED_CURRENCIES.includes(currency as SupportedCurrency)) {
+      throw new BadRequestException(
+        `currency must be one of: ${SUPPORTED_CURRENCIES.join(', ')}`,
+      );
+    }
+    return currency as SupportedCurrency;
+  }
+
   private serializeTenant(tenant: {
     id: string;
     name: string;
     domain: string | null;
+    currency?: string;
     createdAt: Date;
     updatedAt: Date;
     ownerUserId?: string;
@@ -267,6 +285,7 @@ export class TenantsService {
       name: tenant.name,
       slug: tenant.domain,
       domain: tenant.domain,
+      currency: tenant.currency ?? 'ETB',
       region: 'US East',
       plan: tenant.plan ?? 'Starter',
       status: 'active',

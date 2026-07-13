@@ -5,7 +5,8 @@ import { Check, Plus, ShieldAlert, X } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, updateSessionCurrency } from "@/lib/api";
+import { CURRENCIES } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
 type Tenant = {
@@ -16,6 +17,7 @@ type Tenant = {
   region: string;
   plan: string;
   status: string;
+  currency: string;
 };
 
 type Role = {
@@ -48,6 +50,7 @@ export default function SettingsPage() {
 
   // Tenant profile editing
   const [tenantName, setTenantName] = useState("");
+  const [tenantCurrency, setTenantCurrency] = useState("ETB");
   const [savingTenant, setSavingTenant] = useState(false);
   const [tenantSaved, setTenantSaved] = useState(false);
 
@@ -71,6 +74,7 @@ export default function SettingsPage() {
       ]);
       setTenant(tenantData);
       setTenantName(tenantData.name);
+      setTenantCurrency(tenantData.currency || "ETB");
       setRoles(rolesData);
       setUsers(usersData);
     } catch (err) {
@@ -104,10 +108,12 @@ export default function SettingsPage() {
     try {
       const updated = await apiFetch<Tenant>(`/tenants/${tenant.id}`, {
         method: "PATCH",
-        body: JSON.stringify({ name: tenantName.trim() }),
+        body: JSON.stringify({ name: tenantName.trim(), currency: tenantCurrency }),
       });
       setTenant(updated);
       setTenantName(updated.name);
+      setTenantCurrency(updated.currency);
+      updateSessionCurrency(updated.currency);
       setTenantSaved(true);
       setTimeout(() => setTenantSaved(false), 2500);
     } catch (err) {
@@ -219,6 +225,23 @@ export default function SettingsPage() {
                     title="Slug is used for sign-in and cannot be changed here"
                   />
                 </label>
+                <label className="grid gap-2 text-sm font-medium">
+                  Default currency
+                  <select
+                    className={inputClass}
+                    value={tenantCurrency}
+                    onChange={(e) => setTenantCurrency(e.target.value)}
+                  >
+                    {CURRENCIES.map((currency) => (
+                      <option key={currency.code} value={currency.code}>
+                        {currency.label}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="text-xs font-normal text-zinc-500">
+                    New monetary values are recorded in this workspace currency. Changing it does not convert existing amounts.
+                  </span>
+                </label>
                 <div className="grid grid-cols-2 gap-4">
                   <label className="grid gap-2 text-sm font-medium text-zinc-500">
                     Region
@@ -238,7 +261,7 @@ export default function SettingsPage() {
                   </label>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Button type="submit" disabled={savingTenant || tenantName.trim() === tenant?.name}>
+                  <Button type="submit" disabled={savingTenant || (tenantName.trim() === tenant?.name && tenantCurrency === tenant?.currency)}>
                     {savingTenant ? "Saving…" : "Save"}
                   </Button>
                   {tenantSaved && (

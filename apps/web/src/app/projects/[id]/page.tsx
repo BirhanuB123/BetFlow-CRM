@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { ActivityTimeline } from "@/components/activity/activity-timeline";
 import { NotesPanel } from "@/components/notes/notes-panel";
 import { apiFetch } from "@/lib/api";
+import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
 const UNIT_TYPES = ["APARTMENT", "OFFICE", "SHOP", "STUDIO", "PENTHOUSE", "VILLA"];
@@ -53,10 +54,8 @@ type UnitNode = {
   area: number | null;
 };
 
-const currency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 function money(v: string) {
-  const n = Number(v);
-  return Number.isNaN(n) ? v : currency.format(n);
+  return formatCurrency(v);
 }
 const input = "h-9 rounded-md border border-zinc-200 bg-white px-3 text-sm outline-none focus:border-zinc-400";
 const unitStatusClass: Record<string, string> = {

@@ -5,27 +5,27 @@ export declare class LeadsController {
     private readonly leads;
     constructor(leads: LeadsService);
     list(user: AuthenticatedUser): import("@prisma/client").Prisma.PrismaPromise<({
-        source: {
-            id: string;
-            name: string;
-        } | null;
         owner: {
             id: string;
             firstName: string;
             lastName: string;
         } | null;
+        source: {
+            id: string;
+            name: string;
+        } | null;
     } & {
         id: string;
+        email: string | null;
         tenantId: string;
         firstName: string;
         lastName: string;
-        company: string | null;
-        email: string | null;
-        phone: string | null;
-        status: string;
-        sourceId: string | null;
-        ownerId: string | null;
         createdAt: Date;
+        status: string;
+        phone: string | null;
+        ownerId: string | null;
+        company: string | null;
+        sourceId: string | null;
         convertedAt: Date | null;
         convertedCustomerId: string | null;
     })[]>;
@@ -34,78 +34,78 @@ export declare class LeadsController {
         name: string;
     }[]>;
     create(user: AuthenticatedUser, body: CreateLeadInput): Promise<{
-        source: {
-            id: string;
-            name: string;
-        } | null;
         owner: {
             id: string;
             firstName: string;
             lastName: string;
         } | null;
+        source: {
+            id: string;
+            name: string;
+        } | null;
     } & {
         id: string;
+        email: string | null;
         tenantId: string;
         firstName: string;
         lastName: string;
-        company: string | null;
-        email: string | null;
-        phone: string | null;
-        status: string;
-        sourceId: string | null;
-        ownerId: string | null;
         createdAt: Date;
+        status: string;
+        phone: string | null;
+        ownerId: string | null;
+        company: string | null;
+        sourceId: string | null;
         convertedAt: Date | null;
         convertedCustomerId: string | null;
     }>;
     updateStatus(user: AuthenticatedUser, id: string, body: UpdateLeadStatusInput): Promise<{
-        source: {
-            id: string;
-            name: string;
-        } | null;
         owner: {
             id: string;
             firstName: string;
             lastName: string;
         } | null;
+        source: {
+            id: string;
+            name: string;
+        } | null;
     } & {
         id: string;
+        email: string | null;
         tenantId: string;
         firstName: string;
         lastName: string;
-        company: string | null;
-        email: string | null;
-        phone: string | null;
-        status: string;
-        sourceId: string | null;
-        ownerId: string | null;
         createdAt: Date;
+        status: string;
+        phone: string | null;
+        ownerId: string | null;
+        company: string | null;
+        sourceId: string | null;
         convertedAt: Date | null;
         convertedCustomerId: string | null;
     }>;
     convert(user: AuthenticatedUser, id: string, body: ConvertLeadInput): Promise<{
         lead: {
-            source: {
-                id: string;
-                name: string;
-            } | null;
             owner: {
                 id: string;
                 firstName: string;
                 lastName: string;
             } | null;
+            source: {
+                id: string;
+                name: string;
+            } | null;
         } & {
             id: string;
+            email: string | null;
             tenantId: string;
             firstName: string;
             lastName: string;
-            company: string | null;
-            email: string | null;
-            phone: string | null;
-            status: string;
-            sourceId: string | null;
-            ownerId: string | null;
             createdAt: Date;
+            status: string;
+            phone: string | null;
+            ownerId: string | null;
+            company: string | null;
+            sourceId: string | null;
             convertedAt: Date | null;
             convertedCustomerId: string | null;
         };
@@ -124,27 +124,27 @@ export declare class LeadsController {
         } | null;
     }>;
     update(user: AuthenticatedUser, id: string, body: UpdateLeadInput): Promise<{
-        source: {
-            id: string;
-            name: string;
-        } | null;
         owner: {
             id: string;
             firstName: string;
             lastName: string;
         } | null;
+        source: {
+            id: string;
+            name: string;
+        } | null;
     } & {
         id: string;
+        email: string | null;
         tenantId: string;
         firstName: string;
         lastName: string;
-        company: string | null;
-        email: string | null;
-        phone: string | null;
-        status: string;
-        sourceId: string | null;
-        ownerId: string | null;
         createdAt: Date;
+        status: string;
+        phone: string | null;
+        ownerId: string | null;
+        company: string | null;
+        sourceId: string | null;
         convertedAt: Date | null;
         convertedCustomerId: string | null;
     }>;

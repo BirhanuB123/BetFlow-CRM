@@ -9,6 +9,7 @@ export declare class TenantsController {
         name: string;
         slug: string | null;
         domain: string | null;
+        currency: string;
         region: string;
         plan: string;
         status: string;
@@ -21,6 +22,7 @@ export declare class TenantsController {
         name: string;
         slug: string | null;
         domain: string | null;
+        currency: string;
         region: string;
         plan: string;
         status: string;
@@ -34,6 +36,7 @@ export declare class TenantsController {
             name: string;
             slug: string | null;
             domain: string | null;
+            currency: string;
             region: string;
             plan: string;
             status: string;
@@ -64,6 +67,7 @@ export declare class TenantsController {
         name: string;
         slug: string | null;
         domain: string | null;
+        currency: string;
         region: string;
         plan: string;
         status: string;
