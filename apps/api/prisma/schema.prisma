@@ -67,6 +67,8 @@ model User {
   ownedLeads     Lead[]         @relation("LeadOwner")
   ownedAccounts  Account[]      @relation("AccountOwner")
   notes          Note[]
+  uploadedDocuments Document[] @relation("DocumentUploader")
+  reviewedDocuments Document[] @relation("DocumentReviewer")
 }
 
 model Role {
@@ -392,15 +394,33 @@ model PaymentSchedule {
 // Miscellaneous (Tasks, Logs, etc.)
 // --------------------------------------
 model Document {
-  id         String   @id @default(uuid())
-  tenantId   String
-  tenant     Tenant   @relation(fields: [tenantId], references: [id])
-  name       String
-  fileUrl    String
-  // Using generic relations for polymorphic behavior (could link to leads, deals, users)
-  entityType String
-  entityId   String
-  uploadedAt DateTime @default(now())
+  id              String   @id @default(uuid())
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  name            String
+  fileUrl         String
+  storageKey      String?
+  mimeType        String?
+  sizeBytes       Int?
+  checksum        String?
+  category        String   @default("OTHER")
+  status          String   @default("PENDING_REVIEW")
+  // Generic relations let documents be attached to customers, deals, contracts, payments, and inventory.
+  entityType      String
+  entityId        String
+  uploadedById    String?
+  uploadedBy      User?    @relation("DocumentUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
+  reviewedById    String?
+  reviewedBy      User?    @relation("DocumentReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedAt      DateTime?
+  rejectionReason String?
+  expiresAt       DateTime?
+  uploadedAt      DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([tenantId, entityType, entityId])
+  @@index([tenantId, status])
+  @@index([tenantId, category])
 }
 
 model Task {

@@ -10,6 +10,7 @@ import { CrmTable } from "@/components/tables/crm-table";
 import { StatCard } from "@/components/ui/stat-card";
 import { ActivityTimeline } from "@/components/activity/activity-timeline";
 import { NotesPanel } from "@/components/notes/notes-panel";
+import { DocumentsPanel } from "@/components/documents/documents-panel";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
@@ -269,6 +270,7 @@ export default function CustomerDetailPage() {
 
           {/* Notes + timeline */}
           <div className="space-y-6 lg:col-span-1">
+            <DocumentsPanel entityType="CUSTOMER" entityId={customer.id} title="Customer documents" />
             <NotesPanel
               entityType="Customer"
               entityId={customer.id}

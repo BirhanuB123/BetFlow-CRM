@@ -52,6 +52,35 @@ export async function apiFetch<T>(
   return (await response.json()) as T;
 }
 
+export async function apiUpload<T>(path: string, body: FormData): Promise<T> {
+  const session = getSession();
+  const headers = new Headers();
+  if (session?.accessToken) headers.set("Authorization", `Bearer ${session.accessToken}`);
+
+  const response = await fetch(`${API_BASE_URL}${path}`, { method: "POST", headers, body });
+  if (response.status === 401 && typeof window !== "undefined") {
+    clearSession();
+    if (!window.location.pathname.startsWith("/auth")) window.location.href = "/auth";
+  }
+  if (!response.ok) {
+    const message = await response.text().catch(() => "");
+    throw new Error(message || `Request failed (${response.status})`);
+  }
+  return (await response.json()) as T;
+}
+
+export async function apiDownload(path: string): Promise<Blob> {
+  const session = getSession();
+  const headers = new Headers();
+  if (session?.accessToken) headers.set("Authorization", `Bearer ${session.accessToken}`);
+  const response = await fetch(`${API_BASE_URL}${path}`, { headers });
+  if (!response.ok) {
+    const message = await response.text().catch(() => "");
+    throw new Error(message || `Request failed (${response.status})`);
+  }
+  return response.blob();
+}
+
 export function clearSession() {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem("betflow-auth");
