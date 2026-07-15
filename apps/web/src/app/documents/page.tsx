@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { Check, Download, FileText, Plus, Trash2, Upload, X } from "lucide-react";
+import { Check, Download, FileText, Trash2, Upload, X } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
@@ -85,7 +85,11 @@ export default function DocumentsPage() {
     }
   }, []);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    // defer load to avoid synchronous setState within effect
+    const t = setTimeout(() => { void load(); });
+    return () => clearTimeout(t);
+  }, [load]);
 
   const visibleDocuments = useMemo(
     () => filter === "ALL" ? documents : documents.filter((document) => document.status === filter),
