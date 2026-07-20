@@ -21,16 +21,16 @@ let CustomersService = class CustomersService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    list(tenantId) {
+    list() {
         return this.prisma.customer.findMany({
-            where: { tenantId },
+            where: {},
             include: customerInclude,
             orderBy: { createdAt: 'desc' },
         });
     }
-    async get(tenantId, id) {
+    async get(id) {
         const customer = await this.prisma.customer.findFirst({
-            where: { id, tenantId },
+            where: { id },
             include: {
                 account: { select: { id: true, name: true } },
                 deals: {
@@ -71,7 +71,6 @@ let CustomersService = class CustomersService {
         }
         const payments = await this.prisma.payment.findMany({
             where: {
-                tenantId,
                 OR: [
                     { contract: { customerId: id } },
                     { reservation: { customerId: id } },
@@ -90,18 +89,17 @@ let CustomersService = class CustomersService {
         });
         return { ...customer, payments };
     }
-    async create(tenantId, userId, input) {
+    async create(userId, input) {
         const firstName = input.firstName?.trim();
         const lastName = input.lastName?.trim();
         if (!firstName || !lastName) {
             throw new common_1.BadRequestException('firstName and lastName are required');
         }
         if (input.accountId) {
-            await this.assertAccountBelongsToTenant(tenantId, input.accountId);
+            await this.assertAccountBelongsToTenant(input.accountId);
         }
         const customer = await this.prisma.customer.create({
             data: {
-                tenantId,
                 firstName,
                 lastName,
                 email: input.email?.trim() || null,
@@ -111,12 +109,12 @@ let CustomersService = class CustomersService {
             },
             include: customerInclude,
         });
-        await this.recordAudit(tenantId, userId, 'customer.created', customer.id);
+        await this.recordAudit(userId, 'customer.created', customer.id);
         return customer;
     }
-    async update(tenantId, userId, id, input) {
+    async update(userId, id, input) {
         const existing = await this.prisma.customer.findFirst({
-            where: { id, tenantId },
+            where: { id },
         });
         if (!existing) {
             throw new common_1.NotFoundException(`Customer ${id} was not found`);
@@ -142,7 +140,7 @@ let CustomersService = class CustomersService {
             data.title = input.title?.trim() || null;
         if (input.accountId !== undefined) {
             if (input.accountId) {
-                await this.assertAccountBelongsToTenant(tenantId, input.accountId);
+                await this.assertAccountBelongsToTenant(input.accountId);
             }
             data.accountId = input.accountId || null;
         }
@@ -151,12 +149,12 @@ let CustomersService = class CustomersService {
             data,
             include: customerInclude,
         });
-        await this.recordAudit(tenantId, userId, 'customer.updated', customer.id);
+        await this.recordAudit(userId, 'customer.updated', customer.id);
         return customer;
     }
-    async remove(tenantId, userId, id) {
+    async remove(userId, id) {
         const existing = await this.prisma.customer.findFirst({
-            where: { id, tenantId },
+            where: { id },
             include: { _count: { select: { deals: true, contracts: true } } },
         });
         if (!existing) {
@@ -166,27 +164,21 @@ let CustomersService = class CustomersService {
             throw new common_1.BadRequestException('Cannot delete a customer with linked deals or contracts');
         }
         await this.prisma.customer.delete({ where: { id } });
-        await this.recordAudit(tenantId, userId, 'customer.deleted', id);
+        await this.recordAudit(userId, 'customer.deleted', id);
         return { id, deleted: true };
     }
-    async assertAccountBelongsToTenant(tenantId, accountId) {
+    async assertAccountBelongsToTenant(accountId) {
         const account = await this.prisma.account.findFirst({
-            where: { id: accountId, tenantId },
+            where: { id: accountId },
             select: { id: true },
         });
         if (!account) {
             throw new common_1.BadRequestException(`Account ${accountId} was not found`);
         }
     }
-    recordAudit(tenantId, userId, action, entityId) {
+    recordAudit(userId, action, entityId) {
         return this.prisma.auditLog.create({
-            data: {
-                tenantId,
-                userId,
-                action,
-                entityType: 'Customer',
-                entityId,
-            },
+            data: { userId, action, entityType: 'Customer', entityId },
         });
     }
 };

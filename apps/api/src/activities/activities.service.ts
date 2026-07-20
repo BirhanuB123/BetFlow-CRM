@@ -63,12 +63,11 @@ type ListOptions = {
 export class ActivitiesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async list(tenantId: string, options: ListOptions = {}) {
+  async list(options: ListOptions = {}) {
     const take = Math.min(Math.max(options.limit ?? 50, 1), 200);
 
     const logs = await this.prisma.auditLog.findMany({
       where: {
-        tenantId,
         ...(options.entityType ? { entityType: options.entityType } : {}),
         ...(options.entityId ? { entityId: options.entityId } : {}),
       },
@@ -109,7 +108,9 @@ export class ActivitiesService {
     }
     if (typeof values.from === 'string' && typeof values.to === 'string') {
       const suffix =
-        typeof values.unitStatus === 'string' ? ` · unit ${values.unitStatus}` : '';
+        typeof values.unitStatus === 'string'
+          ? ` · unit ${values.unitStatus}`
+          : '';
       return `${values.from} → ${values.to}${suffix}`;
     }
     if (typeof values.unitStatus === 'string') {

@@ -17,7 +17,6 @@ export declare class LeadsController {
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         firstName: string;
         lastName: string;
         createdAt: Date;
@@ -46,7 +45,6 @@ export declare class LeadsController {
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         firstName: string;
         lastName: string;
         createdAt: Date;
@@ -71,7 +69,6 @@ export declare class LeadsController {
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         firstName: string;
         lastName: string;
         createdAt: Date;
@@ -97,7 +94,6 @@ export declare class LeadsController {
         } & {
             id: string;
             email: string | null;
-            tenantId: string;
             firstName: string;
             lastName: string;
             createdAt: Date;
@@ -136,7 +132,6 @@ export declare class LeadsController {
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         firstName: string;
         lastName: string;
         createdAt: Date;

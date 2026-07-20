@@ -21,10 +21,10 @@ export declare class DocumentsService {
     private readonly prisma;
     private readonly storage;
     constructor(prisma: PrismaService, storage: DocumentStorageService);
-    list(tenantId: string, filters?: DocumentFilters): Promise<any[]>;
+    list(filters?: DocumentFilters): Promise<any[]>;
     upload(user: AuthenticatedUser, input: CreateDocumentBody, file: IncomingDocumentFile): Promise<any>;
     review(user: AuthenticatedUser, id: string, input: ReviewDocumentBody): Promise<any>;
-    download(tenantId: string, id: string): Promise<{
+    download(id: string): Promise<{
         document: {
             uploadedBy: {
                 id: string;
@@ -38,7 +38,6 @@ export declare class DocumentsService {
             } | null;
         } & {
             id: string;
-            tenantId: string;
             updatedAt: Date;
             name: string;
             status: string;

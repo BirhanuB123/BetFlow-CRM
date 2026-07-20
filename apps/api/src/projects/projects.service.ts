@@ -15,9 +15,9 @@ import {
 export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async list(tenantId: string) {
+  async list() {
     const projects = await this.prisma.project.findMany({
-      where: { tenantId },
+      where: {},
       include: { _count: { select: { buildings: true } } },
       orderBy: { name: 'asc' },
     });
@@ -26,15 +26,15 @@ export class ProjectsService {
       projects.map(async (project) => ({
         ...project,
         unitsCount: await this.prisma.unit.count({
-          where: { tenantId, floor: { building: { projectId: project.id } } },
+          where: { floor: { building: { projectId: project.id } } },
         }),
       })),
     );
   }
 
-  async get(tenantId: string, id: string) {
+  async get(id: string) {
     const project = await this.prisma.project.findFirst({
-      where: { id, tenantId },
+      where: { id },
       include: {
         buildings: {
           include: { _count: { select: { floors: true } } },
@@ -52,25 +52,24 @@ export class ProjectsService {
       project.buildings.map(async (building) => ({
         ...building,
         unitsCount: await this.prisma.unit.count({
-          where: { tenantId, floor: { buildingId: building.id } },
+          where: { floor: { buildingId: building.id } },
         }),
       })),
     );
 
     const unitsCount = await this.prisma.unit.count({
-      where: { tenantId, floor: { building: { projectId: id } } },
+      where: { floor: { building: { projectId: id } } },
     });
 
     return { ...project, buildings, unitsCount };
   }
 
-  async create(tenantId: string, userId: string, input: CreateProjectInput) {
+  async create(userId: string, input: CreateProjectInput) {
     const name = input.name?.trim();
     if (!name) throw new BadRequestException('name is required');
 
     const project = await this.prisma.project.create({
       data: {
-        tenantId,
         name,
         description: input.description?.trim() || null,
         status: this.normalizeStatus(input.status ?? 'ACTIVE'),
@@ -78,19 +77,14 @@ export class ProjectsService {
       include: { _count: { select: { buildings: true } } },
     });
 
-    await this.recordAudit(tenantId, userId, 'project.created', project.id);
+    await this.recordAudit(userId, 'project.created', project.id);
 
     return project;
   }
 
-  async update(
-    tenantId: string,
-    userId: string,
-    id: string,
-    input: UpdateProjectInput,
-  ) {
+  async update(userId: string, id: string, input: UpdateProjectInput) {
     const existing = await this.prisma.project.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
     if (!existing) throw new NotFoundException(`Project ${id} was not found`);
 
@@ -111,14 +105,14 @@ export class ProjectsService {
       include: { _count: { select: { buildings: true } } },
     });
 
-    await this.recordAudit(tenantId, userId, 'project.updated', project.id);
+    await this.recordAudit(userId, 'project.updated', project.id);
 
     return project;
   }
 
-  async remove(tenantId: string, userId: string, id: string) {
+  async remove(userId: string, id: string) {
     const existing = await this.prisma.project.findFirst({
-      where: { id, tenantId },
+      where: { id },
       include: { _count: { select: { buildings: true } } },
     });
     if (!existing) throw new NotFoundException(`Project ${id} was not found`);
@@ -130,7 +124,7 @@ export class ProjectsService {
     }
 
     await this.prisma.project.delete({ where: { id } });
-    await this.recordAudit(tenantId, userId, 'project.deleted', id);
+    await this.recordAudit(userId, 'project.deleted', id);
 
     return { id, deleted: true };
   }
@@ -145,20 +139,9 @@ export class ProjectsService {
     return upper as ProjectStatus;
   }
 
-  private recordAudit(
-    tenantId: string,
-    userId: string,
-    action: string,
-    entityId: string,
-  ) {
+  private recordAudit(userId: string, action: string, entityId: string) {
     return this.prisma.auditLog.create({
-      data: {
-        tenantId,
-        userId,
-        action,
-        entityType: 'Project',
-        entityId,
-      },
+      data: { userId, action, entityType: 'Project', entityId },
     });
   }
 }

@@ -12,7 +12,6 @@ export declare class TasksController {
         } | null;
     } & {
         id: string;
-        tenantId: string;
         description: string | null;
         status: string;
         title: string;
@@ -29,7 +28,6 @@ export declare class TasksController {
         } | null;
     } & {
         id: string;
-        tenantId: string;
         description: string | null;
         status: string;
         title: string;
@@ -46,7 +44,6 @@ export declare class TasksController {
         } | null;
     } & {
         id: string;
-        tenantId: string;
         description: string | null;
         status: string;
         title: string;
@@ -63,7 +60,6 @@ export declare class TasksController {
         } | null;
     } & {
         id: string;
-        tenantId: string;
         description: string | null;
         status: string;
         title: string;
@@ -80,7 +76,6 @@ export declare class TasksController {
         } | null;
     } & {
         id: string;
-        tenantId: string;
         description: string | null;
         status: string;
         title: string;

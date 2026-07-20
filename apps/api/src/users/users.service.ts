@@ -7,37 +7,31 @@ import {
 import { Prisma } from '@prisma/client';
 import { PasswordService } from '../auth/password.service';
 import { PrismaService } from '../database/prisma.service';
-import { TenantsService } from '../tenants/tenants.service';
 
 export type InviteUserBody = {
-  tenantId: string;
   name: string;
   email: string;
   roleId: string;
   password?: string;
 };
 
-type UserResult = Parameters<TenantsService['serializeUser']>[0];
+type UserResult = any;
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly passwords: PasswordService,
-    private readonly tenants: TenantsService,
   ) {}
 
-  async listUsers(tenantId?: string) {
-    if (!tenantId) {
-      throw new BadRequestException('tenantId is required');
-    }
+  async listUsers() {
 
     const users = await this.prisma.user.findMany({
-      where: { tenantId },
+      where: {},
       orderBy: { createdAt: 'desc' },
       include: {
         roles: {
-          where: { tenantId },
+          where: {},
           include: {
             role: {
               select: {
@@ -50,21 +44,15 @@ export class UsersService {
       },
     });
 
-    return (users as UserResult[]).map((user) =>
-      this.tenants.serializeUser(user),
-    );
+    return users;
   }
 
   async inviteUser(input: InviteUserBody) {
-    if (!input.tenantId) {
-      throw new BadRequestException('tenantId is required');
-    }
 
     const role = await this.prisma.role.findFirst({
       where: {
         id: input.roleId,
-        tenantId: input.tenantId,
-      },
+        },
     });
 
     if (!role) {
@@ -77,14 +65,12 @@ export class UsersService {
     try {
       const user = await this.prisma.user.create({
         data: {
-          tenantId: input.tenantId,
           email: input.email.trim().toLowerCase(),
           password,
           firstName,
           lastName,
           roles: {
             create: {
-              tenantId: input.tenantId,
               roleId: input.roleId,
             },
           },
@@ -105,7 +91,6 @@ export class UsersService {
 
       await this.prisma.auditLog.create({
         data: {
-          tenantId: input.tenantId,
           action: 'user.invited',
           entityType: 'User',
           entityId: user.id,
@@ -116,7 +101,7 @@ export class UsersService {
         },
       });
 
-      return this.tenants.serializeUser(user);
+      return user;
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&

@@ -8,8 +8,8 @@ export class AuditLogsController {
   constructor(private readonly store: InMemoryService) {}
 
   @Get()
-  list(@Query('tenantId') tenantId?: string) {
-    return this.store.listAuditLogs(tenantId);
+  list() {
+    return this.store.listAuditLogs();
   }
 
   @Post()

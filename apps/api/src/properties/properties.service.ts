@@ -17,9 +17,9 @@ export class PropertiesService {
 
   // ---- Buildings -----------------------------------------------------------
 
-  async listBuildings(tenantId: string, projectId?: string) {
+  async listBuildings(projectId?: string) {
     const buildings = await this.prisma.building.findMany({
-      where: { tenantId, ...(projectId ? { projectId } : {}) },
+      where: { ...(projectId ? { projectId } : {}) },
       include: {
         project: { select: { id: true, name: true } },
         _count: { select: { floors: true } },
@@ -31,15 +31,15 @@ export class PropertiesService {
       buildings.map(async (building) => ({
         ...building,
         unitsCount: await this.prisma.unit.count({
-          where: { tenantId, floor: { buildingId: building.id } },
+          where: { floor: { buildingId: building.id } },
         }),
       })),
     );
   }
 
-  async getBuilding(tenantId: string, id: string) {
+  async getBuilding(id: string) {
     const building = await this.prisma.building.findFirst({
-      where: { id, tenantId },
+      where: { id },
       include: {
         project: { select: { id: true, name: true } },
         floors: {
@@ -52,19 +52,15 @@ export class PropertiesService {
     return building;
   }
 
-  async createBuilding(
-    tenantId: string,
-    userId: string,
-    input: CreateBuildingInput,
-  ) {
+  async createBuilding(userId: string, input: CreateBuildingInput) {
     const name = input.name?.trim();
     if (!name) throw new BadRequestException('name is required');
-    if (!input.projectId) throw new BadRequestException('projectId is required');
-    await this.assertProjectBelongsToTenant(tenantId, input.projectId);
+    if (!input.projectId)
+      throw new BadRequestException('projectId is required');
+    await this.assertProjectBelongsToTenant(input.projectId);
 
     const building = await this.prisma.building.create({
       data: {
-        tenantId,
         projectId: input.projectId,
         name,
         floorsCount: this.normalizeCount(input.floorsCount, 'floorsCount', 1),
@@ -75,18 +71,13 @@ export class PropertiesService {
       },
     });
 
-    await this.recordAudit(tenantId, userId, 'building.created', building.id);
+    await this.recordAudit(userId, 'building.created', building.id);
     return building;
   }
 
-  async updateBuilding(
-    tenantId: string,
-    userId: string,
-    id: string,
-    input: UpdateBuildingInput,
-  ) {
+  async updateBuilding(userId: string, id: string, input: UpdateBuildingInput) {
     const existing = await this.prisma.building.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
     if (!existing) throw new NotFoundException(`Building ${id} was not found`);
 
@@ -97,7 +88,11 @@ export class PropertiesService {
       data.name = name;
     }
     if (input.floorsCount !== undefined)
-      data.floorsCount = this.normalizeCount(input.floorsCount, 'floorsCount', 1);
+      data.floorsCount = this.normalizeCount(
+        input.floorsCount,
+        'floorsCount',
+        1,
+      );
 
     const building = await this.prisma.building.update({
       where: { id },
@@ -108,13 +103,13 @@ export class PropertiesService {
       },
     });
 
-    await this.recordAudit(tenantId, userId, 'building.updated', building.id);
+    await this.recordAudit(userId, 'building.updated', building.id);
     return building;
   }
 
-  async removeBuilding(tenantId: string, userId: string, id: string) {
+  async removeBuilding(userId: string, id: string) {
     const existing = await this.prisma.building.findFirst({
-      where: { id, tenantId },
+      where: { id },
       include: { _count: { select: { floors: true } } },
     });
     if (!existing) throw new NotFoundException(`Building ${id} was not found`);
@@ -126,15 +121,15 @@ export class PropertiesService {
     }
 
     await this.prisma.building.delete({ where: { id } });
-    await this.recordAudit(tenantId, userId, 'building.deleted', id);
+    await this.recordAudit(userId, 'building.deleted', id);
     return { id, deleted: true };
   }
 
   // ---- Floors --------------------------------------------------------------
 
-  listFloors(tenantId: string, buildingId?: string) {
+  listFloors(buildingId?: string) {
     return this.prisma.floor.findMany({
-      where: { tenantId, ...(buildingId ? { buildingId } : {}) },
+      where: { ...(buildingId ? { buildingId } : {}) },
       include: {
         building: { select: { id: true, name: true } },
         _count: { select: { units: true } },
@@ -143,18 +138,13 @@ export class PropertiesService {
     });
   }
 
-  async createFloor(
-    tenantId: string,
-    userId: string,
-    input: CreateFloorInput,
-  ) {
+  async createFloor(userId: string, input: CreateFloorInput) {
     if (!input.buildingId)
       throw new BadRequestException('buildingId is required');
-    await this.assertBuildingBelongsToTenant(tenantId, input.buildingId);
+    await this.assertBuildingBelongsToTenant(input.buildingId);
 
     const floor = await this.prisma.floor.create({
       data: {
-        tenantId,
         buildingId: input.buildingId,
         floorNumber: this.normalizeCount(input.floorNumber, 'floorNumber', 0),
         name: input.name?.trim() || null,
@@ -165,24 +155,23 @@ export class PropertiesService {
       },
     });
 
-    await this.recordAudit(tenantId, userId, 'floor.created', floor.id);
+    await this.recordAudit(userId, 'floor.created', floor.id);
     return floor;
   }
 
-  async updateFloor(
-    tenantId: string,
-    userId: string,
-    id: string,
-    input: UpdateFloorInput,
-  ) {
+  async updateFloor(userId: string, id: string, input: UpdateFloorInput) {
     const existing = await this.prisma.floor.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
     if (!existing) throw new NotFoundException(`Floor ${id} was not found`);
 
     const data: Record<string, unknown> = {};
     if (input.floorNumber !== undefined)
-      data.floorNumber = this.normalizeCount(input.floorNumber, 'floorNumber', 0);
+      data.floorNumber = this.normalizeCount(
+        input.floorNumber,
+        'floorNumber',
+        0,
+      );
     if (input.name !== undefined) data.name = input.name?.trim() || null;
 
     const floor = await this.prisma.floor.update({
@@ -194,13 +183,13 @@ export class PropertiesService {
       },
     });
 
-    await this.recordAudit(tenantId, userId, 'floor.updated', floor.id);
+    await this.recordAudit(userId, 'floor.updated', floor.id);
     return floor;
   }
 
-  async removeFloor(tenantId: string, userId: string, id: string) {
+  async removeFloor(userId: string, id: string) {
     const existing = await this.prisma.floor.findFirst({
-      where: { id, tenantId },
+      where: { id },
       include: { _count: { select: { units: true } } },
     });
     if (!existing) throw new NotFoundException(`Floor ${id} was not found`);
@@ -212,13 +201,17 @@ export class PropertiesService {
     }
 
     await this.prisma.floor.delete({ where: { id } });
-    await this.recordAudit(tenantId, userId, 'floor.deleted', id);
+    await this.recordAudit(userId, 'floor.deleted', id);
     return { id, deleted: true };
   }
 
   // ---- helpers -------------------------------------------------------------
 
-  private normalizeCount(value: number | undefined, field: string, min: number) {
+  private normalizeCount(
+    value: number | undefined,
+    field: string,
+    min: number,
+  ) {
     const n = value ?? min;
     if (!Number.isInteger(n) || n < min) {
       throw new BadRequestException(`${field} must be an integer >= ${min}`);
@@ -226,38 +219,27 @@ export class PropertiesService {
     return n;
   }
 
-  private async assertProjectBelongsToTenant(
-    tenantId: string,
-    projectId: string,
-  ) {
+  private async assertProjectBelongsToTenant(projectId: string) {
     const project = await this.prisma.project.findFirst({
-      where: { id: projectId, tenantId },
+      where: { id: projectId },
       select: { id: true },
     });
-    if (!project) throw new BadRequestException(`Project ${projectId} was not found`);
+    if (!project)
+      throw new BadRequestException(`Project ${projectId} was not found`);
   }
 
-  private async assertBuildingBelongsToTenant(
-    tenantId: string,
-    buildingId: string,
-  ) {
+  private async assertBuildingBelongsToTenant(buildingId: string) {
     const building = await this.prisma.building.findFirst({
-      where: { id: buildingId, tenantId },
+      where: { id: buildingId },
       select: { id: true },
     });
     if (!building)
       throw new BadRequestException(`Building ${buildingId} was not found`);
   }
 
-  private recordAudit(
-    tenantId: string,
-    userId: string,
-    action: string,
-    entityId: string,
-  ) {
+  private recordAudit(userId: string, action: string, entityId: string) {
     return this.prisma.auditLog.create({
       data: {
-        tenantId,
         userId,
         action,
         entityType: action.startsWith('building') ? 'Building' : 'Floor',

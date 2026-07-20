@@ -12,10 +12,7 @@ import { PaymentsService } from './payments.service';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import type { AuthenticatedUser } from '../auth/auth.types';
-import type {
-  CreatePaymentInput,
-  UpdatePaymentInput,
-} from './payments.types';
+import type { CreatePaymentInput, UpdatePaymentInput } from './payments.types';
 
 @UseGuards(JwtAuthGuard)
 @Controller('payments')
@@ -24,12 +21,12 @@ export class PaymentsController {
 
   @Get()
   list(@CurrentUser() user: AuthenticatedUser) {
-    return this.payments.list(user.tenantId);
+    return this.payments.list();
   }
 
   @Get(':id')
   get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.payments.get(user.tenantId, id);
+    return this.payments.get(id);
   }
 
   @Post()
@@ -37,7 +34,7 @@ export class PaymentsController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: CreatePaymentInput,
   ) {
-    return this.payments.create(user.tenantId, user.id, body);
+    return this.payments.create(user.id, body);
   }
 
   @Patch(':id')
@@ -46,11 +43,11 @@ export class PaymentsController {
     @Param('id') id: string,
     @Body() body: UpdatePaymentInput,
   ) {
-    return this.payments.update(user.tenantId, user.id, id, body);
+    return this.payments.update(user.id, id, body);
   }
 
   @Delete(':id')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.payments.remove(user.tenantId, user.id, id);
+    return this.payments.remove(user.id, id);
   }
 }

@@ -12,7 +12,6 @@ export declare class NotesController {
         };
     } & {
         id: string;
-        tenantId: string;
         createdAt: Date;
         entityType: string;
         entityId: string;
@@ -27,7 +26,6 @@ export declare class NotesController {
         };
     } & {
         id: string;
-        tenantId: string;
         createdAt: Date;
         entityType: string;
         entityId: string;

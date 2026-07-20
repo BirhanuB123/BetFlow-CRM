@@ -26,13 +26,13 @@ let DocumentsController = class DocumentsController {
         this.documents = documents;
     }
     list(user, filters) {
-        return this.documents.list(user.tenantId, filters);
+        return this.documents.list(filters);
     }
     upload(user, file, body) {
         return this.documents.upload(user, body, file);
     }
     async download(user, id, response) {
-        const { document, stream } = await this.documents.download(user.tenantId, id);
+        const { document, stream } = await this.documents.download(id);
         response.setHeader('Content-Type', document.mimeType || 'application/octet-stream');
         response.setHeader('Content-Disposition', `attachment; filename="${this.safeFileName(document.name)}"`);
         return new common_1.StreamableFile(stream);

@@ -23,7 +23,6 @@ let JwtAuthGuard = class JwtAuthGuard {
         const payload = this.jwt.verify(token);
         request.user = {
             id: payload.sub,
-            tenantId: payload.tenantId,
             email: payload.email,
             roles: payload.roles,
         };

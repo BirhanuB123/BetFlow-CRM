@@ -3,7 +3,7 @@ import { CreateCustomerInput, UpdateCustomerInput } from './customers.types';
 export declare class CustomersService {
     private readonly prisma;
     constructor(prisma: PrismaService);
-    list(tenantId: string): import("@prisma/client").Prisma.PrismaPromise<({
+    list(): import("@prisma/client").Prisma.PrismaPromise<({
         account: {
             id: string;
             name: string;
@@ -16,7 +16,6 @@ export declare class CustomersService {
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         firstName: string;
         lastName: string;
         createdAt: Date;
@@ -24,7 +23,7 @@ export declare class CustomersService {
         accountId: string | null;
         title: string | null;
     })[]>;
-    get(tenantId: string, id: string): Promise<{
+    get(id: string): Promise<{
         payments: {
             id: string;
             status: string;
@@ -61,12 +60,12 @@ export declare class CustomersService {
         }[];
         contracts: {
             id: string;
-            startDate: Date;
             status: string;
             unit: {
                 id: string;
                 unitNumber: string;
             };
+            startDate: Date;
             totalAmt: import("@prisma/client-runtime-utils").Decimal;
         }[];
         account: {
@@ -75,7 +74,6 @@ export declare class CustomersService {
         } | null;
         id: string;
         email: string | null;
-        tenantId: string;
         firstName: string;
         lastName: string;
         createdAt: Date;
@@ -83,7 +81,7 @@ export declare class CustomersService {
         accountId: string | null;
         title: string | null;
     }>;
-    create(tenantId: string, userId: string, input: CreateCustomerInput): Promise<{
+    create(userId: string, input: CreateCustomerInput): Promise<{
         account: {
             id: string;
             name: string;
@@ -96,7 +94,6 @@ export declare class CustomersService {
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         firstName: string;
         lastName: string;
         createdAt: Date;
@@ -104,7 +101,7 @@ export declare class CustomersService {
         accountId: string | null;
         title: string | null;
     }>;
-    update(tenantId: string, userId: string, id: string, input: UpdateCustomerInput): Promise<{
+    update(userId: string, id: string, input: UpdateCustomerInput): Promise<{
         account: {
             id: string;
             name: string;
@@ -117,7 +114,6 @@ export declare class CustomersService {
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         firstName: string;
         lastName: string;
         createdAt: Date;
@@ -125,7 +121,7 @@ export declare class CustomersService {
         accountId: string | null;
         title: string | null;
     }>;
-    remove(tenantId: string, userId: string, id: string): Promise<{
+    remove(userId: string, id: string): Promise<{
         id: string;
         deleted: boolean;
     }>;

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { createHash, randomUUID } from 'node:crypto';
 import { createReadStream, promises as fs } from 'node:fs';
 import { extname, join, resolve, sep } from 'node:path';
@@ -25,21 +29,17 @@ const ALLOWED_MIME_TYPES = new Set([
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ]);
 
-/**
- * Local development storage. Keep all file-system work here so production can
- * replace this implementation with an S3/MinIO adapter without changing the
- * document workflow or controller contract.
- */
 @Injectable()
 export class DocumentStorageService {
   private readonly root = resolve(
-    process.env.DOCUMENTS_STORAGE_PATH || join(process.cwd(), 'uploads', 'documents'),
+    process.env.DOCUMENTS_STORAGE_PATH ||
+      join(process.cwd(), 'uploads', 'documents'),
   );
 
-  async save(tenantId: string, file: IncomingDocumentFile): Promise<StoredDocumentFile> {
+  async save(file: IncomingDocumentFile): Promise<StoredDocumentFile> {
     this.assertFile(file);
     const extension = extname(file.originalname).toLowerCase();
-    const storageKey = join(tenantId, `${randomUUID()}${extension}`);
+    const storageKey = join(`${randomUUID()}${extension}`);
     const destination = this.resolvePath(storageKey);
     await fs.mkdir(resolve(destination, '..'), { recursive: true });
     await fs.writeFile(destination, file.buffer, { flag: 'wx' });
@@ -73,12 +73,15 @@ export class DocumentStorageService {
   }
 
   private assertFile(file: IncomingDocumentFile | undefined) {
-    if (!file?.buffer?.length) throw new BadRequestException('A document file is required');
+    if (!file?.buffer?.length)
+      throw new BadRequestException('A document file is required');
     if (file.size > MAX_FILE_BYTES) {
       throw new BadRequestException('Documents must be 20 MB or smaller');
     }
     if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
-      throw new BadRequestException('Only PDF, image, DOC, and DOCX files are supported');
+      throw new BadRequestException(
+        'Only PDF, image, DOC, and DOCX files are supported',
+      );
     }
   }
 

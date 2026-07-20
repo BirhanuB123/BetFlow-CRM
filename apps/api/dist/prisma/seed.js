@@ -12,7 +12,6 @@ const scryptAsync = (0, node_util_1.promisify)(node_crypto_1.scrypt);
 const prisma = new client_1.PrismaClient({
     adapter: new adapter_pg_1.PrismaPg(process.env.DATABASE_URL),
 });
-const tenantId = 'tenant_001';
 async function hashPassword(password) {
     const salt = 'betflow-demo-salt';
     const key = (await scryptAsync(password, salt, 64));
@@ -22,7 +21,6 @@ async function upsertUser(input) {
     const user = await prisma.user.upsert({
         where: { email: input.email },
         update: {
-            tenantId,
             password: await hashPassword('admin123'),
             firstName: input.firstName,
             lastName: input.lastName,
@@ -30,7 +28,6 @@ async function upsertUser(input) {
         },
         create: {
             id: input.id,
-            tenantId,
             email: input.email,
             password: await hashPassword('admin123'),
             firstName: input.firstName,
@@ -44,9 +41,8 @@ async function upsertUser(input) {
                 roleId: input.roleId,
             },
         },
-        update: { tenantId },
+        update: {},
         create: {
-            tenantId,
             userId: user.id,
             roleId: input.roleId,
         },
@@ -54,17 +50,6 @@ async function upsertUser(input) {
     return user;
 }
 async function main() {
-    const tenant = await prisma.tenant.upsert({
-        where: { domain: 'betflow-crm' },
-        update: {
-            name: 'BetFlow Demo Realty',
-        },
-        create: {
-            id: tenantId,
-            name: 'BetFlow Demo Realty',
-            domain: 'betflow-crm',
-        },
-    });
     const roles = [
         ['role_owner_001', 'Owner', 'Full tenant administration access.'],
         [
@@ -86,8 +71,8 @@ async function main() {
     for (const [id, name, description] of roles) {
         await prisma.role.upsert({
             where: { id },
-            update: { tenantId, name, description },
-            create: { id, tenantId, name, description },
+            update: { name, description },
+            create: { id, name, description },
         });
     }
     const permissions = [
@@ -131,13 +116,10 @@ async function main() {
     for (const [id, name, module, description] of permissions) {
         await prisma.permission.upsert({
             where: {
-                tenantId_name: {
-                    tenantId,
-                    name,
-                },
+                name,
             },
             update: { module, description },
-            create: { id, tenantId, name, module, description },
+            create: { id, name, module, description },
         });
     }
     for (const [roleId] of roles) {
@@ -149,8 +131,8 @@ async function main() {
                         permissionId,
                     },
                 },
-                update: { tenantId },
-                create: { tenantId, roleId, permissionId },
+                update: {},
+                create: { roleId, permissionId },
             });
         }
     }
@@ -175,22 +157,6 @@ async function main() {
         lastName: 'Park',
         roleId: 'role_finance_001',
     });
-    await prisma.subscription.upsert({
-        where: { id: 'sub_growth_001' },
-        update: {
-            tenantId,
-            planName: 'Growth',
-            startDate: new Date('2026-06-26T00:00:00.000Z'),
-            status: 'TRIAL',
-        },
-        create: {
-            id: 'sub_growth_001',
-            tenantId,
-            planName: 'Growth',
-            startDate: new Date('2026-06-26T00:00:00.000Z'),
-            status: 'TRIAL',
-        },
-    });
     const sources = [
         ['source_website', 'Website'],
         ['source_meta', 'Facebook/Instagram'],
@@ -199,8 +165,8 @@ async function main() {
     for (const [id, name] of sources) {
         await prisma.leadSource.upsert({
             where: { id },
-            update: { tenantId, name },
-            create: { id, tenantId, name },
+            update: { name },
+            create: { id, name },
         });
     }
     const stages = [
@@ -212,21 +178,19 @@ async function main() {
     for (const [id, name, order, probability] of stages) {
         await prisma.dealStage.upsert({
             where: { id },
-            update: { tenantId, name, order, probability },
-            create: { id, tenantId, name, order, probability },
+            update: { name, order, probability },
+            create: { id, name, order, probability },
         });
     }
     const project = await prisma.project.upsert({
         where: { id: 'project_001' },
         update: {
-            tenantId,
             name: 'Harbor Heights',
             description: 'Waterfront residential project with premium mixed-use inventory.',
             status: 'ACTIVE',
         },
         create: {
             id: 'project_001',
-            tenantId,
             name: 'Harbor Heights',
             description: 'Waterfront residential project with premium mixed-use inventory.',
             status: 'ACTIVE',
@@ -235,14 +199,12 @@ async function main() {
     const building = await prisma.building.upsert({
         where: { id: 'building_001' },
         update: {
-            tenantId,
             projectId: project.id,
             name: 'Tower A',
             floorsCount: 18,
         },
         create: {
             id: 'building_001',
-            tenantId,
             projectId: project.id,
             name: 'Tower A',
             floorsCount: 18,
@@ -251,14 +213,12 @@ async function main() {
     const floor = await prisma.floor.upsert({
         where: { id: 'floor_001' },
         update: {
-            tenantId,
             buildingId: building.id,
             floorNumber: 8,
             name: 'Level 8',
         },
         create: {
             id: 'floor_001',
-            tenantId,
             buildingId: building.id,
             floorNumber: 8,
             name: 'Level 8',
@@ -273,7 +233,6 @@ async function main() {
         await prisma.unit.upsert({
             where: { id },
             update: {
-                tenantId,
                 floorId: floor.id,
                 unitNumber,
                 type,
@@ -283,7 +242,6 @@ async function main() {
             },
             create: {
                 id,
-                tenantId,
                 floorId: floor.id,
                 unitNumber,
                 type,
@@ -367,7 +325,6 @@ async function main() {
         await prisma.account.upsert({
             where: { id: account.id },
             update: {
-                tenantId,
                 name: account.name,
                 accountType: account.accountType,
                 industry: account.industry,
@@ -385,7 +342,6 @@ async function main() {
             },
             create: {
                 id: account.id,
-                tenantId,
                 name: account.name,
                 accountType: account.accountType,
                 industry: account.industry,
@@ -407,7 +363,6 @@ async function main() {
     const customer = await prisma.customer.upsert({
         where: { id: 'customer_001' },
         update: {
-            tenantId,
             accountId: 'account_001',
             firstName: 'Nadia',
             lastName: 'Rahman',
@@ -417,7 +372,6 @@ async function main() {
         },
         create: {
             id: 'customer_001',
-            tenantId,
             accountId: 'account_001',
             firstName: 'Nadia',
             lastName: 'Rahman',
@@ -429,7 +383,6 @@ async function main() {
     const secondCustomer = await prisma.customer.upsert({
         where: { id: 'customer_002' },
         update: {
-            tenantId,
             accountId: 'account_002',
             firstName: 'Victor',
             lastName: 'Chen',
@@ -439,7 +392,6 @@ async function main() {
         },
         create: {
             id: 'customer_002',
-            tenantId,
             accountId: 'account_002',
             firstName: 'Victor',
             lastName: 'Chen',
@@ -487,7 +439,6 @@ async function main() {
         await prisma.lead.upsert({
             where: { id },
             update: {
-                tenantId,
                 firstName,
                 lastName,
                 company,
@@ -499,7 +450,6 @@ async function main() {
             },
             create: {
                 id,
-                tenantId,
                 firstName,
                 lastName,
                 company,
@@ -514,7 +464,6 @@ async function main() {
     const deal = await prisma.deal.upsert({
         where: { id: 'deal_001' },
         update: {
-            tenantId,
             accountId: 'account_001',
             name: 'Nadia Rahman - Unit 802',
             value: '465000.00',
@@ -524,7 +473,6 @@ async function main() {
         },
         create: {
             id: 'deal_001',
-            tenantId,
             name: 'Nadia Rahman - Unit 802',
             value: '465000.00',
             stageId: 'stage_reserved',
@@ -535,7 +483,6 @@ async function main() {
     await prisma.deal.upsert({
         where: { id: 'deal_002' },
         update: {
-            tenantId,
             name: 'Victor Chen - Unit 801',
             value: '420000.00',
             stageId: 'stage_qualified',
@@ -544,7 +491,6 @@ async function main() {
         },
         create: {
             id: 'deal_002',
-            tenantId,
             name: 'Victor Chen - Unit 801',
             value: '420000.00',
             stageId: 'stage_qualified',
@@ -555,7 +501,6 @@ async function main() {
     await prisma.siteVisit.upsert({
         where: { id: 'visit_001' },
         update: {
-            tenantId,
             customerId: customer.id,
             date: new Date('2026-07-02T15:00:00.000Z'),
             status: 'SCHEDULED',
@@ -563,7 +508,6 @@ async function main() {
         },
         create: {
             id: 'visit_001',
-            tenantId,
             customerId: customer.id,
             date: new Date('2026-07-02T15:00:00.000Z'),
             status: 'SCHEDULED',
@@ -573,7 +517,6 @@ async function main() {
     const reservation = await prisma.reservation.upsert({
         where: { id: 'reservation_001' },
         update: {
-            tenantId,
             customerId: customer.id,
             unitId: 'unit_802',
             amount: '25000.00',
@@ -582,7 +525,6 @@ async function main() {
         },
         create: {
             id: 'reservation_001',
-            tenantId,
             customerId: customer.id,
             unitId: 'unit_802',
             amount: '25000.00',
@@ -593,7 +535,6 @@ async function main() {
     const contract = await prisma.contract.upsert({
         where: { id: 'contract_001' },
         update: {
-            tenantId,
             customerId: customer.id,
             unitId: 'unit_802',
             dealId: deal.id,
@@ -603,7 +544,6 @@ async function main() {
         },
         create: {
             id: 'contract_001',
-            tenantId,
             customerId: customer.id,
             unitId: 'unit_802',
             dealId: deal.id,
@@ -615,7 +555,6 @@ async function main() {
     await prisma.payment.upsert({
         where: { id: 'payment_001' },
         update: {
-            tenantId,
             reservationId: reservation.id,
             amount: '25000.00',
             method: 'TRANSFER',
@@ -624,7 +563,6 @@ async function main() {
         },
         create: {
             id: 'payment_001',
-            tenantId,
             reservationId: reservation.id,
             amount: '25000.00',
             method: 'TRANSFER',
@@ -641,7 +579,6 @@ async function main() {
         await prisma.paymentSchedule.upsert({
             where: { id },
             update: {
-                tenantId,
                 contractId: contract.id,
                 dueDate: new Date(dueDate),
                 amount,
@@ -649,7 +586,6 @@ async function main() {
             },
             create: {
                 id,
-                tenantId,
                 contractId: contract.id,
                 dueDate: new Date(dueDate),
                 amount,
@@ -660,7 +596,6 @@ async function main() {
     await prisma.document.upsert({
         where: { id: 'document_001' },
         update: {
-            tenantId,
             name: 'Reservation receipt - Unit 802',
             fileUrl: '/demo/documents/reservation-receipt-802.pdf',
             entityType: 'Reservation',
@@ -668,7 +603,6 @@ async function main() {
         },
         create: {
             id: 'document_001',
-            tenantId,
             name: 'Reservation receipt - Unit 802',
             fileUrl: '/demo/documents/reservation-receipt-802.pdf',
             entityType: 'Reservation',
@@ -678,7 +612,6 @@ async function main() {
     await prisma.task.upsert({
         where: { id: 'task_001' },
         update: {
-            tenantId,
             title: 'Send signed contract reminder',
             description: 'Follow up with Nadia for contract signature.',
             dueDate: new Date('2026-07-03T17:00:00.000Z'),
@@ -689,7 +622,6 @@ async function main() {
         },
         create: {
             id: 'task_001',
-            tenantId,
             title: 'Send signed contract reminder',
             description: 'Follow up with Nadia for contract signature.',
             dueDate: new Date('2026-07-03T17:00:00.000Z'),
@@ -702,7 +634,6 @@ async function main() {
     await prisma.note.upsert({
         where: { id: 'note_001' },
         update: {
-            tenantId,
             content: 'Customer requested payment plan confirmation before signing.',
             authorId: agent.id,
             entityType: 'Deal',
@@ -710,7 +641,6 @@ async function main() {
         },
         create: {
             id: 'note_001',
-            tenantId,
             content: 'Customer requested payment plan confirmation before signing.',
             authorId: agent.id,
             entityType: 'Deal',
@@ -720,7 +650,6 @@ async function main() {
     await prisma.activity.upsert({
         where: { id: 'activity_001' },
         update: {
-            tenantId,
             type: 'reservation.approved',
             description: 'Reservation approved for Unit 802.',
             userId: finance.id,
@@ -729,7 +658,6 @@ async function main() {
         },
         create: {
             id: 'activity_001',
-            tenantId,
             type: 'reservation.approved',
             description: 'Reservation approved for Unit 802.',
             userId: finance.id,
@@ -740,7 +668,6 @@ async function main() {
     await prisma.campaign.upsert({
         where: { id: 'campaign_001' },
         update: {
-            tenantId,
             name: 'Harbor Heights July launch',
             type: 'EMAIL',
             status: 'ACTIVE',
@@ -750,7 +677,6 @@ async function main() {
         },
         create: {
             id: 'campaign_001',
-            tenantId,
             name: 'Harbor Heights July launch',
             type: 'EMAIL',
             status: 'ACTIVE',
@@ -762,7 +688,6 @@ async function main() {
     await prisma.notification.upsert({
         where: { id: 'notification_001' },
         update: {
-            tenantId,
             userId: owner.id,
             title: 'Demo tenant ready',
             message: 'Seeded sample CRM, inventory, sales, payments, documents, and audit data.',
@@ -770,7 +695,6 @@ async function main() {
         },
         create: {
             id: 'notification_001',
-            tenantId,
             userId: owner.id,
             title: 'Demo tenant ready',
             message: 'Seeded sample CRM, inventory, sales, payments, documents, and audit data.',
@@ -780,13 +704,12 @@ async function main() {
     await prisma.auditLog.upsert({
         where: { id: 'audit_001' },
         update: {
-            tenantId,
             userId: owner.id,
             action: 'demo.seeded',
             entityType: 'Tenant',
-            entityId: tenant.id,
+            entityId: 'some_id',
             newValues: {
-                tenant: tenant.name,
+                tenant: 'some_name',
                 includes: [
                     'users',
                     'roles',
@@ -800,13 +723,12 @@ async function main() {
         },
         create: {
             id: 'audit_001',
-            tenantId,
             userId: owner.id,
             action: 'demo.seeded',
             entityType: 'Tenant',
-            entityId: tenant.id,
+            entityId: 'some_id',
             newValues: {
-                tenant: tenant.name,
+                tenant: 'some_name',
                 includes: [
                     'users',
                     'roles',
@@ -820,7 +742,7 @@ async function main() {
         },
     });
     await prisma.$disconnect();
-    console.log(`Seeded demo tenant ${tenant.name}`);
+    console.log('Seeded demo');
     console.log('Login: admin@betflow.example / admin123 / tenant betflow-crm');
 }
 main().catch(async (error) => {

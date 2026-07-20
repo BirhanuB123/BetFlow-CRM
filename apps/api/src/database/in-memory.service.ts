@@ -12,7 +12,6 @@ export type Tenant = {
 
 export type User = {
   id: string;
-  tenantId: string;
   name: string;
   email: string;
   roleId: string;
@@ -21,7 +20,6 @@ export type User = {
 
 export type Role = {
   id: string;
-  tenantId: string;
   name: string;
   description: string;
   permissionKeys: string[];
@@ -35,7 +33,6 @@ export type Permission = {
 
 export type AuditLog = {
   id: string;
-  tenantId: string;
   actor: string;
   action: string;
   target: string;
@@ -48,7 +45,6 @@ export type LeadStage =
 
 export type Lead = {
   id: string;
-  tenantId: string;
   name: string;
   company: string;
   email: string;
@@ -62,7 +58,6 @@ export type Lead = {
 
 export type Customer = {
   id: string;
-  tenantId: string;
   name: string;
   email: string;
   phone: string;
@@ -73,7 +68,6 @@ export type Customer = {
 
 export type Deal = {
   id: string;
-  tenantId: string;
   leadId: string;
   customerId: string;
   propertyName: string;
@@ -86,7 +80,6 @@ export type Deal = {
 
 export type Task = {
   id: string;
-  tenantId: string;
   title: string;
   ownerUserId: string;
   relatedTo: string;
@@ -97,7 +90,6 @@ export type Task = {
 
 export type Note = {
   id: string;
-  tenantId: string;
   relatedTo: string;
   authorUserId: string;
   body: string;
@@ -106,7 +98,6 @@ export type Note = {
 
 export type Activity = {
   id: string;
-  tenantId: string;
   actorUserId: string;
   action: string;
   target: string;
@@ -116,7 +107,6 @@ export type Activity = {
 
 export type Project = {
   id: string;
-  tenantId: string;
   name: string;
   location: string;
   status: 'planning' | 'active' | 'selling' | 'delivered';
@@ -124,7 +114,6 @@ export type Project = {
 
 export type Building = {
   id: string;
-  tenantId: string;
   projectId: string;
   name: string;
   address: string;
@@ -134,7 +123,6 @@ export type Building = {
 
 export type Floor = {
   id: string;
-  tenantId: string;
   buildingId: string;
   label: string;
   releaseStatus: 'draft' | 'released' | 'hold';
@@ -144,7 +132,6 @@ export type UnitStatus = 'available' | 'reserved' | 'sold' | 'blocked';
 
 export type Unit = {
   id: string;
-  tenantId: string;
   projectId: string;
   buildingId: string;
   floorId: string;
@@ -159,7 +146,6 @@ export type Unit = {
 
 export type PropertyMedia = {
   id: string;
-  tenantId: string;
   projectId: string;
   title: string;
   type: 'photo' | 'floor_plan' | 'document' | 'virtual_tour';
@@ -170,7 +156,6 @@ export type PropertyMedia = {
 
 export type SiteVisit = {
   id: string;
-  tenantId: string;
   leadId: string;
   unitId: string;
   agentUserId: string;
@@ -181,7 +166,6 @@ export type SiteVisit = {
 
 export type Reservation = {
   id: string;
-  tenantId: string;
   customerId: string;
   unitId: string;
   expiresAt: string;
@@ -192,7 +176,6 @@ export type Reservation = {
 
 export type PaymentScheduleItem = {
   id: string;
-  tenantId: string;
   reservationId: string;
   milestone: string;
   dueDate: string;
@@ -202,7 +185,6 @@ export type PaymentScheduleItem = {
 
 export type PaymentTransaction = {
   id: string;
-  tenantId: string;
   reservationId: string;
   customerId: string;
   method: 'bank_transfer' | 'card' | 'check';
@@ -213,7 +195,6 @@ export type PaymentTransaction = {
 
 export type ReceiptUpload = {
   id: string;
-  tenantId: string;
   paymentId: string;
   fileName: string;
   uploadedByUserId: string;
@@ -223,7 +204,6 @@ export type ReceiptUpload = {
 
 export type FinanceApproval = {
   id: string;
-  tenantId: string;
   reservationId: string;
   reviewerUserId: string;
   paymentId: string;
@@ -235,7 +215,6 @@ export type FinanceApproval = {
 
 export type UploadedDocument = {
   id: string;
-  tenantId: string;
   name: string;
   category: 'kyc' | 'proof_of_payment' | 'reservation' | 'contract';
   relatedTo: string;
@@ -246,7 +225,6 @@ export type UploadedDocument = {
 
 export type ContractTemplate = {
   id: string;
-  tenantId: string;
   name: string;
   type: 'reservation' | 'sale_agreement' | 'addendum';
   version: string;
@@ -256,7 +234,6 @@ export type ContractTemplate = {
 
 export type GeneratedContractPdf = {
   id: string;
-  tenantId: string;
   templateId: string;
   customerId: string;
   unitId: string;
@@ -266,7 +243,6 @@ export type GeneratedContractPdf = {
 
 export type LegalContractApproval = {
   id: string;
-  tenantId: string;
   generatedPdfId: string;
   reviewerUserId: string;
   submittedAt: string;
@@ -276,7 +252,6 @@ export type LegalContractApproval = {
 
 export type SignedContract = {
   id: string;
-  tenantId: string;
   generatedPdfId: string;
   customerId: string;
   signedAt?: string;
@@ -286,7 +261,6 @@ export type SignedContract = {
 
 export type NotificationMessage = {
   id: string;
-  tenantId: string;
   channel: 'sms' | 'telegram' | 'email';
   recipient: string;
   subject: string;
@@ -297,7 +271,6 @@ export type NotificationMessage = {
 
 export type OverduePaymentAlert = {
   id: string;
-  tenantId: string;
   customerId: string;
   reservationId: string;
   amount: number;
@@ -308,7 +281,6 @@ export type OverduePaymentAlert = {
 
 export type FollowUpReminder = {
   id: string;
-  tenantId: string;
   leadId: string;
   ownerUserId: string;
   dueAt: string;
@@ -375,7 +347,6 @@ export type ReportCatalogEntry = {
 
 export type SubscriptionPlan = {
   id: string;
-  tenantId?: string;
   name: string;
   price: number | null;
   billingCycle: 'monthly' | 'annual';
@@ -385,7 +356,6 @@ export type SubscriptionPlan = {
 
 export type FeatureLimit = {
   id: string;
-  tenantId: string;
   feature: string;
   used: number;
   limit: number;
@@ -394,7 +364,6 @@ export type FeatureLimit = {
 
 export type BrandingSetting = {
   id: string;
-  tenantId: string;
   label: string;
   value: string;
   status: 'live' | 'draft';
@@ -402,7 +371,6 @@ export type BrandingSetting = {
 
 export type TenantBillingItem = {
   id: string;
-  tenantId: string;
   invoice: string;
   period: string;
   amount: number;
@@ -412,7 +380,6 @@ export type TenantBillingItem = {
 
 export type TenantDomain = {
   id: string;
-  tenantId: string;
   domain: string;
   status: 'verified' | 'pending_dns' | 'failed';
   ssl: 'active' | 'pending';
@@ -421,7 +388,6 @@ export type TenantDomain = {
 
 export type DataTransferJob = {
   id: string;
-  tenantId: string;
   type: 'export' | 'import';
   scope: string;
   requestedByUserId: string;
@@ -439,7 +405,6 @@ type RegisterTenantInput = {
 };
 
 type InviteUserInput = {
-  tenantId: string;
   name: string;
   email: string;
   roleId: string;
@@ -501,22 +466,11 @@ export class InMemoryService {
     },
   ];
 
-  private readonly tenants: Tenant[] = [
-    {
-      id: 'tenant_001',
-      name: 'BetFlow Realty',
-      slug: 'betflow-realty',
-      region: 'US East',
-      plan: 'Growth',
-      status: 'active',
-      ownerUserId: 'user_001',
-    },
-  ];
+  private readonly tenants: Tenant[] = [];
 
   private readonly roles: Role[] = [
     {
       id: 'role_owner',
-      tenantId: 'tenant_001',
       name: 'Owner',
       description: 'Full tenant administration access.',
       permissionKeys: [
@@ -529,7 +483,6 @@ export class InMemoryService {
     },
     {
       id: 'role_admin',
-      tenantId: 'tenant_001',
       name: 'Admin',
       description: 'Operational administration without ownership controls.',
       permissionKeys: [
@@ -541,7 +494,6 @@ export class InMemoryService {
     },
     {
       id: 'role_agent',
-      tenantId: 'tenant_001',
       name: 'Agent',
       description: 'Default sales workspace access.',
       permissionKeys: ['dashboard.read'],
@@ -551,7 +503,6 @@ export class InMemoryService {
   private readonly users: User[] = [
     {
       id: 'user_001',
-      tenantId: 'tenant_001',
       name: 'Maya Johnson',
       email: 'maya@betflow.example',
       roleId: 'role_owner',
@@ -559,7 +510,6 @@ export class InMemoryService {
     },
     {
       id: 'user_002',
-      tenantId: 'tenant_001',
       name: 'Omar Haddad',
       email: 'omar@betflow.example',
       roleId: 'role_admin',
@@ -570,7 +520,6 @@ export class InMemoryService {
   private readonly auditLogs: AuditLog[] = [
     {
       id: 'audit_001',
-      tenantId: 'tenant_001',
       actor: 'Maya Johnson',
       action: 'Registered tenant',
       target: 'BetFlow Realty',
@@ -579,7 +528,6 @@ export class InMemoryService {
     },
     {
       id: 'audit_002',
-      tenantId: 'tenant_001',
       actor: 'System',
       action: 'Initialized default roles',
       target: 'RBAC',
@@ -591,7 +539,6 @@ export class InMemoryService {
   private readonly leads: Lead[] = [
     {
       id: 'lead_001',
-      tenantId: 'tenant_001',
       name: 'Ari Kaplan',
       company: 'Kaplan Holdings',
       email: 'ari@kaplan.example',
@@ -604,7 +551,6 @@ export class InMemoryService {
     },
     {
       id: 'lead_002',
-      tenantId: 'tenant_001',
       name: 'Priya Shah',
       company: 'Northline Capital',
       email: 'priya@northline.example',
@@ -620,7 +566,6 @@ export class InMemoryService {
   private readonly customers: Customer[] = [
     {
       id: 'customer_001',
-      tenantId: 'tenant_001',
       name: 'Kaplan Holdings',
       email: 'ari@kaplan.example',
       phone: '+1 555 0182',
@@ -630,7 +575,6 @@ export class InMemoryService {
     },
     {
       id: 'customer_002',
-      tenantId: 'tenant_001',
       name: 'Bell Family Office',
       email: 'marcus@bell.example',
       phone: '+1 555 0118',
@@ -643,7 +587,6 @@ export class InMemoryService {
   private readonly deals: Deal[] = [
     {
       id: 'deal_001',
-      tenantId: 'tenant_001',
       leadId: 'lead_001',
       customerId: 'customer_001',
       propertyName: 'Harbor Point Tower',
@@ -655,7 +598,6 @@ export class InMemoryService {
     },
     {
       id: 'deal_002',
-      tenantId: 'tenant_001',
       leadId: 'lead_002',
       customerId: 'customer_002',
       propertyName: 'Meridian Residences',
@@ -670,7 +612,6 @@ export class InMemoryService {
   private readonly tasks: Task[] = [
     {
       id: 'task_001',
-      tenantId: 'tenant_001',
       title: 'Send updated unit availability',
       ownerUserId: 'user_002',
       relatedTo: 'customer_001',
@@ -683,7 +624,6 @@ export class InMemoryService {
   private readonly notes: Note[] = [
     {
       id: 'note_001',
-      tenantId: 'tenant_001',
       relatedTo: 'customer_001',
       authorUserId: 'user_002',
       body: 'Buyer wants two comparable investment options before the next call.',
@@ -694,7 +634,6 @@ export class InMemoryService {
   private readonly activities: Activity[] = [
     {
       id: 'activity_001',
-      tenantId: 'tenant_001',
       actorUserId: 'user_002',
       action: 'Assigned lead',
       target: 'lead_001',
@@ -706,14 +645,12 @@ export class InMemoryService {
   private readonly projects: Project[] = [
     {
       id: 'project_001',
-      tenantId: 'tenant_001',
       name: 'Harbor Point',
       location: 'Miami, FL',
       status: 'selling',
     },
     {
       id: 'project_002',
-      tenantId: 'tenant_001',
       name: 'Meridian Residences',
       location: 'Austin, TX',
       status: 'active',
@@ -723,7 +660,6 @@ export class InMemoryService {
   private readonly buildings: Building[] = [
     {
       id: 'building_001',
-      tenantId: 'tenant_001',
       projectId: 'project_001',
       name: 'Harbor Tower A',
       address: '210 Bayfront Ave',
@@ -732,7 +668,6 @@ export class InMemoryService {
     },
     {
       id: 'building_002',
-      tenantId: 'tenant_001',
       projectId: 'project_002',
       name: 'Meridian North',
       address: '88 Trinity St',
@@ -744,14 +679,12 @@ export class InMemoryService {
   private readonly floors: Floor[] = [
     {
       id: 'floor_001',
-      tenantId: 'tenant_001',
       buildingId: 'building_001',
       label: 'Floor 18',
       releaseStatus: 'released',
     },
     {
       id: 'floor_002',
-      tenantId: 'tenant_001',
       buildingId: 'building_002',
       label: 'Floor 9',
       releaseStatus: 'released',
@@ -761,7 +694,6 @@ export class InMemoryService {
   private readonly units: Unit[] = [
     {
       id: 'unit_001',
-      tenantId: 'tenant_001',
       projectId: 'project_001',
       buildingId: 'building_001',
       floorId: 'floor_001',
@@ -775,7 +707,6 @@ export class InMemoryService {
     },
     {
       id: 'unit_002',
-      tenantId: 'tenant_001',
       projectId: 'project_001',
       buildingId: 'building_001',
       floorId: 'floor_001',
@@ -789,7 +720,6 @@ export class InMemoryService {
     },
     {
       id: 'unit_003',
-      tenantId: 'tenant_001',
       projectId: 'project_002',
       buildingId: 'building_002',
       floorId: 'floor_002',
@@ -806,7 +736,6 @@ export class InMemoryService {
   private readonly propertyMedia: PropertyMedia[] = [
     {
       id: 'media_001',
-      tenantId: 'tenant_001',
       projectId: 'project_001',
       title: 'Harbor Point exterior gallery',
       type: 'photo',
@@ -816,7 +745,6 @@ export class InMemoryService {
     },
     {
       id: 'media_002',
-      tenantId: 'tenant_001',
       projectId: 'project_001',
       title: 'Tower A floor plans',
       type: 'floor_plan',
@@ -829,7 +757,6 @@ export class InMemoryService {
   private readonly siteVisits: SiteVisit[] = [
     {
       id: 'visit_001',
-      tenantId: 'tenant_001',
       leadId: 'lead_001',
       unitId: 'unit_001',
       agentUserId: 'user_002',
@@ -839,7 +766,6 @@ export class InMemoryService {
     },
     {
       id: 'visit_002',
-      tenantId: 'tenant_001',
       leadId: 'lead_002',
       unitId: 'unit_003',
       agentUserId: 'user_002',
@@ -852,7 +778,6 @@ export class InMemoryService {
   private readonly reservations: Reservation[] = [
     {
       id: 'reservation_001',
-      tenantId: 'tenant_001',
       customerId: 'customer_002',
       unitId: 'unit_002',
       expiresAt: '2026-07-05',
@@ -862,7 +787,6 @@ export class InMemoryService {
     },
     {
       id: 'reservation_002',
-      tenantId: 'tenant_001',
       customerId: 'customer_001',
       unitId: 'unit_001',
       expiresAt: '2026-07-08',
@@ -875,7 +799,6 @@ export class InMemoryService {
   private readonly paymentSchedule: PaymentScheduleItem[] = [
     {
       id: 'schedule_001',
-      tenantId: 'tenant_001',
       reservationId: 'reservation_001',
       milestone: 'Reservation deposit',
       dueDate: '2026-07-05',
@@ -884,7 +807,6 @@ export class InMemoryService {
     },
     {
       id: 'schedule_002',
-      tenantId: 'tenant_001',
       reservationId: 'reservation_002',
       milestone: 'Reservation deposit',
       dueDate: '2026-06-30',
@@ -896,7 +818,6 @@ export class InMemoryService {
   private readonly paymentTransactions: PaymentTransaction[] = [
     {
       id: 'payment_001',
-      tenantId: 'tenant_001',
       reservationId: 'reservation_002',
       customerId: 'customer_001',
       method: 'bank_transfer',
@@ -906,7 +827,6 @@ export class InMemoryService {
     },
     {
       id: 'payment_002',
-      tenantId: 'tenant_001',
       reservationId: 'reservation_001',
       customerId: 'customer_002',
       method: 'check',
@@ -918,7 +838,6 @@ export class InMemoryService {
   private readonly receiptUploads: ReceiptUpload[] = [
     {
       id: 'receipt_001',
-      tenantId: 'tenant_001',
       paymentId: 'payment_001',
       fileName: 'kaplan-deposit-wire.pdf',
       uploadedByUserId: 'user_002',
@@ -927,7 +846,6 @@ export class InMemoryService {
     },
     {
       id: 'receipt_002',
-      tenantId: 'tenant_001',
       paymentId: 'payment_002',
       fileName: 'bell-check-scan.jpg',
       uploadedByUserId: 'user_001',
@@ -939,7 +857,6 @@ export class InMemoryService {
   private readonly financeApprovals: FinanceApproval[] = [
     {
       id: 'approval_001',
-      tenantId: 'tenant_001',
       reservationId: 'reservation_001',
       reviewerUserId: 'user_001',
       paymentId: 'payment_002',
@@ -950,7 +867,6 @@ export class InMemoryService {
     },
     {
       id: 'approval_002',
-      tenantId: 'tenant_001',
       reservationId: 'reservation_002',
       reviewerUserId: 'user_001',
       paymentId: 'payment_001',
@@ -964,7 +880,6 @@ export class InMemoryService {
   private readonly uploadedDocuments: UploadedDocument[] = [
     {
       id: 'document_001',
-      tenantId: 'tenant_001',
       name: 'kaplan-passport.pdf',
       category: 'kyc',
       relatedTo: 'customer_001',
@@ -974,7 +889,6 @@ export class InMemoryService {
     },
     {
       id: 'document_002',
-      tenantId: 'tenant_001',
       name: 'bell-reservation-form.pdf',
       category: 'reservation',
       relatedTo: 'reservation_001',
@@ -987,7 +901,6 @@ export class InMemoryService {
   private readonly contractTemplates: ContractTemplate[] = [
     {
       id: 'template_001',
-      tenantId: 'tenant_001',
       name: 'Standard reservation agreement',
       type: 'reservation',
       version: 'v2.4',
@@ -996,7 +909,6 @@ export class InMemoryService {
     },
     {
       id: 'template_002',
-      tenantId: 'tenant_001',
       name: 'Residential sale agreement',
       type: 'sale_agreement',
       version: 'v1.9',
@@ -1008,7 +920,6 @@ export class InMemoryService {
   private readonly generatedContractPdfs: GeneratedContractPdf[] = [
     {
       id: 'contract_pdf_001',
-      tenantId: 'tenant_001',
       templateId: 'template_001',
       customerId: 'customer_002',
       unitId: 'unit_002',
@@ -1017,7 +928,6 @@ export class InMemoryService {
     },
     {
       id: 'contract_pdf_002',
-      tenantId: 'tenant_001',
       templateId: 'template_002',
       customerId: 'customer_001',
       unitId: 'unit_001',
@@ -1029,7 +939,6 @@ export class InMemoryService {
   private readonly legalContractApprovals: LegalContractApproval[] = [
     {
       id: 'contract_approval_001',
-      tenantId: 'tenant_001',
       generatedPdfId: 'contract_pdf_001',
       reviewerUserId: 'user_001',
       submittedAt: new Date('2026-06-30T15:08:00.000Z').toISOString(),
@@ -1038,7 +947,6 @@ export class InMemoryService {
     },
     {
       id: 'contract_approval_002',
-      tenantId: 'tenant_001',
       generatedPdfId: 'contract_pdf_002',
       reviewerUserId: 'user_001',
       submittedAt: new Date('2026-06-29T15:08:00.000Z').toISOString(),
@@ -1050,7 +958,6 @@ export class InMemoryService {
   private readonly signedContracts: SignedContract[] = [
     {
       id: 'signed_contract_001',
-      tenantId: 'tenant_001',
       generatedPdfId: 'contract_pdf_002',
       customerId: 'customer_001',
       signedAt: new Date('2026-06-30T16:14:00.000Z').toISOString(),
@@ -1059,7 +966,6 @@ export class InMemoryService {
     },
     {
       id: 'signed_contract_002',
-      tenantId: 'tenant_001',
       generatedPdfId: 'contract_pdf_001',
       customerId: 'customer_002',
       storagePath: 'contracts/pending/bell-reservation-agreement.pdf',
@@ -1070,7 +976,6 @@ export class InMemoryService {
   private readonly notificationMessages: NotificationMessage[] = [
     {
       id: 'notification_001',
-      tenantId: 'tenant_001',
       channel: 'sms',
       recipient: 'Ari Kaplan',
       subject: 'Site visit reminder for A-1802',
@@ -1080,7 +985,6 @@ export class InMemoryService {
     },
     {
       id: 'notification_002',
-      tenantId: 'tenant_001',
       channel: 'telegram',
       recipient: 'Omar Haddad',
       subject: 'Kaplan deposit approved',
@@ -1090,7 +994,6 @@ export class InMemoryService {
     },
     {
       id: 'notification_003',
-      tenantId: 'tenant_001',
       channel: 'email',
       recipient: 'Bell Family Office',
       subject: 'Reservation deposit reminder',
@@ -1103,7 +1006,6 @@ export class InMemoryService {
   private readonly overduePaymentAlerts: OverduePaymentAlert[] = [
     {
       id: 'overdue_001',
-      tenantId: 'tenant_001',
       customerId: 'customer_002',
       reservationId: 'reservation_001',
       amount: 25000,
@@ -1113,7 +1015,6 @@ export class InMemoryService {
     },
     {
       id: 'overdue_002',
-      tenantId: 'tenant_001',
       customerId: 'customer_001',
       reservationId: 'reservation_002',
       amount: 145000,
@@ -1126,7 +1027,6 @@ export class InMemoryService {
   private readonly followUpReminders: FollowUpReminder[] = [
     {
       id: 'followup_001',
-      tenantId: 'tenant_001',
       leadId: 'lead_004',
       ownerUserId: 'user_002',
       dueAt: new Date('2026-06-30T19:00:00.000Z').toISOString(),
@@ -1136,7 +1036,6 @@ export class InMemoryService {
     },
     {
       id: 'followup_002',
-      tenantId: 'tenant_001',
       leadId: 'lead_003',
       ownerUserId: 'user_001',
       dueAt: new Date('2026-07-01T14:00:00.000Z').toISOString(),
@@ -1316,7 +1215,6 @@ export class InMemoryService {
   private readonly subscriptionPlans: SubscriptionPlan[] = [
     {
       id: 'plan_growth',
-      tenantId: 'tenant_001',
       name: 'Growth',
       price: 499,
       billingCycle: 'monthly',
@@ -1359,7 +1257,6 @@ export class InMemoryService {
   private readonly featureLimits: FeatureLimit[] = [
     {
       id: 'limit_users',
-      tenantId: 'tenant_001',
       feature: 'Users',
       used: 24,
       limit: 25,
@@ -1367,7 +1264,6 @@ export class InMemoryService {
     },
     {
       id: 'limit_leads',
-      tenantId: 'tenant_001',
       feature: 'Active leads',
       used: 248,
       limit: 500,
@@ -1375,7 +1271,6 @@ export class InMemoryService {
     },
     {
       id: 'limit_storage',
-      tenantId: 'tenant_001',
       feature: 'Storage',
       used: 82,
       limit: 250,
@@ -1383,7 +1278,6 @@ export class InMemoryService {
     },
     {
       id: 'limit_domains',
-      tenantId: 'tenant_001',
       feature: 'Custom domains',
       used: 1,
       limit: 3,
@@ -1394,28 +1288,24 @@ export class InMemoryService {
   private readonly brandingSettings: BrandingSetting[] = [
     {
       id: 'brand_name',
-      tenantId: 'tenant_001',
       label: 'Workspace name',
       value: 'BetFlow Realty',
       status: 'live',
     },
     {
       id: 'brand_color',
-      tenantId: 'tenant_001',
       label: 'Primary color',
       value: '#18181b',
       status: 'live',
     },
     {
       id: 'brand_logo',
-      tenantId: 'tenant_001',
       label: 'Logo',
       value: 'betflow_logo.svg',
       status: 'live',
     },
     {
       id: 'brand_login',
-      tenantId: 'tenant_001',
       label: 'Login message',
       value: 'Welcome to BetFlow Realty',
       status: 'draft',
@@ -1425,7 +1315,6 @@ export class InMemoryService {
   private readonly tenantBillingItems: TenantBillingItem[] = [
     {
       id: 'billing_001',
-      tenantId: 'tenant_001',
       invoice: 'INV-2026-006',
       period: 'June 2026',
       amount: 499,
@@ -1434,7 +1323,6 @@ export class InMemoryService {
     },
     {
       id: 'billing_002',
-      tenantId: 'tenant_001',
       invoice: 'INV-2026-007',
       period: 'July 2026',
       amount: 499,
@@ -1443,7 +1331,6 @@ export class InMemoryService {
     },
     {
       id: 'billing_003',
-      tenantId: 'tenant_001',
       invoice: 'ADD-2026-012',
       period: 'Storage overage',
       amount: 42,
@@ -1455,7 +1342,6 @@ export class InMemoryService {
   private readonly tenantDomains: TenantDomain[] = [
     {
       id: 'domain_001',
-      tenantId: 'tenant_001',
       domain: 'crm.betflowrealty.com',
       status: 'verified',
       ssl: 'active',
@@ -1463,7 +1349,6 @@ export class InMemoryService {
     },
     {
       id: 'domain_002',
-      tenantId: 'tenant_001',
       domain: 'sales.betflowrealty.com',
       status: 'pending_dns',
       ssl: 'pending',
@@ -1474,7 +1359,6 @@ export class InMemoryService {
   private readonly dataTransferJobs: DataTransferJob[] = [
     {
       id: 'export_001',
-      tenantId: 'tenant_001',
       type: 'export',
       scope: 'Customers and deals',
       requestedByUserId: 'user_001',
@@ -1483,7 +1367,6 @@ export class InMemoryService {
     },
     {
       id: 'import_001',
-      tenantId: 'tenant_001',
       type: 'import',
       scope: 'Legacy leads CSV',
       requestedByUserId: 'user_002',
@@ -1493,11 +1376,11 @@ export class InMemoryService {
   ];
 
   registerTenant(input: RegisterTenantInput) {
-    const tenantId = this.nextId('tenant');
+    
     const ownerRoleId = this.nextId('role');
     const ownerUserId = this.nextId('user');
     const tenant: Tenant = {
-      id: tenantId,
+      id: this.nextId('tenant'),
       name: input.companyName,
       slug: input.slug,
       region: input.region ?? 'US East',
@@ -1507,14 +1390,12 @@ export class InMemoryService {
     };
     const ownerRole: Role = {
       id: ownerRoleId,
-      tenantId,
       name: 'Owner',
       description: 'Full tenant administration access.',
       permissionKeys: this.permissions.map((permission) => permission.key),
     };
     const owner: User = {
       id: ownerUserId,
-      tenantId,
       name: input.ownerName,
       email: input.ownerEmail,
       roleId: ownerRoleId,
@@ -1524,9 +1405,7 @@ export class InMemoryService {
     this.tenants.push(tenant);
     this.roles.push(ownerRole);
     this.users.push(owner);
-    this.recordAudit({
-      tenantId,
-      actor: owner.name,
+    this.recordAudit({ actor: owner.name,
       action: 'Registered tenant',
       target: tenant.name,
       severity: 'info',
@@ -1553,7 +1432,6 @@ export class InMemoryService {
     const tenant = this.getTenant(id);
     Object.assign(tenant, input);
     this.recordAudit({
-      tenantId: id,
       actor: 'System',
       action: 'Updated tenant settings',
       target: tenant.name,
@@ -1562,17 +1440,14 @@ export class InMemoryService {
     return tenant;
   }
 
-  listUsers(tenantId?: string) {
-    return tenantId
-      ? this.users.filter((user) => user.tenantId === tenantId)
-      : this.users;
+  listUsers() {
+    return this.users;
   }
 
   inviteUser(input: InviteUserInput) {
-    this.getTenant(input.tenantId);
+    
     const role = this.roles.find(
-      (item) => item.id === input.roleId && item.tenantId === input.tenantId,
-    );
+      (item) => item.id === input.roleId);
 
     if (!role) {
       throw new NotFoundException(`Role ${input.roleId} was not found`);
@@ -1580,7 +1455,6 @@ export class InMemoryService {
 
     const user: User = {
       id: this.nextId('user'),
-      tenantId: input.tenantId,
       name: input.name,
       email: input.email,
       roleId: input.roleId,
@@ -1589,7 +1463,6 @@ export class InMemoryService {
 
     this.users.push(user);
     this.recordAudit({
-      tenantId: input.tenantId,
       actor: 'System',
       action: 'Invited user',
       target: input.email,
@@ -1598,18 +1471,15 @@ export class InMemoryService {
     return user;
   }
 
-  listRoles(tenantId?: string) {
-    return tenantId
-      ? this.roles.filter((role) => role.tenantId === tenantId)
-      : this.roles;
+  listRoles() {
+    return this.roles;
   }
 
   createRole(input: Omit<Role, 'id'>) {
-    this.getTenant(input.tenantId);
+    
     const role: Role = { ...input, id: this.nextId('role') };
     this.roles.push(role);
     this.recordAudit({
-      tenantId: input.tenantId,
       actor: 'System',
       action: 'Created role',
       target: role.name,
@@ -1622,10 +1492,8 @@ export class InMemoryService {
     return this.permissions;
   }
 
-  listAuditLogs(tenantId?: string) {
-    return tenantId
-      ? this.auditLogs.filter((log) => log.tenantId === tenantId)
-      : this.auditLogs;
+  listAuditLogs() {
+    return this.auditLogs;
   }
 
   recordAudit(input: Omit<AuditLog, 'id' | 'createdAt'>) {
@@ -1638,18 +1506,15 @@ export class InMemoryService {
     return log;
   }
 
-  listLeads(tenantId?: string) {
-    return tenantId
-      ? this.leads.filter((lead) => lead.tenantId === tenantId)
-      : this.leads;
+  listLeads() {
+    return this.leads;
   }
 
   createLead(input: CreateLeadInput) {
-    this.getTenant(input.tenantId);
+    
     const lead: Lead = { ...input, id: this.nextId('lead') };
     this.leads.push(lead);
     this.recordActivity({
-      tenantId: input.tenantId,
       actorUserId: input.assignedToUserId ?? 'system',
       action: 'Created lead',
       target: lead.id,
@@ -1667,7 +1532,6 @@ export class InMemoryService {
 
     lead.assignedToUserId = assignedToUserId;
     this.recordActivity({
-      tenantId: lead.tenantId,
       actorUserId: assignedToUserId,
       action: 'Assigned lead',
       target: lead.id,
@@ -1676,31 +1540,26 @@ export class InMemoryService {
     return lead;
   }
 
-  listCustomers(tenantId?: string) {
-    return tenantId
-      ? this.customers.filter((customer) => customer.tenantId === tenantId)
-      : this.customers;
+  listCustomers() {
+    return this.customers;
   }
 
   createCustomer(input: CreateCustomerInput) {
-    this.getTenant(input.tenantId);
+    
     const customer: Customer = { ...input, id: this.nextId('customer') };
     this.customers.push(customer);
     return customer;
   }
 
-  listDeals(tenantId?: string) {
-    return tenantId
-      ? this.deals.filter((deal) => deal.tenantId === tenantId)
-      : this.deals;
+  listDeals() {
+    return this.deals;
   }
 
   createDeal(input: CreateDealInput) {
-    this.getTenant(input.tenantId);
+    
     const deal: Deal = { ...input, id: this.nextId('deal') };
     this.deals.push(deal);
     this.recordActivity({
-      tenantId: input.tenantId,
       actorUserId: input.ownerUserId,
       action: 'Created deal',
       target: deal.id,
@@ -1718,7 +1577,6 @@ export class InMemoryService {
 
     deal.stage = stage;
     this.recordActivity({
-      tenantId: deal.tenantId,
       actorUserId: deal.ownerUserId,
       action: `Moved deal to ${stage}`,
       target: deal.id,
@@ -1727,18 +1585,15 @@ export class InMemoryService {
     return deal;
   }
 
-  listTasks(tenantId?: string) {
-    return tenantId
-      ? this.tasks.filter((task) => task.tenantId === tenantId)
-      : this.tasks;
+  listTasks() {
+    return this.tasks;
   }
 
   createTask(input: CreateTaskInput) {
-    this.getTenant(input.tenantId);
+    
     const task: Task = { ...input, id: this.nextId('task') };
     this.tasks.push(task);
     this.recordActivity({
-      tenantId: input.tenantId,
       actorUserId: input.ownerUserId,
       action: 'Created task',
       target: task.id,
@@ -1747,14 +1602,12 @@ export class InMemoryService {
     return task;
   }
 
-  listNotes(tenantId?: string) {
-    return tenantId
-      ? this.notes.filter((note) => note.tenantId === tenantId)
-      : this.notes;
+  listNotes() {
+    return this.notes;
   }
 
   createNote(input: CreateNoteInput) {
-    this.getTenant(input.tenantId);
+    
     const note: Note = {
       ...input,
       id: this.nextId('note'),
@@ -1762,7 +1615,6 @@ export class InMemoryService {
     };
     this.notes.push(note);
     this.recordActivity({
-      tenantId: input.tenantId,
       actorUserId: input.authorUserId,
       action: 'Added note',
       target: input.relatedTo,
@@ -1771,10 +1623,9 @@ export class InMemoryService {
     return note;
   }
 
-  listActivities(tenantId?: string) {
-    return tenantId
-      ? this.activities.filter((activity) => activity.tenantId === tenantId)
-      : this.activities;
+  listActivities() {
+    return 
+      this.activities;
   }
 
   recordActivity(input: CreateActivityInput) {
@@ -1787,62 +1638,61 @@ export class InMemoryService {
     return activity;
   }
 
-  listProjects(tenantId?: string) {
-    return tenantId
-      ? this.projects.filter((project) => project.tenantId === tenantId)
-      : this.projects;
+  listProjects() {
+    return 
+      this.projects;
   }
 
   createProject(input: CreateProjectInput) {
-    this.getTenant(input.tenantId);
+    
     const project: Project = { ...input, id: this.nextId('project') };
     this.projects.push(project);
     return project;
   }
 
-  listBuildings(tenantId?: string, projectId?: string) {
+  listBuildings(projectId?: string) {
     return this.buildings.filter((building) => {
       return (
-        (!tenantId || building.tenantId === tenantId) &&
+        
         (!projectId || building.projectId === projectId)
       );
     });
   }
 
   createBuilding(input: CreateBuildingInput) {
-    this.getTenant(input.tenantId);
+    
     const building: Building = { ...input, id: this.nextId('building') };
     this.buildings.push(building);
     return building;
   }
 
-  listFloors(tenantId?: string, buildingId?: string) {
+  listFloors(buildingId?: string) {
     return this.floors.filter((floor) => {
       return (
-        (!tenantId || floor.tenantId === tenantId) &&
+        
         (!buildingId || floor.buildingId === buildingId)
       );
     });
   }
 
   createFloor(input: CreateFloorInput) {
-    this.getTenant(input.tenantId);
+    
     const floor: Floor = { ...input, id: this.nextId('floor') };
     this.floors.push(floor);
     return floor;
   }
 
-  listUnits(tenantId?: string, status?: UnitStatus) {
+  listUnits(status?: UnitStatus) {
     return this.units.filter((unit) => {
       return (
-        (!tenantId || unit.tenantId === tenantId) &&
+        
         (!status || unit.status === status)
       );
     });
   }
 
   createUnit(input: CreateUnitInput) {
-    this.getTenant(input.tenantId);
+    
     const unit: Unit = { ...input, id: this.nextId('unit') };
     this.units.push(unit);
     return unit;
@@ -1862,17 +1712,17 @@ export class InMemoryService {
     return unit;
   }
 
-  listPropertyMedia(tenantId?: string, projectId?: string) {
+  listPropertyMedia(projectId?: string) {
     return this.propertyMedia.filter((media) => {
       return (
-        (!tenantId || media.tenantId === tenantId) &&
+        
         (!projectId || media.projectId === projectId)
       );
     });
   }
 
   createPropertyMedia(input: CreatePropertyMediaInput) {
-    this.getTenant(input.tenantId);
+    
     const media: PropertyMedia = {
       ...input,
       id: this.nextId('media'),
@@ -1882,14 +1732,13 @@ export class InMemoryService {
     return media;
   }
 
-  listSiteVisits(tenantId?: string) {
-    return tenantId
-      ? this.siteVisits.filter((visit) => visit.tenantId === tenantId)
-      : this.siteVisits;
+  listSiteVisits() {
+    return 
+      this.siteVisits;
   }
 
   createSiteVisit(input: CreateSiteVisitInput) {
-    this.getTenant(input.tenantId);
+    
     const visit: SiteVisit = { ...input, id: this.nextId('visit') };
     this.siteVisits.push(visit);
     return visit;
@@ -1897,9 +1746,7 @@ export class InMemoryService {
 
   updateSiteVisitStatus(
     id: string,
-    status: SiteVisit['status'],
-    outcome?: string,
-  ) {
+    status: SiteVisit['status']) {
     const visit = this.siteVisits.find((item) => item.id === id);
 
     if (!visit) {
@@ -1907,22 +1754,17 @@ export class InMemoryService {
     }
 
     visit.status = status;
-    if (outcome) {
-      visit.outcome = outcome;
-    }
+    
     return visit;
   }
 
-  listReservations(tenantId?: string) {
-    return tenantId
-      ? this.reservations.filter(
-          (reservation) => reservation.tenantId === tenantId,
-        )
-      : this.reservations;
+  listReservations() {
+    return 
+      this.reservations;
   }
 
   createReservation(input: CreateReservationInput) {
-    this.getTenant(input.tenantId);
+    
     const reservation: Reservation = {
       ...input,
       id: this.nextId('reservation'),
@@ -1953,17 +1795,17 @@ export class InMemoryService {
     return reservation;
   }
 
-  listPaymentSchedule(tenantId?: string, reservationId?: string) {
+  listPaymentSchedule(reservationId?: string) {
     return this.paymentSchedule.filter((item) => {
       return (
-        (!tenantId || item.tenantId === tenantId) &&
+        
         (!reservationId || item.reservationId === reservationId)
       );
     });
   }
 
   createPaymentScheduleItem(input: CreatePaymentScheduleInput) {
-    this.getTenant(input.tenantId);
+    
     const item: PaymentScheduleItem = {
       ...input,
       id: this.nextId('schedule'),
@@ -1972,17 +1814,17 @@ export class InMemoryService {
     return item;
   }
 
-  listPaymentTransactions(tenantId?: string, reservationId?: string) {
+  listPaymentTransactions(reservationId?: string) {
     return this.paymentTransactions.filter((payment) => {
       return (
-        (!tenantId || payment.tenantId === tenantId) &&
+        
         (!reservationId || payment.reservationId === reservationId)
       );
     });
   }
 
   createPaymentTransaction(input: CreatePaymentTransactionInput) {
-    this.getTenant(input.tenantId);
+    
     const payment: PaymentTransaction = {
       ...input,
       id: this.nextId('payment'),
@@ -1991,17 +1833,17 @@ export class InMemoryService {
     return payment;
   }
 
-  listReceiptUploads(tenantId?: string, paymentId?: string) {
+  listReceiptUploads(paymentId?: string) {
     return this.receiptUploads.filter((receipt) => {
       return (
-        (!tenantId || receipt.tenantId === tenantId) &&
+        
         (!paymentId || receipt.paymentId === paymentId)
       );
     });
   }
 
   createReceiptUpload(input: CreateReceiptUploadInput) {
-    this.getTenant(input.tenantId);
+    
     const receipt: ReceiptUpload = {
       ...input,
       id: this.nextId('receipt'),
@@ -2011,16 +1853,13 @@ export class InMemoryService {
     return receipt;
   }
 
-  listFinanceApprovals(tenantId?: string) {
-    return tenantId
-      ? this.financeApprovals.filter(
-          (approval) => approval.tenantId === tenantId,
-        )
-      : this.financeApprovals;
+  listFinanceApprovals() {
+    return 
+      this.financeApprovals;
   }
 
   createFinanceApproval(input: CreateFinanceApprovalInput) {
-    this.getTenant(input.tenantId);
+    
     const approval: FinanceApproval = {
       ...input,
       id: this.nextId('approval'),
@@ -2032,9 +1871,7 @@ export class InMemoryService {
 
   updateFinanceApprovalStatus(
     id: string,
-    status: FinanceApproval['status'],
-    note?: string,
-  ) {
+    status: FinanceApproval['status']) {
     const approval = this.financeApprovals.find((item) => item.id === id);
 
     if (!approval) {
@@ -2042,22 +1879,17 @@ export class InMemoryService {
     }
 
     approval.status = status;
-    if (note) {
-      approval.note = note;
-    }
+    
     return approval;
   }
 
-  listUploadedDocuments(tenantId?: string) {
-    return tenantId
-      ? this.uploadedDocuments.filter(
-          (document) => document.tenantId === tenantId,
-        )
-      : this.uploadedDocuments;
+  listUploadedDocuments() {
+    return 
+      this.uploadedDocuments;
   }
 
   createUploadedDocument(input: CreateUploadedDocumentInput) {
-    this.getTenant(input.tenantId);
+    
     const document: UploadedDocument = {
       ...input,
       id: this.nextId('document'),
@@ -2078,16 +1910,13 @@ export class InMemoryService {
     return document;
   }
 
-  listContractTemplates(tenantId?: string) {
-    return tenantId
-      ? this.contractTemplates.filter(
-          (template) => template.tenantId === tenantId,
-        )
-      : this.contractTemplates;
+  listContractTemplates() {
+    return 
+      this.contractTemplates;
   }
 
   createContractTemplate(input: CreateContractTemplateInput) {
-    this.getTenant(input.tenantId);
+    
     const template: ContractTemplate = {
       ...input,
       id: this.nextId('template'),
@@ -2097,14 +1926,13 @@ export class InMemoryService {
     return template;
   }
 
-  listGeneratedContractPdfs(tenantId?: string) {
-    return tenantId
-      ? this.generatedContractPdfs.filter((pdf) => pdf.tenantId === tenantId)
-      : this.generatedContractPdfs;
+  listGeneratedContractPdfs() {
+    return 
+      this.generatedContractPdfs;
   }
 
   generateContractPdf(input: CreateGeneratedContractPdfInput) {
-    this.getTenant(input.tenantId);
+    
     const pdf: GeneratedContractPdf = {
       ...input,
       id: this.nextId('contract_pdf'),
@@ -2114,16 +1942,13 @@ export class InMemoryService {
     return pdf;
   }
 
-  listLegalContractApprovals(tenantId?: string) {
-    return tenantId
-      ? this.legalContractApprovals.filter(
-          (approval) => approval.tenantId === tenantId,
-        )
-      : this.legalContractApprovals;
+  listLegalContractApprovals() {
+    return 
+      this.legalContractApprovals;
   }
 
   createLegalContractApproval(input: CreateLegalContractApprovalInput) {
-    this.getTenant(input.tenantId);
+    
     const approval: LegalContractApproval = {
       ...input,
       id: this.nextId('contract_approval'),
@@ -2135,9 +1960,7 @@ export class InMemoryService {
 
   updateLegalContractApprovalStatus(
     id: string,
-    status: LegalContractApproval['status'],
-    note?: string,
-  ) {
+    status: LegalContractApproval['status']) {
     const approval = this.legalContractApprovals.find((item) => item.id === id);
 
     if (!approval) {
@@ -2145,22 +1968,17 @@ export class InMemoryService {
     }
 
     approval.status = status;
-    if (note) {
-      approval.note = note;
-    }
+    
     return approval;
   }
 
-  listSignedContracts(tenantId?: string) {
-    return tenantId
-      ? this.signedContracts.filter(
-          (contract) => contract.tenantId === tenantId,
-        )
-      : this.signedContracts;
+  listSignedContracts() {
+    return 
+      this.signedContracts;
   }
 
   createSignedContract(input: CreateSignedContractInput) {
-    this.getTenant(input.tenantId);
+    
     const contract: SignedContract = {
       ...input,
       id: this.nextId('signed_contract'),
@@ -2170,19 +1988,18 @@ export class InMemoryService {
   }
 
   listNotificationMessages(
-    tenantId?: string,
     channel?: NotificationMessage['channel'],
   ) {
     return this.notificationMessages.filter((message) => {
       return (
-        (!tenantId || message.tenantId === tenantId) &&
+        
         (!channel || message.channel === channel)
       );
     });
   }
 
   createNotificationMessage(input: CreateNotificationMessageInput) {
-    this.getTenant(input.tenantId);
+    
     const message: NotificationMessage = {
       ...input,
       id: this.nextId('notification'),
@@ -2202,14 +2019,13 @@ export class InMemoryService {
     return message;
   }
 
-  listOverduePaymentAlerts(tenantId?: string) {
-    return tenantId
-      ? this.overduePaymentAlerts.filter((alert) => alert.tenantId === tenantId)
-      : this.overduePaymentAlerts;
+  listOverduePaymentAlerts() {
+    return 
+      this.overduePaymentAlerts;
   }
 
   createOverduePaymentAlert(input: CreateOverduePaymentAlertInput) {
-    this.getTenant(input.tenantId);
+    
     const alert: OverduePaymentAlert = {
       ...input,
       id: this.nextId('overdue'),
@@ -2218,16 +2034,13 @@ export class InMemoryService {
     return alert;
   }
 
-  listFollowUpReminders(tenantId?: string) {
-    return tenantId
-      ? this.followUpReminders.filter(
-          (reminder) => reminder.tenantId === tenantId,
-        )
-      : this.followUpReminders;
+  listFollowUpReminders() {
+    return 
+      this.followUpReminders;
   }
 
   createFollowUpReminder(input: CreateFollowUpReminderInput) {
-    this.getTenant(input.tenantId);
+    
     const reminder: FollowUpReminder = {
       ...input,
       id: this.nextId('followup'),
@@ -2264,22 +2077,20 @@ export class InMemoryService {
     return this.paymentAgingReportRows;
   }
 
-  listSubscriptionPlans(tenantId?: string) {
+  listSubscriptionPlans() {
     return this.subscriptionPlans.filter((plan) => {
-      return !plan.tenantId || !tenantId || plan.tenantId === tenantId;
+      return true;
     });
   }
 
-  listFeatureLimits(tenantId?: string) {
-    return tenantId
-      ? this.featureLimits.filter((limit) => limit.tenantId === tenantId)
-      : this.featureLimits;
+  listFeatureLimits() {
+    return 
+      this.featureLimits;
   }
 
-  listBrandingSettings(tenantId?: string) {
-    return tenantId
-      ? this.brandingSettings.filter((setting) => setting.tenantId === tenantId)
-      : this.brandingSettings;
+  listBrandingSettings() {
+    return 
+      this.brandingSettings;
   }
 
   updateBrandingSetting(
@@ -2300,33 +2111,30 @@ export class InMemoryService {
     return setting;
   }
 
-  listTenantBillingItems(tenantId?: string) {
-    return tenantId
-      ? this.tenantBillingItems.filter((item) => item.tenantId === tenantId)
-      : this.tenantBillingItems;
+  listTenantBillingItems() {
+    return 
+      this.tenantBillingItems;
   }
 
-  listTenantDomains(tenantId?: string) {
-    return tenantId
-      ? this.tenantDomains.filter((domain) => domain.tenantId === tenantId)
-      : this.tenantDomains;
+  listTenantDomains() {
+    return 
+      this.tenantDomains;
   }
 
   createTenantDomain(input: CreateTenantDomainInput) {
-    this.getTenant(input.tenantId);
+    
     const domain: TenantDomain = { ...input, id: this.nextId('domain') };
     this.tenantDomains.push(domain);
     return domain;
   }
 
-  listDataTransferJobs(tenantId?: string) {
-    return tenantId
-      ? this.dataTransferJobs.filter((job) => job.tenantId === tenantId)
-      : this.dataTransferJobs;
+  listDataTransferJobs() {
+    return 
+      this.dataTransferJobs;
   }
 
   createDataTransferJob(input: CreateDataTransferJobInput) {
-    this.getTenant(input.tenantId);
+    
     const job: DataTransferJob = {
       ...input,
       id: this.nextId(input.type),

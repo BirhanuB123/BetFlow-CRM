@@ -15,7 +15,6 @@ export declare class PaymentsController {
         } | null;
     } & {
         id: string;
-        tenantId: string;
         createdAt: Date;
         status: string;
         date: Date;
@@ -35,7 +34,6 @@ export declare class PaymentsController {
         } | null;
     } & {
         id: string;
-        tenantId: string;
         createdAt: Date;
         status: string;
         date: Date;
@@ -55,7 +53,6 @@ export declare class PaymentsController {
         } | null;
     } & {
         id: string;
-        tenantId: string;
         createdAt: Date;
         status: string;
         date: Date;
@@ -75,7 +72,6 @@ export declare class PaymentsController {
         } | null;
     } & {
         id: string;
-        tenantId: string;
         createdAt: Date;
         status: string;
         date: Date;

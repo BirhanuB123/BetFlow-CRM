@@ -23,31 +23,31 @@ let PropertiesController = class PropertiesController {
         this.properties = properties;
     }
     listBuildings(user, projectId) {
-        return this.properties.listBuildings(user.tenantId, projectId);
+        return this.properties.listBuildings(projectId);
     }
     getBuilding(user, id) {
-        return this.properties.getBuilding(user.tenantId, id);
+        return this.properties.getBuilding(id);
     }
     createBuilding(user, body) {
-        return this.properties.createBuilding(user.tenantId, user.id, body);
+        return this.properties.createBuilding(user.id, body);
     }
     updateBuilding(user, id, body) {
-        return this.properties.updateBuilding(user.tenantId, user.id, id, body);
+        return this.properties.updateBuilding(user.id, id, body);
     }
     removeBuilding(user, id) {
-        return this.properties.removeBuilding(user.tenantId, user.id, id);
+        return this.properties.removeBuilding(user.id, id);
     }
     listFloors(user, buildingId) {
-        return this.properties.listFloors(user.tenantId, buildingId);
+        return this.properties.listFloors(buildingId);
     }
     createFloor(user, body) {
-        return this.properties.createFloor(user.tenantId, user.id, body);
+        return this.properties.createFloor(user.id, body);
     }
     updateFloor(user, id, body) {
-        return this.properties.updateFloor(user.tenantId, user.id, id, body);
+        return this.properties.updateFloor(user.id, id, body);
     }
     removeFloor(user, id) {
-        return this.properties.removeFloor(user.tenantId, user.id, id);
+        return this.properties.removeFloor(user.id, id);
     }
 };
 exports.PropertiesController = PropertiesController;

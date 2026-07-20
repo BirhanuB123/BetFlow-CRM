@@ -21,11 +21,12 @@ const ALLOWED_MIME_TYPES = new Set([
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ]);
 let DocumentStorageService = class DocumentStorageService {
-    root = (0, node_path_1.resolve)(process.env.DOCUMENTS_STORAGE_PATH || (0, node_path_1.join)(process.cwd(), 'uploads', 'documents'));
-    async save(tenantId, file) {
+    root = (0, node_path_1.resolve)(process.env.DOCUMENTS_STORAGE_PATH ||
+        (0, node_path_1.join)(process.cwd(), 'uploads', 'documents'));
+    async save(file) {
         this.assertFile(file);
         const extension = (0, node_path_1.extname)(file.originalname).toLowerCase();
-        const storageKey = (0, node_path_1.join)(tenantId, `${(0, node_crypto_1.randomUUID)()}${extension}`);
+        const storageKey = (0, node_path_1.join)(`${(0, node_crypto_1.randomUUID)()}${extension}`);
         const destination = this.resolvePath(storageKey);
         await node_fs_1.promises.mkdir((0, node_path_1.resolve)(destination, '..'), { recursive: true });
         await node_fs_1.promises.writeFile(destination, file.buffer, { flag: 'wx' });

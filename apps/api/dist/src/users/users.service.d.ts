@@ -1,8 +1,6 @@
 import { PasswordService } from '../auth/password.service';
 import { PrismaService } from '../database/prisma.service';
-import { TenantsService } from '../tenants/tenants.service';
 export type InviteUserBody = {
-    tenantId: string;
     name: string;
     email: string;
     roleId: string;
@@ -11,27 +9,44 @@ export type InviteUserBody = {
 export declare class UsersService {
     private readonly prisma;
     private readonly passwords;
-    private readonly tenants;
-    constructor(prisma: PrismaService, passwords: PasswordService, tenants: TenantsService);
-    listUsers(tenantId?: string): Promise<{
+    constructor(prisma: PrismaService, passwords: PasswordService);
+    listUsers(): Promise<({
+        roles: ({
+            role: {
+                id: string;
+                name: string;
+            };
+        } & {
+            userId: string;
+            roleId: string;
+        })[];
+    } & {
         id: string;
-        tenantId: string;
-        name: string;
         email: string;
-        roleId: string | undefined;
-        roleName: string | undefined;
-        status: string;
+        password: string;
+        firstName: string;
+        lastName: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-    }[]>;
+    })[]>;
     inviteUser(input: InviteUserBody): Promise<{
+        roles: ({
+            role: {
+                id: string;
+                name: string;
+            };
+        } & {
+            userId: string;
+            roleId: string;
+        })[];
+    } & {
         id: string;
-        tenantId: string;
-        name: string;
         email: string;
-        roleId: string | undefined;
-        roleName: string | undefined;
-        status: string;
+        password: string;
+        firstName: string;
+        lastName: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
     }>;

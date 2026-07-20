@@ -15,13 +15,9 @@ const noteInclude = {
 export class NotesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  list(
-    tenantId: string,
-    filters: { entityType?: string; entityId?: string } = {},
-  ) {
+  list(filters: { entityType?: string; entityId?: string } = {}) {
     return this.prisma.note.findMany({
       where: {
-        tenantId,
         ...(filters.entityType ? { entityType: filters.entityType } : {}),
         ...(filters.entityId ? { entityId: filters.entityId } : {}),
       },
@@ -30,15 +26,15 @@ export class NotesService {
     });
   }
 
-  async create(tenantId: string, userId: string, input: CreateNoteInput) {
+  async create(userId: string, input: CreateNoteInput) {
     const content = input.content?.trim();
     if (!content) throw new BadRequestException('content is required');
-    if (!input.entityType) throw new BadRequestException('entityType is required');
+    if (!input.entityType)
+      throw new BadRequestException('entityType is required');
     if (!input.entityId) throw new BadRequestException('entityId is required');
 
     const note = await this.prisma.note.create({
       data: {
-        tenantId,
         content,
         authorId: userId,
         entityType: input.entityType,
@@ -50,7 +46,6 @@ export class NotesService {
     // Surface the note on the entity's activity timeline (audit-log backed).
     await this.prisma.auditLog.create({
       data: {
-        tenantId,
         userId,
         action: 'note.created',
         entityType: input.entityType,
@@ -62,9 +57,9 @@ export class NotesService {
     return note;
   }
 
-  async remove(tenantId: string, userId: string, id: string) {
+  async remove(userId: string, id: string) {
     const existing = await this.prisma.note.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
 
     if (!existing) {
@@ -77,7 +72,6 @@ export class NotesService {
     await this.prisma.note.delete({ where: { id } });
     await this.prisma.auditLog.create({
       data: {
-        tenantId,
         userId,
         action: 'note.deleted',
         entityType: existing.entityType,

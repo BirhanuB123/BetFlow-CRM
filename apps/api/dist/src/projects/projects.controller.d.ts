@@ -10,7 +10,6 @@ export declare class ProjectsController {
             buildings: number;
         };
         id: string;
-        tenantId: string;
         name: string;
         description: string | null;
         status: string;
@@ -22,7 +21,6 @@ export declare class ProjectsController {
                 floors: number;
             };
             id: string;
-            tenantId: string;
             name: string;
             projectId: string;
             floorsCount: number;
@@ -32,7 +30,6 @@ export declare class ProjectsController {
             buildings: number;
         };
         id: string;
-        tenantId: string;
         name: string;
         description: string | null;
         status: string;
@@ -43,7 +40,6 @@ export declare class ProjectsController {
         };
     } & {
         id: string;
-        tenantId: string;
         name: string;
         description: string | null;
         status: string;
@@ -54,7 +50,6 @@ export declare class ProjectsController {
         };
     } & {
         id: string;
-        tenantId: string;
         name: string;
         description: string | null;
         status: string;

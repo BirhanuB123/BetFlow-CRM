@@ -6,12 +6,12 @@ type CreateFollowUpReminderBody = Omit<FollowUpReminder, 'id'>;
 export declare class NotificationsController {
     private readonly store;
     constructor(store: InMemoryService);
-    list(tenantId?: string, channel?: NotificationMessage['channel']): NotificationMessage[];
+    list(channel?: NotificationMessage['channel']): NotificationMessage[];
     create(body: CreateNotificationMessageBody): NotificationMessage;
     updateStatus(id: string, status: NotificationMessage['status']): NotificationMessage;
-    listOverduePayments(tenantId?: string): OverduePaymentAlert[];
+    listOverduePayments(): void;
     createOverduePayment(body: CreateOverduePaymentAlertBody): OverduePaymentAlert;
-    listFollowUps(tenantId?: string): FollowUpReminder[];
+    listFollowUps(): void;
     createFollowUp(body: CreateFollowUpReminderBody): FollowUpReminder;
 }
 export {};

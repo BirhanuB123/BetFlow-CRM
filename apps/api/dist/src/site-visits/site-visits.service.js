@@ -22,8 +22,8 @@ let SiteVisitsService = class SiteVisitsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    list(tenantId, filters = {}) {
-        const where = { tenantId };
+    list(filters = {}) {
+        const where = {};
         if (filters.status)
             where.status = this.normalizeStatus(filters.status);
         if (filters.upcoming)
@@ -34,9 +34,9 @@ let SiteVisitsService = class SiteVisitsService {
             orderBy: { date: 'asc' },
         });
     }
-    async get(tenantId, id) {
+    async get(id) {
         const visit = await this.prisma.siteVisit.findFirst({
-            where: { id, tenantId },
+            where: { id },
             include: siteVisitInclude,
         });
         if (!visit) {
@@ -44,7 +44,7 @@ let SiteVisitsService = class SiteVisitsService {
         }
         return visit;
     }
-    async create(tenantId, userId, input) {
+    async create(userId, input) {
         const date = this.normalizeDate(input.date);
         const status = this.normalizeStatus(input.status ?? 'SCHEDULED');
         const leadId = input.leadId || null;
@@ -53,12 +53,11 @@ let SiteVisitsService = class SiteVisitsService {
             throw new common_1.BadRequestException('A site visit must reference a lead or a customer');
         }
         if (leadId)
-            await this.assertLeadBelongsToTenant(tenantId, leadId);
+            await this.assertLeadBelongsToTenant(leadId);
         if (customerId)
-            await this.assertCustomerBelongsToTenant(tenantId, customerId);
+            await this.assertCustomerBelongsToTenant(customerId);
         const visit = await this.prisma.siteVisit.create({
             data: {
-                tenantId,
                 date,
                 status,
                 notes: input.notes?.trim() || null,
@@ -67,20 +66,20 @@ let SiteVisitsService = class SiteVisitsService {
             },
             include: siteVisitInclude,
         });
-        await this.recordAudit(tenantId, userId, 'site_visit.created', visit.id);
+        await this.recordAudit(userId, 'site_visit.created', visit.id);
         return visit;
     }
-    async update(tenantId, userId, id, input) {
+    async update(userId, id, input) {
         const existing = await this.prisma.siteVisit.findFirst({
-            where: { id, tenantId },
+            where: { id },
         });
         if (!existing) {
             throw new common_1.NotFoundException(`Site visit ${id} was not found`);
         }
         if (input.leadId)
-            await this.assertLeadBelongsToTenant(tenantId, input.leadId);
+            await this.assertLeadBelongsToTenant(input.leadId);
         if (input.customerId)
-            await this.assertCustomerBelongsToTenant(tenantId, input.customerId);
+            await this.assertCustomerBelongsToTenant(input.customerId);
         const data = {};
         if (input.date !== undefined)
             data.date = this.normalizeDate(input.date);
@@ -95,13 +94,13 @@ let SiteVisitsService = class SiteVisitsService {
             data,
             include: siteVisitInclude,
         });
-        await this.recordAudit(tenantId, userId, 'site_visit.updated', visit.id);
+        await this.recordAudit(userId, 'site_visit.updated', visit.id);
         return visit;
     }
-    async updateStatus(tenantId, userId, id, status) {
+    async updateStatus(userId, id, status) {
         const normalized = this.normalizeStatus(status);
         const existing = await this.prisma.siteVisit.findFirst({
-            where: { id, tenantId },
+            where: { id },
         });
         if (!existing) {
             throw new common_1.NotFoundException(`Site visit ${id} was not found`);
@@ -111,18 +110,21 @@ let SiteVisitsService = class SiteVisitsService {
             data: { status: normalized },
             include: siteVisitInclude,
         });
-        await this.recordAudit(tenantId, userId, 'site_visit.status_changed', visit.id, { from: existing.status, to: normalized });
+        await this.recordAudit(userId, 'site_visit.status_changed', visit.id, {
+            from: existing.status,
+            to: normalized,
+        });
         return visit;
     }
-    async remove(tenantId, userId, id) {
+    async remove(userId, id) {
         const existing = await this.prisma.siteVisit.findFirst({
-            where: { id, tenantId },
+            where: { id },
         });
         if (!existing) {
             throw new common_1.NotFoundException(`Site visit ${id} was not found`);
         }
         await this.prisma.siteVisit.delete({ where: { id } });
-        await this.recordAudit(tenantId, userId, 'site_visit.deleted', id);
+        await this.recordAudit(userId, 'site_visit.deleted', id);
         return { id, deleted: true };
     }
     normalizeStatus(status) {
@@ -139,32 +141,25 @@ let SiteVisitsService = class SiteVisitsService {
         }
         return date;
     }
-    async assertLeadBelongsToTenant(tenantId, leadId) {
+    async assertLeadBelongsToTenant(leadId) {
         const lead = await this.prisma.lead.findFirst({
-            where: { id: leadId, tenantId },
+            where: { id: leadId },
         });
         if (!lead) {
             throw new common_1.BadRequestException(`Lead ${leadId} was not found`);
         }
     }
-    async assertCustomerBelongsToTenant(tenantId, customerId) {
+    async assertCustomerBelongsToTenant(customerId) {
         const customer = await this.prisma.customer.findFirst({
-            where: { id: customerId, tenantId },
+            where: { id: customerId },
         });
         if (!customer) {
             throw new common_1.BadRequestException(`Customer ${customerId} was not found`);
         }
     }
-    recordAudit(tenantId, userId, action, entityId, newValues) {
+    recordAudit(userId, action, entityId, newValues) {
         return this.prisma.auditLog.create({
-            data: {
-                tenantId,
-                userId,
-                action,
-                entityType: 'SiteVisit',
-                entityId,
-                newValues,
-            },
+            data: { userId, action, entityType: 'SiteVisit', entityId, newValues },
         });
     }
 };

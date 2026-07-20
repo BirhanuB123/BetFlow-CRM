@@ -22,23 +22,23 @@ const leadInclude = {
 export class LeadsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  list(tenantId: string) {
+  list() {
     return this.prisma.lead.findMany({
-      where: { tenantId },
+      where: {},
       include: leadInclude,
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  listSources(tenantId: string) {
+  listSources() {
     return this.prisma.leadSource.findMany({
-      where: { tenantId },
+      where: {},
       select: { id: true, name: true },
       orderBy: { name: 'asc' },
     });
   }
 
-  async create(tenantId: string, userId: string, input: CreateLeadInput) {
+  async create(userId: string, input: CreateLeadInput) {
     const firstName = input.firstName?.trim();
     const lastName = input.lastName?.trim();
 
@@ -49,12 +49,11 @@ export class LeadsService {
     const status = this.normalizeStatus(input.status ?? 'NEW');
 
     if (input.sourceId) {
-      await this.assertSourceBelongsToTenant(tenantId, input.sourceId);
+      await this.assertSourceBelongsToTenant(input.sourceId);
     }
 
     const lead = await this.prisma.lead.create({
       data: {
-        tenantId,
         firstName,
         lastName,
         company: input.company?.trim() || null,
@@ -67,19 +66,14 @@ export class LeadsService {
       include: leadInclude,
     });
 
-    await this.recordAudit(tenantId, userId, 'lead.created', lead.id);
+    await this.recordAudit(userId, 'lead.created', lead.id);
 
     return lead;
   }
 
-  async update(
-    tenantId: string,
-    userId: string,
-    id: string,
-    input: UpdateLeadInput,
-  ) {
+  async update(userId: string, id: string, input: UpdateLeadInput) {
     const existing = await this.prisma.lead.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
 
     if (!existing) {
@@ -87,7 +81,7 @@ export class LeadsService {
     }
 
     if (input.sourceId) {
-      await this.assertSourceBelongsToTenant(tenantId, input.sourceId);
+      await this.assertSourceBelongsToTenant(input.sourceId);
     }
 
     const data: Record<string, unknown> = {};
@@ -108,14 +102,14 @@ export class LeadsService {
       include: leadInclude,
     });
 
-    await this.recordAudit(tenantId, userId, 'lead.updated', lead.id);
+    await this.recordAudit(userId, 'lead.updated', lead.id);
 
     return lead;
   }
 
-  async remove(tenantId: string, userId: string, id: string) {
+  async remove(userId: string, id: string) {
     const existing = await this.prisma.lead.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
 
     if (!existing) {
@@ -123,20 +117,15 @@ export class LeadsService {
     }
 
     await this.prisma.lead.delete({ where: { id } });
-    await this.recordAudit(tenantId, userId, 'lead.deleted', id);
+    await this.recordAudit(userId, 'lead.deleted', id);
 
     return { id, deleted: true };
   }
 
-  async updateStatus(
-    tenantId: string,
-    userId: string,
-    id: string,
-    status: string,
-  ) {
+  async updateStatus(userId: string, id: string, status: string) {
     const normalized = this.normalizeStatus(status);
     const existing = await this.prisma.lead.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
 
     if (!existing) {
@@ -149,7 +138,7 @@ export class LeadsService {
       include: leadInclude,
     });
 
-    await this.recordAudit(tenantId, userId, 'lead.status_changed', lead.id, {
+    await this.recordAudit(userId, 'lead.status_changed', lead.id, {
       from: existing.status,
       to: normalized,
     });
@@ -157,13 +146,8 @@ export class LeadsService {
     return lead;
   }
 
-  async convert(
-    tenantId: string,
-    userId: string,
-    id: string,
-    input: ConvertLeadInput,
-  ) {
-    const lead = await this.prisma.lead.findFirst({ where: { id, tenantId } });
+  async convert(userId: string, id: string, input: ConvertLeadInput) {
+    const lead = await this.prisma.lead.findFirst({ where: { id } });
     if (!lead) throw new NotFoundException(`Lead ${id} was not found`);
     if (lead.convertedAt) {
       throw new BadRequestException('Lead has already been converted');
@@ -177,7 +161,7 @@ export class LeadsService {
       if (!input.deal.stageId)
         throw new BadRequestException('deal.stageId is required');
       const stage = await this.prisma.dealStage.findFirst({
-        where: { id: input.deal.stageId, tenantId },
+        where: { id: input.deal.stageId },
       });
       if (!stage)
         throw new BadRequestException(
@@ -185,17 +169,21 @@ export class LeadsService {
         );
       const parsed = Number(input.deal.value);
       if (Number.isNaN(parsed) || parsed < 0)
-        throw new BadRequestException('deal.value must be a non-negative number');
+        throw new BadRequestException(
+          'deal.value must be a non-negative number',
+        );
       dealValue = parsed.toFixed(2);
     }
 
     if (input.accountId) {
       const account = await this.prisma.account.findFirst({
-        where: { id: input.accountId, tenantId },
+        where: { id: input.accountId },
         select: { id: true },
       });
       if (!account)
-        throw new BadRequestException(`Account ${input.accountId} was not found`);
+        throw new BadRequestException(
+          `Account ${input.accountId} was not found`,
+        );
     }
 
     return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
@@ -211,7 +199,6 @@ export class LeadsService {
           lead.company?.trim() || `${lead.firstName} ${lead.lastName}`.trim();
         account = await tx.account.create({
           data: {
-            tenantId,
             name,
             accountType: 'CUSTOMER',
             ownerId: lead.ownerId ?? userId,
@@ -220,7 +207,6 @@ export class LeadsService {
         });
         await tx.auditLog.create({
           data: {
-            tenantId,
             userId,
             action: 'account.created',
             entityType: 'Account',
@@ -233,7 +219,6 @@ export class LeadsService {
       // 2. Create the contact (Customer) from the lead.
       const customer = await tx.customer.create({
         data: {
-          tenantId,
           firstName: lead.firstName,
           lastName: lead.lastName,
           email: lead.email,
@@ -244,7 +229,6 @@ export class LeadsService {
       });
       await tx.auditLog.create({
         data: {
-          tenantId,
           userId,
           action: 'customer.created',
           entityType: 'Customer',
@@ -257,7 +241,6 @@ export class LeadsService {
       if (input.deal && dealValue) {
         deal = await tx.deal.create({
           data: {
-            tenantId,
             name: input.deal.name.trim(),
             value: dealValue,
             stageId: input.deal.stageId,
@@ -268,7 +251,6 @@ export class LeadsService {
         });
         await tx.auditLog.create({
           data: {
-            tenantId,
             userId,
             action: 'deal.created',
             entityType: 'Deal',
@@ -289,7 +271,6 @@ export class LeadsService {
       });
       await tx.auditLog.create({
         data: {
-          tenantId,
           userId,
           action: 'lead.converted',
           entityType: 'Lead',
@@ -318,12 +299,9 @@ export class LeadsService {
     return upper as LeadStatus;
   }
 
-  private async assertSourceBelongsToTenant(
-    tenantId: string,
-    sourceId: string,
-  ) {
+  private async assertSourceBelongsToTenant(sourceId: string) {
     const source = await this.prisma.leadSource.findFirst({
-      where: { id: sourceId, tenantId },
+      where: { id: sourceId },
     });
 
     if (!source) {
@@ -332,21 +310,13 @@ export class LeadsService {
   }
 
   private recordAudit(
-    tenantId: string,
     userId: string,
     action: string,
     entityId: string,
     newValues?: Record<string, string>,
   ) {
     return this.prisma.auditLog.create({
-      data: {
-        tenantId,
-        userId,
-        action,
-        entityType: 'Lead',
-        entityId,
-        newValues,
-      },
+      data: { userId, action, entityType: 'Lead', entityId, newValues },
     });
   }
 }

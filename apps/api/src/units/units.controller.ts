@@ -30,12 +30,12 @@ export class UnitsController {
     @Query('status') status?: string,
     @Query('floorId') floorId?: string,
   ) {
-    return this.units.list(user.tenantId, { status, floorId });
+    return this.units.list({ status, floorId });
   }
 
   @Get(':id')
   get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.units.get(user.tenantId, id);
+    return this.units.get(id);
   }
 
   @Post()
@@ -43,7 +43,7 @@ export class UnitsController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: CreateUnitInput,
   ) {
-    return this.units.create(user.tenantId, user.id, body);
+    return this.units.create(user.id, body);
   }
 
   @Patch(':id/status')
@@ -52,7 +52,7 @@ export class UnitsController {
     @Param('id') id: string,
     @Body() body: UpdateUnitStatusInput,
   ) {
-    return this.units.updateStatus(user.tenantId, user.id, id, body.status);
+    return this.units.updateStatus(user.id, id, body.status);
   }
 
   @Patch(':id')
@@ -61,11 +61,11 @@ export class UnitsController {
     @Param('id') id: string,
     @Body() body: UpdateUnitInput,
   ) {
-    return this.units.update(user.tenantId, user.id, id, body);
+    return this.units.update(user.id, id, body);
   }
 
   @Delete(':id')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.units.remove(user.tenantId, user.id, id);
+    return this.units.remove(user.id, id);
   }
 }

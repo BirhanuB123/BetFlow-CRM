@@ -25,10 +25,10 @@ let UsersController = class UsersController {
         this.users = users;
     }
     list(user) {
-        return this.users.listUsers(user.tenantId);
+        return this.users.listUsers();
     }
     invite(user, body) {
-        return this.users.inviteUser({ ...body, tenantId: user.tenantId });
+        return this.users.inviteUser({ ...body });
     }
 };
 exports.UsersController = UsersController;

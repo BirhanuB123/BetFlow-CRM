@@ -4,10 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import {
-  CreateCustomerInput,
-  UpdateCustomerInput,
-} from './customers.types';
+import { CreateCustomerInput, UpdateCustomerInput } from './customers.types';
 
 const customerInclude = {
   account: { select: { id: true, name: true } },
@@ -18,17 +15,17 @@ const customerInclude = {
 export class CustomersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  list(tenantId: string) {
+  list() {
     return this.prisma.customer.findMany({
-      where: { tenantId },
+      where: {},
       include: customerInclude,
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  async get(tenantId: string, id: string) {
+  async get(id: string) {
     const customer = await this.prisma.customer.findFirst({
-      where: { id, tenantId },
+      where: { id },
       include: {
         account: { select: { id: true, name: true } },
         deals: {
@@ -72,7 +69,6 @@ export class CustomersService {
     // Payments link to a contract or reservation, not the customer directly.
     const payments = await this.prisma.payment.findMany({
       where: {
-        tenantId,
         OR: [
           { contract: { customerId: id } },
           { reservation: { customerId: id } },
@@ -93,7 +89,7 @@ export class CustomersService {
     return { ...customer, payments };
   }
 
-  async create(tenantId: string, userId: string, input: CreateCustomerInput) {
+  async create(userId: string, input: CreateCustomerInput) {
     const firstName = input.firstName?.trim();
     const lastName = input.lastName?.trim();
 
@@ -102,12 +98,11 @@ export class CustomersService {
     }
 
     if (input.accountId) {
-      await this.assertAccountBelongsToTenant(tenantId, input.accountId);
+      await this.assertAccountBelongsToTenant(input.accountId);
     }
 
     const customer = await this.prisma.customer.create({
       data: {
-        tenantId,
         firstName,
         lastName,
         email: input.email?.trim() || null,
@@ -118,19 +113,14 @@ export class CustomersService {
       include: customerInclude,
     });
 
-    await this.recordAudit(tenantId, userId, 'customer.created', customer.id);
+    await this.recordAudit(userId, 'customer.created', customer.id);
 
     return customer;
   }
 
-  async update(
-    tenantId: string,
-    userId: string,
-    id: string,
-    input: UpdateCustomerInput,
-  ) {
+  async update(userId: string, id: string, input: UpdateCustomerInput) {
     const existing = await this.prisma.customer.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
 
     if (!existing) {
@@ -140,7 +130,8 @@ export class CustomersService {
     const data: Record<string, unknown> = {};
     if (input.firstName !== undefined) {
       const firstName = input.firstName.trim();
-      if (!firstName) throw new BadRequestException('firstName cannot be empty');
+      if (!firstName)
+        throw new BadRequestException('firstName cannot be empty');
       data.firstName = firstName;
     }
     if (input.lastName !== undefined) {
@@ -153,7 +144,7 @@ export class CustomersService {
     if (input.title !== undefined) data.title = input.title?.trim() || null;
     if (input.accountId !== undefined) {
       if (input.accountId) {
-        await this.assertAccountBelongsToTenant(tenantId, input.accountId);
+        await this.assertAccountBelongsToTenant(input.accountId);
       }
       data.accountId = input.accountId || null;
     }
@@ -164,14 +155,14 @@ export class CustomersService {
       include: customerInclude,
     });
 
-    await this.recordAudit(tenantId, userId, 'customer.updated', customer.id);
+    await this.recordAudit(userId, 'customer.updated', customer.id);
 
     return customer;
   }
 
-  async remove(tenantId: string, userId: string, id: string) {
+  async remove(userId: string, id: string) {
     const existing = await this.prisma.customer.findFirst({
-      where: { id, tenantId },
+      where: { id },
       include: { _count: { select: { deals: true, contracts: true } } },
     });
 
@@ -186,17 +177,14 @@ export class CustomersService {
     }
 
     await this.prisma.customer.delete({ where: { id } });
-    await this.recordAudit(tenantId, userId, 'customer.deleted', id);
+    await this.recordAudit(userId, 'customer.deleted', id);
 
     return { id, deleted: true };
   }
 
-  private async assertAccountBelongsToTenant(
-    tenantId: string,
-    accountId: string,
-  ) {
+  private async assertAccountBelongsToTenant(accountId: string) {
     const account = await this.prisma.account.findFirst({
-      where: { id: accountId, tenantId },
+      where: { id: accountId },
       select: { id: true },
     });
     if (!account) {
@@ -204,20 +192,9 @@ export class CustomersService {
     }
   }
 
-  private recordAudit(
-    tenantId: string,
-    userId: string,
-    action: string,
-    entityId: string,
-  ) {
+  private recordAudit(userId: string, action: string, entityId: string) {
     return this.prisma.auditLog.create({
-      data: {
-        tenantId,
-        userId,
-        action,
-        entityType: 'Customer',
-        entityId,
-      },
+      data: { userId, action, entityType: 'Customer', entityId },
     });
   }
 }

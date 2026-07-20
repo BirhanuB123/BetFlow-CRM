@@ -23,22 +23,22 @@ let UnitsController = class UnitsController {
         this.units = units;
     }
     list(user, status, floorId) {
-        return this.units.list(user.tenantId, { status, floorId });
+        return this.units.list({ status, floorId });
     }
     get(user, id) {
-        return this.units.get(user.tenantId, id);
+        return this.units.get(id);
     }
     create(user, body) {
-        return this.units.create(user.tenantId, user.id, body);
+        return this.units.create(user.id, body);
     }
     updateStatus(user, id, body) {
-        return this.units.updateStatus(user.tenantId, user.id, id, body.status);
+        return this.units.updateStatus(user.id, id, body.status);
     }
     update(user, id, body) {
-        return this.units.update(user.tenantId, user.id, id, body);
+        return this.units.update(user.id, id, body);
     }
     remove(user, id) {
-        return this.units.remove(user.tenantId, user.id, id);
+        return this.units.remove(user.id, id);
     }
 };
 exports.UnitsController = UnitsController;

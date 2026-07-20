@@ -4,10 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import {
-  CreatePaymentInput,
-  UpdatePaymentInput,
-} from './payments.types';
+import { CreatePaymentInput, UpdatePaymentInput } from './payments.types';
 
 const paymentInclude = {
   contract: { select: { id: true, status: true } },
@@ -18,17 +15,17 @@ const paymentInclude = {
 export class PaymentsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  list(tenantId: string) {
+  list() {
     return this.prisma.payment.findMany({
-      where: { tenantId },
+      where: {},
       include: paymentInclude,
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  async get(tenantId: string, id: string) {
+  async get(id: string) {
     const payment = await this.prisma.payment.findFirst({
-      where: { id, tenantId },
+      where: { id },
       include: paymentInclude,
     });
 
@@ -39,7 +36,7 @@ export class PaymentsService {
     return payment;
   }
 
-  async create(tenantId: string, userId: string, input: CreatePaymentInput) {
+  async create(userId: string, input: CreatePaymentInput) {
     const amount = this.normalizeAmount(input.amount);
 
     const method = input.method?.trim();
@@ -50,15 +47,14 @@ export class PaymentsService {
     this.assertExactlyOneTarget(contractId, reservationId);
 
     if (contractId) {
-      await this.assertContractBelongsToTenant(tenantId, contractId);
+      await this.assertContractBelongsToTenant(contractId);
     }
     if (reservationId) {
-      await this.assertReservationBelongsToTenant(tenantId, reservationId);
+      await this.assertReservationBelongsToTenant(reservationId);
     }
 
     const payment = await this.prisma.payment.create({
       data: {
-        tenantId,
         amount,
         method,
         status: input.status?.trim() || 'COMPLETED',
@@ -69,19 +65,14 @@ export class PaymentsService {
       include: paymentInclude,
     });
 
-    await this.recordAudit(tenantId, userId, 'payment.created', payment.id);
+    await this.recordAudit(userId, 'payment.created', payment.id);
 
     return payment;
   }
 
-  async update(
-    tenantId: string,
-    userId: string,
-    id: string,
-    input: UpdatePaymentInput,
-  ) {
+  async update(userId: string, id: string, input: UpdatePaymentInput) {
     const existing = await this.prisma.payment.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
 
     if (!existing) {
@@ -100,10 +91,10 @@ export class PaymentsService {
     if (input.contractId !== undefined || input.reservationId !== undefined) {
       this.assertExactlyOneTarget(contractId, reservationId);
       if (contractId && contractId !== existing.contractId) {
-        await this.assertContractBelongsToTenant(tenantId, contractId);
+        await this.assertContractBelongsToTenant(contractId);
       }
       if (reservationId && reservationId !== existing.reservationId) {
-        await this.assertReservationBelongsToTenant(tenantId, reservationId);
+        await this.assertReservationBelongsToTenant(reservationId);
       }
     }
 
@@ -130,14 +121,14 @@ export class PaymentsService {
       include: paymentInclude,
     });
 
-    await this.recordAudit(tenantId, userId, 'payment.updated', payment.id);
+    await this.recordAudit(userId, 'payment.updated', payment.id);
 
     return payment;
   }
 
-  async remove(tenantId: string, userId: string, id: string) {
+  async remove(userId: string, id: string) {
     const existing = await this.prisma.payment.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
 
     if (!existing) {
@@ -145,7 +136,7 @@ export class PaymentsService {
     }
 
     await this.prisma.payment.delete({ where: { id } });
-    await this.recordAudit(tenantId, userId, 'payment.deleted', id);
+    await this.recordAudit(userId, 'payment.deleted', id);
 
     return { id, deleted: true };
   }
@@ -182,24 +173,18 @@ export class PaymentsService {
     return date;
   }
 
-  private async assertContractBelongsToTenant(
-    tenantId: string,
-    contractId: string,
-  ) {
+  private async assertContractBelongsToTenant(contractId: string) {
     const contract = await this.prisma.contract.findFirst({
-      where: { id: contractId, tenantId },
+      where: { id: contractId },
     });
     if (!contract) {
       throw new BadRequestException(`Contract ${contractId} was not found`);
     }
   }
 
-  private async assertReservationBelongsToTenant(
-    tenantId: string,
-    reservationId: string,
-  ) {
+  private async assertReservationBelongsToTenant(reservationId: string) {
     const reservation = await this.prisma.reservation.findFirst({
-      where: { id: reservationId, tenantId },
+      where: { id: reservationId },
     });
     if (!reservation) {
       throw new BadRequestException(
@@ -208,20 +193,9 @@ export class PaymentsService {
     }
   }
 
-  private recordAudit(
-    tenantId: string,
-    userId: string,
-    action: string,
-    entityId: string,
-  ) {
+  private recordAudit(userId: string, action: string, entityId: string) {
     return this.prisma.auditLog.create({
-      data: {
-        tenantId,
-        userId,
-        action,
-        entityType: 'Payment',
-        entityId,
-      },
+      data: { userId, action, entityType: 'Payment', entityId },
     });
   }
 }

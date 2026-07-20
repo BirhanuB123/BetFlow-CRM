@@ -35,12 +35,17 @@ export class DocumentsController {
   constructor(private readonly documents: DocumentsService) {}
 
   @Get()
-  list(@CurrentUser() user: AuthenticatedUser, @Query() filters: DocumentFilters) {
-    return this.documents.list(user.tenantId, filters);
+  list(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() filters: DocumentFilters,
+  ) {
+    return this.documents.list(filters);
   }
 
   @Post()
-  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 20 * 1024 * 1024 } }))
+  @UseInterceptors(
+    FileInterceptor('file', { limits: { fileSize: 20 * 1024 * 1024 } }),
+  )
   upload(
     @CurrentUser() user: AuthenticatedUser,
     @UploadedFile() file: IncomingDocumentFile,
@@ -55,9 +60,15 @@ export class DocumentsController {
     @Param('id') id: string,
     @Res({ passthrough: true }) response: ResponseHeaders,
   ) {
-    const { document, stream } = await this.documents.download(user.tenantId, id);
-    response.setHeader('Content-Type', document.mimeType || 'application/octet-stream');
-    response.setHeader('Content-Disposition', `attachment; filename="${this.safeFileName(document.name)}"`);
+    const { document, stream } = await this.documents.download(id);
+    response.setHeader(
+      'Content-Type',
+      document.mimeType || 'application/octet-stream',
+    );
+    response.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${this.safeFileName(document.name)}"`,
+    );
     return new StreamableFile(stream);
   }
 

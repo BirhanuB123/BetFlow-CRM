@@ -23,19 +23,19 @@ let AccountsController = class AccountsController {
         this.accounts = accounts;
     }
     list(user) {
-        return this.accounts.list(user.tenantId);
+        return this.accounts.list();
     }
     get(user, id) {
-        return this.accounts.get(user.tenantId, id);
+        return this.accounts.get(id);
     }
     create(user, body) {
-        return this.accounts.create(user.tenantId, user.id, body);
+        return this.accounts.create(user.id, body);
     }
     update(user, id, body) {
-        return this.accounts.update(user.tenantId, user.id, id, body);
+        return this.accounts.update(user.id, id, body);
     }
     remove(user, id) {
-        return this.accounts.remove(user.tenantId, user.id, id);
+        return this.accounts.remove(user.id, id);
     }
 };
 exports.AccountsController = AccountsController;

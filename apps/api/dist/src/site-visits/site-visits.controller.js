@@ -23,25 +23,25 @@ let SiteVisitsController = class SiteVisitsController {
         this.siteVisits = siteVisits;
     }
     list(user, status, upcoming) {
-        return this.siteVisits.list(user.tenantId, {
+        return this.siteVisits.list({
             status,
             upcoming: upcoming === 'true' || upcoming === '1',
         });
     }
     get(user, id) {
-        return this.siteVisits.get(user.tenantId, id);
+        return this.siteVisits.get(id);
     }
     create(user, body) {
-        return this.siteVisits.create(user.tenantId, user.id, body);
+        return this.siteVisits.create(user.id, body);
     }
     updateStatus(user, id, body) {
-        return this.siteVisits.updateStatus(user.tenantId, user.id, id, body.status);
+        return this.siteVisits.updateStatus(user.id, id, body.status);
     }
     update(user, id, body) {
-        return this.siteVisits.update(user.tenantId, user.id, id, body);
+        return this.siteVisits.update(user.id, id, body);
     }
     remove(user, id) {
-        return this.siteVisits.remove(user.tenantId, user.id, id);
+        return this.siteVisits.remove(user.id, id);
     }
 };
 exports.SiteVisitsController = SiteVisitsController;

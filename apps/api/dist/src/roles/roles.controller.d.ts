@@ -13,7 +13,6 @@ export declare class RolesController {
             description: string | null;
         }[];
         id: string;
-        tenantId: string;
         name: string;
         description: string | null;
     }[]>;
@@ -26,7 +25,6 @@ export declare class RolesController {
             description: string | null;
         }[];
         id: string;
-        tenantId: string;
         name: string;
         description: string | null;
     }>;

@@ -9,49 +9,9 @@ datasource db {
 // --------------------------------------
 // Core & Access Control
 // --------------------------------------
-model Tenant {
-  id        String   @id @default(uuid())
-  name      String
-  domain    String?  @unique
-  currency  String   @default("ETB")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  users         User[]
-  roles         Role[]
-  userRoles     UserRole[]
-  rolePermissions RolePermission[]
-  permissions   Permission[]
-  branches      Branch[]
-  projects      Project[]
-  buildings     Building[]
-  floors        Floor[]
-  units         Unit[]
-  leadSources   LeadSource[]
-  leads         Lead[]
-  accounts      Account[]
-  customers     Customer[]
-  dealStages    DealStage[]
-  deals         Deal[]
-  siteVisits    SiteVisit[]
-  reservations  Reservation[]
-  contracts     Contract[]
-  payments      Payment[]
-  paymentSchedules PaymentSchedule[]
-  documents     Document[]
-  tasks         Task[]
-  notes         Note[]
-  activities    Activity[]
-  campaigns     Campaign[]
-  notifications Notification[]
-  auditLogs     AuditLog[]
-  subscriptions Subscription[]
-}
 
 model User {
   id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
   email     String   @unique
   password  String
   firstName String
@@ -60,21 +20,19 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  roles          UserRole[]
-  tasks          Task[]
-  auditLogs      AuditLog[]
-  notifications  Notification[]
-  ownedLeads     Lead[]         @relation("LeadOwner")
-  ownedAccounts  Account[]      @relation("AccountOwner")
-  notes          Note[]
-  uploadedDocuments Document[] @relation("DocumentUploader")
-  reviewedDocuments Document[] @relation("DocumentReviewer")
+  roles             UserRole[]
+  tasks             Task[]
+  auditLogs         AuditLog[]
+  notifications     Notification[]
+  ownedLeads        Lead[]         @relation("LeadOwner")
+  ownedAccounts     Account[]      @relation("AccountOwner")
+  notes             Note[]
+  uploadedDocuments Document[]     @relation("DocumentUploader")
+  reviewedDocuments Document[]     @relation("DocumentReviewer")
 }
 
 model Role {
   id          String   @id @default(uuid())
-  tenantId    String
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
   name        String
   description String?
   createdAt   DateTime @default(now())
@@ -86,20 +44,16 @@ model Role {
 
 model Permission {
   id          String  @id @default(uuid())
-  tenantId    String
-  tenant      Tenant  @relation(fields: [tenantId], references: [id])
   name        String
   module      String
   description String?
 
   roles RolePermission[]
 
-  @@unique([tenantId, name])
+  @@unique([name])
 }
 
 model UserRole {
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
   userId String
   user   User   @relation(fields: [userId], references: [id])
   roleId String
@@ -109,8 +63,6 @@ model UserRole {
 }
 
 model RolePermission {
-  tenantId String
-  tenant   Tenant     @relation(fields: [tenantId], references: [id])
   roleId       String
   role         Role       @relation(fields: [roleId], references: [id])
   permissionId String
@@ -124,16 +76,12 @@ model RolePermission {
 // --------------------------------------
 model Branch {
   id       String  @id @default(uuid())
-  tenantId String
-  tenant   Tenant  @relation(fields: [tenantId], references: [id])
   name     String
   location String?
 }
 
 model Project {
   id          String  @id @default(uuid())
-  tenantId    String
-  tenant      Tenant  @relation(fields: [tenantId], references: [id])
   name        String
   description String?
   status      String  @default("ACTIVE")
@@ -143,8 +91,6 @@ model Project {
 
 model Building {
   id          String  @id @default(uuid())
-  tenantId    String
-  tenant      Tenant  @relation(fields: [tenantId], references: [id])
   projectId   String
   project     Project @relation(fields: [projectId], references: [id])
   name        String
@@ -155,8 +101,6 @@ model Building {
 
 model Floor {
   id          String   @id @default(uuid())
-  tenantId    String
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
   buildingId  String
   building    Building @relation(fields: [buildingId], references: [id])
   floorNumber Int
@@ -167,8 +111,6 @@ model Floor {
 
 model Unit {
   id         String  @id @default(uuid())
-  tenantId   String
-  tenant     Tenant  @relation(fields: [tenantId], references: [id])
   floorId    String
   floor      Floor   @relation(fields: [floorId], references: [id])
   unitNumber String
@@ -186,18 +128,14 @@ model Unit {
 // CRM (Sales & Marketing)
 // --------------------------------------
 model LeadSource {
-  id       String @id @default(uuid())
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-  name     String // e.g., Facebook, Referral, Website
+  id   String @id @default(uuid())
+  name String // e.g., Facebook, Referral, Website
 
   leads Lead[]
 }
 
 model Lead {
   id        String      @id @default(uuid())
-  tenantId  String
-  tenant    Tenant      @relation(fields: [tenantId], references: [id])
   firstName String
   lastName  String
   company   String?
@@ -219,49 +157,45 @@ model Lead {
 
 // Zoho-style company/organization accounts
 model Account {
-  id             String   @id @default(uuid())
-  tenantId       String
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  name           String
-  accountType    String? // CUSTOMER, INVESTOR, PARTNER, DEVELOPER, SUPPLIER, OTHER
-  industry       String?
-  rating         String? // HOT, WARM, COLD
-  phone          String?
-  email          String?
-  website        String?
-  billingStreet  String?
-  billingCity    String?
-  billingState   String?
-  billingCountry String?
-  billingZip     String?
-  shippingStreet String?
-  shippingCity   String?
-  shippingState  String?
+  id              String    @id @default(uuid())
+  name            String
+  accountType     String? // CUSTOMER, INVESTOR, PARTNER, DEVELOPER, SUPPLIER, OTHER
+  industry        String?
+  rating          String? // HOT, WARM, COLD
+  phone           String?
+  email           String?
+  website         String?
+  billingStreet   String?
+  billingCity     String?
+  billingState    String?
+  billingCountry  String?
+  billingZip      String?
+  shippingStreet  String?
+  shippingCity    String?
+  shippingState   String?
   shippingCountry String?
-  shippingZip    String?
-  annualRevenue  Decimal? @db.Decimal(18, 2)
-  employees      Int?
-  description    String?
+  shippingZip     String?
+  annualRevenue   Decimal?  @db.Decimal(18, 2)
+  employees       Int?
+  description     String?
   parentAccountId String?
-  parentAccount  Account?  @relation("AccountHierarchy", fields: [parentAccountId], references: [id], onDelete: SetNull)
-  childAccounts  Account[] @relation("AccountHierarchy")
-  ownerId        String?
-  owner          User?     @relation("AccountOwner", fields: [ownerId], references: [id])
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  parentAccount   Account?  @relation("AccountHierarchy", fields: [parentAccountId], references: [id], onDelete: SetNull)
+  childAccounts   Account[] @relation("AccountHierarchy")
+  ownerId         String?
+  owner           User?     @relation("AccountOwner", fields: [ownerId], references: [id])
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   customers Customer[]
   deals     Deal[]
 
-  @@index([tenantId, name])
-  @@index([tenantId, accountType])
-  @@index([tenantId, ownerId])
+  @@index([name])
+  @@index([accountType])
+  @@index([ownerId])
 }
 
 model Customer {
   id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
   accountId String?
   account   Account? @relation(fields: [accountId], references: [id], onDelete: SetNull)
   firstName String
@@ -276,13 +210,11 @@ model Customer {
   reservations Reservation[]
   contracts    Contract[]
 
-  @@index([tenantId, accountId])
+  @@index([accountId])
 }
 
 model DealStage {
   id          String @id @default(uuid())
-  tenantId    String
-  tenant      Tenant @relation(fields: [tenantId], references: [id])
   name        String
   order       Int
   probability Int    @default(0)
@@ -292,8 +224,6 @@ model DealStage {
 
 model Deal {
   id         String    @id @default(uuid())
-  tenantId   String
-  tenant     Tenant    @relation(fields: [tenantId], references: [id])
   name       String
   value      Decimal   @db.Decimal(10, 2)
   stageId    String
@@ -308,19 +238,17 @@ model Deal {
 
   contracts Contract[]
 
-  @@index([tenantId, accountId])
+  @@index([accountId])
 }
 
 // --------------------------------------
 // Operations & Transactions
 // --------------------------------------
 model SiteVisit {
-  id       String   @id @default(uuid())
-  tenantId String
-  tenant   Tenant   @relation(fields: [tenantId], references: [id])
-  date     DateTime
-  status   String   @default("SCHEDULED")
-  notes    String?
+  id     String   @id @default(uuid())
+  date   DateTime
+  status String   @default("SCHEDULED")
+  notes  String?
 
   leadId     String?
   lead       Lead?     @relation(fields: [leadId], references: [id])
@@ -330,8 +258,6 @@ model SiteVisit {
 
 model Reservation {
   id         String   @id @default(uuid())
-  tenantId   String
-  tenant     Tenant   @relation(fields: [tenantId], references: [id])
   customerId String
   customer   Customer @relation(fields: [customerId], references: [id])
   unitId     String
@@ -345,8 +271,6 @@ model Reservation {
 
 model Contract {
   id         String    @id @default(uuid())
-  tenantId   String
-  tenant     Tenant    @relation(fields: [tenantId], references: [id])
   customerId String
   customer   Customer  @relation(fields: [customerId], references: [id])
   unitId     String
@@ -364,13 +288,11 @@ model Contract {
 }
 
 model Payment {
-  id       String   @id @default(uuid())
-  tenantId String
-  tenant   Tenant   @relation(fields: [tenantId], references: [id])
-  amount   Decimal  @db.Decimal(10, 2)
-  date     DateTime @default(now())
-  method   String // e.g., CASH, CARD, TRANSFER
-  status   String   @default("COMPLETED")
+  id        String   @id @default(uuid())
+  amount    Decimal  @db.Decimal(10, 2)
+  date      DateTime @default(now())
+  method    String // e.g., CASH, CARD, TRANSFER
+  status    String   @default("COMPLETED")
   createdAt DateTime @default(now())
 
   contractId    String?
@@ -381,8 +303,6 @@ model Payment {
 
 model PaymentSchedule {
   id         String   @id @default(uuid())
-  tenantId   String
-  tenant     Tenant   @relation(fields: [tenantId], references: [id])
   contractId String
   contract   Contract @relation(fields: [contractId], references: [id])
   dueDate    DateTime
@@ -394,39 +314,35 @@ model PaymentSchedule {
 // Miscellaneous (Tasks, Logs, etc.)
 // --------------------------------------
 model Document {
-  id              String   @id @default(uuid())
-  tenantId        String
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  id              String    @id @default(uuid())
   name            String
   fileUrl         String
   storageKey      String?
   mimeType        String?
   sizeBytes       Int?
   checksum        String?
-  category        String   @default("OTHER")
-  status          String   @default("PENDING_REVIEW")
+  category        String    @default("OTHER")
+  status          String    @default("PENDING_REVIEW")
   // Generic relations let documents be attached to customers, deals, contracts, payments, and inventory.
   entityType      String
   entityId        String
   uploadedById    String?
-  uploadedBy      User?    @relation("DocumentUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
+  uploadedBy      User?     @relation("DocumentUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
   reviewedById    String?
-  reviewedBy      User?    @relation("DocumentReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedBy      User?     @relation("DocumentReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
   reviewedAt      DateTime?
   rejectionReason String?
   expiresAt       DateTime?
-  uploadedAt      DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  uploadedAt      DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  @@index([tenantId, entityType, entityId])
-  @@index([tenantId, status])
-  @@index([tenantId, category])
+  @@index([entityType, entityId])
+  @@index([status])
+  @@index([category])
 }
 
 model Task {
   id          String    @id @default(uuid())
-  tenantId    String
-  tenant      Tenant    @relation(fields: [tenantId], references: [id])
   title       String
   description String?
   dueDate     DateTime?
@@ -440,8 +356,6 @@ model Task {
 
 model Note {
   id         String   @id @default(uuid())
-  tenantId   String
-  tenant     Tenant   @relation(fields: [tenantId], references: [id])
   content    String
   authorId   String
   author     User     @relation(fields: [authorId], references: [id])
@@ -452,8 +366,6 @@ model Note {
 
 model Activity {
   id          String   @id @default(uuid())
-  tenantId    String
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
   type        String
   description String
   userId      String
@@ -464,8 +376,6 @@ model Activity {
 
 model Campaign {
   id        String    @id @default(uuid())
-  tenantId  String
-  tenant    Tenant    @relation(fields: [tenantId], references: [id])
   name      String
   type      String
   status    String    @default("DRAFT")
@@ -477,8 +387,6 @@ model Campaign {
 
 model Notification {
   id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   title     String
@@ -489,8 +397,6 @@ model Notification {
 
 model AuditLog {
   id         String   @id @default(uuid())
-  tenantId   String
-  tenant     Tenant   @relation(fields: [tenantId], references: [id])
   userId     String?
   user       User?    @relation(fields: [userId], references: [id])
   action     String
@@ -499,14 +405,4 @@ model AuditLog {
   oldValues  Json?
   newValues  Json?
   createdAt  DateTime @default(now())
-}
-
-model Subscription {
-  id        String    @id @default(uuid())
-  tenantId  String
-  tenant    Tenant    @relation(fields: [tenantId], references: [id])
-  planName  String
-  startDate DateTime
-  endDate   DateTime?
-  status    String    @default("ACTIVE")
 }

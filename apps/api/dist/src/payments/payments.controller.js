@@ -23,19 +23,19 @@ let PaymentsController = class PaymentsController {
         this.payments = payments;
     }
     list(user) {
-        return this.payments.list(user.tenantId);
+        return this.payments.list();
     }
     get(user, id) {
-        return this.payments.get(user.tenantId, id);
+        return this.payments.get(id);
     }
     create(user, body) {
-        return this.payments.create(user.tenantId, user.id, body);
+        return this.payments.create(user.id, body);
     }
     update(user, id, body) {
-        return this.payments.update(user.tenantId, user.id, id, body);
+        return this.payments.update(user.id, id, body);
     }
     remove(user, id) {
-        return this.payments.remove(user.tenantId, user.id, id);
+        return this.payments.remove(user.id, id);
     }
 };
 exports.PaymentsController = PaymentsController;

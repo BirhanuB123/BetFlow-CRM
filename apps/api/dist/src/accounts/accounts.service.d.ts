@@ -4,7 +4,7 @@ import { CreateAccountInput, UpdateAccountInput } from './accounts.types';
 export declare class AccountsService {
     private readonly prisma;
     constructor(prisma: PrismaService);
-    list(tenantId: string): Prisma.PrismaPromise<({
+    list(): Prisma.PrismaPromise<({
         parentAccount: {
             id: string;
             name: string;
@@ -16,13 +16,12 @@ export declare class AccountsService {
             lastName: string;
         } | null;
         _count: {
-            customers: number;
             deals: number;
+            customers: number;
         };
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         createdAt: Date;
         updatedAt: Date;
         name: string;
@@ -47,19 +46,7 @@ export declare class AccountsService {
         parentAccountId: string | null;
         ownerId: string | null;
     })[]>;
-    get(tenantId: string, id: string): Promise<{
-        customers: {
-            id: string;
-            email: string | null;
-            firstName: string;
-            lastName: string;
-            createdAt: Date;
-            phone: string | null;
-            title: string | null;
-            _count: {
-                deals: number;
-            };
-        }[];
+    get(id: string): Promise<{
         deals: {
             id: string;
             createdAt: Date;
@@ -96,14 +83,25 @@ export declare class AccountsService {
             firstName: string;
             lastName: string;
         } | null;
+        customers: {
+            id: string;
+            email: string | null;
+            firstName: string;
+            lastName: string;
+            createdAt: Date;
+            phone: string | null;
+            title: string | null;
+            _count: {
+                deals: number;
+            };
+        }[];
         _count: {
-            customers: number;
             deals: number;
+            customers: number;
         };
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         createdAt: Date;
         updatedAt: Date;
         name: string;
@@ -128,7 +126,7 @@ export declare class AccountsService {
         parentAccountId: string | null;
         ownerId: string | null;
     }>;
-    create(tenantId: string, userId: string, input: CreateAccountInput): Promise<{
+    create(userId: string, input: CreateAccountInput): Promise<{
         parentAccount: {
             id: string;
             name: string;
@@ -140,13 +138,12 @@ export declare class AccountsService {
             lastName: string;
         } | null;
         _count: {
-            customers: number;
             deals: number;
+            customers: number;
         };
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         createdAt: Date;
         updatedAt: Date;
         name: string;
@@ -171,7 +168,7 @@ export declare class AccountsService {
         parentAccountId: string | null;
         ownerId: string | null;
     }>;
-    update(tenantId: string, userId: string, id: string, input: UpdateAccountInput): Promise<{
+    update(userId: string, id: string, input: UpdateAccountInput): Promise<{
         parentAccount: {
             id: string;
             name: string;
@@ -183,13 +180,12 @@ export declare class AccountsService {
             lastName: string;
         } | null;
         _count: {
-            customers: number;
             deals: number;
+            customers: number;
         };
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         createdAt: Date;
         updatedAt: Date;
         name: string;
@@ -214,7 +210,7 @@ export declare class AccountsService {
         parentAccountId: string | null;
         ownerId: string | null;
     }>;
-    remove(tenantId: string, userId: string, id: string): Promise<{
+    remove(userId: string, id: string): Promise<{
         id: string;
         deleted: boolean;
     }>;

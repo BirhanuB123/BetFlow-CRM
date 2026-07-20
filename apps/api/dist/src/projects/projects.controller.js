@@ -23,19 +23,19 @@ let ProjectsController = class ProjectsController {
         this.projects = projects;
     }
     list(user) {
-        return this.projects.list(user.tenantId);
+        return this.projects.list();
     }
     get(user, id) {
-        return this.projects.get(user.tenantId, id);
+        return this.projects.get(id);
     }
     create(user, body) {
-        return this.projects.create(user.tenantId, user.id, body);
+        return this.projects.create(user.id, body);
     }
     update(user, id, body) {
-        return this.projects.update(user.tenantId, user.id, id, body);
+        return this.projects.update(user.id, id, body);
     }
     remove(user, id) {
-        return this.projects.remove(user.tenantId, user.id, id);
+        return this.projects.remove(user.id, id);
     }
 };
 exports.ProjectsController = ProjectsController;

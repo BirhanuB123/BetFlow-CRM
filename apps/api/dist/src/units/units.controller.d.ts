@@ -25,7 +25,6 @@ export declare class UnitsController {
         };
     } & {
         id: string;
-        tenantId: string;
         status: string;
         unitNumber: string;
         type: string;
@@ -54,7 +53,6 @@ export declare class UnitsController {
         };
     } & {
         id: string;
-        tenantId: string;
         status: string;
         unitNumber: string;
         type: string;
@@ -83,7 +81,6 @@ export declare class UnitsController {
         };
     } & {
         id: string;
-        tenantId: string;
         status: string;
         unitNumber: string;
         type: string;
@@ -112,7 +109,6 @@ export declare class UnitsController {
         };
     } & {
         id: string;
-        tenantId: string;
         status: string;
         unitNumber: string;
         type: string;
@@ -141,7 +137,6 @@ export declare class UnitsController {
         };
     } & {
         id: string;
-        tenantId: string;
         status: string;
         unitNumber: string;
         type: string;

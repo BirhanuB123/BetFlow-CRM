@@ -31,7 +31,7 @@ export class TasksController {
     @Query('assigneeId') assigneeId?: string,
     @Query('open') open?: string,
   ) {
-    return this.tasks.list(user.tenantId, {
+    return this.tasks.list({
       status,
       assigneeId,
       open: open === 'true' || open === '1',
@@ -40,12 +40,15 @@ export class TasksController {
 
   @Get(':id')
   get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.tasks.get(user.tenantId, id);
+    return this.tasks.get(id);
   }
 
   @Post()
-  create(@CurrentUser() user: AuthenticatedUser, @Body() body: CreateTaskInput) {
-    return this.tasks.create(user.tenantId, user.id, body);
+  create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: CreateTaskInput,
+  ) {
+    return this.tasks.create(user.id, body);
   }
 
   @Patch(':id/status')
@@ -54,7 +57,7 @@ export class TasksController {
     @Param('id') id: string,
     @Body() body: UpdateTaskStatusInput,
   ) {
-    return this.tasks.updateStatus(user.tenantId, user.id, id, body.status);
+    return this.tasks.updateStatus(user.id, id, body.status);
   }
 
   @Patch(':id')
@@ -63,11 +66,11 @@ export class TasksController {
     @Param('id') id: string,
     @Body() body: UpdateTaskInput,
   ) {
-    return this.tasks.update(user.tenantId, user.id, id, body);
+    return this.tasks.update(user.id, id, body);
   }
 
   @Delete(':id')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.tasks.remove(user.tenantId, user.id, id);
+    return this.tasks.remove(user.id, id);
   }
 }

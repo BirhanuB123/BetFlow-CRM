@@ -7,7 +7,7 @@ type ListOptions = {
 export declare class ActivitiesService {
     private readonly prisma;
     constructor(prisma: PrismaService);
-    list(tenantId: string, options?: ListOptions): Promise<{
+    list(options?: ListOptions): Promise<{
         id: string;
         action: string;
         label: string;

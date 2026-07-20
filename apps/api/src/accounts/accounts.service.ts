@@ -31,17 +31,17 @@ const accountListInclude = {
 export class AccountsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  list(tenantId: string) {
+  list() {
     return this.prisma.account.findMany({
-      where: { tenantId },
+      where: {},
       include: accountListInclude,
       orderBy: { updatedAt: 'desc' },
     });
   }
 
-  async get(tenantId: string, id: string) {
+  async get(id: string) {
     const account = await this.prisma.account.findFirst({
-      where: { id, tenantId },
+      where: { id },
       include: {
         owner: { select: ownerSelect },
         parentAccount: { select: { id: true, name: true } },
@@ -89,7 +89,7 @@ export class AccountsService {
     return account;
   }
 
-  async create(tenantId: string, userId: string, input: CreateAccountInput) {
+  async create(userId: string, input: CreateAccountInput) {
     const name = input.name?.trim();
     if (!name) {
       throw new BadRequestException('name is required');
@@ -100,13 +100,12 @@ export class AccountsService {
     const ownerId = input.ownerId || userId;
 
     if (input.parentAccountId) {
-      await this.assertAccountBelongsToTenant(tenantId, input.parentAccountId);
+      await this.assertAccountBelongsToTenant(input.parentAccountId);
     }
-    await this.assertOwnerBelongsToTenant(tenantId, ownerId);
+    await this.assertOwnerBelongsToTenant(ownerId);
 
     const account = await this.prisma.account.create({
       data: {
-        tenantId,
         name,
         accountType,
         industry: this.nullableTrim(input.industry),
@@ -133,10 +132,9 @@ export class AccountsService {
       include: accountListInclude,
     });
 
-    await this.recordAudit(tenantId, userId, 'account.created', account.id);
+    await this.recordAudit(userId, 'account.created', account.id);
     await this.prisma.activity.create({
       data: {
-        tenantId,
         type: 'ACCOUNT_CREATED',
         description: `Account "${account.name}" created`,
         userId,
@@ -148,14 +146,9 @@ export class AccountsService {
     return account;
   }
 
-  async update(
-    tenantId: string,
-    userId: string,
-    id: string,
-    input: UpdateAccountInput,
-  ) {
+  async update(userId: string, id: string, input: UpdateAccountInput) {
     const existing = await this.prisma.account.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
 
     if (!existing) {
@@ -167,11 +160,11 @@ export class AccountsService {
     }
 
     if (input.parentAccountId) {
-      await this.assertAccountBelongsToTenant(tenantId, input.parentAccountId);
+      await this.assertAccountBelongsToTenant(input.parentAccountId);
     }
 
     if (input.ownerId) {
-      await this.assertOwnerBelongsToTenant(tenantId, input.ownerId);
+      await this.assertOwnerBelongsToTenant(input.ownerId);
     }
 
     const data: Prisma.AccountUpdateInput = {};
@@ -253,16 +246,18 @@ export class AccountsService {
       include: accountListInclude,
     });
 
-    await this.recordAudit(tenantId, userId, 'account.updated', account.id);
+    await this.recordAudit(userId, 'account.updated', account.id);
 
     return account;
   }
 
-  async remove(tenantId: string, userId: string, id: string) {
+  async remove(userId: string, id: string) {
     const existing = await this.prisma.account.findFirst({
-      where: { id, tenantId },
+      where: { id },
       include: {
-        _count: { select: { customers: true, deals: true, childAccounts: true } },
+        _count: {
+          select: { customers: true, deals: true, childAccounts: true },
+        },
       },
     });
 
@@ -279,17 +274,17 @@ export class AccountsService {
     // Detach contacts and children, then delete (Zoho-style soft unlink)
     await this.prisma.$transaction([
       this.prisma.customer.updateMany({
-        where: { tenantId, accountId: id },
+        where: { accountId: id },
         data: { accountId: null },
       }),
       this.prisma.account.updateMany({
-        where: { tenantId, parentAccountId: id },
+        where: { parentAccountId: id },
         data: { parentAccountId: null },
       }),
       this.prisma.account.delete({ where: { id } }),
     ]);
 
-    await this.recordAudit(tenantId, userId, 'account.deleted', id);
+    await this.recordAudit(userId, 'account.deleted', id);
 
     return { id, deleted: true };
   }
@@ -322,7 +317,9 @@ export class AccountsService {
     if (value === undefined || value === null || value === '') return null;
     const num = typeof value === 'string' ? Number(value) : value;
     if (Number.isNaN(num) || num < 0) {
-      throw new BadRequestException('annualRevenue must be a non-negative number');
+      throw new BadRequestException(
+        'annualRevenue must be a non-negative number',
+      );
     }
     return new Prisma.Decimal(num);
   }
@@ -341,19 +338,21 @@ export class AccountsService {
     return trimmed || null;
   }
 
-  private async assertAccountBelongsToTenant(tenantId: string, accountId: string) {
+  private async assertAccountBelongsToTenant(accountId: string) {
     const account = await this.prisma.account.findFirst({
-      where: { id: accountId, tenantId },
+      where: { id: accountId },
       select: { id: true },
     });
     if (!account) {
-      throw new BadRequestException(`Parent account ${accountId} was not found`);
+      throw new BadRequestException(
+        `Parent account ${accountId} was not found`,
+      );
     }
   }
 
-  private async assertOwnerBelongsToTenant(tenantId: string, ownerId: string) {
+  private async assertOwnerBelongsToTenant(ownerId: string) {
     const user = await this.prisma.user.findFirst({
-      where: { id: ownerId, tenantId, isActive: true },
+      where: { id: ownerId, isActive: true },
       select: { id: true },
     });
     if (!user) {
@@ -361,20 +360,9 @@ export class AccountsService {
     }
   }
 
-  private recordAudit(
-    tenantId: string,
-    userId: string,
-    action: string,
-    entityId: string,
-  ) {
+  private recordAudit(userId: string, action: string, entityId: string) {
     return this.prisma.auditLog.create({
-      data: {
-        tenantId,
-        userId,
-        action,
-        entityType: 'Account',
-        entityId,
-      },
+      data: { userId, action, entityType: 'Account', entityId },
     });
   }
 }

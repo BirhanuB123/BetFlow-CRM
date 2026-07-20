@@ -29,10 +29,8 @@ const properties_module_1 = require("./properties/properties.module");
 const reservations_module_1 = require("./reservations/reservations.module");
 const reports_module_1 = require("./reports/reports.module");
 const roles_module_1 = require("./roles/roles.module");
-const saas_module_1 = require("./saas/saas.module");
 const site_visits_module_1 = require("./site-visits/site-visits.module");
 const tasks_module_1 = require("./tasks/tasks.module");
-const tenants_module_1 = require("./tenants/tenants.module");
 const units_module_1 = require("./units/units.module");
 const users_module_1 = require("./users/users.module");
 let AppModule = class AppModule {
@@ -42,7 +40,6 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             auth_module_1.AuthModule,
-            tenants_module_1.TenantsModule,
             users_module_1.UsersModule,
             roles_module_1.RolesModule,
             permissions_module_1.PermissionsModule,
@@ -64,7 +61,6 @@ exports.AppModule = AppModule = __decorate([
             contracts_module_1.ContractsModule,
             notifications_module_1.NotificationsModule,
             reports_module_1.ReportsModule,
-            saas_module_1.SaasModule,
             enterprise_module_1.EnterpriseModule,
         ],
         controllers: [app_controller_1.AppController],

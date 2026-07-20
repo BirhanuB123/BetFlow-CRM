@@ -15,12 +15,12 @@ export class RolesController {
   @Get()
   @Roles('Owner', 'Admin')
   list(@CurrentUser() user: AuthenticatedUser) {
-    return this.roles.listRoles(user.tenantId);
+    return this.roles.listRoles();
   }
 
   @Post()
   @Roles('Owner', 'Admin')
   create(@CurrentUser() user: AuthenticatedUser, @Body() body: CreateRoleBody) {
-    return this.roles.createRole({ ...body, tenantId: user.tenantId });
+    return this.roles.createRole({ ...body });
   }
 }

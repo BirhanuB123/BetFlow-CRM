@@ -10,7 +10,7 @@ export type StoredDocumentFile = {
 };
 export declare class DocumentStorageService {
     private readonly root;
-    save(tenantId: string, file: IncomingDocumentFile): Promise<StoredDocumentFile>;
+    save(file: IncomingDocumentFile): Promise<StoredDocumentFile>;
     open(storageKey: string): import("fs").ReadStream;
     remove(storageKey: string | null): Promise<void>;
     assertExists(storageKey: string): Promise<void>;

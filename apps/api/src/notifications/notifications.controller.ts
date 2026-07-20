@@ -24,10 +24,9 @@ export class NotificationsController {
 
   @Get()
   list(
-    @Query('tenantId') tenantId?: string,
     @Query('channel') channel?: NotificationMessage['channel'],
   ) {
-    return this.store.listNotificationMessages(tenantId, channel);
+    return this.store.listNotificationMessages(channel);
   }
 
   @Post()
@@ -44,8 +43,8 @@ export class NotificationsController {
   }
 
   @Get('overdue-payments')
-  listOverduePayments(@Query('tenantId') tenantId?: string) {
-    return this.store.listOverduePaymentAlerts(tenantId);
+  listOverduePayments() {
+    return this.store.listOverduePaymentAlerts();
   }
 
   @Post('overdue-payments')
@@ -54,8 +53,8 @@ export class NotificationsController {
   }
 
   @Get('follow-ups')
-  listFollowUps(@Query('tenantId') tenantId?: string) {
-    return this.store.listFollowUpReminders(tenantId);
+  listFollowUps() {
+    return this.store.listFollowUpReminders();
   }
 
   @Post('follow-ups')

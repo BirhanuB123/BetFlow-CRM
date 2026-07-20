@@ -25,16 +25,19 @@ export class NotesController {
     @Query('entityType') entityType?: string,
     @Query('entityId') entityId?: string,
   ) {
-    return this.notes.list(user.tenantId, { entityType, entityId });
+    return this.notes.list({ entityType, entityId });
   }
 
   @Post()
-  create(@CurrentUser() user: AuthenticatedUser, @Body() body: CreateNoteInput) {
-    return this.notes.create(user.tenantId, user.id, body);
+  create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: CreateNoteInput,
+  ) {
+    return this.notes.create(user.id, body);
   }
 
   @Delete(':id')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.notes.remove(user.tenantId, user.id, id);
+    return this.notes.remove(user.id, id);
   }
 }

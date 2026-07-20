@@ -26,14 +26,13 @@ export declare class ContractsController {
         };
     } & {
         id: string;
-        tenantId: string;
         createdAt: Date;
-        startDate: Date;
-        endDate: Date | null;
         status: string;
         customerId: string;
         unitId: string;
         dealId: string | null;
+        startDate: Date;
+        endDate: Date | null;
         totalAmt: import("@prisma/client-runtime-utils").Decimal;
     })[]>;
     get(user: AuthenticatedUser, id: string): Promise<{
@@ -58,14 +57,13 @@ export declare class ContractsController {
         };
     } & {
         id: string;
-        tenantId: string;
         createdAt: Date;
-        startDate: Date;
-        endDate: Date | null;
         status: string;
         customerId: string;
         unitId: string;
         dealId: string | null;
+        startDate: Date;
+        endDate: Date | null;
         totalAmt: import("@prisma/client-runtime-utils").Decimal;
     }>;
     create(user: AuthenticatedUser, body: CreateContractInput): Promise<{
@@ -90,14 +88,13 @@ export declare class ContractsController {
         };
     } & {
         id: string;
-        tenantId: string;
         createdAt: Date;
-        startDate: Date;
-        endDate: Date | null;
         status: string;
         customerId: string;
         unitId: string;
         dealId: string | null;
+        startDate: Date;
+        endDate: Date | null;
         totalAmt: import("@prisma/client-runtime-utils").Decimal;
     }>;
     update(user: AuthenticatedUser, id: string, body: UpdateContractInput): Promise<{
@@ -122,14 +119,13 @@ export declare class ContractsController {
         };
     } & {
         id: string;
-        tenantId: string;
         createdAt: Date;
-        startDate: Date;
-        endDate: Date | null;
         status: string;
         customerId: string;
         unitId: string;
         dealId: string | null;
+        startDate: Date;
+        endDate: Date | null;
         totalAmt: import("@prisma/client-runtime-utils").Decimal;
     }>;
     remove(user: AuthenticatedUser, id: string): Promise<{
