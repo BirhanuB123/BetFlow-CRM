@@ -11,6 +11,15 @@ export declare class AuthService {
     private readonly jwt;
     private readonly passwords;
     constructor(prisma: PrismaService, jwt: JwtService, passwords: PasswordService);
+    register(input: {
+        firstName: string;
+        lastName: string;
+        email: string;
+        password?: string;
+    }): Promise<{
+        success: boolean;
+        userId: string;
+    }>;
     login(input: LoginBody): Promise<{
         accessToken: string;
         user: {
