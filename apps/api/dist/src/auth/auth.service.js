@@ -23,6 +23,39 @@ let AuthService = class AuthService {
         this.jwt = jwt;
         this.passwords = passwords;
     }
+    async register(input) {
+        const email = input.email.trim().toLowerCase();
+        const existing = await this.prisma.user.findUnique({ where: { email } });
+        if (existing) {
+            throw new common_1.UnauthorizedException('User already exists');
+        }
+        const passwordHash = await this.passwords.hash(input.password || 'tempPassword123');
+        const adminRole = await this.prisma.role.findFirst({
+            where: { name: 'admin' },
+        });
+        const user = await this.prisma.user.create({
+            data: {
+                firstName: input.firstName,
+                lastName: input.lastName,
+                email,
+                password: passwordHash,
+                roles: adminRole ? {
+                    create: [{
+                            roleId: adminRole.id
+                        }]
+                } : undefined
+            }
+        });
+        await this.prisma.auditLog.create({
+            data: {
+                userId: user.id,
+                action: 'auth.register',
+                entityType: 'User',
+                entityId: user.id,
+            },
+        });
+        return { success: true, userId: user.id };
+    }
     async login(input) {
         const user = await this.prisma.user.findFirst({
             where: {

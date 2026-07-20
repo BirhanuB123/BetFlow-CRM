@@ -4,9 +4,19 @@ type LoginBody = {
     email: string;
     password: string;
 };
+type RegisterBody = {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password?: string;
+};
 export declare class AuthController {
     private readonly auth;
     constructor(auth: AuthService);
+    register(body: RegisterBody): Promise<{
+        success: boolean;
+        userId: string;
+    }>;
     login(body: LoginBody): Promise<{
         accessToken: string;
         user: {

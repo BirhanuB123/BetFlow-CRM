@@ -23,6 +23,45 @@ export class AuthService {
     private readonly passwords: PasswordService,
   ) {}
 
+  async register(input: { firstName: string; lastName: string; email: string; password?: string }) {
+    const email = input.email.trim().toLowerCase();
+    const existing = await this.prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      throw new UnauthorizedException('User already exists');
+    }
+
+    const passwordHash = await this.passwords.hash(input.password || 'tempPassword123');
+    
+    const adminRole = await this.prisma.role.findFirst({
+      where: { name: 'admin' },
+    });
+    
+    const user = await this.prisma.user.create({
+      data: {
+        firstName: input.firstName,
+        lastName: input.lastName,
+        email,
+        password: passwordHash,
+        roles: adminRole ? {
+          create: [{
+            roleId: adminRole.id
+          }]
+        } : undefined
+      }
+    });
+
+    await this.prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: 'auth.register',
+        entityType: 'User',
+        entityId: user.id,
+      },
+    });
+    
+    return { success: true, userId: user.id };
+  }
+
   async login(input: LoginBody) {
     const user = await this.prisma.user.findFirst({
       where: {

@@ -10,20 +10,20 @@ type LoginBody = {
 };
 
 type RegisterBody = {
-  companyName: string;
-  slug: string;
-  ownerName: string;
-  ownerEmail: string;
+  firstName: string;
+  lastName: string;
+  email: string;
   password?: string;
-  region?: string;
-  plan?: string;
 };
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
-
+  @Post('register')
+  register(@Body() body: RegisterBody) {
+    return this.auth.register(body);
+  }
 
   @Post('login')
   login(@Body() body: LoginBody) {

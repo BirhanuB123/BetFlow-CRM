@@ -12,16 +12,14 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/a
 type AuthMode = "register" | "login";
 
 type RegisterState = {
-  companyName: string;
-  slug: string;
-  ownerName: string;
-  ownerEmail: string;
+  firstName: string;
+  lastName: string;
+  email: string;
   password: string;
 };
 
 type LoginState = {
   email: string;
-  tenantSlug: string;
   password: string;
 };
 
@@ -34,15 +32,13 @@ export default function AuthPage() {
   const [mode, setMode] = useState<AuthMode>("login");
   const [remember, setRemember] = useState(true);
   const [registerState, setRegisterState] = useState<RegisterState>({
-    companyName: "",
-    slug: "",
-    ownerName: "",
-    ownerEmail: "",
+    firstName: "",
+    lastName: "",
+    email: "",
     password: "",
   });
   const [loginState, setLoginState] = useState<LoginState>({
     email: "admin@betflow.example",
-    tenantSlug: "betflow-crm",
     password: "admin123",
   });
   const [loading, setLoading] = useState(false);
@@ -111,19 +107,16 @@ export default function AuthPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          companyName: registerState.companyName,
-          slug: registerState.slug,
-          ownerName: registerState.ownerName,
-          ownerEmail: registerState.ownerEmail,
+          firstName: registerState.firstName,
+          lastName: registerState.lastName,
+          email: registerState.email,
           password: registerState.password,
-          region: "US East",
-          plan: "Starter",
         }),
       });
 
       if (!registerResponse.ok) {
         throw new Error(
-          await readErrorMessage(registerResponse, "Unable to create the tenant workspace."),
+          await readErrorMessage(registerResponse, "Unable to create your account."),
         );
       }
 
@@ -131,9 +124,8 @@ export default function AuthPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: registerState.ownerEmail,
+          email: registerState.email,
           password: registerState.password,
-          tenantSlug: registerState.slug,
         }),
       });
 
@@ -234,16 +226,6 @@ export default function AuthPage() {
                 />
               </label>
               <label className="block">
-                <span className={labelClass}>Workspace</span>
-                <input
-                  className={inputClass}
-                  placeholder="your-workspace"
-                  value={loginState.tenantSlug}
-                  onChange={(e) => setLoginState((s) => ({ ...s, tenantSlug: e.target.value }))}
-                  required
-                />
-              </label>
-              <label className="block">
                 <span className={labelClass}>Password</span>
                 <input
                   className={inputClass}
@@ -289,49 +271,39 @@ export default function AuthPage() {
             </form>
           ) : (
             <form className="mt-6 grid gap-4" onSubmit={handleRegister}>
-              <label className="block">
-                <span className={labelClass}>Company name</span>
-                <input
-                  className={inputClass}
-                  placeholder="Acme Realty"
-                  value={registerState.companyName}
-                  onChange={(e) => setRegisterState((s) => ({ ...s, companyName: e.target.value }))}
-                  required
-                />
-              </label>
-              <label className="block">
-                <span className={labelClass}>Workspace slug</span>
-                <input
-                  className={inputClass}
-                  placeholder="acme-realty"
-                  value={registerState.slug}
-                  onChange={(e) => setRegisterState((s) => ({ ...s, slug: e.target.value }))}
-                  required
-                />
-              </label>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
-                  <span className={labelClass}>Owner name</span>
+                  <span className={labelClass}>First name</span>
                   <input
                     className={inputClass}
-                    placeholder="Jordan Lee"
-                    value={registerState.ownerName}
-                    onChange={(e) => setRegisterState((s) => ({ ...s, ownerName: e.target.value }))}
+                    placeholder="Jordan"
+                    value={registerState.firstName}
+                    onChange={(e) => setRegisterState((s) => ({ ...s, firstName: e.target.value }))}
                     required
                   />
                 </label>
                 <label className="block">
-                  <span className={labelClass}>Owner email</span>
+                  <span className={labelClass}>Last name</span>
                   <input
                     className={inputClass}
-                    type="email"
-                    placeholder="owner@acme.com"
-                    value={registerState.ownerEmail}
-                    onChange={(e) => setRegisterState((s) => ({ ...s, ownerEmail: e.target.value }))}
+                    placeholder="Lee"
+                    value={registerState.lastName}
+                    onChange={(e) => setRegisterState((s) => ({ ...s, lastName: e.target.value }))}
                     required
                   />
                 </label>
               </div>
+              <label className="block">
+                <span className={labelClass}>Email address</span>
+                <input
+                  className={inputClass}
+                  type="email"
+                  placeholder="jordan@example.com"
+                  value={registerState.email}
+                  onChange={(e) => setRegisterState((s) => ({ ...s, email: e.target.value }))}
+                  required
+                />
+              </label>
               <label className="block">
                 <span className={labelClass}>Password</span>
                 <input
@@ -349,7 +321,7 @@ export default function AuthPage() {
                 disabled={loading}
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-[#0E6E63] text-sm font-medium text-white transition hover:bg-[#0b5c52] disabled:opacity-60"
               >
-                {loading ? "Creating workspace…" : "Create workspace"}
+                {loading ? "Creating account…" : "Create account"}
                 {!loading && <ArrowRight className="size-4" />}
               </button>
 
