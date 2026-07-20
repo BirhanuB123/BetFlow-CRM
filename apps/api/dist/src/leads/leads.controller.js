@@ -23,25 +23,25 @@ let LeadsController = class LeadsController {
         this.leads = leads;
     }
     list(user) {
-        return this.leads.list(user.tenantId);
+        return this.leads.list();
     }
     sources(user) {
-        return this.leads.listSources(user.tenantId);
+        return this.leads.listSources();
     }
     create(user, body) {
-        return this.leads.create(user.tenantId, user.id, body);
+        return this.leads.create(user.id, body);
     }
     updateStatus(user, id, body) {
-        return this.leads.updateStatus(user.tenantId, user.id, id, body.status);
+        return this.leads.updateStatus(user.id, id, body.status);
     }
     convert(user, id, body) {
-        return this.leads.convert(user.tenantId, user.id, id, body);
+        return this.leads.convert(user.id, id, body);
     }
     update(user, id, body) {
-        return this.leads.update(user.tenantId, user.id, id, body);
+        return this.leads.update(user.id, id, body);
     }
     remove(user, id) {
-        return this.leads.remove(user.tenantId, user.id, id);
+        return this.leads.remove(user.id, id);
     }
 };
 exports.LeadsController = LeadsController;

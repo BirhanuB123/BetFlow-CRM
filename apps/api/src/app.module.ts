@@ -20,17 +20,15 @@ import { PropertiesModule } from './properties/properties.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { ReportsModule } from './reports/reports.module';
 import { RolesModule } from './roles/roles.module';
-import { SaasModule } from './saas/saas.module';
 import { SiteVisitsModule } from './site-visits/site-visits.module';
 import { TasksModule } from './tasks/tasks.module';
-import { TenantsModule } from './tenants/tenants.module';
 import { UnitsModule } from './units/units.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
     AuthModule,
-    TenantsModule,
+
     UsersModule,
     RolesModule,
     PermissionsModule,
@@ -52,7 +50,7 @@ import { UsersModule } from './users/users.module';
     ContractsModule,
     NotificationsModule,
     ReportsModule,
-    SaasModule,
+
     EnterpriseModule,
   ],
   controllers: [AppController],

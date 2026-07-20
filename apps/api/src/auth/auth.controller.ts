@@ -7,7 +7,6 @@ import type { AuthenticatedUser } from './auth.types';
 type LoginBody = {
   email: string;
   password: string;
-  tenantSlug: string;
 };
 
 type RegisterBody = {
@@ -24,10 +23,7 @@ type RegisterBody = {
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
-  @Post('register')
-  register(@Body() body: RegisterBody) {
-    return this.auth.register(body);
-  }
+
 
   @Post('login')
   login(@Body() body: LoginBody) {

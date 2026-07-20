@@ -24,12 +24,12 @@ export class ContractsController {
 
   @Get()
   list(@CurrentUser() user: AuthenticatedUser) {
-    return this.contracts.list(user.tenantId);
+    return this.contracts.list();
   }
 
   @Get(':id')
   get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.contracts.get(user.tenantId, id);
+    return this.contracts.get(id);
   }
 
   @Post()
@@ -37,7 +37,7 @@ export class ContractsController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: CreateContractInput,
   ) {
-    return this.contracts.create(user.tenantId, user.id, body);
+    return this.contracts.create(user.id, body);
   }
 
   @Patch(':id')
@@ -46,11 +46,11 @@ export class ContractsController {
     @Param('id') id: string,
     @Body() body: UpdateContractInput,
   ) {
-    return this.contracts.update(user.tenantId, user.id, id, body);
+    return this.contracts.update(user.id, id, body);
   }
 
   @Delete(':id')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.contracts.remove(user.tenantId, user.id, id);
+    return this.contracts.remove(user.id, id);
   }
 }

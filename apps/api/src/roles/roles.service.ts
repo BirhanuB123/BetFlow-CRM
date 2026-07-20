@@ -1,9 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { TenantsService } from '../tenants/tenants.service';
 
 export type CreateRoleBody = {
-  tenantId: string;
   name: string;
   description?: string;
   permissionIds?: string[];
@@ -23,7 +21,6 @@ type RolePermissionResult = {
 
 type RoleResult = {
   id: string;
-  tenantId: string;
   name: string;
   description: string | null;
   permissions: RolePermissionResult[];
@@ -33,20 +30,16 @@ type RoleResult = {
 export class RolesService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly tenants: TenantsService,
   ) {}
 
-  async listRoles(tenantId?: string) {
-    if (!tenantId) {
-      throw new BadRequestException('tenantId is required');
-    }
+  async listRoles() {
 
     const roles = await this.prisma.role.findMany({
-      where: { tenantId },
+      where: {},
       orderBy: { name: 'asc' },
       include: {
         permissions: {
-          where: { tenantId },
+          where: {},
           include: {
             permission: true,
           },
@@ -55,26 +48,21 @@ export class RolesService {
     });
 
     return (roles as RoleResult[]).map((role) => ({
-      ...this.tenants.serializeRole(role),
+      ...role,
       permissionKeys: role.permissions.map((item) => item.permission.name),
       permissions: role.permissions.map((item) => item.permission),
     }));
   }
 
   async createRole(input: CreateRoleBody) {
-    if (!input.tenantId) {
-      throw new BadRequestException('tenantId is required');
-    }
 
     const permissions = await this.resolvePermissions(input);
     const role = await this.prisma.role.create({
       data: {
-        tenantId: input.tenantId,
         name: input.name,
         description: input.description,
         permissions: {
           create: (permissions as PermissionResult[]).map((permission) => ({
-            tenantId: input.tenantId,
             permissionId: permission.id,
           })),
         },
@@ -90,7 +78,6 @@ export class RolesService {
 
     await this.prisma.auditLog.create({
       data: {
-        tenantId: input.tenantId,
         action: 'role.created',
         entityType: 'Role',
         entityId: role.id,
@@ -102,7 +89,7 @@ export class RolesService {
     });
 
     return {
-      ...this.tenants.serializeRole(role as RoleResult),
+      ...(role as RoleResult),
       permissionKeys: (role as RoleResult).permissions.map(
         (item) => item.permission.name,
       ),
@@ -116,7 +103,6 @@ export class RolesService {
     if (input.permissionIds?.length) {
       return this.prisma.permission.findMany({
         where: {
-          tenantId: input.tenantId,
           id: { in: input.permissionIds },
         },
       });
@@ -125,7 +111,6 @@ export class RolesService {
     if (input.permissionKeys?.length) {
       return this.prisma.permission.findMany({
         where: {
-          tenantId: input.tenantId,
           name: { in: input.permissionKeys },
         },
       });

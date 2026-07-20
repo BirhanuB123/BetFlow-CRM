@@ -18,22 +18,22 @@ let ProjectsService = class ProjectsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async list(tenantId) {
+    async list() {
         const projects = await this.prisma.project.findMany({
-            where: { tenantId },
+            where: {},
             include: { _count: { select: { buildings: true } } },
             orderBy: { name: 'asc' },
         });
         return Promise.all(projects.map(async (project) => ({
             ...project,
             unitsCount: await this.prisma.unit.count({
-                where: { tenantId, floor: { building: { projectId: project.id } } },
+                where: { floor: { building: { projectId: project.id } } },
             }),
         })));
     }
-    async get(tenantId, id) {
+    async get(id) {
         const project = await this.prisma.project.findFirst({
-            where: { id, tenantId },
+            where: { id },
             include: {
                 buildings: {
                     include: { _count: { select: { floors: true } } },
@@ -48,33 +48,32 @@ let ProjectsService = class ProjectsService {
         const buildings = await Promise.all(project.buildings.map(async (building) => ({
             ...building,
             unitsCount: await this.prisma.unit.count({
-                where: { tenantId, floor: { buildingId: building.id } },
+                where: { floor: { buildingId: building.id } },
             }),
         })));
         const unitsCount = await this.prisma.unit.count({
-            where: { tenantId, floor: { building: { projectId: id } } },
+            where: { floor: { building: { projectId: id } } },
         });
         return { ...project, buildings, unitsCount };
     }
-    async create(tenantId, userId, input) {
+    async create(userId, input) {
         const name = input.name?.trim();
         if (!name)
             throw new common_1.BadRequestException('name is required');
         const project = await this.prisma.project.create({
             data: {
-                tenantId,
                 name,
                 description: input.description?.trim() || null,
                 status: this.normalizeStatus(input.status ?? 'ACTIVE'),
             },
             include: { _count: { select: { buildings: true } } },
         });
-        await this.recordAudit(tenantId, userId, 'project.created', project.id);
+        await this.recordAudit(userId, 'project.created', project.id);
         return project;
     }
-    async update(tenantId, userId, id, input) {
+    async update(userId, id, input) {
         const existing = await this.prisma.project.findFirst({
-            where: { id, tenantId },
+            where: { id },
         });
         if (!existing)
             throw new common_1.NotFoundException(`Project ${id} was not found`);
@@ -94,12 +93,12 @@ let ProjectsService = class ProjectsService {
             data,
             include: { _count: { select: { buildings: true } } },
         });
-        await this.recordAudit(tenantId, userId, 'project.updated', project.id);
+        await this.recordAudit(userId, 'project.updated', project.id);
         return project;
     }
-    async remove(tenantId, userId, id) {
+    async remove(userId, id) {
         const existing = await this.prisma.project.findFirst({
-            where: { id, tenantId },
+            where: { id },
             include: { _count: { select: { buildings: true } } },
         });
         if (!existing)
@@ -108,7 +107,7 @@ let ProjectsService = class ProjectsService {
             throw new common_1.BadRequestException('Cannot delete a project that still has buildings');
         }
         await this.prisma.project.delete({ where: { id } });
-        await this.recordAudit(tenantId, userId, 'project.deleted', id);
+        await this.recordAudit(userId, 'project.deleted', id);
         return { id, deleted: true };
     }
     normalizeStatus(status) {
@@ -118,15 +117,9 @@ let ProjectsService = class ProjectsService {
         }
         return upper;
     }
-    recordAudit(tenantId, userId, action, entityId) {
+    recordAudit(userId, action, entityId) {
         return this.prisma.auditLog.create({
-            data: {
-                tenantId,
-                userId,
-                action,
-                entityType: 'Project',
-                entityId,
-            },
+            data: { userId, action, entityType: 'Project', entityId },
         });
     }
 };

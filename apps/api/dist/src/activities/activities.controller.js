@@ -23,7 +23,7 @@ let ActivitiesController = class ActivitiesController {
         this.activities = activities;
     }
     list(user, entityType, entityId, limit) {
-        return this.activities.list(user.tenantId, {
+        return this.activities.list({
             entityType,
             entityId,
             limit: limit ? Number(limit) : undefined,

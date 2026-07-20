@@ -15,12 +15,12 @@ export class UsersController {
   @Get()
   @Roles('Owner', 'Admin')
   list(@CurrentUser() user: AuthenticatedUser) {
-    return this.users.listUsers(user.tenantId);
+    return this.users.listUsers();
   }
 
   @Post('invite')
   @Roles('Owner', 'Admin')
   invite(@CurrentUser() user: AuthenticatedUser, @Body() body: InviteUserBody) {
-    return this.users.inviteUser({ ...body, tenantId: user.tenantId });
+    return this.users.inviteUser({ ...body });
   }
 }

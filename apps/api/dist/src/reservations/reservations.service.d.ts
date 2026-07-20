@@ -4,7 +4,7 @@ import { CreateReservationInput, UpdateReservationInput } from './reservations.t
 export declare class ReservationsService {
     private readonly prisma;
     constructor(prisma: PrismaService);
-    list(tenantId: string): Prisma.PrismaPromise<({
+    list(): Prisma.PrismaPromise<({
         unit: {
             id: string;
             status: string;
@@ -21,14 +21,13 @@ export declare class ReservationsService {
         };
     } & {
         id: string;
-        tenantId: string;
         status: string;
         customerId: string;
         unitId: string;
         date: Date;
         amount: Prisma.Decimal;
     })[]>;
-    get(tenantId: string, id: string): Promise<{
+    get(id: string): Promise<{
         unit: {
             id: string;
             status: string;
@@ -45,14 +44,13 @@ export declare class ReservationsService {
         };
     } & {
         id: string;
-        tenantId: string;
         status: string;
         customerId: string;
         unitId: string;
         date: Date;
         amount: Prisma.Decimal;
     }>;
-    create(tenantId: string, userId: string, input: CreateReservationInput): Promise<{
+    create(userId: string, input: CreateReservationInput): Promise<{
         unit: {
             status: string;
             id: string;
@@ -68,14 +66,13 @@ export declare class ReservationsService {
             payments: number;
         };
         id: string;
-        tenantId: string;
         status: string;
         customerId: string;
         unitId: string;
         date: Date;
         amount: Prisma.Decimal;
     }>;
-    update(tenantId: string, userId: string, id: string, input: UpdateReservationInput): Promise<{
+    update(userId: string, id: string, input: UpdateReservationInput): Promise<{
         unit: {
             id: string;
             status: string;
@@ -92,14 +89,13 @@ export declare class ReservationsService {
         };
     } & {
         id: string;
-        tenantId: string;
         status: string;
         customerId: string;
         unitId: string;
         date: Date;
         amount: Prisma.Decimal;
     }>;
-    updateStatus(tenantId: string, userId: string, id: string, status: string): Promise<{
+    updateStatus(userId: string, id: string, status: string): Promise<{
         unit: {
             id: string;
             status: string;
@@ -116,14 +112,13 @@ export declare class ReservationsService {
         };
     } & {
         id: string;
-        tenantId: string;
         status: string;
         customerId: string;
         unitId: string;
         date: Date;
         amount: Prisma.Decimal;
     }>;
-    remove(tenantId: string, userId: string, id: string): Promise<{
+    remove(userId: string, id: string): Promise<{
         id: string;
         deleted: boolean;
     }>;

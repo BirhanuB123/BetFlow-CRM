@@ -21,16 +21,16 @@ let PaymentsService = class PaymentsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    list(tenantId) {
+    list() {
         return this.prisma.payment.findMany({
-            where: { tenantId },
+            where: {},
             include: paymentInclude,
             orderBy: { createdAt: 'desc' },
         });
     }
-    async get(tenantId, id) {
+    async get(id) {
         const payment = await this.prisma.payment.findFirst({
-            where: { id, tenantId },
+            where: { id },
             include: paymentInclude,
         });
         if (!payment) {
@@ -38,7 +38,7 @@ let PaymentsService = class PaymentsService {
         }
         return payment;
     }
-    async create(tenantId, userId, input) {
+    async create(userId, input) {
         const amount = this.normalizeAmount(input.amount);
         const method = input.method?.trim();
         if (!method)
@@ -47,14 +47,13 @@ let PaymentsService = class PaymentsService {
         const reservationId = input.reservationId || null;
         this.assertExactlyOneTarget(contractId, reservationId);
         if (contractId) {
-            await this.assertContractBelongsToTenant(tenantId, contractId);
+            await this.assertContractBelongsToTenant(contractId);
         }
         if (reservationId) {
-            await this.assertReservationBelongsToTenant(tenantId, reservationId);
+            await this.assertReservationBelongsToTenant(reservationId);
         }
         const payment = await this.prisma.payment.create({
             data: {
-                tenantId,
                 amount,
                 method,
                 status: input.status?.trim() || 'COMPLETED',
@@ -64,12 +63,12 @@ let PaymentsService = class PaymentsService {
             },
             include: paymentInclude,
         });
-        await this.recordAudit(tenantId, userId, 'payment.created', payment.id);
+        await this.recordAudit(userId, 'payment.created', payment.id);
         return payment;
     }
-    async update(tenantId, userId, id, input) {
+    async update(userId, id, input) {
         const existing = await this.prisma.payment.findFirst({
-            where: { id, tenantId },
+            where: { id },
         });
         if (!existing) {
             throw new common_1.NotFoundException(`Payment ${id} was not found`);
@@ -83,10 +82,10 @@ let PaymentsService = class PaymentsService {
         if (input.contractId !== undefined || input.reservationId !== undefined) {
             this.assertExactlyOneTarget(contractId, reservationId);
             if (contractId && contractId !== existing.contractId) {
-                await this.assertContractBelongsToTenant(tenantId, contractId);
+                await this.assertContractBelongsToTenant(contractId);
             }
             if (reservationId && reservationId !== existing.reservationId) {
-                await this.assertReservationBelongsToTenant(tenantId, reservationId);
+                await this.assertReservationBelongsToTenant(reservationId);
             }
         }
         const data = {};
@@ -115,18 +114,18 @@ let PaymentsService = class PaymentsService {
             data,
             include: paymentInclude,
         });
-        await this.recordAudit(tenantId, userId, 'payment.updated', payment.id);
+        await this.recordAudit(userId, 'payment.updated', payment.id);
         return payment;
     }
-    async remove(tenantId, userId, id) {
+    async remove(userId, id) {
         const existing = await this.prisma.payment.findFirst({
-            where: { id, tenantId },
+            where: { id },
         });
         if (!existing) {
             throw new common_1.NotFoundException(`Payment ${id} was not found`);
         }
         await this.prisma.payment.delete({ where: { id } });
-        await this.recordAudit(tenantId, userId, 'payment.deleted', id);
+        await this.recordAudit(userId, 'payment.deleted', id);
         return { id, deleted: true };
     }
     assertExactlyOneTarget(contractId, reservationId) {
@@ -151,31 +150,25 @@ let PaymentsService = class PaymentsService {
         }
         return date;
     }
-    async assertContractBelongsToTenant(tenantId, contractId) {
+    async assertContractBelongsToTenant(contractId) {
         const contract = await this.prisma.contract.findFirst({
-            where: { id: contractId, tenantId },
+            where: { id: contractId },
         });
         if (!contract) {
             throw new common_1.BadRequestException(`Contract ${contractId} was not found`);
         }
     }
-    async assertReservationBelongsToTenant(tenantId, reservationId) {
+    async assertReservationBelongsToTenant(reservationId) {
         const reservation = await this.prisma.reservation.findFirst({
-            where: { id: reservationId, tenantId },
+            where: { id: reservationId },
         });
         if (!reservation) {
             throw new common_1.BadRequestException(`Reservation ${reservationId} was not found`);
         }
     }
-    recordAudit(tenantId, userId, action, entityId) {
+    recordAudit(userId, action, entityId) {
         return this.prisma.auditLog.create({
-            data: {
-                tenantId,
-                userId,
-                action,
-                entityType: 'Payment',
-                entityId,
-            },
+            data: { userId, action, entityType: 'Payment', entityId },
         });
     }
 };

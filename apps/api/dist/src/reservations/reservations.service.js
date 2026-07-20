@@ -23,16 +23,16 @@ let ReservationsService = class ReservationsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    list(tenantId) {
+    list() {
         return this.prisma.reservation.findMany({
-            where: { tenantId },
+            where: {},
             include: reservationInclude,
             orderBy: { date: 'desc' },
         });
     }
-    async get(tenantId, id) {
+    async get(id) {
         const reservation = await this.prisma.reservation.findFirst({
-            where: { id, tenantId },
+            where: { id },
             include: reservationInclude,
         });
         if (!reservation) {
@@ -40,7 +40,7 @@ let ReservationsService = class ReservationsService {
         }
         return reservation;
     }
-    async create(tenantId, userId, input) {
+    async create(userId, input) {
         if (!input.customerId)
             throw new common_1.BadRequestException('customerId is required');
         if (!input.unitId)
@@ -50,10 +50,10 @@ let ReservationsService = class ReservationsService {
         if (!reservations_types_1.ACTIVE_RESERVATION_STATUSES.includes(status)) {
             throw new common_1.BadRequestException(`New reservations must start as one of: ${reservations_types_1.ACTIVE_RESERVATION_STATUSES.join(', ')}`);
         }
-        await this.assertCustomerBelongsToTenant(tenantId, input.customerId);
+        await this.assertCustomerBelongsToTenant(input.customerId);
         return this.prisma.$transaction(async (tx) => {
             const unit = await tx.unit.findFirst({
-                where: { id: input.unitId, tenantId },
+                where: { id: input.unitId },
             });
             if (!unit) {
                 throw new common_1.BadRequestException(`Unit ${input.unitId} was not found`);
@@ -63,7 +63,6 @@ let ReservationsService = class ReservationsService {
             }
             const reservation = await tx.reservation.create({
                 data: {
-                    tenantId,
                     customerId: input.customerId,
                     unitId: input.unitId,
                     amount,
@@ -78,7 +77,6 @@ let ReservationsService = class ReservationsService {
             });
             await tx.auditLog.create({
                 data: {
-                    tenantId,
                     userId,
                     action: 'reservation.created',
                     entityType: 'Reservation',
@@ -86,12 +84,15 @@ let ReservationsService = class ReservationsService {
                     newValues: { unitStatus: 'AVAILABLE -> RESERVED' },
                 },
             });
-            return { ...reservation, unit: { ...reservation.unit, status: 'RESERVED' } };
+            return {
+                ...reservation,
+                unit: { ...reservation.unit, status: 'RESERVED' },
+            };
         });
     }
-    async update(tenantId, userId, id, input) {
+    async update(userId, id, input) {
         const existing = await this.prisma.reservation.findFirst({
-            where: { id, tenantId },
+            where: { id },
         });
         if (!existing) {
             throw new common_1.NotFoundException(`Reservation ${id} was not found`);
@@ -106,14 +107,14 @@ let ReservationsService = class ReservationsService {
             data,
             include: reservationInclude,
         });
-        await this.recordAudit(tenantId, userId, 'reservation.updated', id);
+        await this.recordAudit(userId, 'reservation.updated', id);
         return reservation;
     }
-    async updateStatus(tenantId, userId, id, status) {
+    async updateStatus(userId, id, status) {
         const next = this.normalizeStatus(status);
         return this.prisma.$transaction(async (tx) => {
             const existing = await tx.reservation.findFirst({
-                where: { id, tenantId },
+                where: { id },
                 include: { unit: true },
             });
             if (!existing) {
@@ -148,7 +149,6 @@ let ReservationsService = class ReservationsService {
             });
             await tx.auditLog.create({
                 data: {
-                    tenantId,
                     userId,
                     action: 'reservation.status_changed',
                     entityType: 'Reservation',
@@ -163,10 +163,10 @@ let ReservationsService = class ReservationsService {
             return reservation;
         });
     }
-    async remove(tenantId, userId, id) {
+    async remove(userId, id) {
         return this.prisma.$transaction(async (tx) => {
             const existing = await tx.reservation.findFirst({
-                where: { id, tenantId },
+                where: { id },
                 include: { unit: true, _count: { select: { payments: true } } },
             });
             if (!existing) {
@@ -185,7 +185,6 @@ let ReservationsService = class ReservationsService {
             await tx.reservation.delete({ where: { id } });
             await tx.auditLog.create({
                 data: {
-                    tenantId,
                     userId,
                     action: 'reservation.deleted',
                     entityType: 'Reservation',
@@ -219,23 +218,17 @@ let ReservationsService = class ReservationsService {
         }
         return date;
     }
-    async assertCustomerBelongsToTenant(tenantId, customerId) {
+    async assertCustomerBelongsToTenant(customerId) {
         const customer = await this.prisma.customer.findFirst({
-            where: { id: customerId, tenantId },
+            where: { id: customerId },
         });
         if (!customer) {
             throw new common_1.BadRequestException(`Customer ${customerId} was not found`);
         }
     }
-    recordAudit(tenantId, userId, action, entityId) {
+    recordAudit(userId, action, entityId) {
         return this.prisma.auditLog.create({
-            data: {
-                tenantId,
-                userId,
-                action,
-                entityType: 'Reservation',
-                entityId,
-            },
+            data: { userId, action, entityType: 'Reservation', entityId },
         });
     }
 };

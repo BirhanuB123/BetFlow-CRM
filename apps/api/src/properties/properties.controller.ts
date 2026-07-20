@@ -31,12 +31,12 @@ export class PropertiesController {
     @CurrentUser() user: AuthenticatedUser,
     @Query('projectId') projectId?: string,
   ) {
-    return this.properties.listBuildings(user.tenantId, projectId);
+    return this.properties.listBuildings(projectId);
   }
 
   @Get('buildings/:id')
   getBuilding(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.properties.getBuilding(user.tenantId, id);
+    return this.properties.getBuilding(id);
   }
 
   @Post('buildings')
@@ -44,7 +44,7 @@ export class PropertiesController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: CreateBuildingInput,
   ) {
-    return this.properties.createBuilding(user.tenantId, user.id, body);
+    return this.properties.createBuilding(user.id, body);
   }
 
   @Patch('buildings/:id')
@@ -53,7 +53,7 @@ export class PropertiesController {
     @Param('id') id: string,
     @Body() body: UpdateBuildingInput,
   ) {
-    return this.properties.updateBuilding(user.tenantId, user.id, id, body);
+    return this.properties.updateBuilding(user.id, id, body);
   }
 
   @Delete('buildings/:id')
@@ -61,7 +61,7 @@ export class PropertiesController {
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
   ) {
-    return this.properties.removeBuilding(user.tenantId, user.id, id);
+    return this.properties.removeBuilding(user.id, id);
   }
 
   // ---- Floors ----
@@ -70,7 +70,7 @@ export class PropertiesController {
     @CurrentUser() user: AuthenticatedUser,
     @Query('buildingId') buildingId?: string,
   ) {
-    return this.properties.listFloors(user.tenantId, buildingId);
+    return this.properties.listFloors(buildingId);
   }
 
   @Post('floors')
@@ -78,7 +78,7 @@ export class PropertiesController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: CreateFloorInput,
   ) {
-    return this.properties.createFloor(user.tenantId, user.id, body);
+    return this.properties.createFloor(user.id, body);
   }
 
   @Patch('floors/:id')
@@ -87,11 +87,11 @@ export class PropertiesController {
     @Param('id') id: string,
     @Body() body: UpdateFloorInput,
   ) {
-    return this.properties.updateFloor(user.tenantId, user.id, id, body);
+    return this.properties.updateFloor(user.id, id, body);
   }
 
   @Delete('floors/:id')
   removeFloor(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.properties.removeFloor(user.tenantId, user.id, id);
+    return this.properties.removeFloor(user.id, id);
   }
 }

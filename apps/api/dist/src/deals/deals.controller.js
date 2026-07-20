@@ -23,22 +23,22 @@ let DealsController = class DealsController {
         this.deals = deals;
     }
     list(user) {
-        return this.deals.list(user.tenantId);
+        return this.deals.list();
     }
     stages(user) {
-        return this.deals.listStages(user.tenantId);
+        return this.deals.listStages();
     }
     create(user, body) {
-        return this.deals.create(user.tenantId, user.id, body);
+        return this.deals.create(user.id, body);
     }
     moveStage(user, id, body) {
-        return this.deals.moveStage(user.tenantId, user.id, id, body.stageId);
+        return this.deals.moveStage(user.id, id, body.stageId);
     }
     update(user, id, body) {
-        return this.deals.update(user.tenantId, user.id, id, body);
+        return this.deals.update(user.id, id, body);
     }
     remove(user, id) {
-        return this.deals.remove(user.tenantId, user.id, id);
+        return this.deals.remove(user.id, id);
     }
 };
 exports.DealsController = DealsController;

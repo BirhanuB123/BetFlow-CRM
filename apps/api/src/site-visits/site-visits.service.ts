@@ -20,8 +20,8 @@ const siteVisitInclude = {
 export class SiteVisitsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  list(tenantId: string, filters: { status?: string; upcoming?: boolean } = {}) {
-    const where: Record<string, unknown> = { tenantId };
+  list(filters: { status?: string; upcoming?: boolean } = {}) {
+    const where: Record<string, unknown> = {};
     if (filters.status) where.status = this.normalizeStatus(filters.status);
     if (filters.upcoming) where.date = { gte: new Date() };
 
@@ -32,9 +32,9 @@ export class SiteVisitsService {
     });
   }
 
-  async get(tenantId: string, id: string) {
+  async get(id: string) {
     const visit = await this.prisma.siteVisit.findFirst({
-      where: { id, tenantId },
+      where: { id },
       include: siteVisitInclude,
     });
 
@@ -45,7 +45,7 @@ export class SiteVisitsService {
     return visit;
   }
 
-  async create(tenantId: string, userId: string, input: CreateSiteVisitInput) {
+  async create(userId: string, input: CreateSiteVisitInput) {
     const date = this.normalizeDate(input.date);
     const status = this.normalizeStatus(input.status ?? 'SCHEDULED');
 
@@ -56,13 +56,11 @@ export class SiteVisitsService {
         'A site visit must reference a lead or a customer',
       );
     }
-    if (leadId) await this.assertLeadBelongsToTenant(tenantId, leadId);
-    if (customerId)
-      await this.assertCustomerBelongsToTenant(tenantId, customerId);
+    if (leadId) await this.assertLeadBelongsToTenant(leadId);
+    if (customerId) await this.assertCustomerBelongsToTenant(customerId);
 
     const visit = await this.prisma.siteVisit.create({
       data: {
-        tenantId,
         date,
         status,
         notes: input.notes?.trim() || null,
@@ -72,28 +70,23 @@ export class SiteVisitsService {
       include: siteVisitInclude,
     });
 
-    await this.recordAudit(tenantId, userId, 'site_visit.created', visit.id);
+    await this.recordAudit(userId, 'site_visit.created', visit.id);
 
     return visit;
   }
 
-  async update(
-    tenantId: string,
-    userId: string,
-    id: string,
-    input: UpdateSiteVisitInput,
-  ) {
+  async update(userId: string, id: string, input: UpdateSiteVisitInput) {
     const existing = await this.prisma.siteVisit.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
 
     if (!existing) {
       throw new NotFoundException(`Site visit ${id} was not found`);
     }
 
-    if (input.leadId) await this.assertLeadBelongsToTenant(tenantId, input.leadId);
+    if (input.leadId) await this.assertLeadBelongsToTenant(input.leadId);
     if (input.customerId)
-      await this.assertCustomerBelongsToTenant(tenantId, input.customerId);
+      await this.assertCustomerBelongsToTenant(input.customerId);
 
     const data: Record<string, unknown> = {};
     if (input.date !== undefined) data.date = this.normalizeDate(input.date);
@@ -108,20 +101,15 @@ export class SiteVisitsService {
       include: siteVisitInclude,
     });
 
-    await this.recordAudit(tenantId, userId, 'site_visit.updated', visit.id);
+    await this.recordAudit(userId, 'site_visit.updated', visit.id);
 
     return visit;
   }
 
-  async updateStatus(
-    tenantId: string,
-    userId: string,
-    id: string,
-    status: string,
-  ) {
+  async updateStatus(userId: string, id: string, status: string) {
     const normalized = this.normalizeStatus(status);
     const existing = await this.prisma.siteVisit.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
 
     if (!existing) {
@@ -134,20 +122,17 @@ export class SiteVisitsService {
       include: siteVisitInclude,
     });
 
-    await this.recordAudit(
-      tenantId,
-      userId,
-      'site_visit.status_changed',
-      visit.id,
-      { from: existing.status, to: normalized },
-    );
+    await this.recordAudit(userId, 'site_visit.status_changed', visit.id, {
+      from: existing.status,
+      to: normalized,
+    });
 
     return visit;
   }
 
-  async remove(tenantId: string, userId: string, id: string) {
+  async remove(userId: string, id: string) {
     const existing = await this.prisma.siteVisit.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
 
     if (!existing) {
@@ -155,7 +140,7 @@ export class SiteVisitsService {
     }
 
     await this.prisma.siteVisit.delete({ where: { id } });
-    await this.recordAudit(tenantId, userId, 'site_visit.deleted', id);
+    await this.recordAudit(userId, 'site_visit.deleted', id);
 
     return { id, deleted: true };
   }
@@ -180,21 +165,18 @@ export class SiteVisitsService {
     return date;
   }
 
-  private async assertLeadBelongsToTenant(tenantId: string, leadId: string) {
+  private async assertLeadBelongsToTenant(leadId: string) {
     const lead = await this.prisma.lead.findFirst({
-      where: { id: leadId, tenantId },
+      where: { id: leadId },
     });
     if (!lead) {
       throw new BadRequestException(`Lead ${leadId} was not found`);
     }
   }
 
-  private async assertCustomerBelongsToTenant(
-    tenantId: string,
-    customerId: string,
-  ) {
+  private async assertCustomerBelongsToTenant(customerId: string) {
     const customer = await this.prisma.customer.findFirst({
-      where: { id: customerId, tenantId },
+      where: { id: customerId },
     });
     if (!customer) {
       throw new BadRequestException(`Customer ${customerId} was not found`);
@@ -202,21 +184,13 @@ export class SiteVisitsService {
   }
 
   private recordAudit(
-    tenantId: string,
     userId: string,
     action: string,
     entityId: string,
     newValues?: Record<string, string>,
   ) {
     return this.prisma.auditLog.create({
-      data: {
-        tenantId,
-        userId,
-        action,
-        entityType: 'SiteVisit',
-        entityId,
-        newValues,
-      },
+      data: { userId, action, entityType: 'SiteVisit', entityId, newValues },
     });
   }
 }

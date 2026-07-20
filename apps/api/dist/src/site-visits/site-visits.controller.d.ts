@@ -17,7 +17,6 @@ export declare class SiteVisitsController {
         } | null;
     } & {
         id: string;
-        tenantId: string;
         notes: string | null;
         status: string;
         customerId: string | null;
@@ -37,7 +36,6 @@ export declare class SiteVisitsController {
         } | null;
     } & {
         id: string;
-        tenantId: string;
         notes: string | null;
         status: string;
         customerId: string | null;
@@ -57,7 +55,6 @@ export declare class SiteVisitsController {
         } | null;
     } & {
         id: string;
-        tenantId: string;
         notes: string | null;
         status: string;
         customerId: string | null;
@@ -77,7 +74,6 @@ export declare class SiteVisitsController {
         } | null;
     } & {
         id: string;
-        tenantId: string;
         notes: string | null;
         status: string;
         customerId: string | null;
@@ -97,7 +93,6 @@ export declare class SiteVisitsController {
         } | null;
     } & {
         id: string;
-        tenantId: string;
         notes: string | null;
         status: string;
         customerId: string | null;

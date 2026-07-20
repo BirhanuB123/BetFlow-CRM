@@ -14,30 +14,27 @@ export declare class PropertiesController {
             floors: number;
         };
         id: string;
-        tenantId: string;
         name: string;
         projectId: string;
         floorsCount: number;
     }[]>;
     getBuilding(user: AuthenticatedUser, id: string): Promise<{
+        project: {
+            id: string;
+            name: string;
+        };
         floors: ({
             _count: {
                 units: number;
             };
         } & {
             id: string;
-            tenantId: string;
             name: string | null;
             buildingId: string;
             floorNumber: number;
         })[];
-        project: {
-            id: string;
-            name: string;
-        };
     } & {
         id: string;
-        tenantId: string;
         name: string;
         projectId: string;
         floorsCount: number;
@@ -52,7 +49,6 @@ export declare class PropertiesController {
         };
     } & {
         id: string;
-        tenantId: string;
         name: string;
         projectId: string;
         floorsCount: number;
@@ -67,7 +63,6 @@ export declare class PropertiesController {
         };
     } & {
         id: string;
-        tenantId: string;
         name: string;
         projectId: string;
         floorsCount: number;
@@ -86,7 +81,6 @@ export declare class PropertiesController {
         };
     } & {
         id: string;
-        tenantId: string;
         name: string | null;
         buildingId: string;
         floorNumber: number;
@@ -101,7 +95,6 @@ export declare class PropertiesController {
         };
     } & {
         id: string;
-        tenantId: string;
         name: string | null;
         buildingId: string;
         floorNumber: number;
@@ -116,7 +109,6 @@ export declare class PropertiesController {
         };
     } & {
         id: string;
-        tenantId: string;
         name: string | null;
         buildingId: string;
         floorNumber: number;

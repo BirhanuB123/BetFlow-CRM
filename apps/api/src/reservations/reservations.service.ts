@@ -23,17 +23,17 @@ const reservationInclude = {
 export class ReservationsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  list(tenantId: string) {
+  list() {
     return this.prisma.reservation.findMany({
-      where: { tenantId },
+      where: {},
       include: reservationInclude,
       orderBy: { date: 'desc' },
     });
   }
 
-  async get(tenantId: string, id: string) {
+  async get(id: string) {
     const reservation = await this.prisma.reservation.findFirst({
-      where: { id, tenantId },
+      where: { id },
       include: reservationInclude,
     });
 
@@ -44,11 +44,7 @@ export class ReservationsService {
     return reservation;
   }
 
-  async create(
-    tenantId: string,
-    userId: string,
-    input: CreateReservationInput,
-  ) {
+  async create(userId: string, input: CreateReservationInput) {
     if (!input.customerId)
       throw new BadRequestException('customerId is required');
     if (!input.unitId) throw new BadRequestException('unitId is required');
@@ -62,11 +58,11 @@ export class ReservationsService {
       );
     }
 
-    await this.assertCustomerBelongsToTenant(tenantId, input.customerId);
+    await this.assertCustomerBelongsToTenant(input.customerId);
 
     return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const unit = await tx.unit.findFirst({
-        where: { id: input.unitId, tenantId },
+        where: { id: input.unitId },
       });
 
       if (!unit) {
@@ -80,7 +76,6 @@ export class ReservationsService {
 
       const reservation = await tx.reservation.create({
         data: {
-          tenantId,
           customerId: input.customerId,
           unitId: input.unitId,
           amount,
@@ -97,7 +92,6 @@ export class ReservationsService {
 
       await tx.auditLog.create({
         data: {
-          tenantId,
           userId,
           action: 'reservation.created',
           entityType: 'Reservation',
@@ -106,18 +100,16 @@ export class ReservationsService {
         },
       });
 
-      return { ...reservation, unit: { ...reservation.unit, status: 'RESERVED' } };
+      return {
+        ...reservation,
+        unit: { ...reservation.unit, status: 'RESERVED' },
+      };
     });
   }
 
-  async update(
-    tenantId: string,
-    userId: string,
-    id: string,
-    input: UpdateReservationInput,
-  ) {
+  async update(userId: string, id: string, input: UpdateReservationInput) {
     const existing = await this.prisma.reservation.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
 
     if (!existing) {
@@ -135,22 +127,17 @@ export class ReservationsService {
       include: reservationInclude,
     });
 
-    await this.recordAudit(tenantId, userId, 'reservation.updated', id);
+    await this.recordAudit(userId, 'reservation.updated', id);
 
     return reservation;
   }
 
-  async updateStatus(
-    tenantId: string,
-    userId: string,
-    id: string,
-    status: string,
-  ) {
+  async updateStatus(userId: string, id: string, status: string) {
     const next = this.normalizeStatus(status);
 
     return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const existing = await tx.reservation.findFirst({
-        where: { id, tenantId },
+        where: { id },
         include: { unit: true },
       });
 
@@ -198,7 +185,6 @@ export class ReservationsService {
 
       await tx.auditLog.create({
         data: {
-          tenantId,
           userId,
           action: 'reservation.status_changed',
           entityType: 'Reservation',
@@ -215,10 +201,10 @@ export class ReservationsService {
     });
   }
 
-  async remove(tenantId: string, userId: string, id: string) {
+  async remove(userId: string, id: string) {
     return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const existing = await tx.reservation.findFirst({
-        where: { id, tenantId },
+        where: { id },
         include: { unit: true, _count: { select: { payments: true } } },
       });
 
@@ -246,7 +232,6 @@ export class ReservationsService {
 
       await tx.auditLog.create({
         data: {
-          tenantId,
           userId,
           action: 'reservation.deleted',
           entityType: 'Reservation',
@@ -291,32 +276,18 @@ export class ReservationsService {
     return date;
   }
 
-  private async assertCustomerBelongsToTenant(
-    tenantId: string,
-    customerId: string,
-  ) {
+  private async assertCustomerBelongsToTenant(customerId: string) {
     const customer = await this.prisma.customer.findFirst({
-      where: { id: customerId, tenantId },
+      where: { id: customerId },
     });
     if (!customer) {
       throw new BadRequestException(`Customer ${customerId} was not found`);
     }
   }
 
-  private recordAudit(
-    tenantId: string,
-    userId: string,
-    action: string,
-    entityId: string,
-  ) {
+  private recordAudit(userId: string, action: string, entityId: string) {
     return this.prisma.auditLog.create({
-      data: {
-        tenantId,
-        userId,
-        action,
-        entityType: 'Reservation',
-        entityId,
-      },
+      data: { userId, action, entityType: 'Reservation', entityId },
     });
   }
 }

@@ -21,7 +21,6 @@ export declare class ReservationsController {
         };
     } & {
         id: string;
-        tenantId: string;
         status: string;
         customerId: string;
         unitId: string;
@@ -45,7 +44,6 @@ export declare class ReservationsController {
         };
     } & {
         id: string;
-        tenantId: string;
         status: string;
         customerId: string;
         unitId: string;
@@ -68,7 +66,6 @@ export declare class ReservationsController {
             payments: number;
         };
         id: string;
-        tenantId: string;
         status: string;
         customerId: string;
         unitId: string;
@@ -92,7 +89,6 @@ export declare class ReservationsController {
         };
     } & {
         id: string;
-        tenantId: string;
         status: string;
         customerId: string;
         unitId: string;
@@ -116,7 +112,6 @@ export declare class ReservationsController {
         };
     } & {
         id: string;
-        tenantId: string;
         status: string;
         customerId: string;
         unitId: string;

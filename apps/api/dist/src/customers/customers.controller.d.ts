@@ -17,7 +17,6 @@ export declare class CustomersController {
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         firstName: string;
         lastName: string;
         createdAt: Date;
@@ -62,12 +61,12 @@ export declare class CustomersController {
         }[];
         contracts: {
             id: string;
-            startDate: Date;
             status: string;
             unit: {
                 id: string;
                 unitNumber: string;
             };
+            startDate: Date;
             totalAmt: import("@prisma/client-runtime-utils").Decimal;
         }[];
         account: {
@@ -76,7 +75,6 @@ export declare class CustomersController {
         } | null;
         id: string;
         email: string | null;
-        tenantId: string;
         firstName: string;
         lastName: string;
         createdAt: Date;
@@ -97,7 +95,6 @@ export declare class CustomersController {
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         firstName: string;
         lastName: string;
         createdAt: Date;
@@ -118,7 +115,6 @@ export declare class CustomersController {
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         firstName: string;
         lastName: string;
         createdAt: Date;

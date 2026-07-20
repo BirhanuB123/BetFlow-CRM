@@ -24,21 +24,10 @@ let InMemoryService = class InMemoryService {
             group: 'Dashboard',
         },
     ];
-    tenants = [
-        {
-            id: 'tenant_001',
-            name: 'BetFlow Realty',
-            slug: 'betflow-realty',
-            region: 'US East',
-            plan: 'Growth',
-            status: 'active',
-            ownerUserId: 'user_001',
-        },
-    ];
+    tenants = [];
     roles = [
         {
             id: 'role_owner',
-            tenantId: 'tenant_001',
             name: 'Owner',
             description: 'Full tenant administration access.',
             permissionKeys: [
@@ -51,7 +40,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'role_admin',
-            tenantId: 'tenant_001',
             name: 'Admin',
             description: 'Operational administration without ownership controls.',
             permissionKeys: [
@@ -63,7 +51,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'role_agent',
-            tenantId: 'tenant_001',
             name: 'Agent',
             description: 'Default sales workspace access.',
             permissionKeys: ['dashboard.read'],
@@ -72,7 +59,6 @@ let InMemoryService = class InMemoryService {
     users = [
         {
             id: 'user_001',
-            tenantId: 'tenant_001',
             name: 'Maya Johnson',
             email: 'maya@betflow.example',
             roleId: 'role_owner',
@@ -80,7 +66,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'user_002',
-            tenantId: 'tenant_001',
             name: 'Omar Haddad',
             email: 'omar@betflow.example',
             roleId: 'role_admin',
@@ -90,7 +75,6 @@ let InMemoryService = class InMemoryService {
     auditLogs = [
         {
             id: 'audit_001',
-            tenantId: 'tenant_001',
             actor: 'Maya Johnson',
             action: 'Registered tenant',
             target: 'BetFlow Realty',
@@ -99,7 +83,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'audit_002',
-            tenantId: 'tenant_001',
             actor: 'System',
             action: 'Initialized default roles',
             target: 'RBAC',
@@ -110,7 +93,6 @@ let InMemoryService = class InMemoryService {
     leads = [
         {
             id: 'lead_001',
-            tenantId: 'tenant_001',
             name: 'Ari Kaplan',
             company: 'Kaplan Holdings',
             email: 'ari@kaplan.example',
@@ -123,7 +105,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'lead_002',
-            tenantId: 'tenant_001',
             name: 'Priya Shah',
             company: 'Northline Capital',
             email: 'priya@northline.example',
@@ -138,7 +119,6 @@ let InMemoryService = class InMemoryService {
     customers = [
         {
             id: 'customer_001',
-            tenantId: 'tenant_001',
             name: 'Kaplan Holdings',
             email: 'ari@kaplan.example',
             phone: '+1 555 0182',
@@ -148,7 +128,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'customer_002',
-            tenantId: 'tenant_001',
             name: 'Bell Family Office',
             email: 'marcus@bell.example',
             phone: '+1 555 0118',
@@ -160,7 +139,6 @@ let InMemoryService = class InMemoryService {
     deals = [
         {
             id: 'deal_001',
-            tenantId: 'tenant_001',
             leadId: 'lead_001',
             customerId: 'customer_001',
             propertyName: 'Harbor Point Tower',
@@ -172,7 +150,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'deal_002',
-            tenantId: 'tenant_001',
             leadId: 'lead_002',
             customerId: 'customer_002',
             propertyName: 'Meridian Residences',
@@ -186,7 +163,6 @@ let InMemoryService = class InMemoryService {
     tasks = [
         {
             id: 'task_001',
-            tenantId: 'tenant_001',
             title: 'Send updated unit availability',
             ownerUserId: 'user_002',
             relatedTo: 'customer_001',
@@ -198,7 +174,6 @@ let InMemoryService = class InMemoryService {
     notes = [
         {
             id: 'note_001',
-            tenantId: 'tenant_001',
             relatedTo: 'customer_001',
             authorUserId: 'user_002',
             body: 'Buyer wants two comparable investment options before the next call.',
@@ -208,7 +183,6 @@ let InMemoryService = class InMemoryService {
     activities = [
         {
             id: 'activity_001',
-            tenantId: 'tenant_001',
             actorUserId: 'user_002',
             action: 'Assigned lead',
             target: 'lead_001',
@@ -219,14 +193,12 @@ let InMemoryService = class InMemoryService {
     projects = [
         {
             id: 'project_001',
-            tenantId: 'tenant_001',
             name: 'Harbor Point',
             location: 'Miami, FL',
             status: 'selling',
         },
         {
             id: 'project_002',
-            tenantId: 'tenant_001',
             name: 'Meridian Residences',
             location: 'Austin, TX',
             status: 'active',
@@ -235,7 +207,6 @@ let InMemoryService = class InMemoryService {
     buildings = [
         {
             id: 'building_001',
-            tenantId: 'tenant_001',
             projectId: 'project_001',
             name: 'Harbor Tower A',
             address: '210 Bayfront Ave',
@@ -244,7 +215,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'building_002',
-            tenantId: 'tenant_001',
             projectId: 'project_002',
             name: 'Meridian North',
             address: '88 Trinity St',
@@ -255,14 +225,12 @@ let InMemoryService = class InMemoryService {
     floors = [
         {
             id: 'floor_001',
-            tenantId: 'tenant_001',
             buildingId: 'building_001',
             label: 'Floor 18',
             releaseStatus: 'released',
         },
         {
             id: 'floor_002',
-            tenantId: 'tenant_001',
             buildingId: 'building_002',
             label: 'Floor 9',
             releaseStatus: 'released',
@@ -271,7 +239,6 @@ let InMemoryService = class InMemoryService {
     units = [
         {
             id: 'unit_001',
-            tenantId: 'tenant_001',
             projectId: 'project_001',
             buildingId: 'building_001',
             floorId: 'floor_001',
@@ -285,7 +252,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'unit_002',
-            tenantId: 'tenant_001',
             projectId: 'project_001',
             buildingId: 'building_001',
             floorId: 'floor_001',
@@ -299,7 +265,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'unit_003',
-            tenantId: 'tenant_001',
             projectId: 'project_002',
             buildingId: 'building_002',
             floorId: 'floor_002',
@@ -315,7 +280,6 @@ let InMemoryService = class InMemoryService {
     propertyMedia = [
         {
             id: 'media_001',
-            tenantId: 'tenant_001',
             projectId: 'project_001',
             title: 'Harbor Point exterior gallery',
             type: 'photo',
@@ -325,7 +289,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'media_002',
-            tenantId: 'tenant_001',
             projectId: 'project_001',
             title: 'Tower A floor plans',
             type: 'floor_plan',
@@ -337,7 +300,6 @@ let InMemoryService = class InMemoryService {
     siteVisits = [
         {
             id: 'visit_001',
-            tenantId: 'tenant_001',
             leadId: 'lead_001',
             unitId: 'unit_001',
             agentUserId: 'user_002',
@@ -347,7 +309,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'visit_002',
-            tenantId: 'tenant_001',
             leadId: 'lead_002',
             unitId: 'unit_003',
             agentUserId: 'user_002',
@@ -359,7 +320,6 @@ let InMemoryService = class InMemoryService {
     reservations = [
         {
             id: 'reservation_001',
-            tenantId: 'tenant_001',
             customerId: 'customer_002',
             unitId: 'unit_002',
             expiresAt: '2026-07-05',
@@ -369,7 +329,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'reservation_002',
-            tenantId: 'tenant_001',
             customerId: 'customer_001',
             unitId: 'unit_001',
             expiresAt: '2026-07-08',
@@ -381,7 +340,6 @@ let InMemoryService = class InMemoryService {
     paymentSchedule = [
         {
             id: 'schedule_001',
-            tenantId: 'tenant_001',
             reservationId: 'reservation_001',
             milestone: 'Reservation deposit',
             dueDate: '2026-07-05',
@@ -390,7 +348,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'schedule_002',
-            tenantId: 'tenant_001',
             reservationId: 'reservation_002',
             milestone: 'Reservation deposit',
             dueDate: '2026-06-30',
@@ -401,7 +358,6 @@ let InMemoryService = class InMemoryService {
     paymentTransactions = [
         {
             id: 'payment_001',
-            tenantId: 'tenant_001',
             reservationId: 'reservation_002',
             customerId: 'customer_001',
             method: 'bank_transfer',
@@ -411,7 +367,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'payment_002',
-            tenantId: 'tenant_001',
             reservationId: 'reservation_001',
             customerId: 'customer_002',
             method: 'check',
@@ -422,7 +377,6 @@ let InMemoryService = class InMemoryService {
     receiptUploads = [
         {
             id: 'receipt_001',
-            tenantId: 'tenant_001',
             paymentId: 'payment_001',
             fileName: 'kaplan-deposit-wire.pdf',
             uploadedByUserId: 'user_002',
@@ -431,7 +385,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'receipt_002',
-            tenantId: 'tenant_001',
             paymentId: 'payment_002',
             fileName: 'bell-check-scan.jpg',
             uploadedByUserId: 'user_001',
@@ -442,7 +395,6 @@ let InMemoryService = class InMemoryService {
     financeApprovals = [
         {
             id: 'approval_001',
-            tenantId: 'tenant_001',
             reservationId: 'reservation_001',
             reviewerUserId: 'user_001',
             paymentId: 'payment_002',
@@ -453,7 +405,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'approval_002',
-            tenantId: 'tenant_001',
             reservationId: 'reservation_002',
             reviewerUserId: 'user_001',
             paymentId: 'payment_001',
@@ -466,7 +417,6 @@ let InMemoryService = class InMemoryService {
     uploadedDocuments = [
         {
             id: 'document_001',
-            tenantId: 'tenant_001',
             name: 'kaplan-passport.pdf',
             category: 'kyc',
             relatedTo: 'customer_001',
@@ -476,7 +426,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'document_002',
-            tenantId: 'tenant_001',
             name: 'bell-reservation-form.pdf',
             category: 'reservation',
             relatedTo: 'reservation_001',
@@ -488,7 +437,6 @@ let InMemoryService = class InMemoryService {
     contractTemplates = [
         {
             id: 'template_001',
-            tenantId: 'tenant_001',
             name: 'Standard reservation agreement',
             type: 'reservation',
             version: 'v2.4',
@@ -497,7 +445,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'template_002',
-            tenantId: 'tenant_001',
             name: 'Residential sale agreement',
             type: 'sale_agreement',
             version: 'v1.9',
@@ -508,7 +455,6 @@ let InMemoryService = class InMemoryService {
     generatedContractPdfs = [
         {
             id: 'contract_pdf_001',
-            tenantId: 'tenant_001',
             templateId: 'template_001',
             customerId: 'customer_002',
             unitId: 'unit_002',
@@ -517,7 +463,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'contract_pdf_002',
-            tenantId: 'tenant_001',
             templateId: 'template_002',
             customerId: 'customer_001',
             unitId: 'unit_001',
@@ -528,7 +473,6 @@ let InMemoryService = class InMemoryService {
     legalContractApprovals = [
         {
             id: 'contract_approval_001',
-            tenantId: 'tenant_001',
             generatedPdfId: 'contract_pdf_001',
             reviewerUserId: 'user_001',
             submittedAt: new Date('2026-06-30T15:08:00.000Z').toISOString(),
@@ -537,7 +481,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'contract_approval_002',
-            tenantId: 'tenant_001',
             generatedPdfId: 'contract_pdf_002',
             reviewerUserId: 'user_001',
             submittedAt: new Date('2026-06-29T15:08:00.000Z').toISOString(),
@@ -548,7 +491,6 @@ let InMemoryService = class InMemoryService {
     signedContracts = [
         {
             id: 'signed_contract_001',
-            tenantId: 'tenant_001',
             generatedPdfId: 'contract_pdf_002',
             customerId: 'customer_001',
             signedAt: new Date('2026-06-30T16:14:00.000Z').toISOString(),
@@ -557,7 +499,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'signed_contract_002',
-            tenantId: 'tenant_001',
             generatedPdfId: 'contract_pdf_001',
             customerId: 'customer_002',
             storagePath: 'contracts/pending/bell-reservation-agreement.pdf',
@@ -567,7 +508,6 @@ let InMemoryService = class InMemoryService {
     notificationMessages = [
         {
             id: 'notification_001',
-            tenantId: 'tenant_001',
             channel: 'sms',
             recipient: 'Ari Kaplan',
             subject: 'Site visit reminder for A-1802',
@@ -577,7 +517,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'notification_002',
-            tenantId: 'tenant_001',
             channel: 'telegram',
             recipient: 'Omar Haddad',
             subject: 'Kaplan deposit approved',
@@ -587,7 +526,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'notification_003',
-            tenantId: 'tenant_001',
             channel: 'email',
             recipient: 'Bell Family Office',
             subject: 'Reservation deposit reminder',
@@ -599,7 +537,6 @@ let InMemoryService = class InMemoryService {
     overduePaymentAlerts = [
         {
             id: 'overdue_001',
-            tenantId: 'tenant_001',
             customerId: 'customer_002',
             reservationId: 'reservation_001',
             amount: 25000,
@@ -609,7 +546,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'overdue_002',
-            tenantId: 'tenant_001',
             customerId: 'customer_001',
             reservationId: 'reservation_002',
             amount: 145000,
@@ -621,7 +557,6 @@ let InMemoryService = class InMemoryService {
     followUpReminders = [
         {
             id: 'followup_001',
-            tenantId: 'tenant_001',
             leadId: 'lead_004',
             ownerUserId: 'user_002',
             dueAt: new Date('2026-06-30T19:00:00.000Z').toISOString(),
@@ -631,7 +566,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'followup_002',
-            tenantId: 'tenant_001',
             leadId: 'lead_003',
             ownerUserId: 'user_001',
             dueAt: new Date('2026-07-01T14:00:00.000Z').toISOString(),
@@ -797,7 +731,6 @@ let InMemoryService = class InMemoryService {
     subscriptionPlans = [
         {
             id: 'plan_growth',
-            tenantId: 'tenant_001',
             name: 'Growth',
             price: 499,
             billingCycle: 'monthly',
@@ -839,7 +772,6 @@ let InMemoryService = class InMemoryService {
     featureLimits = [
         {
             id: 'limit_users',
-            tenantId: 'tenant_001',
             feature: 'Users',
             used: 24,
             limit: 25,
@@ -847,7 +779,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'limit_leads',
-            tenantId: 'tenant_001',
             feature: 'Active leads',
             used: 248,
             limit: 500,
@@ -855,7 +786,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'limit_storage',
-            tenantId: 'tenant_001',
             feature: 'Storage',
             used: 82,
             limit: 250,
@@ -863,7 +793,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'limit_domains',
-            tenantId: 'tenant_001',
             feature: 'Custom domains',
             used: 1,
             limit: 3,
@@ -873,28 +802,24 @@ let InMemoryService = class InMemoryService {
     brandingSettings = [
         {
             id: 'brand_name',
-            tenantId: 'tenant_001',
             label: 'Workspace name',
             value: 'BetFlow Realty',
             status: 'live',
         },
         {
             id: 'brand_color',
-            tenantId: 'tenant_001',
             label: 'Primary color',
             value: '#18181b',
             status: 'live',
         },
         {
             id: 'brand_logo',
-            tenantId: 'tenant_001',
             label: 'Logo',
             value: 'betflow_logo.svg',
             status: 'live',
         },
         {
             id: 'brand_login',
-            tenantId: 'tenant_001',
             label: 'Login message',
             value: 'Welcome to BetFlow Realty',
             status: 'draft',
@@ -903,7 +828,6 @@ let InMemoryService = class InMemoryService {
     tenantBillingItems = [
         {
             id: 'billing_001',
-            tenantId: 'tenant_001',
             invoice: 'INV-2026-006',
             period: 'June 2026',
             amount: 499,
@@ -912,7 +836,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'billing_002',
-            tenantId: 'tenant_001',
             invoice: 'INV-2026-007',
             period: 'July 2026',
             amount: 499,
@@ -921,7 +844,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'billing_003',
-            tenantId: 'tenant_001',
             invoice: 'ADD-2026-012',
             period: 'Storage overage',
             amount: 42,
@@ -932,7 +854,6 @@ let InMemoryService = class InMemoryService {
     tenantDomains = [
         {
             id: 'domain_001',
-            tenantId: 'tenant_001',
             domain: 'crm.betflowrealty.com',
             status: 'verified',
             ssl: 'active',
@@ -940,7 +861,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'domain_002',
-            tenantId: 'tenant_001',
             domain: 'sales.betflowrealty.com',
             status: 'pending_dns',
             ssl: 'pending',
@@ -950,7 +870,6 @@ let InMemoryService = class InMemoryService {
     dataTransferJobs = [
         {
             id: 'export_001',
-            tenantId: 'tenant_001',
             type: 'export',
             scope: 'Customers and deals',
             requestedByUserId: 'user_001',
@@ -959,7 +878,6 @@ let InMemoryService = class InMemoryService {
         },
         {
             id: 'import_001',
-            tenantId: 'tenant_001',
             type: 'import',
             scope: 'Legacy leads CSV',
             requestedByUserId: 'user_002',
@@ -968,11 +886,10 @@ let InMemoryService = class InMemoryService {
         },
     ];
     registerTenant(input) {
-        const tenantId = this.nextId('tenant');
         const ownerRoleId = this.nextId('role');
         const ownerUserId = this.nextId('user');
         const tenant = {
-            id: tenantId,
+            id: this.nextId('tenant'),
             name: input.companyName,
             slug: input.slug,
             region: input.region ?? 'US East',
@@ -982,14 +899,12 @@ let InMemoryService = class InMemoryService {
         };
         const ownerRole = {
             id: ownerRoleId,
-            tenantId,
             name: 'Owner',
             description: 'Full tenant administration access.',
             permissionKeys: this.permissions.map((permission) => permission.key),
         };
         const owner = {
             id: ownerUserId,
-            tenantId,
             name: input.ownerName,
             email: input.ownerEmail,
             roleId: ownerRoleId,
@@ -998,9 +913,7 @@ let InMemoryService = class InMemoryService {
         this.tenants.push(tenant);
         this.roles.push(ownerRole);
         this.users.push(owner);
-        this.recordAudit({
-            tenantId,
-            actor: owner.name,
+        this.recordAudit({ actor: owner.name,
             action: 'Registered tenant',
             target: tenant.name,
             severity: 'info',
@@ -1021,7 +934,6 @@ let InMemoryService = class InMemoryService {
         const tenant = this.getTenant(id);
         Object.assign(tenant, input);
         this.recordAudit({
-            tenantId: id,
             actor: 'System',
             action: 'Updated tenant settings',
             target: tenant.name,
@@ -1029,20 +941,16 @@ let InMemoryService = class InMemoryService {
         });
         return tenant;
     }
-    listUsers(tenantId) {
-        return tenantId
-            ? this.users.filter((user) => user.tenantId === tenantId)
-            : this.users;
+    listUsers() {
+        return this.users;
     }
     inviteUser(input) {
-        this.getTenant(input.tenantId);
-        const role = this.roles.find((item) => item.id === input.roleId && item.tenantId === input.tenantId);
+        const role = this.roles.find((item) => item.id === input.roleId);
         if (!role) {
             throw new common_1.NotFoundException(`Role ${input.roleId} was not found`);
         }
         const user = {
             id: this.nextId('user'),
-            tenantId: input.tenantId,
             name: input.name,
             email: input.email,
             roleId: input.roleId,
@@ -1050,7 +958,6 @@ let InMemoryService = class InMemoryService {
         };
         this.users.push(user);
         this.recordAudit({
-            tenantId: input.tenantId,
             actor: 'System',
             action: 'Invited user',
             target: input.email,
@@ -1058,17 +965,13 @@ let InMemoryService = class InMemoryService {
         });
         return user;
     }
-    listRoles(tenantId) {
-        return tenantId
-            ? this.roles.filter((role) => role.tenantId === tenantId)
-            : this.roles;
+    listRoles() {
+        return this.roles;
     }
     createRole(input) {
-        this.getTenant(input.tenantId);
         const role = { ...input, id: this.nextId('role') };
         this.roles.push(role);
         this.recordAudit({
-            tenantId: input.tenantId,
             actor: 'System',
             action: 'Created role',
             target: role.name,
@@ -1079,10 +982,8 @@ let InMemoryService = class InMemoryService {
     listPermissions() {
         return this.permissions;
     }
-    listAuditLogs(tenantId) {
-        return tenantId
-            ? this.auditLogs.filter((log) => log.tenantId === tenantId)
-            : this.auditLogs;
+    listAuditLogs() {
+        return this.auditLogs;
     }
     recordAudit(input) {
         const log = {
@@ -1093,17 +994,13 @@ let InMemoryService = class InMemoryService {
         this.auditLogs.unshift(log);
         return log;
     }
-    listLeads(tenantId) {
-        return tenantId
-            ? this.leads.filter((lead) => lead.tenantId === tenantId)
-            : this.leads;
+    listLeads() {
+        return this.leads;
     }
     createLead(input) {
-        this.getTenant(input.tenantId);
         const lead = { ...input, id: this.nextId('lead') };
         this.leads.push(lead);
         this.recordActivity({
-            tenantId: input.tenantId,
             actorUserId: input.assignedToUserId ?? 'system',
             action: 'Created lead',
             target: lead.id,
@@ -1118,7 +1015,6 @@ let InMemoryService = class InMemoryService {
         }
         lead.assignedToUserId = assignedToUserId;
         this.recordActivity({
-            tenantId: lead.tenantId,
             actorUserId: assignedToUserId,
             action: 'Assigned lead',
             target: lead.id,
@@ -1126,28 +1022,21 @@ let InMemoryService = class InMemoryService {
         });
         return lead;
     }
-    listCustomers(tenantId) {
-        return tenantId
-            ? this.customers.filter((customer) => customer.tenantId === tenantId)
-            : this.customers;
+    listCustomers() {
+        return this.customers;
     }
     createCustomer(input) {
-        this.getTenant(input.tenantId);
         const customer = { ...input, id: this.nextId('customer') };
         this.customers.push(customer);
         return customer;
     }
-    listDeals(tenantId) {
-        return tenantId
-            ? this.deals.filter((deal) => deal.tenantId === tenantId)
-            : this.deals;
+    listDeals() {
+        return this.deals;
     }
     createDeal(input) {
-        this.getTenant(input.tenantId);
         const deal = { ...input, id: this.nextId('deal') };
         this.deals.push(deal);
         this.recordActivity({
-            tenantId: input.tenantId,
             actorUserId: input.ownerUserId,
             action: 'Created deal',
             target: deal.id,
@@ -1162,7 +1051,6 @@ let InMemoryService = class InMemoryService {
         }
         deal.stage = stage;
         this.recordActivity({
-            tenantId: deal.tenantId,
             actorUserId: deal.ownerUserId,
             action: `Moved deal to ${stage}`,
             target: deal.id,
@@ -1170,17 +1058,13 @@ let InMemoryService = class InMemoryService {
         });
         return deal;
     }
-    listTasks(tenantId) {
-        return tenantId
-            ? this.tasks.filter((task) => task.tenantId === tenantId)
-            : this.tasks;
+    listTasks() {
+        return this.tasks;
     }
     createTask(input) {
-        this.getTenant(input.tenantId);
         const task = { ...input, id: this.nextId('task') };
         this.tasks.push(task);
         this.recordActivity({
-            tenantId: input.tenantId,
             actorUserId: input.ownerUserId,
             action: 'Created task',
             target: task.id,
@@ -1188,13 +1072,10 @@ let InMemoryService = class InMemoryService {
         });
         return task;
     }
-    listNotes(tenantId) {
-        return tenantId
-            ? this.notes.filter((note) => note.tenantId === tenantId)
-            : this.notes;
+    listNotes() {
+        return this.notes;
     }
     createNote(input) {
-        this.getTenant(input.tenantId);
         const note = {
             ...input,
             id: this.nextId('note'),
@@ -1202,7 +1083,6 @@ let InMemoryService = class InMemoryService {
         };
         this.notes.push(note);
         this.recordActivity({
-            tenantId: input.tenantId,
             actorUserId: input.authorUserId,
             action: 'Added note',
             target: input.relatedTo,
@@ -1210,10 +1090,9 @@ let InMemoryService = class InMemoryService {
         });
         return note;
     }
-    listActivities(tenantId) {
-        return tenantId
-            ? this.activities.filter((activity) => activity.tenantId === tenantId)
-            : this.activities;
+    listActivities() {
+        return;
+        this.activities;
     }
     recordActivity(input) {
         const activity = {
@@ -1224,49 +1103,41 @@ let InMemoryService = class InMemoryService {
         this.activities.unshift(activity);
         return activity;
     }
-    listProjects(tenantId) {
-        return tenantId
-            ? this.projects.filter((project) => project.tenantId === tenantId)
-            : this.projects;
+    listProjects() {
+        return;
+        this.projects;
     }
     createProject(input) {
-        this.getTenant(input.tenantId);
         const project = { ...input, id: this.nextId('project') };
         this.projects.push(project);
         return project;
     }
-    listBuildings(tenantId, projectId) {
+    listBuildings(projectId) {
         return this.buildings.filter((building) => {
-            return ((!tenantId || building.tenantId === tenantId) &&
-                (!projectId || building.projectId === projectId));
+            return ((!projectId || building.projectId === projectId));
         });
     }
     createBuilding(input) {
-        this.getTenant(input.tenantId);
         const building = { ...input, id: this.nextId('building') };
         this.buildings.push(building);
         return building;
     }
-    listFloors(tenantId, buildingId) {
+    listFloors(buildingId) {
         return this.floors.filter((floor) => {
-            return ((!tenantId || floor.tenantId === tenantId) &&
-                (!buildingId || floor.buildingId === buildingId));
+            return ((!buildingId || floor.buildingId === buildingId));
         });
     }
     createFloor(input) {
-        this.getTenant(input.tenantId);
         const floor = { ...input, id: this.nextId('floor') };
         this.floors.push(floor);
         return floor;
     }
-    listUnits(tenantId, status) {
+    listUnits(status) {
         return this.units.filter((unit) => {
-            return ((!tenantId || unit.tenantId === tenantId) &&
-                (!status || unit.status === status));
+            return ((!status || unit.status === status));
         });
     }
     createUnit(input) {
-        this.getTenant(input.tenantId);
         const unit = { ...input, id: this.nextId('unit') };
         this.units.push(unit);
         return unit;
@@ -1282,14 +1153,12 @@ let InMemoryService = class InMemoryService {
         }
         return unit;
     }
-    listPropertyMedia(tenantId, projectId) {
+    listPropertyMedia(projectId) {
         return this.propertyMedia.filter((media) => {
-            return ((!tenantId || media.tenantId === tenantId) &&
-                (!projectId || media.projectId === projectId));
+            return ((!projectId || media.projectId === projectId));
         });
     }
     createPropertyMedia(input) {
-        this.getTenant(input.tenantId);
         const media = {
             ...input,
             id: this.nextId('media'),
@@ -1298,35 +1167,28 @@ let InMemoryService = class InMemoryService {
         this.propertyMedia.push(media);
         return media;
     }
-    listSiteVisits(tenantId) {
-        return tenantId
-            ? this.siteVisits.filter((visit) => visit.tenantId === tenantId)
-            : this.siteVisits;
+    listSiteVisits() {
+        return;
+        this.siteVisits;
     }
     createSiteVisit(input) {
-        this.getTenant(input.tenantId);
         const visit = { ...input, id: this.nextId('visit') };
         this.siteVisits.push(visit);
         return visit;
     }
-    updateSiteVisitStatus(id, status, outcome) {
+    updateSiteVisitStatus(id, status) {
         const visit = this.siteVisits.find((item) => item.id === id);
         if (!visit) {
             throw new common_1.NotFoundException(`Site visit ${id} was not found`);
         }
         visit.status = status;
-        if (outcome) {
-            visit.outcome = outcome;
-        }
         return visit;
     }
-    listReservations(tenantId) {
-        return tenantId
-            ? this.reservations.filter((reservation) => reservation.tenantId === tenantId)
-            : this.reservations;
+    listReservations() {
+        return;
+        this.reservations;
     }
     createReservation(input) {
-        this.getTenant(input.tenantId);
         const reservation = {
             ...input,
             id: this.nextId('reservation'),
@@ -1349,14 +1211,12 @@ let InMemoryService = class InMemoryService {
         }
         return reservation;
     }
-    listPaymentSchedule(tenantId, reservationId) {
+    listPaymentSchedule(reservationId) {
         return this.paymentSchedule.filter((item) => {
-            return ((!tenantId || item.tenantId === tenantId) &&
-                (!reservationId || item.reservationId === reservationId));
+            return ((!reservationId || item.reservationId === reservationId));
         });
     }
     createPaymentScheduleItem(input) {
-        this.getTenant(input.tenantId);
         const item = {
             ...input,
             id: this.nextId('schedule'),
@@ -1364,14 +1224,12 @@ let InMemoryService = class InMemoryService {
         this.paymentSchedule.push(item);
         return item;
     }
-    listPaymentTransactions(tenantId, reservationId) {
+    listPaymentTransactions(reservationId) {
         return this.paymentTransactions.filter((payment) => {
-            return ((!tenantId || payment.tenantId === tenantId) &&
-                (!reservationId || payment.reservationId === reservationId));
+            return ((!reservationId || payment.reservationId === reservationId));
         });
     }
     createPaymentTransaction(input) {
-        this.getTenant(input.tenantId);
         const payment = {
             ...input,
             id: this.nextId('payment'),
@@ -1379,14 +1237,12 @@ let InMemoryService = class InMemoryService {
         this.paymentTransactions.push(payment);
         return payment;
     }
-    listReceiptUploads(tenantId, paymentId) {
+    listReceiptUploads(paymentId) {
         return this.receiptUploads.filter((receipt) => {
-            return ((!tenantId || receipt.tenantId === tenantId) &&
-                (!paymentId || receipt.paymentId === paymentId));
+            return ((!paymentId || receipt.paymentId === paymentId));
         });
     }
     createReceiptUpload(input) {
-        this.getTenant(input.tenantId);
         const receipt = {
             ...input,
             id: this.nextId('receipt'),
@@ -1395,13 +1251,11 @@ let InMemoryService = class InMemoryService {
         this.receiptUploads.push(receipt);
         return receipt;
     }
-    listFinanceApprovals(tenantId) {
-        return tenantId
-            ? this.financeApprovals.filter((approval) => approval.tenantId === tenantId)
-            : this.financeApprovals;
+    listFinanceApprovals() {
+        return;
+        this.financeApprovals;
     }
     createFinanceApproval(input) {
-        this.getTenant(input.tenantId);
         const approval = {
             ...input,
             id: this.nextId('approval'),
@@ -1410,24 +1264,19 @@ let InMemoryService = class InMemoryService {
         this.financeApprovals.push(approval);
         return approval;
     }
-    updateFinanceApprovalStatus(id, status, note) {
+    updateFinanceApprovalStatus(id, status) {
         const approval = this.financeApprovals.find((item) => item.id === id);
         if (!approval) {
             throw new common_1.NotFoundException(`Finance approval ${id} was not found`);
         }
         approval.status = status;
-        if (note) {
-            approval.note = note;
-        }
         return approval;
     }
-    listUploadedDocuments(tenantId) {
-        return tenantId
-            ? this.uploadedDocuments.filter((document) => document.tenantId === tenantId)
-            : this.uploadedDocuments;
+    listUploadedDocuments() {
+        return;
+        this.uploadedDocuments;
     }
     createUploadedDocument(input) {
-        this.getTenant(input.tenantId);
         const document = {
             ...input,
             id: this.nextId('document'),
@@ -1444,13 +1293,11 @@ let InMemoryService = class InMemoryService {
         document.status = status;
         return document;
     }
-    listContractTemplates(tenantId) {
-        return tenantId
-            ? this.contractTemplates.filter((template) => template.tenantId === tenantId)
-            : this.contractTemplates;
+    listContractTemplates() {
+        return;
+        this.contractTemplates;
     }
     createContractTemplate(input) {
-        this.getTenant(input.tenantId);
         const template = {
             ...input,
             id: this.nextId('template'),
@@ -1459,13 +1306,11 @@ let InMemoryService = class InMemoryService {
         this.contractTemplates.push(template);
         return template;
     }
-    listGeneratedContractPdfs(tenantId) {
-        return tenantId
-            ? this.generatedContractPdfs.filter((pdf) => pdf.tenantId === tenantId)
-            : this.generatedContractPdfs;
+    listGeneratedContractPdfs() {
+        return;
+        this.generatedContractPdfs;
     }
     generateContractPdf(input) {
-        this.getTenant(input.tenantId);
         const pdf = {
             ...input,
             id: this.nextId('contract_pdf'),
@@ -1474,13 +1319,11 @@ let InMemoryService = class InMemoryService {
         this.generatedContractPdfs.push(pdf);
         return pdf;
     }
-    listLegalContractApprovals(tenantId) {
-        return tenantId
-            ? this.legalContractApprovals.filter((approval) => approval.tenantId === tenantId)
-            : this.legalContractApprovals;
+    listLegalContractApprovals() {
+        return;
+        this.legalContractApprovals;
     }
     createLegalContractApproval(input) {
-        this.getTenant(input.tenantId);
         const approval = {
             ...input,
             id: this.nextId('contract_approval'),
@@ -1489,24 +1332,19 @@ let InMemoryService = class InMemoryService {
         this.legalContractApprovals.push(approval);
         return approval;
     }
-    updateLegalContractApprovalStatus(id, status, note) {
+    updateLegalContractApprovalStatus(id, status) {
         const approval = this.legalContractApprovals.find((item) => item.id === id);
         if (!approval) {
             throw new common_1.NotFoundException(`Legal approval ${id} was not found`);
         }
         approval.status = status;
-        if (note) {
-            approval.note = note;
-        }
         return approval;
     }
-    listSignedContracts(tenantId) {
-        return tenantId
-            ? this.signedContracts.filter((contract) => contract.tenantId === tenantId)
-            : this.signedContracts;
+    listSignedContracts() {
+        return;
+        this.signedContracts;
     }
     createSignedContract(input) {
-        this.getTenant(input.tenantId);
         const contract = {
             ...input,
             id: this.nextId('signed_contract'),
@@ -1514,14 +1352,12 @@ let InMemoryService = class InMemoryService {
         this.signedContracts.push(contract);
         return contract;
     }
-    listNotificationMessages(tenantId, channel) {
+    listNotificationMessages(channel) {
         return this.notificationMessages.filter((message) => {
-            return ((!tenantId || message.tenantId === tenantId) &&
-                (!channel || message.channel === channel));
+            return ((!channel || message.channel === channel));
         });
     }
     createNotificationMessage(input) {
-        this.getTenant(input.tenantId);
         const message = {
             ...input,
             id: this.nextId('notification'),
@@ -1537,13 +1373,11 @@ let InMemoryService = class InMemoryService {
         message.status = status;
         return message;
     }
-    listOverduePaymentAlerts(tenantId) {
-        return tenantId
-            ? this.overduePaymentAlerts.filter((alert) => alert.tenantId === tenantId)
-            : this.overduePaymentAlerts;
+    listOverduePaymentAlerts() {
+        return;
+        this.overduePaymentAlerts;
     }
     createOverduePaymentAlert(input) {
-        this.getTenant(input.tenantId);
         const alert = {
             ...input,
             id: this.nextId('overdue'),
@@ -1551,13 +1385,11 @@ let InMemoryService = class InMemoryService {
         this.overduePaymentAlerts.push(alert);
         return alert;
     }
-    listFollowUpReminders(tenantId) {
-        return tenantId
-            ? this.followUpReminders.filter((reminder) => reminder.tenantId === tenantId)
-            : this.followUpReminders;
+    listFollowUpReminders() {
+        return;
+        this.followUpReminders;
     }
     createFollowUpReminder(input) {
-        this.getTenant(input.tenantId);
         const reminder = {
             ...input,
             id: this.nextId('followup'),
@@ -1586,20 +1418,18 @@ let InMemoryService = class InMemoryService {
     getPaymentAgingReport() {
         return this.paymentAgingReportRows;
     }
-    listSubscriptionPlans(tenantId) {
+    listSubscriptionPlans() {
         return this.subscriptionPlans.filter((plan) => {
-            return !plan.tenantId || !tenantId || plan.tenantId === tenantId;
+            return true;
         });
     }
-    listFeatureLimits(tenantId) {
-        return tenantId
-            ? this.featureLimits.filter((limit) => limit.tenantId === tenantId)
-            : this.featureLimits;
+    listFeatureLimits() {
+        return;
+        this.featureLimits;
     }
-    listBrandingSettings(tenantId) {
-        return tenantId
-            ? this.brandingSettings.filter((setting) => setting.tenantId === tenantId)
-            : this.brandingSettings;
+    listBrandingSettings() {
+        return;
+        this.brandingSettings;
     }
     updateBrandingSetting(id, value, status) {
         const setting = this.brandingSettings.find((item) => item.id === id);
@@ -1612,29 +1442,24 @@ let InMemoryService = class InMemoryService {
         }
         return setting;
     }
-    listTenantBillingItems(tenantId) {
-        return tenantId
-            ? this.tenantBillingItems.filter((item) => item.tenantId === tenantId)
-            : this.tenantBillingItems;
+    listTenantBillingItems() {
+        return;
+        this.tenantBillingItems;
     }
-    listTenantDomains(tenantId) {
-        return tenantId
-            ? this.tenantDomains.filter((domain) => domain.tenantId === tenantId)
-            : this.tenantDomains;
+    listTenantDomains() {
+        return;
+        this.tenantDomains;
     }
     createTenantDomain(input) {
-        this.getTenant(input.tenantId);
         const domain = { ...input, id: this.nextId('domain') };
         this.tenantDomains.push(domain);
         return domain;
     }
-    listDataTransferJobs(tenantId) {
-        return tenantId
-            ? this.dataTransferJobs.filter((job) => job.tenantId === tenantId)
-            : this.dataTransferJobs;
+    listDataTransferJobs() {
+        return;
+        this.dataTransferJobs;
     }
     createDataTransferJob(input) {
-        this.getTenant(input.tenantId);
         const job = {
             ...input,
             id: this.nextId(input.type),

@@ -26,7 +26,11 @@ export class PasswordService {
     }
 
     const storedKey = Buffer.from(key, 'hex');
-    const derivedKey = (await scrypt(password, salt, storedKey.length)) as Buffer;
+    const derivedKey = (await scrypt(
+      password,
+      salt,
+      storedKey.length,
+    )) as Buffer;
 
     return (
       storedKey.length === derivedKey.length &&

@@ -30,7 +30,7 @@ export class SiteVisitsController {
     @Query('status') status?: string,
     @Query('upcoming') upcoming?: string,
   ) {
-    return this.siteVisits.list(user.tenantId, {
+    return this.siteVisits.list({
       status,
       upcoming: upcoming === 'true' || upcoming === '1',
     });
@@ -38,7 +38,7 @@ export class SiteVisitsController {
 
   @Get(':id')
   get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.siteVisits.get(user.tenantId, id);
+    return this.siteVisits.get(id);
   }
 
   @Post()
@@ -46,7 +46,7 @@ export class SiteVisitsController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: CreateSiteVisitInput,
   ) {
-    return this.siteVisits.create(user.tenantId, user.id, body);
+    return this.siteVisits.create(user.id, body);
   }
 
   @Patch(':id/status')
@@ -55,7 +55,7 @@ export class SiteVisitsController {
     @Param('id') id: string,
     @Body() body: UpdateSiteVisitStatusInput,
   ) {
-    return this.siteVisits.updateStatus(user.tenantId, user.id, id, body.status);
+    return this.siteVisits.updateStatus(user.id, id, body.status);
   }
 
   @Patch(':id')
@@ -64,11 +64,11 @@ export class SiteVisitsController {
     @Param('id') id: string,
     @Body() body: UpdateSiteVisitInput,
   ) {
-    return this.siteVisits.update(user.tenantId, user.id, id, body);
+    return this.siteVisits.update(user.id, id, body);
   }
 
   @Delete(':id')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.siteVisits.remove(user.tenantId, user.id, id);
+    return this.siteVisits.remove(user.id, id);
   }
 }

@@ -24,12 +24,12 @@ export class CustomersController {
 
   @Get()
   list(@CurrentUser() user: AuthenticatedUser) {
-    return this.customers.list(user.tenantId);
+    return this.customers.list();
   }
 
   @Get(':id')
   get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.customers.get(user.tenantId, id);
+    return this.customers.get(id);
   }
 
   @Post()
@@ -37,7 +37,7 @@ export class CustomersController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: CreateCustomerInput,
   ) {
-    return this.customers.create(user.tenantId, user.id, body);
+    return this.customers.create(user.id, body);
   }
 
   @Patch(':id')
@@ -46,11 +46,11 @@ export class CustomersController {
     @Param('id') id: string,
     @Body() body: UpdateCustomerInput,
   ) {
-    return this.customers.update(user.tenantId, user.id, id, body);
+    return this.customers.update(user.id, id, body);
   }
 
   @Delete(':id')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.customers.remove(user.tenantId, user.id, id);
+    return this.customers.remove(user.id, id);
   }
 }

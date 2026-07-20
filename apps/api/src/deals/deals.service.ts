@@ -4,10 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import {
-  CreateDealInput,
-  UpdateDealInput,
-} from './deals.types';
+import { CreateDealInput, UpdateDealInput } from './deals.types';
 
 const dealInclude = {
   stage: { select: { id: true, name: true, order: true, probability: true } },
@@ -20,23 +17,23 @@ const dealInclude = {
 export class DealsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  list(tenantId: string) {
+  list() {
     return this.prisma.deal.findMany({
-      where: { tenantId },
+      where: {},
       include: dealInclude,
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  listStages(tenantId: string) {
+  listStages() {
     return this.prisma.dealStage.findMany({
-      where: { tenantId },
+      where: {},
       select: { id: true, name: true, order: true, probability: true },
       orderBy: { order: 'asc' },
     });
   }
 
-  async create(tenantId: string, userId: string, input: CreateDealInput) {
+  async create(userId: string, input: CreateDealInput) {
     const name = input.name?.trim();
     if (!name) {
       throw new BadRequestException('name is required');
@@ -48,20 +45,20 @@ export class DealsService {
     if (!input.customerId)
       throw new BadRequestException('customerId is required');
 
-    await this.assertStageBelongsToTenant(tenantId, input.stageId);
-    await this.assertCustomerBelongsToTenant(tenantId, input.customerId);
+    await this.assertStageBelongsToTenant(input.stageId);
+    await this.assertCustomerBelongsToTenant(input.customerId);
     if (input.accountId) {
-      await this.assertAccountBelongsToTenant(tenantId, input.accountId);
+      await this.assertAccountBelongsToTenant(input.accountId);
     }
     if (input.unitId) {
-      await this.assertUnitBelongsToTenant(tenantId, input.unitId);
+      await this.assertUnitBelongsToTenant(input.unitId);
     }
 
     // Prefer explicit accountId; otherwise inherit from the contact when present.
     let accountId = input.accountId || null;
     if (!accountId) {
       const customer = await this.prisma.customer.findFirst({
-        where: { id: input.customerId, tenantId },
+        where: { id: input.customerId },
         select: { accountId: true },
       });
       accountId = customer?.accountId ?? null;
@@ -69,7 +66,6 @@ export class DealsService {
 
     const deal = await this.prisma.deal.create({
       data: {
-        tenantId,
         name,
         value,
         stageId: input.stageId,
@@ -80,19 +76,14 @@ export class DealsService {
       include: dealInclude,
     });
 
-    await this.recordAudit(tenantId, userId, 'deal.created', deal.id);
+    await this.recordAudit(userId, 'deal.created', deal.id);
 
     return deal;
   }
 
-  async update(
-    tenantId: string,
-    userId: string,
-    id: string,
-    input: UpdateDealInput,
-  ) {
+  async update(userId: string, id: string, input: UpdateDealInput) {
     const existing = await this.prisma.deal.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
 
     if (!existing) {
@@ -100,16 +91,16 @@ export class DealsService {
     }
 
     if (input.stageId) {
-      await this.assertStageBelongsToTenant(tenantId, input.stageId);
+      await this.assertStageBelongsToTenant(input.stageId);
     }
     if (input.customerId) {
-      await this.assertCustomerBelongsToTenant(tenantId, input.customerId);
+      await this.assertCustomerBelongsToTenant(input.customerId);
     }
     if (input.accountId) {
-      await this.assertAccountBelongsToTenant(tenantId, input.accountId);
+      await this.assertAccountBelongsToTenant(input.accountId);
     }
     if (input.unitId) {
-      await this.assertUnitBelongsToTenant(tenantId, input.unitId);
+      await this.assertUnitBelongsToTenant(input.unitId);
     }
 
     const data: Record<string, unknown> = {};
@@ -118,7 +109,8 @@ export class DealsService {
       if (!name) throw new BadRequestException('name cannot be empty');
       data.name = name;
     }
-    if (input.value !== undefined) data.value = this.normalizeValue(input.value);
+    if (input.value !== undefined)
+      data.value = this.normalizeValue(input.value);
     if (input.stageId !== undefined) data.stageId = input.stageId;
     if (input.customerId !== undefined) data.customerId = input.customerId;
     if (input.accountId !== undefined) data.accountId = input.accountId || null;
@@ -130,28 +122,23 @@ export class DealsService {
       include: dealInclude,
     });
 
-    await this.recordAudit(tenantId, userId, 'deal.updated', deal.id);
+    await this.recordAudit(userId, 'deal.updated', deal.id);
 
     return deal;
   }
 
-  async moveStage(
-    tenantId: string,
-    userId: string,
-    id: string,
-    stageId: string,
-  ) {
+  async moveStage(userId: string, id: string, stageId: string) {
     if (!stageId) throw new BadRequestException('stageId is required');
 
     const existing = await this.prisma.deal.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
 
     if (!existing) {
       throw new NotFoundException(`Deal ${id} was not found`);
     }
 
-    await this.assertStageBelongsToTenant(tenantId, stageId);
+    await this.assertStageBelongsToTenant(stageId);
 
     const deal = await this.prisma.deal.update({
       where: { id },
@@ -159,7 +146,7 @@ export class DealsService {
       include: dealInclude,
     });
 
-    await this.recordAudit(tenantId, userId, 'deal.stage_changed', deal.id, {
+    await this.recordAudit(userId, 'deal.stage_changed', deal.id, {
       from: existing.stageId,
       to: stageId,
     });
@@ -167,9 +154,9 @@ export class DealsService {
     return deal;
   }
 
-  async remove(tenantId: string, userId: string, id: string) {
+  async remove(userId: string, id: string) {
     const existing = await this.prisma.deal.findFirst({
-      where: { id, tenantId },
+      where: { id },
       include: { _count: { select: { contracts: true } } },
     });
 
@@ -184,7 +171,7 @@ export class DealsService {
     }
 
     await this.prisma.deal.delete({ where: { id } });
-    await this.recordAudit(tenantId, userId, 'deal.deleted', id);
+    await this.recordAudit(userId, 'deal.deleted', id);
 
     return { id, deleted: true };
   }
@@ -202,42 +189,36 @@ export class DealsService {
     return parsed.toFixed(2);
   }
 
-  private async assertStageBelongsToTenant(tenantId: string, stageId: string) {
+  private async assertStageBelongsToTenant(stageId: string) {
     const stage = await this.prisma.dealStage.findFirst({
-      where: { id: stageId, tenantId },
+      where: { id: stageId },
     });
     if (!stage) {
       throw new BadRequestException(`Deal stage ${stageId} was not found`);
     }
   }
 
-  private async assertCustomerBelongsToTenant(
-    tenantId: string,
-    customerId: string,
-  ) {
+  private async assertCustomerBelongsToTenant(customerId: string) {
     const customer = await this.prisma.customer.findFirst({
-      where: { id: customerId, tenantId },
+      where: { id: customerId },
     });
     if (!customer) {
       throw new BadRequestException(`Customer ${customerId} was not found`);
     }
   }
 
-  private async assertAccountBelongsToTenant(
-    tenantId: string,
-    accountId: string,
-  ) {
+  private async assertAccountBelongsToTenant(accountId: string) {
     const account = await this.prisma.account.findFirst({
-      where: { id: accountId, tenantId },
+      where: { id: accountId },
     });
     if (!account) {
       throw new BadRequestException(`Account ${accountId} was not found`);
     }
   }
 
-  private async assertUnitBelongsToTenant(tenantId: string, unitId: string) {
+  private async assertUnitBelongsToTenant(unitId: string) {
     const unit = await this.prisma.unit.findFirst({
-      where: { id: unitId, tenantId },
+      where: { id: unitId },
     });
     if (!unit) {
       throw new BadRequestException(`Unit ${unitId} was not found`);
@@ -245,21 +226,13 @@ export class DealsService {
   }
 
   private recordAudit(
-    tenantId: string,
     userId: string,
     action: string,
     entityId: string,
     newValues?: Record<string, string>,
   ) {
     return this.prisma.auditLog.create({
-      data: {
-        tenantId,
-        userId,
-        action,
-        entityType: 'Deal',
-        entityId,
-        newValues,
-      },
+      data: { userId, action, entityType: 'Deal', entityId, newValues },
     });
   }
 }

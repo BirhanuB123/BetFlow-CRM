@@ -3,7 +3,7 @@ type CreateAuditLogBody = Omit<AuditLog, 'id' | 'createdAt'>;
 export declare class AuditLogsController {
     private readonly store;
     constructor(store: InMemoryService);
-    list(tenantId?: string): AuditLog[];
+    list(): AuditLog[];
     create(body: CreateAuditLogBody): AuditLog;
 }
 export {};

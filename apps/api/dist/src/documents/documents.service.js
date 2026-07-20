@@ -13,9 +13,33 @@ exports.DocumentsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../database/prisma.service");
 const document_storage_service_1 = require("./document-storage.service");
-const DOCUMENT_CATEGORIES = ['ID', 'KYC', 'CONTRACT', 'RECEIPT', 'TITLE_DEED', 'FLOOR_PLAN', 'OTHER'];
-const DOCUMENT_STATUSES = ['PENDING_REVIEW', 'VERIFIED', 'REJECTED', 'EXPIRED'];
-const ENTITY_TYPES = ['ACCOUNT', 'CUSTOMER', 'LEAD', 'DEAL', 'SITE_VISIT', 'RESERVATION', 'CONTRACT', 'PAYMENT', 'PROJECT', 'UNIT'];
+const DOCUMENT_CATEGORIES = [
+    'ID',
+    'KYC',
+    'CONTRACT',
+    'RECEIPT',
+    'TITLE_DEED',
+    'FLOOR_PLAN',
+    'OTHER',
+];
+const DOCUMENT_STATUSES = [
+    'PENDING_REVIEW',
+    'VERIFIED',
+    'REJECTED',
+    'EXPIRED',
+];
+const ENTITY_TYPES = [
+    'ACCOUNT',
+    'CUSTOMER',
+    'LEAD',
+    'DEAL',
+    'SITE_VISIT',
+    'RESERVATION',
+    'CONTRACT',
+    'PAYMENT',
+    'PROJECT',
+    'UNIT',
+];
 const documentInclude = {
     uploadedBy: { select: { id: true, firstName: true, lastName: true } },
     reviewedBy: { select: { id: true, firstName: true, lastName: true } },
@@ -27,8 +51,8 @@ let DocumentsService = class DocumentsService {
         this.prisma = prisma;
         this.storage = storage;
     }
-    async list(tenantId, filters = {}) {
-        const where = { tenantId };
+    async list(filters = {}) {
+        const where = {};
         if (filters.entityType)
             where.entityType = this.normalizeEntityType(filters.entityType);
         if (filters.entityId)
@@ -50,13 +74,12 @@ let DocumentsService = class DocumentsService {
         const entityId = input.entityId?.trim();
         if (!entityId)
             throw new common_1.BadRequestException('entityId is required');
-        await this.assertEntityBelongsToTenant(user.tenantId, entityType, entityId);
+        await this.assertEntityBelongsToTenant(entityType, entityId);
         const expiresAt = this.normalizeOptionalDate(input.expiresAt, 'expiresAt');
-        const stored = await this.storage.save(user.tenantId, file);
+        const stored = await this.storage.save(file);
         try {
             const document = await this.prisma.document.create({
                 data: {
-                    tenantId: user.tenantId,
                     name: file.originalname,
                     fileUrl: '',
                     storageKey: stored.storageKey,
@@ -91,7 +114,7 @@ let DocumentsService = class DocumentsService {
         }
     }
     async review(user, id, input) {
-        const existing = await this.findForTenant(user.tenantId, id);
+        const existing = await this.findForTenant(id);
         const status = this.normalizeStatus(input.status ?? 'PENDING_REVIEW');
         if (!['VERIFIED', 'REJECTED'].includes(status)) {
             throw new common_1.BadRequestException('Review status must be VERIFIED or REJECTED');
@@ -110,18 +133,21 @@ let DocumentsService = class DocumentsService {
             },
             include: documentInclude,
         });
-        await this.recordAudit(user, 'document.reviewed', id, { status, rejectionReason });
+        await this.recordAudit(user, 'document.reviewed', id, {
+            status,
+            rejectionReason,
+        });
         return this.serialize(document);
     }
-    async download(tenantId, id) {
-        const document = await this.findForTenant(tenantId, id);
+    async download(id) {
+        const document = await this.findForTenant(id);
         if (!document.storageKey)
             throw new common_1.NotFoundException('Document file is unavailable');
         await this.storage.assertExists(document.storageKey);
         return { document, stream: this.storage.open(document.storageKey) };
     }
     async remove(user, id) {
-        const document = await this.findForTenant(user.tenantId, id);
+        const document = await this.findForTenant(id);
         const canManageAll = user.roles.some((role) => role === 'Owner' || role === 'Admin');
         if (!canManageAll && document.uploadedById !== user.id) {
             throw new common_1.ForbiddenException('Only the uploader or an administrator can delete a document');
@@ -135,18 +161,18 @@ let DocumentsService = class DocumentsService {
         });
         return { id, deleted: true };
     }
-    async findForTenant(tenantId, id) {
+    async findForTenant(id) {
         const document = await this.prisma.document.findFirst({
-            where: { id, tenantId },
+            where: { id },
             include: documentInclude,
         });
         if (!document)
             throw new common_1.NotFoundException(`Document ${id} was not found`);
         return document;
     }
-    async assertEntityBelongsToTenant(tenantId, entityType, entityId) {
-        const where = { id: entityId, tenantId };
-        const entity = await ({
+    async assertEntityBelongsToTenant(entityType, entityId) {
+        const where = { id: entityId };
+        const entity = await {
             ACCOUNT: () => this.prisma.account.findFirst({ where }),
             CUSTOMER: () => this.prisma.customer.findFirst({ where }),
             LEAD: () => this.prisma.lead.findFirst({ where }),
@@ -157,7 +183,7 @@ let DocumentsService = class DocumentsService {
             PAYMENT: () => this.prisma.payment.findFirst({ where }),
             PROJECT: () => this.prisma.project.findFirst({ where }),
             UNIT: () => this.prisma.unit.findFirst({ where }),
-        }[entityType]());
+        }[entityType]();
         if (!entity)
             throw new common_1.BadRequestException(`${entityType} ${entityId} was not found`);
     }
@@ -171,7 +197,10 @@ let DocumentsService = class DocumentsService {
         return this.normalizeFromList(value, ENTITY_TYPES, 'entityType');
     }
     normalizeFromList(value, allowed, label) {
-        const normalized = value.trim().toUpperCase().replace(/[\s-]+/g, '_');
+        const normalized = value
+            .trim()
+            .toUpperCase()
+            .replace(/[\s-]+/g, '_');
         if (!allowed.includes(normalized)) {
             throw new common_1.BadRequestException(`${label} must be one of: ${allowed.join(', ')}`);
         }
@@ -189,16 +218,28 @@ let DocumentsService = class DocumentsService {
         return {
             ...document,
             uploadedBy: document.uploadedBy
-                ? { id: document.uploadedBy.id, name: `${document.uploadedBy.firstName} ${document.uploadedBy.lastName}`.trim() }
+                ? {
+                    id: document.uploadedBy.id,
+                    name: `${document.uploadedBy.firstName} ${document.uploadedBy.lastName}`.trim(),
+                }
                 : null,
             reviewedBy: document.reviewedBy
-                ? { id: document.reviewedBy.id, name: `${document.reviewedBy.firstName} ${document.reviewedBy.lastName}`.trim() }
+                ? {
+                    id: document.reviewedBy.id,
+                    name: `${document.reviewedBy.firstName} ${document.reviewedBy.lastName}`.trim(),
+                }
                 : null,
         };
     }
     recordAudit(user, action, entityId, newValues) {
         return this.prisma.auditLog.create({
-            data: { tenantId: user.tenantId, userId: user.id, action, entityType: 'Document', entityId, newValues: newValues },
+            data: {
+                userId: user.id,
+                action,
+                entityType: 'Document',
+                entityId,
+                newValues: newValues,
+            },
         });
     }
 };

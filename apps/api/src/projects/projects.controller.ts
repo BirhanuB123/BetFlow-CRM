@@ -21,12 +21,12 @@ export class ProjectsController {
 
   @Get()
   list(@CurrentUser() user: AuthenticatedUser) {
-    return this.projects.list(user.tenantId);
+    return this.projects.list();
   }
 
   @Get(':id')
   get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.projects.get(user.tenantId, id);
+    return this.projects.get(id);
   }
 
   @Post()
@@ -34,7 +34,7 @@ export class ProjectsController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: CreateProjectInput,
   ) {
-    return this.projects.create(user.tenantId, user.id, body);
+    return this.projects.create(user.id, body);
   }
 
   @Patch(':id')
@@ -43,11 +43,11 @@ export class ProjectsController {
     @Param('id') id: string,
     @Body() body: UpdateProjectInput,
   ) {
-    return this.projects.update(user.tenantId, user.id, id, body);
+    return this.projects.update(user.id, id, body);
   }
 
   @Delete(':id')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.projects.remove(user.tenantId, user.id, id);
+    return this.projects.remove(user.id, id);
   }
 }

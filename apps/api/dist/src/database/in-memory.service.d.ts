@@ -9,7 +9,6 @@ export type Tenant = {
 };
 export type User = {
     id: string;
-    tenantId: string;
     name: string;
     email: string;
     roleId: string;
@@ -17,7 +16,6 @@ export type User = {
 };
 export type Role = {
     id: string;
-    tenantId: string;
     name: string;
     description: string;
     permissionKeys: string[];
@@ -29,7 +27,6 @@ export type Permission = {
 };
 export type AuditLog = {
     id: string;
-    tenantId: string;
     actor: string;
     action: string;
     target: string;
@@ -39,7 +36,6 @@ export type AuditLog = {
 export type LeadStage = 'new' | 'qualified' | 'tour_scheduled' | 'proposal' | 'won' | 'lost';
 export type Lead = {
     id: string;
-    tenantId: string;
     name: string;
     company: string;
     email: string;
@@ -52,7 +48,6 @@ export type Lead = {
 };
 export type Customer = {
     id: string;
-    tenantId: string;
     name: string;
     email: string;
     phone: string;
@@ -62,7 +57,6 @@ export type Customer = {
 };
 export type Deal = {
     id: string;
-    tenantId: string;
     leadId: string;
     customerId: string;
     propertyName: string;
@@ -74,7 +68,6 @@ export type Deal = {
 };
 export type Task = {
     id: string;
-    tenantId: string;
     title: string;
     ownerUserId: string;
     relatedTo: string;
@@ -84,7 +77,6 @@ export type Task = {
 };
 export type Note = {
     id: string;
-    tenantId: string;
     relatedTo: string;
     authorUserId: string;
     body: string;
@@ -92,7 +84,6 @@ export type Note = {
 };
 export type Activity = {
     id: string;
-    tenantId: string;
     actorUserId: string;
     action: string;
     target: string;
@@ -101,14 +92,12 @@ export type Activity = {
 };
 export type Project = {
     id: string;
-    tenantId: string;
     name: string;
     location: string;
     status: 'planning' | 'active' | 'selling' | 'delivered';
 };
 export type Building = {
     id: string;
-    tenantId: string;
     projectId: string;
     name: string;
     address: string;
@@ -117,7 +106,6 @@ export type Building = {
 };
 export type Floor = {
     id: string;
-    tenantId: string;
     buildingId: string;
     label: string;
     releaseStatus: 'draft' | 'released' | 'hold';
@@ -125,7 +113,6 @@ export type Floor = {
 export type UnitStatus = 'available' | 'reserved' | 'sold' | 'blocked';
 export type Unit = {
     id: string;
-    tenantId: string;
     projectId: string;
     buildingId: string;
     floorId: string;
@@ -139,7 +126,6 @@ export type Unit = {
 };
 export type PropertyMedia = {
     id: string;
-    tenantId: string;
     projectId: string;
     title: string;
     type: 'photo' | 'floor_plan' | 'document' | 'virtual_tour';
@@ -149,7 +135,6 @@ export type PropertyMedia = {
 };
 export type SiteVisit = {
     id: string;
-    tenantId: string;
     leadId: string;
     unitId: string;
     agentUserId: string;
@@ -159,7 +144,6 @@ export type SiteVisit = {
 };
 export type Reservation = {
     id: string;
-    tenantId: string;
     customerId: string;
     unitId: string;
     expiresAt: string;
@@ -169,7 +153,6 @@ export type Reservation = {
 };
 export type PaymentScheduleItem = {
     id: string;
-    tenantId: string;
     reservationId: string;
     milestone: string;
     dueDate: string;
@@ -178,7 +161,6 @@ export type PaymentScheduleItem = {
 };
 export type PaymentTransaction = {
     id: string;
-    tenantId: string;
     reservationId: string;
     customerId: string;
     method: 'bank_transfer' | 'card' | 'check';
@@ -188,7 +170,6 @@ export type PaymentTransaction = {
 };
 export type ReceiptUpload = {
     id: string;
-    tenantId: string;
     paymentId: string;
     fileName: string;
     uploadedByUserId: string;
@@ -197,7 +178,6 @@ export type ReceiptUpload = {
 };
 export type FinanceApproval = {
     id: string;
-    tenantId: string;
     reservationId: string;
     reviewerUserId: string;
     paymentId: string;
@@ -208,7 +188,6 @@ export type FinanceApproval = {
 };
 export type UploadedDocument = {
     id: string;
-    tenantId: string;
     name: string;
     category: 'kyc' | 'proof_of_payment' | 'reservation' | 'contract';
     relatedTo: string;
@@ -218,7 +197,6 @@ export type UploadedDocument = {
 };
 export type ContractTemplate = {
     id: string;
-    tenantId: string;
     name: string;
     type: 'reservation' | 'sale_agreement' | 'addendum';
     version: string;
@@ -227,7 +205,6 @@ export type ContractTemplate = {
 };
 export type GeneratedContractPdf = {
     id: string;
-    tenantId: string;
     templateId: string;
     customerId: string;
     unitId: string;
@@ -236,7 +213,6 @@ export type GeneratedContractPdf = {
 };
 export type LegalContractApproval = {
     id: string;
-    tenantId: string;
     generatedPdfId: string;
     reviewerUserId: string;
     submittedAt: string;
@@ -245,7 +221,6 @@ export type LegalContractApproval = {
 };
 export type SignedContract = {
     id: string;
-    tenantId: string;
     generatedPdfId: string;
     customerId: string;
     signedAt?: string;
@@ -254,7 +229,6 @@ export type SignedContract = {
 };
 export type NotificationMessage = {
     id: string;
-    tenantId: string;
     channel: 'sms' | 'telegram' | 'email';
     recipient: string;
     subject: string;
@@ -264,7 +238,6 @@ export type NotificationMessage = {
 };
 export type OverduePaymentAlert = {
     id: string;
-    tenantId: string;
     customerId: string;
     reservationId: string;
     amount: number;
@@ -274,7 +247,6 @@ export type OverduePaymentAlert = {
 };
 export type FollowUpReminder = {
     id: string;
-    tenantId: string;
     leadId: string;
     ownerUserId: string;
     dueAt: string;
@@ -333,7 +305,6 @@ export type ReportCatalogEntry = {
 };
 export type SubscriptionPlan = {
     id: string;
-    tenantId?: string;
     name: string;
     price: number | null;
     billingCycle: 'monthly' | 'annual';
@@ -342,7 +313,6 @@ export type SubscriptionPlan = {
 };
 export type FeatureLimit = {
     id: string;
-    tenantId: string;
     feature: string;
     used: number;
     limit: number;
@@ -350,14 +320,12 @@ export type FeatureLimit = {
 };
 export type BrandingSetting = {
     id: string;
-    tenantId: string;
     label: string;
     value: string;
     status: 'live' | 'draft';
 };
 export type TenantBillingItem = {
     id: string;
-    tenantId: string;
     invoice: string;
     period: string;
     amount: number;
@@ -366,7 +334,6 @@ export type TenantBillingItem = {
 };
 export type TenantDomain = {
     id: string;
-    tenantId: string;
     domain: string;
     status: 'verified' | 'pending_dns' | 'failed';
     ssl: 'active' | 'pending';
@@ -374,7 +341,6 @@ export type TenantDomain = {
 };
 export type DataTransferJob = {
     id: string;
-    tenantId: string;
     type: 'export' | 'import';
     scope: string;
     requestedByUserId: string;
@@ -390,7 +356,6 @@ type RegisterTenantInput = {
     plan?: string;
 };
 type InviteUserInput = {
-    tenantId: string;
     name: string;
     email: string;
     roleId: string;
@@ -475,71 +440,71 @@ export declare class InMemoryService {
     listTenants(): Tenant[];
     getTenant(id: string): Tenant;
     updateTenant(id: string, input: UpdateTenantInput): Tenant;
-    listUsers(tenantId?: string): User[];
+    listUsers(): User[];
     inviteUser(input: InviteUserInput): User;
-    listRoles(tenantId?: string): Role[];
+    listRoles(): Role[];
     createRole(input: Omit<Role, 'id'>): Role;
     listPermissions(): Permission[];
-    listAuditLogs(tenantId?: string): AuditLog[];
+    listAuditLogs(): AuditLog[];
     recordAudit(input: Omit<AuditLog, 'id' | 'createdAt'>): AuditLog;
-    listLeads(tenantId?: string): Lead[];
+    listLeads(): Lead[];
     createLead(input: CreateLeadInput): Lead;
     assignLead(id: string, assignedToUserId: string): Lead;
-    listCustomers(tenantId?: string): Customer[];
+    listCustomers(): Customer[];
     createCustomer(input: CreateCustomerInput): Customer;
-    listDeals(tenantId?: string): Deal[];
+    listDeals(): Deal[];
     createDeal(input: CreateDealInput): Deal;
     moveDeal(id: string, stage: LeadStage): Deal;
-    listTasks(tenantId?: string): Task[];
+    listTasks(): Task[];
     createTask(input: CreateTaskInput): Task;
-    listNotes(tenantId?: string): Note[];
+    listNotes(): Note[];
     createNote(input: CreateNoteInput): Note;
-    listActivities(tenantId?: string): Activity[];
+    listActivities(): void;
     recordActivity(input: CreateActivityInput): Activity;
-    listProjects(tenantId?: string): Project[];
+    listProjects(): void;
     createProject(input: CreateProjectInput): Project;
-    listBuildings(tenantId?: string, projectId?: string): Building[];
+    listBuildings(projectId?: string): Building[];
     createBuilding(input: CreateBuildingInput): Building;
-    listFloors(tenantId?: string, buildingId?: string): Floor[];
+    listFloors(buildingId?: string): Floor[];
     createFloor(input: CreateFloorInput): Floor;
-    listUnits(tenantId?: string, status?: UnitStatus): Unit[];
+    listUnits(status?: UnitStatus): Unit[];
     createUnit(input: CreateUnitInput): Unit;
     updateUnitStatus(id: string, status: UnitStatus, availableFrom?: string): Unit;
-    listPropertyMedia(tenantId?: string, projectId?: string): PropertyMedia[];
+    listPropertyMedia(projectId?: string): PropertyMedia[];
     createPropertyMedia(input: CreatePropertyMediaInput): PropertyMedia;
-    listSiteVisits(tenantId?: string): SiteVisit[];
+    listSiteVisits(): void;
     createSiteVisit(input: CreateSiteVisitInput): SiteVisit;
-    updateSiteVisitStatus(id: string, status: SiteVisit['status'], outcome?: string): SiteVisit;
-    listReservations(tenantId?: string): Reservation[];
+    updateSiteVisitStatus(id: string, status: SiteVisit['status']): SiteVisit;
+    listReservations(): void;
     createReservation(input: CreateReservationInput): Reservation;
     updateReservationStatus(id: string, status: Reservation['status']): Reservation;
-    listPaymentSchedule(tenantId?: string, reservationId?: string): PaymentScheduleItem[];
+    listPaymentSchedule(reservationId?: string): PaymentScheduleItem[];
     createPaymentScheduleItem(input: CreatePaymentScheduleInput): PaymentScheduleItem;
-    listPaymentTransactions(tenantId?: string, reservationId?: string): PaymentTransaction[];
+    listPaymentTransactions(reservationId?: string): PaymentTransaction[];
     createPaymentTransaction(input: CreatePaymentTransactionInput): PaymentTransaction;
-    listReceiptUploads(tenantId?: string, paymentId?: string): ReceiptUpload[];
+    listReceiptUploads(paymentId?: string): ReceiptUpload[];
     createReceiptUpload(input: CreateReceiptUploadInput): ReceiptUpload;
-    listFinanceApprovals(tenantId?: string): FinanceApproval[];
+    listFinanceApprovals(): void;
     createFinanceApproval(input: CreateFinanceApprovalInput): FinanceApproval;
-    updateFinanceApprovalStatus(id: string, status: FinanceApproval['status'], note?: string): FinanceApproval;
-    listUploadedDocuments(tenantId?: string): UploadedDocument[];
+    updateFinanceApprovalStatus(id: string, status: FinanceApproval['status']): FinanceApproval;
+    listUploadedDocuments(): void;
     createUploadedDocument(input: CreateUploadedDocumentInput): UploadedDocument;
     updateUploadedDocumentStatus(id: string, status: UploadedDocument['status']): UploadedDocument;
-    listContractTemplates(tenantId?: string): ContractTemplate[];
+    listContractTemplates(): void;
     createContractTemplate(input: CreateContractTemplateInput): ContractTemplate;
-    listGeneratedContractPdfs(tenantId?: string): GeneratedContractPdf[];
+    listGeneratedContractPdfs(): void;
     generateContractPdf(input: CreateGeneratedContractPdfInput): GeneratedContractPdf;
-    listLegalContractApprovals(tenantId?: string): LegalContractApproval[];
+    listLegalContractApprovals(): void;
     createLegalContractApproval(input: CreateLegalContractApprovalInput): LegalContractApproval;
-    updateLegalContractApprovalStatus(id: string, status: LegalContractApproval['status'], note?: string): LegalContractApproval;
-    listSignedContracts(tenantId?: string): SignedContract[];
+    updateLegalContractApprovalStatus(id: string, status: LegalContractApproval['status']): LegalContractApproval;
+    listSignedContracts(): void;
     createSignedContract(input: CreateSignedContractInput): SignedContract;
-    listNotificationMessages(tenantId?: string, channel?: NotificationMessage['channel']): NotificationMessage[];
+    listNotificationMessages(channel?: NotificationMessage['channel']): NotificationMessage[];
     createNotificationMessage(input: CreateNotificationMessageInput): NotificationMessage;
     updateNotificationStatus(id: string, status: NotificationMessage['status']): NotificationMessage;
-    listOverduePaymentAlerts(tenantId?: string): OverduePaymentAlert[];
+    listOverduePaymentAlerts(): void;
     createOverduePaymentAlert(input: CreateOverduePaymentAlertInput): OverduePaymentAlert;
-    listFollowUpReminders(tenantId?: string): FollowUpReminder[];
+    listFollowUpReminders(): void;
     createFollowUpReminder(input: CreateFollowUpReminderInput): FollowUpReminder;
     getReportsCatalog(): ReportCatalogEntry[];
     getSalesDashboardReport(): ReportMetric[];
@@ -548,14 +513,14 @@ export declare class InMemoryService {
     getInventoryReport(): InventoryReportRow[];
     getConversionReport(): ConversionReportRow[];
     getPaymentAgingReport(): PaymentAgingReportRow[];
-    listSubscriptionPlans(tenantId?: string): SubscriptionPlan[];
-    listFeatureLimits(tenantId?: string): FeatureLimit[];
-    listBrandingSettings(tenantId?: string): BrandingSetting[];
+    listSubscriptionPlans(): SubscriptionPlan[];
+    listFeatureLimits(): void;
+    listBrandingSettings(): void;
     updateBrandingSetting(id: string, value: string, status?: BrandingSetting['status']): BrandingSetting;
-    listTenantBillingItems(tenantId?: string): TenantBillingItem[];
-    listTenantDomains(tenantId?: string): TenantDomain[];
+    listTenantBillingItems(): void;
+    listTenantDomains(): void;
     createTenantDomain(input: CreateTenantDomainInput): TenantDomain;
-    listDataTransferJobs(tenantId?: string): DataTransferJob[];
+    listDataTransferJobs(): void;
     createDataTransferJob(input: CreateDataTransferJobInput): DataTransferJob;
     private nextId;
 }

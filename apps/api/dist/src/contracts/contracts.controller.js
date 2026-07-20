@@ -23,19 +23,19 @@ let ContractsController = class ContractsController {
         this.contracts = contracts;
     }
     list(user) {
-        return this.contracts.list(user.tenantId);
+        return this.contracts.list();
     }
     get(user, id) {
-        return this.contracts.get(user.tenantId, id);
+        return this.contracts.get(id);
     }
     create(user, body) {
-        return this.contracts.create(user.tenantId, user.id, body);
+        return this.contracts.create(user.id, body);
     }
     update(user, id, body) {
-        return this.contracts.update(user.tenantId, user.id, id, body);
+        return this.contracts.update(user.id, id, body);
     }
     remove(user, id) {
-        return this.contracts.remove(user.tenantId, user.id, id);
+        return this.contracts.remove(user.id, id);
     }
 };
 exports.ContractsController = ContractsController;

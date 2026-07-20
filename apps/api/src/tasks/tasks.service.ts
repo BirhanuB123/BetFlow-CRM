@@ -19,11 +19,8 @@ const taskInclude = {
 export class TasksService {
   constructor(private readonly prisma: PrismaService) {}
 
-  list(
-    tenantId: string,
-    filters: { status?: string; assigneeId?: string; open?: boolean } = {},
-  ) {
-    const where: Record<string, unknown> = { tenantId };
+  list(filters: { status?: string; assigneeId?: string; open?: boolean } = {}) {
+    const where: Record<string, unknown> = {};
     if (filters.status) where.status = this.normalizeStatus(filters.status);
     else if (filters.open) where.status = { not: 'DONE' };
     if (filters.assigneeId) where.assigneeId = filters.assigneeId;
@@ -35,9 +32,9 @@ export class TasksService {
     });
   }
 
-  async get(tenantId: string, id: string) {
+  async get(id: string) {
     const task = await this.prisma.task.findFirst({
-      where: { id, tenantId },
+      where: { id },
       include: taskInclude,
     });
 
@@ -48,19 +45,18 @@ export class TasksService {
     return task;
   }
 
-  async create(tenantId: string, userId: string, input: CreateTaskInput) {
+  async create(userId: string, input: CreateTaskInput) {
     const title = input.title?.trim();
     if (!title) throw new BadRequestException('title is required');
 
     const status = this.normalizeStatus(input.status ?? 'TODO');
 
     if (input.assigneeId) {
-      await this.assertUserBelongsToTenant(tenantId, input.assigneeId);
+      await this.assertUserBelongsToTenant(input.assigneeId);
     }
 
     const task = await this.prisma.task.create({
       data: {
-        tenantId,
         title,
         description: input.description?.trim() || null,
         dueDate: input.dueDate ? this.normalizeDate(input.dueDate) : null,
@@ -72,19 +68,14 @@ export class TasksService {
       include: taskInclude,
     });
 
-    await this.recordAudit(tenantId, userId, 'task.created', task.id);
+    await this.recordAudit(userId, 'task.created', task.id);
 
     return task;
   }
 
-  async update(
-    tenantId: string,
-    userId: string,
-    id: string,
-    input: UpdateTaskInput,
-  ) {
+  async update(userId: string, id: string, input: UpdateTaskInput) {
     const existing = await this.prisma.task.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
 
     if (!existing) {
@@ -92,7 +83,7 @@ export class TasksService {
     }
 
     if (input.assigneeId) {
-      await this.assertUserBelongsToTenant(tenantId, input.assigneeId);
+      await this.assertUserBelongsToTenant(input.assigneeId);
     }
 
     const data: Record<string, unknown> = {};
@@ -119,20 +110,15 @@ export class TasksService {
       include: taskInclude,
     });
 
-    await this.recordAudit(tenantId, userId, 'task.updated', task.id);
+    await this.recordAudit(userId, 'task.updated', task.id);
 
     return task;
   }
 
-  async updateStatus(
-    tenantId: string,
-    userId: string,
-    id: string,
-    status: string,
-  ) {
+  async updateStatus(userId: string, id: string, status: string) {
     const normalized = this.normalizeStatus(status);
     const existing = await this.prisma.task.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
 
     if (!existing) {
@@ -145,7 +131,7 @@ export class TasksService {
       include: taskInclude,
     });
 
-    await this.recordAudit(tenantId, userId, 'task.status_changed', task.id, {
+    await this.recordAudit(userId, 'task.status_changed', task.id, {
       from: existing.status,
       to: normalized,
     });
@@ -153,9 +139,9 @@ export class TasksService {
     return task;
   }
 
-  async remove(tenantId: string, userId: string, id: string) {
+  async remove(userId: string, id: string) {
     const existing = await this.prisma.task.findFirst({
-      where: { id, tenantId },
+      where: { id },
     });
 
     if (!existing) {
@@ -163,7 +149,7 @@ export class TasksService {
     }
 
     await this.prisma.task.delete({ where: { id } });
-    await this.recordAudit(tenantId, userId, 'task.deleted', id);
+    await this.recordAudit(userId, 'task.deleted', id);
 
     return { id, deleted: true };
   }
@@ -188,9 +174,9 @@ export class TasksService {
     return date;
   }
 
-  private async assertUserBelongsToTenant(tenantId: string, userId: string) {
+  private async assertUserBelongsToTenant(userId: string) {
     const user = await this.prisma.user.findFirst({
-      where: { id: userId, tenantId },
+      where: { id: userId },
     });
     if (!user) {
       throw new BadRequestException(`User ${userId} was not found`);
@@ -198,21 +184,13 @@ export class TasksService {
   }
 
   private recordAudit(
-    tenantId: string,
     userId: string,
     action: string,
     entityId: string,
     newValues?: Record<string, string>,
   ) {
     return this.prisma.auditLog.create({
-      data: {
-        tenantId,
-        userId,
-        action,
-        entityType: 'Task',
-        entityId,
-        newValues,
-      },
+      data: { userId, action, entityType: 'Task', entityId, newValues },
     });
   }
 }

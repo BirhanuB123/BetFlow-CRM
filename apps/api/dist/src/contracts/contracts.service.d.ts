@@ -4,7 +4,7 @@ import { CreateContractInput, UpdateContractInput } from './contracts.types';
 export declare class ContractsService {
     private readonly prisma;
     constructor(prisma: PrismaService);
-    list(tenantId: string): Prisma.PrismaPromise<({
+    list(): Prisma.PrismaPromise<({
         unit: {
             id: string;
             status: string;
@@ -26,17 +26,16 @@ export declare class ContractsService {
         };
     } & {
         id: string;
-        tenantId: string;
         createdAt: Date;
-        startDate: Date;
-        endDate: Date | null;
         status: string;
         customerId: string;
         unitId: string;
         dealId: string | null;
+        startDate: Date;
+        endDate: Date | null;
         totalAmt: Prisma.Decimal;
     })[]>;
-    get(tenantId: string, id: string): Promise<{
+    get(id: string): Promise<{
         unit: {
             id: string;
             status: string;
@@ -58,17 +57,16 @@ export declare class ContractsService {
         };
     } & {
         id: string;
-        tenantId: string;
         createdAt: Date;
-        startDate: Date;
-        endDate: Date | null;
         status: string;
         customerId: string;
         unitId: string;
         dealId: string | null;
+        startDate: Date;
+        endDate: Date | null;
         totalAmt: Prisma.Decimal;
     }>;
-    create(tenantId: string, userId: string, input: CreateContractInput): Promise<{
+    create(userId: string, input: CreateContractInput): Promise<{
         unit: {
             id: string;
             status: string;
@@ -90,17 +88,16 @@ export declare class ContractsService {
         };
     } & {
         id: string;
-        tenantId: string;
         createdAt: Date;
-        startDate: Date;
-        endDate: Date | null;
         status: string;
         customerId: string;
         unitId: string;
         dealId: string | null;
+        startDate: Date;
+        endDate: Date | null;
         totalAmt: Prisma.Decimal;
     }>;
-    update(tenantId: string, userId: string, id: string, input: UpdateContractInput): Promise<{
+    update(userId: string, id: string, input: UpdateContractInput): Promise<{
         unit: {
             id: string;
             status: string;
@@ -122,17 +119,16 @@ export declare class ContractsService {
         };
     } & {
         id: string;
-        tenantId: string;
         createdAt: Date;
-        startDate: Date;
-        endDate: Date | null;
         status: string;
         customerId: string;
         unitId: string;
         dealId: string | null;
+        startDate: Date;
+        endDate: Date | null;
         totalAmt: Prisma.Decimal;
     }>;
-    remove(tenantId: string, userId: string, id: string): Promise<{
+    remove(userId: string, id: string): Promise<{
         id: string;
         deleted: boolean;
     }>;

@@ -20,8 +20,8 @@ let NotificationsController = class NotificationsController {
     constructor(store) {
         this.store = store;
     }
-    list(tenantId, channel) {
-        return this.store.listNotificationMessages(tenantId, channel);
+    list(channel) {
+        return this.store.listNotificationMessages(channel);
     }
     create(body) {
         return this.store.createNotificationMessage(body);
@@ -29,14 +29,14 @@ let NotificationsController = class NotificationsController {
     updateStatus(id, status) {
         return this.store.updateNotificationStatus(id, status);
     }
-    listOverduePayments(tenantId) {
-        return this.store.listOverduePaymentAlerts(tenantId);
+    listOverduePayments() {
+        return this.store.listOverduePaymentAlerts();
     }
     createOverduePayment(body) {
         return this.store.createOverduePaymentAlert(body);
     }
-    listFollowUps(tenantId) {
-        return this.store.listFollowUpReminders(tenantId);
+    listFollowUps() {
+        return this.store.listFollowUpReminders();
     }
     createFollowUp(body) {
         return this.store.createFollowUpReminder(body);
@@ -45,10 +45,9 @@ let NotificationsController = class NotificationsController {
 exports.NotificationsController = NotificationsController;
 __decorate([
     (0, common_1.Get)(),
-    __param(0, (0, common_1.Query)('tenantId')),
-    __param(1, (0, common_1.Query)('channel')),
+    __param(0, (0, common_1.Query)('channel')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], NotificationsController.prototype, "list", null);
 __decorate([
@@ -68,9 +67,8 @@ __decorate([
 ], NotificationsController.prototype, "updateStatus", null);
 __decorate([
     (0, common_1.Get)('overdue-payments'),
-    __param(0, (0, common_1.Query)('tenantId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], NotificationsController.prototype, "listOverduePayments", null);
 __decorate([
@@ -82,9 +80,8 @@ __decorate([
 ], NotificationsController.prototype, "createOverduePayment", null);
 __decorate([
     (0, common_1.Get)('follow-ups'),
-    __param(0, (0, common_1.Query)('tenantId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], NotificationsController.prototype, "listFollowUps", null);
 __decorate([

@@ -23,16 +23,16 @@ let ContractsService = class ContractsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    list(tenantId) {
+    list() {
         return this.prisma.contract.findMany({
-            where: { tenantId },
+            where: {},
             include: contractInclude,
             orderBy: { createdAt: 'desc' },
         });
     }
-    async get(tenantId, id) {
+    async get(id) {
         const contract = await this.prisma.contract.findFirst({
-            where: { id, tenantId },
+            where: { id },
             include: contractInclude,
         });
         if (!contract) {
@@ -40,7 +40,7 @@ let ContractsService = class ContractsService {
         }
         return contract;
     }
-    async create(tenantId, userId, input) {
+    async create(userId, input) {
         if (!input.customerId)
             throw new common_1.BadRequestException('customerId is required');
         if (!input.unitId)
@@ -53,14 +53,13 @@ let ContractsService = class ContractsService {
             throw new common_1.BadRequestException('endDate cannot be before startDate');
         }
         const totalAmt = this.normalizeAmount(input.totalAmt);
-        await this.assertCustomerBelongsToTenant(tenantId, input.customerId);
-        await this.assertUnitBelongsToTenant(tenantId, input.unitId);
+        await this.assertCustomerBelongsToTenant(input.customerId);
+        await this.assertUnitBelongsToTenant(input.unitId);
         if (input.dealId) {
-            await this.assertDealBelongsToTenant(tenantId, input.dealId);
+            await this.assertDealBelongsToTenant(input.dealId);
         }
         const contract = await this.prisma.contract.create({
             data: {
-                tenantId,
                 customerId: input.customerId,
                 unitId: input.unitId,
                 dealId: input.dealId || null,
@@ -71,24 +70,24 @@ let ContractsService = class ContractsService {
             },
             include: contractInclude,
         });
-        await this.recordAudit(tenantId, userId, 'contract.created', contract.id);
+        await this.recordAudit(userId, 'contract.created', contract.id);
         return contract;
     }
-    async update(tenantId, userId, id, input) {
+    async update(userId, id, input) {
         const existing = await this.prisma.contract.findFirst({
-            where: { id, tenantId },
+            where: { id },
         });
         if (!existing) {
             throw new common_1.NotFoundException(`Contract ${id} was not found`);
         }
         if (input.customerId) {
-            await this.assertCustomerBelongsToTenant(tenantId, input.customerId);
+            await this.assertCustomerBelongsToTenant(input.customerId);
         }
         if (input.unitId) {
-            await this.assertUnitBelongsToTenant(tenantId, input.unitId);
+            await this.assertUnitBelongsToTenant(input.unitId);
         }
         if (input.dealId) {
-            await this.assertDealBelongsToTenant(tenantId, input.dealId);
+            await this.assertDealBelongsToTenant(input.dealId);
         }
         const data = {};
         if (input.customerId !== undefined)
@@ -129,7 +128,6 @@ let ContractsService = class ContractsService {
                 });
                 await tx.auditLog.create({
                     data: {
-                        tenantId,
                         userId,
                         action: 'contract.signed',
                         entityType: 'Contract',
@@ -148,12 +146,12 @@ let ContractsService = class ContractsService {
             data,
             include: contractInclude,
         });
-        await this.recordAudit(tenantId, userId, 'contract.updated', contract.id);
+        await this.recordAudit(userId, 'contract.updated', contract.id);
         return contract;
     }
-    async remove(tenantId, userId, id) {
+    async remove(userId, id) {
         const existing = await this.prisma.contract.findFirst({
-            where: { id, tenantId },
+            where: { id },
             include: { _count: { select: { payments: true, schedules: true } } },
         });
         if (!existing) {
@@ -163,7 +161,7 @@ let ContractsService = class ContractsService {
             throw new common_1.BadRequestException('Cannot delete a contract with linked payments or schedules');
         }
         await this.prisma.contract.delete({ where: { id } });
-        await this.recordAudit(tenantId, userId, 'contract.deleted', id);
+        await this.recordAudit(userId, 'contract.deleted', id);
         return { id, deleted: true };
     }
     normalizeAmount(value) {
@@ -183,39 +181,33 @@ let ContractsService = class ContractsService {
         }
         return date;
     }
-    async assertCustomerBelongsToTenant(tenantId, customerId) {
+    async assertCustomerBelongsToTenant(customerId) {
         const customer = await this.prisma.customer.findFirst({
-            where: { id: customerId, tenantId },
+            where: { id: customerId },
         });
         if (!customer) {
             throw new common_1.BadRequestException(`Customer ${customerId} was not found`);
         }
     }
-    async assertUnitBelongsToTenant(tenantId, unitId) {
+    async assertUnitBelongsToTenant(unitId) {
         const unit = await this.prisma.unit.findFirst({
-            where: { id: unitId, tenantId },
+            where: { id: unitId },
         });
         if (!unit) {
             throw new common_1.BadRequestException(`Unit ${unitId} was not found`);
         }
     }
-    async assertDealBelongsToTenant(tenantId, dealId) {
+    async assertDealBelongsToTenant(dealId) {
         const deal = await this.prisma.deal.findFirst({
-            where: { id: dealId, tenantId },
+            where: { id: dealId },
         });
         if (!deal) {
             throw new common_1.BadRequestException(`Deal ${dealId} was not found`);
         }
     }
-    recordAudit(tenantId, userId, action, entityId) {
+    recordAudit(userId, action, entityId) {
         return this.prisma.auditLog.create({
-            data: {
-                tenantId,
-                userId,
-                action,
-                entityType: 'Contract',
-                entityId,
-            },
+            data: { userId, action, entityType: 'Contract', entityId },
         });
     }
 };

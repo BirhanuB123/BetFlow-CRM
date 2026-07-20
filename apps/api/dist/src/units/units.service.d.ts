@@ -3,7 +3,7 @@ import { CreateUnitInput, UpdateUnitInput } from './units.types';
 export declare class UnitsService {
     private readonly prisma;
     constructor(prisma: PrismaService);
-    list(tenantId: string, filters?: {
+    list(filters?: {
         status?: string;
         floorId?: string;
     }): import("@prisma/client").Prisma.PrismaPromise<({
@@ -27,7 +27,6 @@ export declare class UnitsService {
         };
     } & {
         id: string;
-        tenantId: string;
         status: string;
         unitNumber: string;
         type: string;
@@ -35,7 +34,7 @@ export declare class UnitsService {
         area: number | null;
         floorId: string;
     })[]>;
-    get(tenantId: string, id: string): Promise<{
+    get(id: string): Promise<{
         floor: {
             id: string;
             name: string | null;
@@ -56,7 +55,6 @@ export declare class UnitsService {
         };
     } & {
         id: string;
-        tenantId: string;
         status: string;
         unitNumber: string;
         type: string;
@@ -64,7 +62,7 @@ export declare class UnitsService {
         area: number | null;
         floorId: string;
     }>;
-    create(tenantId: string, userId: string, input: CreateUnitInput): Promise<{
+    create(userId: string, input: CreateUnitInput): Promise<{
         floor: {
             id: string;
             name: string | null;
@@ -85,7 +83,6 @@ export declare class UnitsService {
         };
     } & {
         id: string;
-        tenantId: string;
         status: string;
         unitNumber: string;
         type: string;
@@ -93,7 +90,7 @@ export declare class UnitsService {
         area: number | null;
         floorId: string;
     }>;
-    update(tenantId: string, userId: string, id: string, input: UpdateUnitInput): Promise<{
+    update(userId: string, id: string, input: UpdateUnitInput): Promise<{
         floor: {
             id: string;
             name: string | null;
@@ -114,7 +111,6 @@ export declare class UnitsService {
         };
     } & {
         id: string;
-        tenantId: string;
         status: string;
         unitNumber: string;
         type: string;
@@ -122,7 +118,7 @@ export declare class UnitsService {
         area: number | null;
         floorId: string;
     }>;
-    updateStatus(tenantId: string, userId: string, id: string, status: string): Promise<{
+    updateStatus(userId: string, id: string, status: string): Promise<{
         floor: {
             id: string;
             name: string | null;
@@ -143,7 +139,6 @@ export declare class UnitsService {
         };
     } & {
         id: string;
-        tenantId: string;
         status: string;
         unitNumber: string;
         type: string;
@@ -151,7 +146,7 @@ export declare class UnitsService {
         area: number | null;
         floorId: string;
     }>;
-    remove(tenantId: string, userId: string, id: string): Promise<{
+    remove(userId: string, id: string): Promise<{
         id: string;
         deleted: boolean;
     }>;

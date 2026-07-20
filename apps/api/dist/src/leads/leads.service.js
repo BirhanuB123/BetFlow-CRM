@@ -22,21 +22,21 @@ let LeadsService = class LeadsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    list(tenantId) {
+    list() {
         return this.prisma.lead.findMany({
-            where: { tenantId },
+            where: {},
             include: leadInclude,
             orderBy: { createdAt: 'desc' },
         });
     }
-    listSources(tenantId) {
+    listSources() {
         return this.prisma.leadSource.findMany({
-            where: { tenantId },
+            where: {},
             select: { id: true, name: true },
             orderBy: { name: 'asc' },
         });
     }
-    async create(tenantId, userId, input) {
+    async create(userId, input) {
         const firstName = input.firstName?.trim();
         const lastName = input.lastName?.trim();
         if (!firstName || !lastName) {
@@ -44,11 +44,10 @@ let LeadsService = class LeadsService {
         }
         const status = this.normalizeStatus(input.status ?? 'NEW');
         if (input.sourceId) {
-            await this.assertSourceBelongsToTenant(tenantId, input.sourceId);
+            await this.assertSourceBelongsToTenant(input.sourceId);
         }
         const lead = await this.prisma.lead.create({
             data: {
-                tenantId,
                 firstName,
                 lastName,
                 company: input.company?.trim() || null,
@@ -60,18 +59,18 @@ let LeadsService = class LeadsService {
             },
             include: leadInclude,
         });
-        await this.recordAudit(tenantId, userId, 'lead.created', lead.id);
+        await this.recordAudit(userId, 'lead.created', lead.id);
         return lead;
     }
-    async update(tenantId, userId, id, input) {
+    async update(userId, id, input) {
         const existing = await this.prisma.lead.findFirst({
-            where: { id, tenantId },
+            where: { id },
         });
         if (!existing) {
             throw new common_1.NotFoundException(`Lead ${id} was not found`);
         }
         if (input.sourceId) {
-            await this.assertSourceBelongsToTenant(tenantId, input.sourceId);
+            await this.assertSourceBelongsToTenant(input.sourceId);
         }
         const data = {};
         if (input.firstName !== undefined)
@@ -95,24 +94,24 @@ let LeadsService = class LeadsService {
             data,
             include: leadInclude,
         });
-        await this.recordAudit(tenantId, userId, 'lead.updated', lead.id);
+        await this.recordAudit(userId, 'lead.updated', lead.id);
         return lead;
     }
-    async remove(tenantId, userId, id) {
+    async remove(userId, id) {
         const existing = await this.prisma.lead.findFirst({
-            where: { id, tenantId },
+            where: { id },
         });
         if (!existing) {
             throw new common_1.NotFoundException(`Lead ${id} was not found`);
         }
         await this.prisma.lead.delete({ where: { id } });
-        await this.recordAudit(tenantId, userId, 'lead.deleted', id);
+        await this.recordAudit(userId, 'lead.deleted', id);
         return { id, deleted: true };
     }
-    async updateStatus(tenantId, userId, id, status) {
+    async updateStatus(userId, id, status) {
         const normalized = this.normalizeStatus(status);
         const existing = await this.prisma.lead.findFirst({
-            where: { id, tenantId },
+            where: { id },
         });
         if (!existing) {
             throw new common_1.NotFoundException(`Lead ${id} was not found`);
@@ -122,14 +121,14 @@ let LeadsService = class LeadsService {
             data: { status: normalized },
             include: leadInclude,
         });
-        await this.recordAudit(tenantId, userId, 'lead.status_changed', lead.id, {
+        await this.recordAudit(userId, 'lead.status_changed', lead.id, {
             from: existing.status,
             to: normalized,
         });
         return lead;
     }
-    async convert(tenantId, userId, id, input) {
-        const lead = await this.prisma.lead.findFirst({ where: { id, tenantId } });
+    async convert(userId, id, input) {
+        const lead = await this.prisma.lead.findFirst({ where: { id } });
         if (!lead)
             throw new common_1.NotFoundException(`Lead ${id} was not found`);
         if (lead.convertedAt) {
@@ -142,7 +141,7 @@ let LeadsService = class LeadsService {
             if (!input.deal.stageId)
                 throw new common_1.BadRequestException('deal.stageId is required');
             const stage = await this.prisma.dealStage.findFirst({
-                where: { id: input.deal.stageId, tenantId },
+                where: { id: input.deal.stageId },
             });
             if (!stage)
                 throw new common_1.BadRequestException(`Deal stage ${input.deal.stageId} was not found`);
@@ -153,7 +152,7 @@ let LeadsService = class LeadsService {
         }
         if (input.accountId) {
             const account = await this.prisma.account.findFirst({
-                where: { id: input.accountId, tenantId },
+                where: { id: input.accountId },
                 select: { id: true },
             });
             if (!account)
@@ -171,7 +170,6 @@ let LeadsService = class LeadsService {
                 const name = lead.company?.trim() || `${lead.firstName} ${lead.lastName}`.trim();
                 account = await tx.account.create({
                     data: {
-                        tenantId,
                         name,
                         accountType: 'CUSTOMER',
                         ownerId: lead.ownerId ?? userId,
@@ -180,7 +178,6 @@ let LeadsService = class LeadsService {
                 });
                 await tx.auditLog.create({
                     data: {
-                        tenantId,
                         userId,
                         action: 'account.created',
                         entityType: 'Account',
@@ -191,7 +188,6 @@ let LeadsService = class LeadsService {
             const accountId = account?.id ?? null;
             const customer = await tx.customer.create({
                 data: {
-                    tenantId,
                     firstName: lead.firstName,
                     lastName: lead.lastName,
                     email: lead.email,
@@ -202,7 +198,6 @@ let LeadsService = class LeadsService {
             });
             await tx.auditLog.create({
                 data: {
-                    tenantId,
                     userId,
                     action: 'customer.created',
                     entityType: 'Customer',
@@ -213,7 +208,6 @@ let LeadsService = class LeadsService {
             if (input.deal && dealValue) {
                 deal = await tx.deal.create({
                     data: {
-                        tenantId,
                         name: input.deal.name.trim(),
                         value: dealValue,
                         stageId: input.deal.stageId,
@@ -224,7 +218,6 @@ let LeadsService = class LeadsService {
                 });
                 await tx.auditLog.create({
                     data: {
-                        tenantId,
                         userId,
                         action: 'deal.created',
                         entityType: 'Deal',
@@ -243,7 +236,6 @@ let LeadsService = class LeadsService {
             });
             await tx.auditLog.create({
                 data: {
-                    tenantId,
                     userId,
                     action: 'lead.converted',
                     entityType: 'Lead',
@@ -265,24 +257,17 @@ let LeadsService = class LeadsService {
         }
         return upper;
     }
-    async assertSourceBelongsToTenant(tenantId, sourceId) {
+    async assertSourceBelongsToTenant(sourceId) {
         const source = await this.prisma.leadSource.findFirst({
-            where: { id: sourceId, tenantId },
+            where: { id: sourceId },
         });
         if (!source) {
             throw new common_1.BadRequestException(`Lead source ${sourceId} was not found`);
         }
     }
-    recordAudit(tenantId, userId, action, entityId, newValues) {
+    recordAudit(userId, action, entityId, newValues) {
         return this.prisma.auditLog.create({
-            data: {
-                tenantId,
-                userId,
-                action,
-                entityType: 'Lead',
-                entityId,
-                newValues,
-            },
+            data: { userId, action, entityType: 'Lead', entityId, newValues },
         });
     }
 };

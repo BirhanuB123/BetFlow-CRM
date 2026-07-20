@@ -23,26 +23,26 @@ let TasksController = class TasksController {
         this.tasks = tasks;
     }
     list(user, status, assigneeId, open) {
-        return this.tasks.list(user.tenantId, {
+        return this.tasks.list({
             status,
             assigneeId,
             open: open === 'true' || open === '1',
         });
     }
     get(user, id) {
-        return this.tasks.get(user.tenantId, id);
+        return this.tasks.get(id);
     }
     create(user, body) {
-        return this.tasks.create(user.tenantId, user.id, body);
+        return this.tasks.create(user.id, body);
     }
     updateStatus(user, id, body) {
-        return this.tasks.updateStatus(user.tenantId, user.id, id, body.status);
+        return this.tasks.updateStatus(user.id, id, body.status);
     }
     update(user, id, body) {
-        return this.tasks.update(user.tenantId, user.id, id, body);
+        return this.tasks.update(user.id, id, body);
     }
     remove(user, id) {
-        return this.tasks.remove(user.tenantId, user.id, id);
+        return this.tasks.remove(user.id, id);
     }
 };
 exports.TasksController = TasksController;

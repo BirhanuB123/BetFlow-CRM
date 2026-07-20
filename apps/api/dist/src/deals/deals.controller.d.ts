@@ -27,7 +27,6 @@ export declare class DealsController {
         };
     } & {
         id: string;
-        tenantId: string;
         createdAt: Date;
         name: string;
         accountId: string | null;
@@ -65,7 +64,6 @@ export declare class DealsController {
         };
     } & {
         id: string;
-        tenantId: string;
         createdAt: Date;
         name: string;
         accountId: string | null;
@@ -97,7 +95,6 @@ export declare class DealsController {
         };
     } & {
         id: string;
-        tenantId: string;
         createdAt: Date;
         name: string;
         accountId: string | null;
@@ -129,7 +126,6 @@ export declare class DealsController {
         };
     } & {
         id: string;
-        tenantId: string;
         createdAt: Date;
         name: string;
         accountId: string | null;

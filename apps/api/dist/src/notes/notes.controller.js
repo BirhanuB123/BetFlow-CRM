@@ -23,13 +23,13 @@ let NotesController = class NotesController {
         this.notes = notes;
     }
     list(user, entityType, entityId) {
-        return this.notes.list(user.tenantId, { entityType, entityId });
+        return this.notes.list({ entityType, entityId });
     }
     create(user, body) {
-        return this.notes.create(user.tenantId, user.id, body);
+        return this.notes.create(user.id, body);
     }
     remove(user, id) {
-        return this.notes.remove(user.tenantId, user.id, id);
+        return this.notes.remove(user.id, id);
     }
 };
 exports.NotesController = NotesController;

@@ -23,22 +23,22 @@ let ReservationsController = class ReservationsController {
         this.reservations = reservations;
     }
     list(user) {
-        return this.reservations.list(user.tenantId);
+        return this.reservations.list();
     }
     get(user, id) {
-        return this.reservations.get(user.tenantId, id);
+        return this.reservations.get(id);
     }
     create(user, body) {
-        return this.reservations.create(user.tenantId, user.id, body);
+        return this.reservations.create(user.id, body);
     }
     updateStatus(user, id, body) {
-        return this.reservations.updateStatus(user.tenantId, user.id, id, body.status);
+        return this.reservations.updateStatus(user.id, id, body.status);
     }
     update(user, id, body) {
-        return this.reservations.update(user.tenantId, user.id, id, body);
+        return this.reservations.update(user.id, id, body);
     }
     remove(user, id) {
-        return this.reservations.remove(user.tenantId, user.id, id);
+        return this.reservations.remove(user.id, id);
     }
 };
 exports.ReservationsController = ReservationsController;

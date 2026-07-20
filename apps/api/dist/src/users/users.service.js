@@ -14,26 +14,20 @@ const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const password_service_1 = require("../auth/password.service");
 const prisma_service_1 = require("../database/prisma.service");
-const tenants_service_1 = require("../tenants/tenants.service");
 let UsersService = class UsersService {
     prisma;
     passwords;
-    tenants;
-    constructor(prisma, passwords, tenants) {
+    constructor(prisma, passwords) {
         this.prisma = prisma;
         this.passwords = passwords;
-        this.tenants = tenants;
     }
-    async listUsers(tenantId) {
-        if (!tenantId) {
-            throw new common_1.BadRequestException('tenantId is required');
-        }
+    async listUsers() {
         const users = await this.prisma.user.findMany({
-            where: { tenantId },
+            where: {},
             orderBy: { createdAt: 'desc' },
             include: {
                 roles: {
-                    where: { tenantId },
+                    where: {},
                     include: {
                         role: {
                             select: {
@@ -45,16 +39,12 @@ let UsersService = class UsersService {
                 },
             },
         });
-        return users.map((user) => this.tenants.serializeUser(user));
+        return users;
     }
     async inviteUser(input) {
-        if (!input.tenantId) {
-            throw new common_1.BadRequestException('tenantId is required');
-        }
         const role = await this.prisma.role.findFirst({
             where: {
                 id: input.roleId,
-                tenantId: input.tenantId,
             },
         });
         if (!role) {
@@ -65,14 +55,12 @@ let UsersService = class UsersService {
         try {
             const user = await this.prisma.user.create({
                 data: {
-                    tenantId: input.tenantId,
                     email: input.email.trim().toLowerCase(),
                     password,
                     firstName,
                     lastName,
                     roles: {
                         create: {
-                            tenantId: input.tenantId,
                             roleId: input.roleId,
                         },
                     },
@@ -92,7 +80,6 @@ let UsersService = class UsersService {
             });
             await this.prisma.auditLog.create({
                 data: {
-                    tenantId: input.tenantId,
                     action: 'user.invited',
                     entityType: 'User',
                     entityId: user.id,
@@ -102,7 +89,7 @@ let UsersService = class UsersService {
                     },
                 },
             });
-            return this.tenants.serializeUser(user);
+            return user;
         }
         catch (error) {
             if (error instanceof client_1.Prisma.PrismaClientKnownRequestError &&
@@ -123,7 +110,6 @@ exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        password_service_1.PasswordService,
-        tenants_service_1.TenantsService])
+        password_service_1.PasswordService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

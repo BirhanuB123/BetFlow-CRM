@@ -25,10 +25,10 @@ let RolesController = class RolesController {
         this.roles = roles;
     }
     list(user) {
-        return this.roles.listRoles(user.tenantId);
+        return this.roles.listRoles();
     }
     create(user, body) {
-        return this.roles.createRole({ ...body, tenantId: user.tenantId });
+        return this.roles.createRole({ ...body });
     }
 };
 exports.RolesController = RolesController;

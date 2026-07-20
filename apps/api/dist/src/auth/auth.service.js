@@ -14,31 +14,18 @@ const common_1 = require("@nestjs/common");
 const password_service_1 = require("./password.service");
 const jwt_service_1 = require("./jwt.service");
 const prisma_service_1 = require("../database/prisma.service");
-const tenants_service_1 = require("../tenants/tenants.service");
 let AuthService = class AuthService {
     prisma;
     jwt;
     passwords;
-    tenants;
-    constructor(prisma, jwt, passwords, tenants) {
+    constructor(prisma, jwt, passwords) {
         this.prisma = prisma;
         this.jwt = jwt;
         this.passwords = passwords;
-        this.tenants = tenants;
-    }
-    async register(input) {
-        return this.tenants.registerTenant(input);
     }
     async login(input) {
-        const tenant = await this.prisma.tenant.findUnique({
-            where: { domain: input.tenantSlug.trim().toLowerCase() },
-        });
-        if (!tenant) {
-            throw new common_1.UnauthorizedException('Invalid credentials');
-        }
         const user = await this.prisma.user.findFirst({
             where: {
-                tenantId: tenant.id,
                 email: input.email.trim().toLowerCase(),
                 isActive: true,
             },
@@ -61,7 +48,6 @@ let AuthService = class AuthService {
         }
         await this.prisma.auditLog.create({
             data: {
-                tenantId: tenant.id,
                 userId: user.id,
                 action: 'auth.login',
                 entityType: 'User',
@@ -73,17 +59,15 @@ let AuthService = class AuthService {
         return {
             accessToken: this.jwt.sign({
                 sub: user.id,
-                tenantId: tenant.id,
                 email: user.email,
                 roles,
             }, expiresIn),
-            tenant: {
-                id: tenant.id,
-                name: tenant.name,
-                slug: tenant.domain,
-                domain: tenant.domain,
+            user: {
+                id: user.id,
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
             },
-            user: this.tenants.serializeUser(user),
             expiresIn,
             authMethod: 'password',
         };
@@ -92,13 +76,10 @@ let AuthService = class AuthService {
         const user = await this.prisma.user.findFirst({
             where: {
                 id: authenticatedUser.id,
-                tenantId: authenticatedUser.tenantId,
                 isActive: true,
             },
             include: {
-                tenant: true,
                 roles: {
-                    where: { tenantId: authenticatedUser.tenantId },
                     include: {
                         role: {
                             select: {
@@ -114,13 +95,12 @@ let AuthService = class AuthService {
             throw new common_1.UnauthorizedException('Invalid token subject');
         }
         return {
-            tenant: {
-                id: user.tenant.id,
-                name: user.tenant.name,
-                slug: user.tenant.domain,
-                domain: user.tenant.domain,
+            user: {
+                id: user.id,
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
             },
-            user: this.tenants.serializeUser(user),
         };
     }
 };
@@ -129,7 +109,6 @@ exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         jwt_service_1.JwtService,
-        password_service_1.PasswordService,
-        tenants_service_1.TenantsService])
+        password_service_1.PasswordService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

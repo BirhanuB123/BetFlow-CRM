@@ -25,12 +25,12 @@ export class DealsController {
 
   @Get()
   list(@CurrentUser() user: AuthenticatedUser) {
-    return this.deals.list(user.tenantId);
+    return this.deals.list();
   }
 
   @Get('stages')
   stages(@CurrentUser() user: AuthenticatedUser) {
-    return this.deals.listStages(user.tenantId);
+    return this.deals.listStages();
   }
 
   @Post()
@@ -38,7 +38,7 @@ export class DealsController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: CreateDealInput,
   ) {
-    return this.deals.create(user.tenantId, user.id, body);
+    return this.deals.create(user.id, body);
   }
 
   @Patch(':id/stage')
@@ -47,7 +47,7 @@ export class DealsController {
     @Param('id') id: string,
     @Body() body: MoveDealStageInput,
   ) {
-    return this.deals.moveStage(user.tenantId, user.id, id, body.stageId);
+    return this.deals.moveStage(user.id, id, body.stageId);
   }
 
   @Patch(':id')
@@ -56,11 +56,11 @@ export class DealsController {
     @Param('id') id: string,
     @Body() body: UpdateDealInput,
   ) {
-    return this.deals.update(user.tenantId, user.id, id, body);
+    return this.deals.update(user.id, id, body);
   }
 
   @Delete(':id')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.deals.remove(user.tenantId, user.id, id);
+    return this.deals.remove(user.id, id);
   }
 }

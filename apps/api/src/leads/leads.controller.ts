@@ -26,12 +26,12 @@ export class LeadsController {
 
   @Get()
   list(@CurrentUser() user: AuthenticatedUser) {
-    return this.leads.list(user.tenantId);
+    return this.leads.list();
   }
 
   @Get('sources')
   sources(@CurrentUser() user: AuthenticatedUser) {
-    return this.leads.listSources(user.tenantId);
+    return this.leads.listSources();
   }
 
   @Post()
@@ -39,7 +39,7 @@ export class LeadsController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: CreateLeadInput,
   ) {
-    return this.leads.create(user.tenantId, user.id, body);
+    return this.leads.create(user.id, body);
   }
 
   @Patch(':id/status')
@@ -48,7 +48,7 @@ export class LeadsController {
     @Param('id') id: string,
     @Body() body: UpdateLeadStatusInput,
   ) {
-    return this.leads.updateStatus(user.tenantId, user.id, id, body.status);
+    return this.leads.updateStatus(user.id, id, body.status);
   }
 
   @Post(':id/convert')
@@ -57,7 +57,7 @@ export class LeadsController {
     @Param('id') id: string,
     @Body() body: ConvertLeadInput,
   ) {
-    return this.leads.convert(user.tenantId, user.id, id, body);
+    return this.leads.convert(user.id, id, body);
   }
 
   @Patch(':id')
@@ -66,11 +66,11 @@ export class LeadsController {
     @Param('id') id: string,
     @Body() body: UpdateLeadInput,
   ) {
-    return this.leads.update(user.tenantId, user.id, id, body);
+    return this.leads.update(user.id, id, body);
   }
 
   @Delete(':id')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.leads.remove(user.tenantId, user.id, id);
+    return this.leads.remove(user.id, id);
   }
 }

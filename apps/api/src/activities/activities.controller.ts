@@ -16,7 +16,7 @@ export class ActivitiesController {
     @Query('entityId') entityId?: string,
     @Query('limit') limit?: string,
   ) {
-    return this.activities.list(user.tenantId, {
+    return this.activities.list({
       entityType,
       entityId,
       limit: limit ? Number(limit) : undefined,

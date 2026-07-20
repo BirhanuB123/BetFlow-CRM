@@ -16,13 +16,12 @@ export declare class AccountsController {
             lastName: string;
         } | null;
         _count: {
-            customers: number;
             deals: number;
+            customers: number;
         };
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         createdAt: Date;
         updatedAt: Date;
         name: string;
@@ -48,18 +47,6 @@ export declare class AccountsController {
         ownerId: string | null;
     })[]>;
     get(user: AuthenticatedUser, id: string): Promise<{
-        customers: {
-            id: string;
-            email: string | null;
-            firstName: string;
-            lastName: string;
-            createdAt: Date;
-            phone: string | null;
-            title: string | null;
-            _count: {
-                deals: number;
-            };
-        }[];
         deals: {
             id: string;
             createdAt: Date;
@@ -96,14 +83,25 @@ export declare class AccountsController {
             firstName: string;
             lastName: string;
         } | null;
+        customers: {
+            id: string;
+            email: string | null;
+            firstName: string;
+            lastName: string;
+            createdAt: Date;
+            phone: string | null;
+            title: string | null;
+            _count: {
+                deals: number;
+            };
+        }[];
         _count: {
-            customers: number;
             deals: number;
+            customers: number;
         };
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         createdAt: Date;
         updatedAt: Date;
         name: string;
@@ -140,13 +138,12 @@ export declare class AccountsController {
             lastName: string;
         } | null;
         _count: {
-            customers: number;
             deals: number;
+            customers: number;
         };
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         createdAt: Date;
         updatedAt: Date;
         name: string;
@@ -183,13 +180,12 @@ export declare class AccountsController {
             lastName: string;
         } | null;
         _count: {
-            customers: number;
             deals: number;
+            customers: number;
         };
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         createdAt: Date;
         updatedAt: Date;
         name: string;

@@ -20,8 +20,8 @@ let AuditLogsController = class AuditLogsController {
     constructor(store) {
         this.store = store;
     }
-    list(tenantId) {
-        return this.store.listAuditLogs(tenantId);
+    list() {
+        return this.store.listAuditLogs();
     }
     create(body) {
         return this.store.recordAudit(body);
@@ -30,9 +30,8 @@ let AuditLogsController = class AuditLogsController {
 exports.AuditLogsController = AuditLogsController;
 __decorate([
     (0, common_1.Get)(),
-    __param(0, (0, common_1.Query)('tenantId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], AuditLogsController.prototype, "list", null);
 __decorate([

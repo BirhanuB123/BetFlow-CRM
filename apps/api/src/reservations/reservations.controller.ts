@@ -25,12 +25,12 @@ export class ReservationsController {
 
   @Get()
   list(@CurrentUser() user: AuthenticatedUser) {
-    return this.reservations.list(user.tenantId);
+    return this.reservations.list();
   }
 
   @Get(':id')
   get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.reservations.get(user.tenantId, id);
+    return this.reservations.get(id);
   }
 
   @Post()
@@ -38,7 +38,7 @@ export class ReservationsController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: CreateReservationInput,
   ) {
-    return this.reservations.create(user.tenantId, user.id, body);
+    return this.reservations.create(user.id, body);
   }
 
   @Patch(':id/status')
@@ -47,12 +47,7 @@ export class ReservationsController {
     @Param('id') id: string,
     @Body() body: UpdateReservationStatusInput,
   ) {
-    return this.reservations.updateStatus(
-      user.tenantId,
-      user.id,
-      id,
-      body.status,
-    );
+    return this.reservations.updateStatus(user.id, id, body.status);
   }
 
   @Patch(':id')
@@ -61,11 +56,11 @@ export class ReservationsController {
     @Param('id') id: string,
     @Body() body: UpdateReservationInput,
   ) {
-    return this.reservations.update(user.tenantId, user.id, id, body);
+    return this.reservations.update(user.id, id, body);
   }
 
   @Delete(':id')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.reservations.remove(user.tenantId, user.id, id);
+    return this.reservations.remove(user.id, id);
   }
 }

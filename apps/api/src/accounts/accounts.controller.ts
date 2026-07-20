@@ -21,12 +21,12 @@ export class AccountsController {
 
   @Get()
   list(@CurrentUser() user: AuthenticatedUser) {
-    return this.accounts.list(user.tenantId);
+    return this.accounts.list();
   }
 
   @Get(':id')
   get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.accounts.get(user.tenantId, id);
+    return this.accounts.get(id);
   }
 
   @Post()
@@ -34,7 +34,7 @@ export class AccountsController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: CreateAccountInput,
   ) {
-    return this.accounts.create(user.tenantId, user.id, body);
+    return this.accounts.create(user.id, body);
   }
 
   @Patch(':id')
@@ -43,11 +43,11 @@ export class AccountsController {
     @Param('id') id: string,
     @Body() body: UpdateAccountInput,
   ) {
-    return this.accounts.update(user.tenantId, user.id, id, body);
+    return this.accounts.update(user.id, id, body);
   }
 
   @Delete(':id')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.accounts.remove(user.tenantId, user.id, id);
+    return this.accounts.remove(user.id, id);
   }
 }

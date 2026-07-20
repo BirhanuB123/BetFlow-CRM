@@ -4,7 +4,7 @@ import { ConvertLeadInput, CreateLeadInput, UpdateLeadInput } from './leads.type
 export declare class LeadsService {
     private readonly prisma;
     constructor(prisma: PrismaService);
-    list(tenantId: string): Prisma.PrismaPromise<({
+    list(): Prisma.PrismaPromise<({
         owner: {
             id: string;
             firstName: string;
@@ -17,7 +17,6 @@ export declare class LeadsService {
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         firstName: string;
         lastName: string;
         createdAt: Date;
@@ -29,11 +28,11 @@ export declare class LeadsService {
         convertedAt: Date | null;
         convertedCustomerId: string | null;
     })[]>;
-    listSources(tenantId: string): Prisma.PrismaPromise<{
+    listSources(): Prisma.PrismaPromise<{
         id: string;
         name: string;
     }[]>;
-    create(tenantId: string, userId: string, input: CreateLeadInput): Promise<{
+    create(userId: string, input: CreateLeadInput): Promise<{
         owner: {
             id: string;
             firstName: string;
@@ -46,7 +45,6 @@ export declare class LeadsService {
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         firstName: string;
         lastName: string;
         createdAt: Date;
@@ -58,7 +56,7 @@ export declare class LeadsService {
         convertedAt: Date | null;
         convertedCustomerId: string | null;
     }>;
-    update(tenantId: string, userId: string, id: string, input: UpdateLeadInput): Promise<{
+    update(userId: string, id: string, input: UpdateLeadInput): Promise<{
         owner: {
             id: string;
             firstName: string;
@@ -71,7 +69,6 @@ export declare class LeadsService {
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         firstName: string;
         lastName: string;
         createdAt: Date;
@@ -83,11 +80,11 @@ export declare class LeadsService {
         convertedAt: Date | null;
         convertedCustomerId: string | null;
     }>;
-    remove(tenantId: string, userId: string, id: string): Promise<{
+    remove(userId: string, id: string): Promise<{
         id: string;
         deleted: boolean;
     }>;
-    updateStatus(tenantId: string, userId: string, id: string, status: string): Promise<{
+    updateStatus(userId: string, id: string, status: string): Promise<{
         owner: {
             id: string;
             firstName: string;
@@ -100,7 +97,6 @@ export declare class LeadsService {
     } & {
         id: string;
         email: string | null;
-        tenantId: string;
         firstName: string;
         lastName: string;
         createdAt: Date;
@@ -112,7 +108,7 @@ export declare class LeadsService {
         convertedAt: Date | null;
         convertedCustomerId: string | null;
     }>;
-    convert(tenantId: string, userId: string, id: string, input: ConvertLeadInput): Promise<{
+    convert(userId: string, id: string, input: ConvertLeadInput): Promise<{
         lead: {
             owner: {
                 id: string;
@@ -126,7 +122,6 @@ export declare class LeadsService {
         } & {
             id: string;
             email: string | null;
-            tenantId: string;
             firstName: string;
             lastName: string;
             createdAt: Date;

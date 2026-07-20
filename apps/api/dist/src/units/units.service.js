@@ -35,8 +35,8 @@ let UnitsService = class UnitsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    list(tenantId, filters = {}) {
-        const where = { tenantId };
+    list(filters = {}) {
+        const where = {};
         if (filters.status)
             where.status = this.normalizeStatus(filters.status);
         if (filters.floorId)
@@ -47,9 +47,9 @@ let UnitsService = class UnitsService {
             orderBy: { unitNumber: 'asc' },
         });
     }
-    async get(tenantId, id) {
+    async get(id) {
         const unit = await this.prisma.unit.findFirst({
-            where: { id, tenantId },
+            where: { id },
             include: unitInclude,
         });
         if (!unit) {
@@ -57,7 +57,7 @@ let UnitsService = class UnitsService {
         }
         return unit;
     }
-    async create(tenantId, userId, input) {
+    async create(userId, input) {
         const unitNumber = input.unitNumber?.trim();
         if (!unitNumber)
             throw new common_1.BadRequestException('unitNumber is required');
@@ -66,12 +66,11 @@ let UnitsService = class UnitsService {
             throw new common_1.BadRequestException('type is required');
         if (!input.floorId)
             throw new common_1.BadRequestException('floorId is required');
-        await this.assertFloorBelongsToTenant(tenantId, input.floorId);
+        await this.assertFloorBelongsToTenant(input.floorId);
         const price = this.normalizePrice(input.price);
         const status = this.normalizeStatus(input.status ?? 'AVAILABLE');
         const unit = await this.prisma.unit.create({
             data: {
-                tenantId,
                 floorId: input.floorId,
                 unitNumber,
                 type,
@@ -81,18 +80,18 @@ let UnitsService = class UnitsService {
             },
             include: unitInclude,
         });
-        await this.recordAudit(tenantId, userId, 'unit.created', unit.id);
+        await this.recordAudit(userId, 'unit.created', unit.id);
         return unit;
     }
-    async update(tenantId, userId, id, input) {
+    async update(userId, id, input) {
         const existing = await this.prisma.unit.findFirst({
-            where: { id, tenantId },
+            where: { id },
         });
         if (!existing) {
             throw new common_1.NotFoundException(`Unit ${id} was not found`);
         }
         if (input.floorId) {
-            await this.assertFloorBelongsToTenant(tenantId, input.floorId);
+            await this.assertFloorBelongsToTenant(input.floorId);
         }
         const data = {};
         if (input.floorId !== undefined)
@@ -120,13 +119,13 @@ let UnitsService = class UnitsService {
             data,
             include: unitInclude,
         });
-        await this.recordAudit(tenantId, userId, 'unit.updated', unit.id);
+        await this.recordAudit(userId, 'unit.updated', unit.id);
         return unit;
     }
-    async updateStatus(tenantId, userId, id, status) {
+    async updateStatus(userId, id, status) {
         const normalized = this.normalizeStatus(status);
         const existing = await this.prisma.unit.findFirst({
-            where: { id, tenantId },
+            where: { id },
         });
         if (!existing) {
             throw new common_1.NotFoundException(`Unit ${id} was not found`);
@@ -136,17 +135,19 @@ let UnitsService = class UnitsService {
             data: { status: normalized },
             include: unitInclude,
         });
-        await this.recordAudit(tenantId, userId, 'unit.status_changed', unit.id, {
+        await this.recordAudit(userId, 'unit.status_changed', unit.id, {
             from: existing.status,
             to: normalized,
         });
         return unit;
     }
-    async remove(tenantId, userId, id) {
+    async remove(userId, id) {
         const existing = await this.prisma.unit.findFirst({
-            where: { id, tenantId },
+            where: { id },
             include: {
-                _count: { select: { deals: true, reservations: true, contracts: true } },
+                _count: {
+                    select: { deals: true, reservations: true, contracts: true },
+                },
             },
         });
         if (!existing) {
@@ -158,7 +159,7 @@ let UnitsService = class UnitsService {
             throw new common_1.BadRequestException('Cannot delete a unit with linked deals, reservations, or contracts');
         }
         await this.prisma.unit.delete({ where: { id } });
-        await this.recordAudit(tenantId, userId, 'unit.deleted', id);
+        await this.recordAudit(userId, 'unit.deleted', id);
         return { id, deleted: true };
     }
     normalizeStatus(status) {
@@ -178,24 +179,17 @@ let UnitsService = class UnitsService {
         }
         return parsed.toFixed(2);
     }
-    async assertFloorBelongsToTenant(tenantId, floorId) {
+    async assertFloorBelongsToTenant(floorId) {
         const floor = await this.prisma.floor.findFirst({
-            where: { id: floorId, tenantId },
+            where: { id: floorId },
         });
         if (!floor) {
             throw new common_1.BadRequestException(`Floor ${floorId} was not found`);
         }
     }
-    recordAudit(tenantId, userId, action, entityId, newValues) {
+    recordAudit(userId, action, entityId, newValues) {
         return this.prisma.auditLog.create({
-            data: {
-                tenantId,
-                userId,
-                action,
-                entityType: 'Unit',
-                entityId,
-                newValues,
-            },
+            data: { userId, action, entityType: 'Unit', entityId, newValues },
         });
     }
 };
