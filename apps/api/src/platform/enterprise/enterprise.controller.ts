@@ -23,8 +23,15 @@ const enterpriseCapabilities = {
   },
   'customer-portal': {
     name: 'Customer portal',
-    status: 'planned',
-    endpoints: ['GET /portal/me'],
+    status: 'configured',
+    endpoints: [
+      'POST /portal/auth/login',
+      'GET /portal/me',
+      'GET /portal/payment-schedules',
+      'GET /portal/contracts',
+      'GET /portal/documents',
+      'GET /portal/invoices',
+    ],
   },
   'mobile-pwa': {
     name: 'Agent mobile app and PWA',

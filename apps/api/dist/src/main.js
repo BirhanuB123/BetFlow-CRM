@@ -8,7 +8,7 @@ async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule, { rawBody: true });
     app.enableCors();
     app.setGlobalPrefix('api');
-    await app.listen(process.env.PORT ?? 3000);
+    await app.listen(process.env.PORT ?? 4000);
 }
 void bootstrap();
 //# sourceMappingURL=main.js.map
