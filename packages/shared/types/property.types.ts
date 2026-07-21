@@ -52,3 +52,46 @@ export type StackingPlanBuilding = {
   name: string;
   floors: StackingPlanFloor[];
 };
+
+// ─── Ethiopian Real Estate Construction Milestone Types ────────────────────────
+
+export const ETHIOPIAN_CONSTRUCTION_STAGES = [
+  'FOUNDATION', // መሰረት (Substructure & Excavation)
+  'SUPERSTRUCTURE', // ኮንክሪት ስራ (Columns & Beams)
+  'BLOCKWORK', // ብሎኬት ስራ (Masonry & Walls)
+  'FINISHING', // ማጠናቀቂያ (Plastering, MEP & Tiles)
+  'HANDOVER', // ካርታና ርክክብ (Key Handover & Title Deed)
+] as const;
+
+export type ConstructionStageKey = (typeof ETHIOPIAN_CONSTRUCTION_STAGES)[number];
+
+export type MilestoneStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+
+export type ConstructionMilestone = {
+  id: string;
+  buildingId: string;
+  stageKey: ConstructionStageKey;
+  stageNameAmharic: string;
+  stageNameEnglish: string;
+  completionPercent: number;
+  status: MilestoneStatus;
+  targetDate?: string | null;
+  completedAt?: string | null;
+  photoUrl?: string | null;
+};
+
+export type UpdateMilestoneProgressInput = {
+  buildingId: string;
+  stageKey: ConstructionStageKey;
+  completionPercent: number;
+  status: MilestoneStatus;
+  photoUrl?: string;
+  notes?: string;
+};
+
+export type MilestoneTriggerResult = {
+  milestone: ConstructionMilestone;
+  contractsTriggered: number;
+  invoicesGenerated: number;
+  notificationsSent: number;
+};

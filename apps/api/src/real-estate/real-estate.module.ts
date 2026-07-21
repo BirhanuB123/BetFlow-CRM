@@ -4,6 +4,7 @@ import { PropertiesModule } from './properties/properties.module';
 import { UnitsModule } from './units/units.module';
 import { SiteVisitsModule } from './site-visits/site-visits.module';
 import { ReservationsModule } from './reservations/reservations.module';
+import { ConstructionModule } from './construction/construction.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { ReservationsModule } from './reservations/reservations.module';
     UnitsModule,
     SiteVisitsModule,
     ReservationsModule,
+    ConstructionModule,
   ],
   exports: [
     ProjectsModule,
@@ -19,6 +21,7 @@ import { ReservationsModule } from './reservations/reservations.module';
     UnitsModule,
     SiteVisitsModule,
     ReservationsModule,
+    ConstructionModule,
   ],
 })
 export class RealEstateModule {}
