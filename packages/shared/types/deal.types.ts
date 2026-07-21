@@ -44,3 +44,20 @@ export type Deal = {
   closeDate: string;
   owner: string;
 };
+
+// ─── Revenue Forecasting Types ────────────────────────────────────────────────
+
+export type ForecastingStageBucket = {
+  stageId: string;
+  stageName: string;
+  probability: number;
+  dealCount: number;
+  rawVolume: number;
+  weightedVolume: number;
+};
+
+export type RevenueForecastReport = {
+  totalRawPipeline: number;
+  totalWeightedPipeline: number;
+  stages: ForecastingStageBucket[];
+};

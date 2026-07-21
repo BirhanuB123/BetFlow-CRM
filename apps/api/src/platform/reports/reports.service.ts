@@ -346,6 +346,49 @@ export class ReportsService {
   }
 
   // --------------------------------------------------------
+  // 6. WEIGHTED REVENUE FORECASTING
+  // --------------------------------------------------------
+  async forecastingReport() {
+    const stages = await this.prisma.dealStage.findMany({
+      include: {
+        deals: {
+          select: { value: true },
+        },
+      },
+      orderBy: { order: 'asc' },
+    });
+
+    let totalRawPipeline = 0;
+    let totalWeightedPipeline = 0;
+
+    const stageBuckets = stages.map((stage) => {
+      let rawVolume = 0;
+      for (const deal of stage.deals) {
+        rawVolume += Number(deal.value ?? 0);
+      }
+      const weightedVolume = (rawVolume * stage.probability) / 100;
+
+      totalRawPipeline += rawVolume;
+      totalWeightedPipeline += weightedVolume;
+
+      return {
+        stageId: stage.id,
+        stageName: stage.name,
+        probability: stage.probability,
+        dealCount: stage.deals.length,
+        rawVolume,
+        weightedVolume,
+      };
+    });
+
+    return {
+      totalRawPipeline,
+      totalWeightedPipeline,
+      stages: stageBuckets,
+    };
+  }
+
+  // --------------------------------------------------------
   // Utility
   // --------------------------------------------------------
   private formatCurrency(value: number): string {
