@@ -12,6 +12,8 @@ import { ContractsService } from './contracts.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
+import { ContractBuilderService } from './contract-builder.service';
+import type { GenerateContractInput } from '@betflow/shared';
 import type {
   CreateContractInput,
   UpdateContractInput,
@@ -20,7 +22,32 @@ import type {
 @UseGuards(JwtAuthGuard)
 @Controller('contracts')
 export class ContractsController {
-  constructor(private readonly contracts: ContractsService) {}
+  constructor(
+    private readonly contracts: ContractsService,
+    private readonly builderService: ContractBuilderService,
+  ) {}
+
+  @Post('generate')
+  generate(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: GenerateContractInput,
+  ) {
+    return this.builderService.generateContract(user.id, body);
+  }
+
+  @Get('approvals')
+  listApprovals() {
+    return this.builderService.listPendingApprovals();
+  }
+
+  @Post('approvals/:id/review')
+  reviewApproval(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() body: { action: 'APPROVE' | 'REJECT' },
+  ) {
+    return this.builderService.reviewApproval(user.id, id, body.action);
+  }
 
   @Get()
   list(@CurrentUser() user: AuthenticatedUser) {
