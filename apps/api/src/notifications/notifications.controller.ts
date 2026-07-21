@@ -9,16 +9,16 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { InMemoryService } from '../database/in-memory.service';
+import {
+  InMemoryService,
+  type FollowUpReminder,
+  type NotificationMessage,
+  type OverduePaymentAlert,
+} from '../database/in-memory.service';
 import { NotificationsService } from './notifications.service';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import type { AuthenticatedUser } from '../auth/auth.types';
-import type {
-  FollowUpReminder,
-  NotificationMessage,
-  OverduePaymentAlert,
-} from '../database/in-memory.service';
 
 type CreateNotificationMessageBody = Omit<NotificationMessage, 'id'>;
 type CreateOverduePaymentAlertBody = Omit<OverduePaymentAlert, 'id'>;
@@ -50,18 +50,13 @@ export class NotificationsController {
 
   @UseGuards(JwtAuthGuard)
   @Delete('inbox/:id')
-  deleteInbox(
-    @CurrentUser() user: AuthenticatedUser,
-    @Param('id') id: string,
-  ) {
+  deleteInbox(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     return this.notifications.delete(user.id, id);
   }
 
   // 2. Existing communication channel queue (in-memory mock)
   @Get()
-  list(
-    @Query('channel') channel?: NotificationMessage['channel'],
-  ) {
+  list(@Query('channel') channel?: NotificationMessage['channel']) {
     return this.store.listNotificationMessages(channel);
   }
 

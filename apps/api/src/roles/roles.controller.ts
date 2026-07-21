@@ -1,11 +1,19 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import type { AuthenticatedUser } from '../auth/auth.types';
-import { RolesService } from './roles.service';
-import type { CreateRoleBody } from './roles.service';
+import { RolesService, type CreateRoleBody } from './roles.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('roles')
