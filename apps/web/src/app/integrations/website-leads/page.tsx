@@ -43,7 +43,7 @@ export default function WebsiteLeadsPage() {
 
   const apiUrl =
     typeof window !== "undefined"
-      ? `${window.location.origin.replace("3001", "3000")}/api/enterprise/website-leads/capture`
+      ? `${window.location.origin.replace("3001", "4000")}/api/enterprise/website-leads/capture`
       : "/api/enterprise/website-leads/capture";
 
   useEffect(() => {
