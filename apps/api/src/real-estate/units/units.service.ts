@@ -1,0 +1,233 @@
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { PrismaService } from '../../database/prisma.service';
+import {
+  CreateUnitInput,
+  UNIT_STATUSES,
+  UnitStatus,
+  UpdateUnitInput,
+} from './units.types';
+
+const unitInclude = {
+  floor: {
+    select: {
+      id: true,
+      floorNumber: true,
+      name: true,
+      building: {
+        select: {
+          id: true,
+          name: true,
+          project: { select: { id: true, name: true } },
+        },
+      },
+    },
+  },
+  _count: { select: { deals: true, reservations: true, contracts: true } },
+} as const;
+
+@Injectable()
+export class UnitsService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  list(filters: { status?: string; floorId?: string } = {}) {
+    const where: Record<string, unknown> = {};
+    if (filters.status) where.status = this.normalizeStatus(filters.status);
+    if (filters.floorId) where.floorId = filters.floorId;
+
+    return this.prisma.unit.findMany({
+      where,
+      include: unitInclude,
+      orderBy: { unitNumber: 'asc' },
+    });
+  }
+
+  async get(id: string) {
+    const unit = await this.prisma.unit.findFirst({
+      where: { id },
+      include: unitInclude,
+    });
+
+    if (!unit) {
+      throw new NotFoundException(`Unit ${id} was not found`);
+    }
+
+    return unit;
+  }
+
+  async create(userId: string, input: CreateUnitInput) {
+    const unitNumber = input.unitNumber?.trim();
+    if (!unitNumber) throw new BadRequestException('unitNumber is required');
+
+    const type = input.type?.trim();
+    if (!type) throw new BadRequestException('type is required');
+
+    if (!input.floorId) throw new BadRequestException('floorId is required');
+    await this.assertFloorBelongsToTenant(input.floorId);
+
+    const price = this.normalizePrice(input.price);
+    const status = this.normalizeStatus(input.status ?? 'AVAILABLE');
+
+    const unit = await this.prisma.unit.create({
+      data: {
+        floorId: input.floorId,
+        unitNumber,
+        type,
+        status,
+        price,
+        area: input.area ?? null,
+      },
+      include: unitInclude,
+    });
+
+    await this.recordAudit(userId, 'unit.created', unit.id);
+
+    return unit;
+  }
+
+  async update(userId: string, id: string, input: UpdateUnitInput) {
+    const existing = await this.prisma.unit.findFirst({
+      where: { id },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(`Unit ${id} was not found`);
+    }
+
+    if (input.floorId) {
+      await this.assertFloorBelongsToTenant(input.floorId);
+    }
+
+    const data: Record<string, unknown> = {};
+    if (input.floorId !== undefined) data.floorId = input.floorId;
+    if (input.unitNumber !== undefined) {
+      const unitNumber = input.unitNumber.trim();
+      if (!unitNumber)
+        throw new BadRequestException('unitNumber cannot be empty');
+      data.unitNumber = unitNumber;
+    }
+    if (input.type !== undefined) {
+      const type = input.type.trim();
+      if (!type) throw new BadRequestException('type cannot be empty');
+      data.type = type;
+    }
+    if (input.status !== undefined)
+      data.status = this.normalizeStatus(input.status);
+    if (input.price !== undefined)
+      data.price = this.normalizePrice(input.price);
+    if (input.area !== undefined) data.area = input.area ?? null;
+
+    const unit = await this.prisma.unit.update({
+      where: { id },
+      data,
+      include: unitInclude,
+    });
+
+    await this.recordAudit(userId, 'unit.updated', unit.id);
+
+    return unit;
+  }
+
+  async updateStatus(userId: string, id: string, status: string) {
+    const normalized = this.normalizeStatus(status);
+    const existing = await this.prisma.unit.findFirst({
+      where: { id },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(`Unit ${id} was not found`);
+    }
+
+    const unit = await this.prisma.unit.update({
+      where: { id },
+      data: { status: normalized },
+      include: unitInclude,
+    });
+
+    await this.recordAudit(userId, 'unit.status_changed', unit.id, {
+      from: existing.status,
+      to: normalized,
+    });
+
+    return unit;
+  }
+
+  async remove(userId: string, id: string) {
+    const existing = await this.prisma.unit.findFirst({
+      where: { id },
+      include: {
+        _count: {
+          select: { deals: true, reservations: true, contracts: true },
+        },
+      },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(`Unit ${id} was not found`);
+    }
+
+    if (
+      existing._count.deals > 0 ||
+      existing._count.reservations > 0 ||
+      existing._count.contracts > 0
+    ) {
+      throw new BadRequestException(
+        'Cannot delete a unit with linked deals, reservations, or contracts',
+      );
+    }
+
+    await this.prisma.unit.delete({ where: { id } });
+    await this.recordAudit(userId, 'unit.deleted', id);
+
+    return { id, deleted: true };
+  }
+
+  private normalizeStatus(status: string): UnitStatus {
+    const upper = status?.trim().toUpperCase();
+
+    if (!UNIT_STATUSES.includes(upper as UnitStatus)) {
+      throw new BadRequestException(
+        `status must be one of: ${UNIT_STATUSES.join(', ')}`,
+      );
+    }
+
+    return upper as UnitStatus;
+  }
+
+  private normalizePrice(value: number | string): string {
+    const parsed = typeof value === 'string' ? Number(value) : value;
+
+    if (value === undefined || value === null || Number.isNaN(parsed)) {
+      throw new BadRequestException('price must be a valid number');
+    }
+    if (parsed < 0) {
+      throw new BadRequestException('price cannot be negative');
+    }
+
+    return parsed.toFixed(2);
+  }
+
+  private async assertFloorBelongsToTenant(floorId: string) {
+    const floor = await this.prisma.floor.findFirst({
+      where: { id: floorId },
+    });
+
+    if (!floor) {
+      throw new BadRequestException(`Floor ${floorId} was not found`);
+    }
+  }
+
+  private recordAudit(
+    userId: string,
+    action: string,
+    entityId: string,
+    newValues?: Record<string, string>,
+  ) {
+    return this.prisma.auditLog.create({
+      data: { userId, action, entityType: 'Unit', entityId, newValues },
+    });
+  }
+}

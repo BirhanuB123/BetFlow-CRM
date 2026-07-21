@@ -15,7 +15,7 @@ export class PrismaService
   constructor() {
     super({
       adapter: new PrismaPg(process.env.DATABASE_URL as string),
-    } as never);
+    });
   }
   async onModuleInit() {
     await this.$connect();

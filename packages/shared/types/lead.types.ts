@@ -5,19 +5,7 @@
  *   - apps/web/src/features/leads/crm-data.ts
  */
 import type { Priority } from './common.types';
-
-// ─── Status & Stage ────────────────────────────────────────────────────────────
-
-/** API-level lead status values (stored in DB) */
-export const LEAD_STATUSES = [
-  'NEW',
-  'CONTACTED',
-  'QUALIFIED',
-  'FOLLOW_UP',
-  'WON',
-  'LOST',
-  'CONVERTED',
-] as const;
+import { LEAD_STATUSES } from '../constants/lead.constants';
 
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
 
