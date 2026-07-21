@@ -24,6 +24,11 @@ import type {
 export class UnitsController {
   constructor(private readonly units: UnitsService) {}
 
+  @Get('stacking-plan')
+  getStackingPlan() {
+    return this.units.getStackingPlan();
+  }
+
   @Get()
   list(
     @CurrentUser() user: AuthenticatedUser,

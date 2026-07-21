@@ -12,12 +12,21 @@ import { PaymentsService } from './payments.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
-import type { CreatePaymentInput, UpdatePaymentInput } from './payments.types';
+import { PaymentPlanService } from './payment-plan.service';
+import type { CreatePaymentInput, UpdatePaymentInput, PaymentPlanInput } from './payments.types';
 
 @UseGuards(JwtAuthGuard)
 @Controller('payments')
 export class PaymentsController {
-  constructor(private readonly payments: PaymentsService) {}
+  constructor(
+    private readonly payments: PaymentsService,
+    private readonly planService: PaymentPlanService,
+  ) {}
+
+  @Post('calculate-plan')
+  calculatePlan(@Body() body: PaymentPlanInput) {
+    return this.planService.calculatePaymentPlan(body);
+  }
 
   @Get()
   list(@CurrentUser() user: AuthenticatedUser) {

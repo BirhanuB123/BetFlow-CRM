@@ -26,3 +26,29 @@ export type UpdateFloorInput = {
   floorNumber?: number;
   name?: string | null;
 };
+
+// ─── Stacking Plan & Inventory Visualizer Types ───────────────────────────────
+
+export type UnitStatus = 'AVAILABLE' | 'RESERVED' | 'SOLD' | 'BLOCKED';
+
+export type StackingPlanUnit = {
+  id: string;
+  unitNumber: string;
+  type: string;
+  status: UnitStatus;
+  price: number | string;
+  area: number | null;
+};
+
+export type StackingPlanFloor = {
+  id: string;
+  floorNumber: number;
+  name: string | null;
+  units: StackingPlanUnit[];
+};
+
+export type StackingPlanBuilding = {
+  id: string;
+  name: string;
+  floors: StackingPlanFloor[];
+};

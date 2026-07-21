@@ -1,12 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Calculator, Grid, Table as TableIcon, X } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
+import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import type { PaymentPlanCalculation } from "@betflow/shared";
 
 const UNIT_STATUSES = ["AVAILABLE", "RESERVED", "SOLD"] as const;
 type UnitStatus = (typeof UNIT_STATUSES)[number];
@@ -31,29 +34,65 @@ type ApiUnit = {
   _count: { deals: number; reservations: number; contracts: number };
 };
 
-const statusClass: Record<string, string> = {
-  AVAILABLE: "bg-emerald-100 text-emerald-700",
-  RESERVED: "bg-amber-100 text-amber-700",
-  SOLD: "bg-zinc-200 text-zinc-700",
+type StackingUnit = {
+  id: string;
+  unitNumber: string;
+  type: string;
+  status: string;
+  price: string;
+  area: number | null;
 };
 
-function formatPrice(value: string) {
+type StackingFloor = {
+  id: string;
+  floorNumber: number;
+  name: string | null;
+  units: StackingUnit[];
+};
+
+type StackingBuilding = {
+  id: string;
+  name: string;
+  floors: StackingFloor[];
+};
+
+const statusClass: Record<string, string> = {
+  AVAILABLE: "bg-emerald-100 text-emerald-700 border-emerald-300",
+  RESERVED: "bg-amber-100 text-amber-800 border-amber-300",
+  SOLD: "bg-rose-100 text-rose-800 border-rose-300",
+};
+
+const statusTileBg: Record<string, string> = {
+  AVAILABLE: "bg-emerald-50 text-emerald-900 border-emerald-300 hover:bg-emerald-100",
+  RESERVED: "bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100",
+  SOLD: "bg-rose-50 text-rose-900 border-rose-300 hover:bg-rose-100",
+};
+
+function formatPrice(value: string | number) {
   return formatCurrency(value);
 }
 
 export default function UnitsPage() {
   const [units, setUnits] = useState<ApiUnit[]>([]);
+  const [stackingPlan, setStackingPlan] = useState<StackingBuilding[]>([]);
+  const [viewMode, setViewMode] = useState<"STACKING_PLAN" | "TABLE">("STACKING_PLAN");
   const [filter, setFilter] = useState<UnitStatus | "ALL">("ALL");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Selected unit for Payment Plan Modal
+  const [calcUnit, setCalcUnit] = useState<ApiUnit | StackingUnit | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      // Always fetch all units so the stat cards stay accurate; filter client-side.
-      const data = await apiFetch<ApiUnit[]>("/units");
-      setUnits(data);
+      const [unitsData, stackingData] = await Promise.all([
+        apiFetch<ApiUnit[]>("/units"),
+        apiFetch<StackingBuilding[]>("/units/stacking-plan"),
+      ]);
+      setUnits(unitsData);
+      setStackingPlan(stackingData);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load units");
     } finally {
@@ -97,117 +136,378 @@ export default function UnitsPage() {
 
   return (
     <DashboardShell
-      title="Units"
-      description="Unit status, pricing, and availability controls."
+      title="Units & Stacking Plan"
+      description="Interactive real estate unit visualizer & payment schedule calculator."
       active="Units"
     >
-      <section className="grid gap-4 md:grid-cols-4">
-        <button
-          type="button"
-          onClick={() => setFilter("ALL")}
-          className={cn(
-            "rounded-lg border bg-white p-4 text-left transition",
-            filter === "ALL" ? "border-zinc-900" : "border-zinc-200 hover:border-zinc-400",
-          )}
-        >
-          <p className="text-sm font-medium text-zinc-500">All units</p>
-          <p className="mt-3 text-2xl font-semibold">{units.length}</p>
-        </button>
-        {UNIT_STATUSES.map((status) => (
-          <button
-            key={status}
-            type="button"
-            onClick={() => setFilter(status)}
-            className={cn(
-              "rounded-lg border bg-white p-4 text-left transition",
-              filter === status ? "border-zinc-900" : "border-zinc-200 hover:border-zinc-400",
-            )}
+      {/* Top Header & View Mode Selector */}
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
+          <Button
+            variant={viewMode === "STACKING_PLAN" ? "default" : "outline"}
+            onClick={() => setViewMode("STACKING_PLAN")}
+            className="h-9 gap-1.5"
           >
-            <p className="text-sm font-medium text-zinc-500">
-              {status.charAt(0) + status.slice(1).toLowerCase()}
-            </p>
-            <p className="mt-3 text-2xl font-semibold">{counts[status]}</p>
-            <span
-              className={cn(
-                "mt-3 inline-flex rounded-md px-2 py-1 text-xs font-medium",
-                statusClass[status],
-              )}
-            >
-              Unit status
-            </span>
-          </button>
-        ))}
-      </section>
+            <Grid className="size-4" />
+            Interactive Stacking Matrix
+          </Button>
+          <Button
+            variant={viewMode === "TABLE" ? "default" : "outline"}
+            onClick={() => setViewMode("TABLE")}
+            className="h-9 gap-1.5"
+          >
+            <TableIcon className="size-4" />
+            Inventory Table
+          </Button>
+        </div>
 
-      <section className="mt-6 rounded-lg border border-zinc-200 bg-white">
-        <div className="flex items-center justify-between gap-4 border-b border-zinc-200 p-4">
+        {/* Legend */}
+        <div className="flex items-center gap-3 text-xs font-semibold">
+          <span className="flex items-center gap-1 text-emerald-700">
+            <span className="size-2.5 rounded-full bg-emerald-500" />
+            Available ({counts.AVAILABLE})
+          </span>
+          <span className="flex items-center gap-1 text-amber-800">
+            <span className="size-2.5 rounded-full bg-amber-500" />
+            Reserved ({counts.RESERVED})
+          </span>
+          <span className="flex items-center gap-1 text-rose-800">
+            <span className="size-2.5 rounded-full bg-rose-500" />
+            Sold ({counts.SOLD})
+          </span>
+        </div>
+      </div>
+
+      {error && (
+        <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {error}
+        </p>
+      )}
+
+      {/* 1. INTERACTIVE STACKING PLAN VIEW */}
+      {viewMode === "STACKING_PLAN" ? (
+        <section className="space-y-6">
+          {loading ? (
+            <p className="p-6 text-sm text-zinc-500">Loading building matrix…</p>
+          ) : stackingPlan.length === 0 ? (
+            <p className="p-6 text-sm text-zinc-500">No building stacking data available.</p>
+          ) : (
+            stackingPlan.map((b) => (
+              <div key={b.id} className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs">
+                <div className="mb-4 flex items-center justify-between border-b border-zinc-100 pb-3">
+                  <div>
+                    <h2 className="text-lg font-bold text-zinc-900">{b.name}</h2>
+                    <p className="text-xs text-zinc-500">Floor-by-Floor Unit Elevation Matrix</p>
+                  </div>
+                  <span className="rounded-md bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-700">
+                    {b.floors.length} Floors
+                  </span>
+                </div>
+
+                {/* Floors Elevation Grid */}
+                <div className="space-y-3">
+                  {b.floors.map((f) => (
+                    <div
+                      key={f.id}
+                      className="flex flex-col gap-2 rounded-lg border border-zinc-100 bg-zinc-50/50 p-3 sm:flex-row sm:items-center"
+                    >
+                      <div className="w-28 shrink-0 text-xs font-bold text-zinc-700">
+                        {f.name || `Floor ${f.floorNumber}`}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        {f.units.map((u) => (
+                          <div
+                            key={u.id}
+                            className={cn(
+                              "group relative flex cursor-pointer flex-col justify-between rounded-lg border p-2.5 shadow-2xs transition-all hover:scale-105 min-w-[120px]",
+                              statusTileBg[u.status] ?? "bg-white border-zinc-200",
+                            )}
+                            onClick={() => setCalcUnit(u)}
+                          >
+                            <div className="flex items-center justify-between text-xs font-bold">
+                              <span>Unit {u.unitNumber}</span>
+                              <span className="text-[10px] opacity-75">{u.type}</span>
+                            </div>
+                            <div className="mt-2 text-xs font-extrabold">
+                              {formatPrice(u.price)}
+                            </div>
+                            <div className="mt-1 flex items-center justify-between text-[10px] text-zinc-500">
+                              <span>{u.area ? `${u.area} m²` : "—"}</span>
+                              <span className="font-semibold text-[#334cff] group-hover:underline flex items-center gap-0.5">
+                                <Calculator className="size-3" /> Plan
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
+        </section>
+      ) : (
+        /* 2. INVENTORY TABLE VIEW */
+        <section className="rounded-lg border border-zinc-200 bg-white">
+          <div className="flex items-center justify-between gap-4 border-b border-zinc-200 p-4">
+            <div>
+              <h2 className="text-base font-semibold">Unit availability</h2>
+              <p className="text-sm text-zinc-500">
+                Live inventory synced with reservations and contracts.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value as UnitStatus | "ALL")}
+                className="h-8 rounded-md border border-zinc-200 bg-white px-2 text-xs font-medium"
+              >
+                <option value="ALL">All Statuses</option>
+                {UNIT_STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {loading ? (
+            <p className="p-6 text-sm text-zinc-500">Loading units…</p>
+          ) : visible.length === 0 ? (
+            <p className="p-6 text-sm text-zinc-500">No units match this filter.</p>
+          ) : (
+            <CrmTable
+              columns={[
+                "Unit",
+                "Project",
+                "Building",
+                "Floor",
+                "Type",
+                "Area",
+                "Price",
+                "Status",
+                "Payment Plan",
+                "Override",
+              ]}
+              rows={visible.map((unit) => [
+                <span key="unit" className="font-medium">
+                  {unit.unitNumber}
+                </span>,
+                unit.floor.building.project.name,
+                unit.floor.building.name,
+                unit.floor.name ?? `Floor ${unit.floor.floorNumber}`,
+                unit.type,
+                unit.area != null ? `${unit.area.toLocaleString()} sqm` : "—",
+                formatPrice(unit.price),
+                <span
+                  key="status"
+                  className={cn(
+                    "rounded-md px-2 py-1 text-xs font-medium border",
+                    statusClass[unit.status] ?? "bg-zinc-100 text-zinc-700",
+                  )}
+                >
+                  {unit.status}
+                </span>,
+                <Button
+                  key="plan"
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs gap-1 text-[#334cff] border-[#334cff]/30 hover:bg-[#334cff]/5"
+                  onClick={() => setCalcUnit(unit)}
+                >
+                  <Calculator className="size-3" /> Calculate
+                </Button>,
+                <select
+                  key="override"
+                  value={unit.status}
+                  onChange={(e) => overrideStatus(unit.id, e.target.value)}
+                  className="h-8 rounded-md border border-zinc-200 bg-white px-2 text-xs"
+                  aria-label={`Override status for unit ${unit.unitNumber}`}
+                >
+                  {UNIT_STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>,
+              ])}
+            />
+          )}
+        </section>
+      )}
+
+      {/* PAYMENT PLAN CALCULATOR MODAL */}
+      {calcUnit ? (
+        <PaymentPlanModal unit={calcUnit} onClose={() => setCalcUnit(null)} />
+      ) : null}
+    </DashboardShell>
+  );
+}
+
+function PaymentPlanModal({
+  unit,
+  onClose,
+}: {
+  unit: ApiUnit | StackingUnit;
+  onClose: () => void;
+}) {
+  const [downPercent, setDownPercent] = useState(15);
+  const [handoverPercent, setHandoverPercent] = useState(35);
+  const [installments, setInstallments] = useState(4);
+  const [calculation, setCalculation] = useState<PaymentPlanCalculation | null>(null);
+  const [calculating, setCalculating] = useState(false);
+
+  const calculate = useCallback(async () => {
+    setCalculating(true);
+    try {
+      const res = await apiFetch<PaymentPlanCalculation>("/payments/calculate-plan", {
+        method: "POST",
+        body: JSON.stringify({
+          unitPrice: Number(unit.price),
+          downPaymentPercent: downPercent,
+          handoverPercent: handoverPercent,
+          installmentsCount: installments,
+        }),
+      });
+      setCalculation(res);
+    } catch (err) {
+      console.error("Failed to calculate plan", err);
+    } finally {
+      setCalculating(false);
+    }
+  }, [unit.price, downPercent, handoverPercent, installments]);
+
+  useEffect(() => {
+    void calculate();
+  }, [calculate]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-xs">
+      <div className="w-full max-w-xl rounded-xl bg-white p-6 shadow-2xl border border-zinc-100 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+          <div className="flex items-center gap-2">
+            <Calculator className="size-5 text-[#334cff]" />
+            <div>
+              <h2 className="text-base font-bold text-zinc-900">
+                Payment Plan Calculator — Unit {unit.unitNumber}
+              </h2>
+              <p className="text-xs text-zinc-500">
+                {unit.type} · Total Value: {formatPrice(unit.price)}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+
+        {/* Inputs Controls */}
+        <div className="my-4 grid gap-3 sm:grid-cols-3 bg-zinc-50 p-3.5 rounded-lg border border-zinc-200">
           <div>
-            <h2 className="text-base font-semibold">Unit availability</h2>
-            <p className="text-sm text-zinc-500">
-              Live inventory synced with reservations and contracts.
-            </p>
+            <label className="text-xs font-semibold text-zinc-600">Booking / Down %</label>
+            <input
+              type="number"
+              min="5"
+              max="50"
+              value={downPercent}
+              onChange={(e) => setDownPercent(Number(e.target.value))}
+              className="mt-1 h-8 w-full rounded-md border border-zinc-200 bg-white px-2.5 text-xs font-medium"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-zinc-600">Installment Count</label>
+            <select
+              value={installments}
+              onChange={(e) => setInstallments(Number(e.target.value))}
+              className="mt-1 h-8 w-full rounded-md border border-zinc-200 bg-white px-2.5 text-xs font-medium"
+            >
+              <option value={2}>2 Installments (Semi-Annual)</option>
+              <option value={4}>4 Installments (Quarterly)</option>
+              <option value={8}>8 Installments (Bi-Quarterly)</option>
+              <option value={12}>12 Installments (Monthly)</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-zinc-600">Handover %</label>
+            <input
+              type="number"
+              min="10"
+              max="60"
+              value={handoverPercent}
+              onChange={(e) => setHandoverPercent(Number(e.target.value))}
+              className="mt-1 h-8 w-full rounded-md border border-zinc-200 bg-white px-2.5 text-xs font-medium"
+            />
           </div>
         </div>
 
-        {error && (
-          <p className="border-b border-zinc-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-            {error}
-          </p>
-        )}
+        {/* Calculation Summary */}
+        {calculating ? (
+          <p className="p-4 text-center text-xs text-zinc-500">Calculating schedule...</p>
+        ) : calculation ? (
+          <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-2 rounded-lg bg-[#334cff]/5 p-3 border border-[#334cff]/20 text-center">
+              <div>
+                <p className="text-[10px] font-semibold text-zinc-500 uppercase">Down Payment</p>
+                <p className="text-sm font-bold text-[#334cff]">
+                  {formatPrice(calculation.downPaymentAmount)}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold text-zinc-500 uppercase">Milestone Payment</p>
+                <p className="text-sm font-bold text-zinc-900">
+                  {formatPrice(calculation.installmentAmount)} / step
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold text-zinc-500 uppercase">Handover Payment</p>
+                <p className="text-sm font-bold text-emerald-700">
+                  {formatPrice(calculation.handoverAmount)}
+                </p>
+              </div>
+            </div>
 
-        {loading ? (
-          <p className="p-6 text-sm text-zinc-500">Loading units…</p>
-        ) : visible.length === 0 ? (
-          <p className="p-6 text-sm text-zinc-500">No units match this filter.</p>
-        ) : (
-          <CrmTable
-            columns={[
-              "Unit",
-              "Project",
-              "Building",
-              "Floor",
-              "Type",
-              "Area",
-              "Price",
-              "Status",
-              "Override",
-            ]}
-            rows={visible.map((unit) => [
-              <span key="unit" className="font-medium">
-                {unit.unitNumber}
-              </span>,
-              unit.floor.building.project.name,
-              unit.floor.building.name,
-              unit.floor.name ?? `Floor ${unit.floor.floorNumber}`,
-              unit.type,
-              unit.area != null ? `${unit.area.toLocaleString()} sqm` : "—",
-              formatPrice(unit.price),
-              <span
-                key="status"
-                className={cn(
-                  "rounded-md px-2 py-1 text-xs font-medium",
-                  statusClass[unit.status] ?? "bg-zinc-100 text-zinc-700",
-                )}
-              >
-                {unit.status}
-              </span>,
-              <select
-                key="override"
-                value={unit.status}
-                onChange={(e) => overrideStatus(unit.id, e.target.value)}
-                className="h-8 rounded-md border border-zinc-200 bg-white px-2 text-xs"
-                aria-label={`Override status for unit ${unit.unitNumber}`}
-              >
-                {UNIT_STATUSES.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>,
-            ])}
-          />
-        )}
-      </section>
-    </DashboardShell>
+            {/* Itemized Installment Table */}
+            <div className="max-h-56 overflow-y-auto rounded-lg border border-zinc-200">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-zinc-100 text-zinc-600 font-semibold sticky top-0">
+                  <tr>
+                    <th className="px-3 py-2">#</th>
+                    <th className="px-3 py-2">Milestone Description</th>
+                    <th className="px-3 py-2">Due Date</th>
+                    <th className="px-3 py-2 text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-100">
+                  {calculation.schedule.map((item) => (
+                    <tr key={item.installmentNumber} className="hover:bg-zinc-50">
+                      <td className="px-3 py-2 font-bold text-zinc-400">{item.installmentNumber}</td>
+                      <td className="px-3 py-2 font-medium text-zinc-800">{item.label}</td>
+                      <td className="px-3 py-2 text-zinc-500">
+                        {new Date(item.dueDate).toLocaleDateString()}
+                      </td>
+                      <td className="px-3 py-2 text-right font-bold text-zinc-900">
+                        {formatPrice(item.amount)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="mt-5 flex justify-end gap-2 border-t border-zinc-100 pt-3">
+          <Button variant="outline" onClick={onClose} className="h-9">
+            Close Calculator
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }

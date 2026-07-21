@@ -28,3 +28,30 @@ export type UpdatePaymentInput = {
   date?: string;
   status?: string;
 };
+
+// ─── Payment Plan & Installment Generator Types ────────────────────────────────
+
+export type PaymentPlanInput = {
+  unitPrice: number;
+  downPaymentPercent: number;
+  installmentsCount: number;
+  handoverPercent: number;
+  startDate?: string;
+};
+
+export type PaymentScheduleItem = {
+  installmentNumber: number;
+  label: string;
+  dueDate: string;
+  amount: number;
+  percentage: number;
+  status: 'PENDING' | 'PAID' | 'LATE';
+};
+
+export type PaymentPlanCalculation = {
+  unitPrice: number;
+  downPaymentAmount: number;
+  handoverAmount: number;
+  installmentAmount: number;
+  schedule: PaymentScheduleItem[];
+};
