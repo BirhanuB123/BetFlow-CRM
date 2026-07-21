@@ -33,6 +33,40 @@ const unitInclude = {
 export class UnitsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async getStackingPlan() {
+    const buildings = await this.prisma.building.findMany({
+      include: {
+        floors: {
+          include: {
+            units: {
+              orderBy: { unitNumber: 'asc' },
+            },
+          },
+          orderBy: { floorNumber: 'desc' },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+
+    return buildings.map((b) => ({
+      id: b.id,
+      name: b.name,
+      floors: b.floors.map((f) => ({
+        id: f.id,
+        floorNumber: f.floorNumber,
+        name: f.name,
+        units: f.units.map((u) => ({
+          id: u.id,
+          unitNumber: u.unitNumber,
+          type: u.type,
+          status: u.status,
+          price: u.price,
+          area: u.area,
+        })),
+      })),
+    }));
+  }
+
   list(filters: { status?: string; floorId?: string } = {}) {
     const where: Record<string, unknown> = {};
     if (filters.status) where.status = this.normalizeStatus(filters.status);
