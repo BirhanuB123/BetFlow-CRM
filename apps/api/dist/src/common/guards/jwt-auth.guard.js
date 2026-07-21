@@ -11,7 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.JwtAuthGuard = void 0;
 const common_1 = require("@nestjs/common");
-const jwt_service_1 = require("../../auth/jwt.service");
+const jwt_service_1 = require("../../core/auth/jwt.service");
 let JwtAuthGuard = class JwtAuthGuard {
     jwt;
     constructor(jwt) {

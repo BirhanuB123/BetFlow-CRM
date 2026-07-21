@@ -35,7 +35,7 @@ let InMemoryService = class InMemoryService {
             ownerUserId: 'user_001',
             domain: 'crm.betflowrealty.com',
             currency: 'ETB',
-        }
+        },
     ];
     roles = [
         {
@@ -932,12 +932,42 @@ let InMemoryService = class InMemoryService {
         },
     ];
     onboardingSteps = [
-        { step: 'Create tenant workspace', owner: 'Platform', status: 'Complete', due: 'Done' },
-        { step: 'Invite admin users', owner: 'Tenant admin', status: 'Complete', due: 'Done' },
-        { step: 'Configure roles and permissions', owner: 'Tenant admin', status: 'In progress', due: '2026-07-02' },
-        { step: 'Publish branding and domain', owner: 'Brand admin', status: 'In progress', due: '2026-07-03' },
-        { step: 'Import leads and inventory from Excel', owner: 'Sales ops', status: 'Not started', due: '2026-07-05' },
-        { step: 'Enable automation and portal', owner: 'Operations', status: 'Blocked', due: 'Needs DNS' },
+        {
+            step: 'Create tenant workspace',
+            owner: 'Platform',
+            status: 'Complete',
+            due: 'Done',
+        },
+        {
+            step: 'Invite admin users',
+            owner: 'Tenant admin',
+            status: 'Complete',
+            due: 'Done',
+        },
+        {
+            step: 'Configure roles and permissions',
+            owner: 'Tenant admin',
+            status: 'In progress',
+            due: '2026-07-02',
+        },
+        {
+            step: 'Publish branding and domain',
+            owner: 'Brand admin',
+            status: 'In progress',
+            due: '2026-07-03',
+        },
+        {
+            step: 'Import leads and inventory from Excel',
+            owner: 'Sales ops',
+            status: 'Not started',
+            due: '2026-07-05',
+        },
+        {
+            step: 'Enable automation and portal',
+            owner: 'Operations',
+            status: 'Blocked',
+            due: 'Needs DNS',
+        },
     ];
     excelImportTemplates = [
         {
@@ -950,21 +980,39 @@ let InMemoryService = class InMemoryService {
         {
             template: 'Customer import workbook',
             entity: 'Customers',
-            requiredColumns: ['firstName', 'lastName', 'email', 'phone', 'nationalId'],
+            requiredColumns: [
+                'firstName',
+                'lastName',
+                'email',
+                'phone',
+                'nationalId',
+            ],
             lastRun: '2026-06-28',
             status: 'Ready',
         },
         {
             template: 'Unit inventory workbook',
             entity: 'Units',
-            requiredColumns: ['project', 'building', 'floor', 'unitNumber', 'price', 'status'],
+            requiredColumns: [
+                'project',
+                'building',
+                'floor',
+                'unitNumber',
+                'price',
+                'status',
+            ],
             lastRun: 'Today',
             status: 'Processing',
         },
         {
             template: 'Payment schedule workbook',
             entity: 'Payments',
-            requiredColumns: ['contractRef', 'dueDate', 'amount', 'installmentNumber'],
+            requiredColumns: [
+                'contractRef',
+                'dueDate',
+                'amount',
+                'installmentNumber',
+            ],
             lastRun: 'Never',
             status: 'Ready',
         },
@@ -1012,7 +1060,8 @@ let InMemoryService = class InMemoryService {
         this.tenants.push(tenant);
         this.roles.push(ownerRole);
         this.users.push(owner);
-        this.recordAudit({ actor: owner.name,
+        this.recordAudit({
+            actor: owner.name,
             action: 'Registered tenant',
             target: tenant.name,
             severity: 'info',
@@ -1211,7 +1260,7 @@ let InMemoryService = class InMemoryService {
     }
     listBuildings(projectId) {
         return this.buildings.filter((building) => {
-            return ((!projectId || building.projectId === projectId));
+            return !projectId || building.projectId === projectId;
         });
     }
     createBuilding(input) {
@@ -1221,7 +1270,7 @@ let InMemoryService = class InMemoryService {
     }
     listFloors(buildingId) {
         return this.floors.filter((floor) => {
-            return ((!buildingId || floor.buildingId === buildingId));
+            return !buildingId || floor.buildingId === buildingId;
         });
     }
     createFloor(input) {
@@ -1231,7 +1280,7 @@ let InMemoryService = class InMemoryService {
     }
     listUnits(status) {
         return this.units.filter((unit) => {
-            return ((!status || unit.status === status));
+            return !status || unit.status === status;
         });
     }
     createUnit(input) {
@@ -1252,7 +1301,7 @@ let InMemoryService = class InMemoryService {
     }
     listPropertyMedia(projectId) {
         return this.propertyMedia.filter((media) => {
-            return ((!projectId || media.projectId === projectId));
+            return !projectId || media.projectId === projectId;
         });
     }
     createPropertyMedia(input) {
@@ -1308,7 +1357,7 @@ let InMemoryService = class InMemoryService {
     }
     listPaymentSchedule(reservationId) {
         return this.paymentSchedule.filter((item) => {
-            return ((!reservationId || item.reservationId === reservationId));
+            return !reservationId || item.reservationId === reservationId;
         });
     }
     createPaymentScheduleItem(input) {
@@ -1321,7 +1370,7 @@ let InMemoryService = class InMemoryService {
     }
     listPaymentTransactions(reservationId) {
         return this.paymentTransactions.filter((payment) => {
-            return ((!reservationId || payment.reservationId === reservationId));
+            return !reservationId || payment.reservationId === reservationId;
         });
     }
     createPaymentTransaction(input) {
@@ -1334,7 +1383,7 @@ let InMemoryService = class InMemoryService {
     }
     listReceiptUploads(paymentId) {
         return this.receiptUploads.filter((receipt) => {
-            return ((!paymentId || receipt.paymentId === paymentId));
+            return !paymentId || receipt.paymentId === paymentId;
         });
     }
     createReceiptUpload(input) {
@@ -1443,7 +1492,7 @@ let InMemoryService = class InMemoryService {
     }
     listNotificationMessages(channel) {
         return this.notificationMessages.filter((message) => {
-            return ((!channel || message.channel === channel));
+            return !channel || message.channel === channel;
         });
     }
     createNotificationMessage(input) {
@@ -1597,7 +1646,12 @@ let InMemoryService = class InMemoryService {
         const job = {
             ...input,
             id: this.nextId(input.type),
-            requestedAt: 'Today, ' + new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+            requestedAt: 'Today, ' +
+                new Date().toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                }),
             status: 'ready',
         };
         this.dataTransferJobs.unshift(job);
