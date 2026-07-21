@@ -1,8 +1,5 @@
 "use client";
 
-
-import type { EthiopianDate, Holiday } from 'kenat';
-
 import { useEffect, useState } from "react";
 import {
   Building2,
@@ -13,13 +10,18 @@ import {
   FileText,
   KeyRound,
   ShieldCheck,
+  Upload,
   UserCheck,
+  X,
+  Send,
 } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
+import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
 import { apiFetch } from "@/lib/api";
+import type { BankSlipSubmissionResult, BankSlipUploadInput } from "@betflow/shared";
 
 type PortalCustomer = {
   id: string;
@@ -114,29 +116,38 @@ export default function CustomerPortalPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"overview" | "schedules" | "contracts" | "invoices" | "api">("overview");
 
-  useEffect(() => {
-    async function loadPortal() {
-      try {
-        setLoading(true);
-        setError(null);
+  // Bank Slip Upload Modal State
+  const [uploadSchedule, setUploadSchedule] = useState<PaymentScheduleItem | null>(null);
+  const [bankName, setBankName] = useState("Commercial Bank of Ethiopia (CBE)");
+  const [refNo, setRefNo] = useState("");
+  const [slipAmount, setSlipAmount] = useState<number>(0);
+  const [slipUrl, setSlipUrl] = useState("");
+  const [submittingSlip, setSubmittingSlip] = useState(false);
+  const [slipResult, setSlipResult] = useState<BankSlipSubmissionResult | null>(null);
 
-        const [meRes, schedRes, invRes] = await Promise.all([
-          apiFetch<PortalMeData>("/portal/me").catch(() => null),
-          apiFetch<PaymentSchedulesData>("/portal/payment-schedules").catch(() => null),
-          apiFetch<InvoiceItem[]>("/portal/invoices").catch(() => []),
-        ]);
+  const loadPortalData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        if (meRes) setMeData(meRes);
-        if (schedRes) setSchedulesData(schedRes);
-        if (invRes) setInvoices(invRes);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load portal data");
-      } finally {
-        setLoading(false);
-      }
+      const [meRes, schedRes, invRes] = await Promise.all([
+        apiFetch<PortalMeData>("/portal/me").catch(() => null),
+        apiFetch<PaymentSchedulesData>("/portal/payment-schedules").catch(() => null),
+        apiFetch<InvoiceItem[]>("/portal/invoices").catch(() => []),
+      ]);
+
+      if (meRes) setMeData(meRes);
+      if (schedRes) setSchedulesData(schedRes);
+      if (invRes) setInvoices(invRes);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load portal data");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    void loadPortal();
+  useEffect(() => {
+    void loadPortalData();
   }, []);
 
   const formatCurrency = (val: number) =>
@@ -163,6 +174,38 @@ export default function CustomerPortalPage() {
         return <span className="rounded-md bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700">{status}</span>;
       default:
         return <span className="rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700">{status}</span>;
+    }
+  };
+
+  const openBankSlipModal = (item: PaymentScheduleItem) => {
+    setUploadSchedule(item);
+    setSlipAmount(item.amount);
+    setRefNo("");
+    setSlipUrl("");
+    setSlipResult(null);
+  };
+
+  const handleBankSlipSubmit = async () => {
+    if (!uploadSchedule || !refNo) return;
+    setSubmittingSlip(true);
+    setError(null);
+    try {
+      const res = await apiFetch<BankSlipSubmissionResult>("/portal/upload-bank-slip", {
+        method: "POST",
+        body: JSON.stringify({
+          scheduleId: uploadSchedule.id,
+          bankName,
+          referenceNumber: refNo,
+          amount: Number(slipAmount),
+          slipUrl: slipUrl || undefined,
+        } satisfies BankSlipUploadInput),
+      });
+      setSlipResult(res);
+      await loadPortalData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to upload bank transfer slip");
+    } finally {
+      setSubmittingSlip(false);
     }
   };
 
@@ -373,21 +416,32 @@ export default function CustomerPortalPage() {
           </div>
 
           <section className="rounded-lg border border-zinc-200 bg-white">
-            <div className="border-b border-zinc-200 p-4">
-              <h2 className="text-base font-semibold">Installment & Payment Schedules</h2>
-              <p className="text-sm text-zinc-500">Contractual payment milestones and due dates.</p>
+            <div className="border-b border-zinc-200 p-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-semibold">Installment & Payment Schedules</h2>
+                <p className="text-sm text-zinc-500">Contractual payment milestones and due dates.</p>
+              </div>
             </div>
             {loading ? (
               <p className="p-6 text-sm text-zinc-500">Loading payment schedules…</p>
             ) : schedulesData?.schedules && schedulesData.schedules.length > 0 ? (
               <CrmTable
-                columns={["Unit", "Project", "Due Date", "Scheduled Amount", "Status"]}
+                columns={["Unit", "Project", "Due Date", "Scheduled Amount", "Status", "Bank Slip Verification"]}
                 rows={schedulesData.schedules.map((s) => [
                   <span key="unit" className="font-medium text-zinc-900">{s.unitNumber}</span>,
                   s.projectName,
                   formatDate(s.dueDate),
                   formatCurrency(s.amount),
                   statusBadge(s.status),
+                  <Button
+                    key="slip"
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs gap-1 text-[#334cff] border-[#334cff]/30 hover:bg-[#334cff]/5"
+                    onClick={() => openBankSlipModal(s)}
+                  >
+                    <Upload className="size-3" /> Upload Slip
+                  </Button>,
                 ])}
               />
             ) : (
@@ -469,10 +523,10 @@ export default function CustomerPortalPage() {
           <div className="divide-y divide-zinc-100 rounded-lg border border-zinc-200 bg-zinc-50">
             {[
               { method: "POST", path: "/api/portal/auth/login", desc: "Public customer login endpoint returning JWT token" },
+              { method: "POST", path: "/api/portal/upload-bank-slip", desc: "Upload Diaspora / CBE bank transfer receipt for verification" },
               { method: "GET", path: "/api/portal/me", desc: "JWT-protected endpoint returning active deals, reserved units, and signed contracts" },
               { method: "GET", path: "/api/portal/payment-schedules", desc: "JWT-protected endpoint returning unit installment schedules and overdue status" },
               { method: "GET", path: "/api/portal/contracts", desc: "JWT-protected endpoint returning detailed unit contracts and schedules" },
-              { method: "GET", path: "/api/portal/documents", desc: "JWT-protected endpoint returning buyer documents and property attachments" },
               { method: "GET", path: "/api/portal/invoices", desc: "JWT-protected endpoint returning billing statements & payment receipts" },
             ].map((ep) => (
               <div key={ep.path} className="flex flex-col gap-1 p-3.5 sm:flex-row sm:items-center sm:justify-between">
@@ -488,6 +542,110 @@ export default function CustomerPortalPage() {
           </div>
         </section>
       )}
+
+      {/* DIASPORA & LOCAL BANK SLIP UPLOAD MODAL */}
+      {uploadSchedule ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl border border-zinc-100">
+            <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+              <div className="flex items-center gap-2">
+                <Upload className="size-5 text-[#334cff]" />
+                <div>
+                  <h2 className="text-base font-bold text-zinc-900">
+                    Bank Transfer Slip Upload
+                  </h2>
+                  <p className="text-xs text-zinc-500">Unit {uploadSchedule.unitNumber} ({uploadSchedule.projectName})</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setUploadSchedule(null)}
+                className="rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <div className="my-4 space-y-3.5">
+              <div>
+                <label className="text-xs font-semibold text-zinc-700">Bank / Channel Name</label>
+                <select
+                  value={bankName}
+                  onChange={(e) => setBankName(e.target.value)}
+                  className="mt-1 h-9 w-full rounded-md border border-zinc-200 bg-white px-3 text-xs font-medium"
+                >
+                  <option value="Commercial Bank of Ethiopia (CBE)">Commercial Bank of Ethiopia (CBE / CBE Birr)</option>
+                  <option value="Bank of Abyssinia (BOA)">Bank of Abyssinia (BOA / Apollo)</option>
+                  <option value="Awash Bank">Awash International Bank</option>
+                  <option value="Dashen Bank">Dashen Bank / Amole</option>
+                  <option value="Zemen Bank">Zemen Bank</option>
+                  <option value="SWIFT Wire Transfer (Diaspora)">SWIFT International Wire Transfer (Diaspora)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-zinc-700">Transaction Reference Number</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. FT2607218894 or SWIFT Ref"
+                  value={refNo}
+                  onChange={(e) => setRefNo(e.target.value)}
+                  className="mt-1 h-9 w-full rounded-md border border-zinc-200 bg-white px-3 text-xs font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-zinc-700">Amount Paid</label>
+                <input
+                  type="number"
+                  required
+                  value={slipAmount}
+                  onChange={(e) => setSlipAmount(Number(e.target.value))}
+                  className="mt-1 h-9 w-full rounded-md border border-zinc-200 bg-white px-3 text-xs font-semibold"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-zinc-700">Receipt Image / Slip URL (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="https://example.com/slips/cbe-receipt-2026.jpg"
+                  value={slipUrl}
+                  onChange={(e) => setSlipUrl(e.target.value)}
+                  className="mt-1 h-9 w-full rounded-md border border-zinc-200 bg-white px-3 text-xs"
+                />
+              </div>
+
+              {/* Success Notification */}
+              {slipResult ? (
+                <div className="rounded-lg bg-emerald-50 p-3.5 border border-emerald-200 text-xs text-emerald-900 space-y-1">
+                  <p className="font-bold flex items-center gap-1 text-emerald-800">
+                    <CheckCircle2 className="size-4" /> Bank Slip Submitted!
+                  </p>
+                  <p>Status: <strong>PENDING_VERIFICATION</strong></p>
+                  <p>Reference: <code className="font-mono">{slipResult.referenceNumber}</code></p>
+                  <p className="text-[11px] text-emerald-700">Finance team has been notified to verify your payment.</p>
+                </div>
+              ) : null}
+            </div>
+
+            <div className="mt-5 flex justify-end gap-2 border-t border-zinc-100 pt-3">
+              <Button variant="outline" onClick={() => setUploadSchedule(null)} className="h-9">
+                Close
+              </Button>
+              <Button
+                onClick={handleBankSlipSubmit}
+                disabled={submittingSlip || !refNo}
+                className="h-9 bg-[#334cff] hover:bg-[#2539cc] text-white gap-1"
+              >
+                <Send className="size-3.5" />
+                {submittingSlip ? "Uploading…" : "Submit Slip"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </DashboardShell>
   );
 }
