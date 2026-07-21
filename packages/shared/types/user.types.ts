@@ -35,3 +35,38 @@ export type PublicUser = {
   status: UserStatus;
   lastSeen?: string;
 };
+
+// ─── Customer & Diaspora Buyer Portal Types ────────────────────────────────────
+
+export type PortalAuthInput = {
+  identifier: string;
+};
+
+export type PortalAuthResponse = {
+  accessToken: string;
+  customer: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string | null;
+    phone: string | null;
+  };
+};
+
+export type BankSlipUploadInput = {
+  scheduleId: string;
+  bankName: string;
+  referenceNumber: string;
+  amount: number;
+  slipUrl?: string;
+  notes?: string;
+};
+
+export type BankSlipSubmissionResult = {
+  id: string;
+  scheduleId: string;
+  status: 'PENDING_VERIFICATION' | 'APPROVED' | 'REJECTED';
+  bankName: string;
+  referenceNumber: string;
+  submittedAt: string;
+};

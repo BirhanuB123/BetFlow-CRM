@@ -21,8 +21,17 @@ export class PortalController {
    */
   @Post('auth/login')
   @HttpCode(HttpStatus.OK)
-  login(@Body() body: Record<string, string>) {
-    return this.portalService.portalLogin(body as PortalLoginDto);
+  login(@Body() body: { identifier: string }) {
+    return this.portalService.login(body.identifier);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('upload-bank-slip')
+  uploadBankSlip(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: any,
+  ) {
+    return this.portalService.uploadBankSlip(user.id, body);
   }
 
   /**
