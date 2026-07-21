@@ -1,0 +1,26 @@
+# Build output
+dist/
+.next/
+
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.*
+
+# Turbo
+.turbo/
+
+# Uploads — never commit user files
+uploads/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+dist/

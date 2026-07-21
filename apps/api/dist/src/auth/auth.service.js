@@ -31,7 +31,11 @@ let AuthService = class AuthService {
         }
         const passwordHash = await this.passwords.hash(input.password || 'tempPassword123');
         const adminRole = await this.prisma.role.findFirst({
-            where: { name: 'admin' },
+            where: {
+                name: {
+                    in: ['Admin', 'admin', 'Owner', 'owner'],
+                },
+            },
         });
         const user = await this.prisma.user.create({
             data: {
@@ -135,6 +139,59 @@ let AuthService = class AuthService {
                 lastName: user.lastName,
             },
         };
+    }
+    async updateProfile(userId, body) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            throw new common_1.NotFoundException(`User was not found`);
+        }
+        const updated = await this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                firstName: body.firstName.trim(),
+                lastName: body.lastName.trim(),
+            },
+        });
+        await this.prisma.auditLog.create({
+            data: {
+                action: 'user.profile_updated',
+                entityType: 'User',
+                entityId: userId,
+                newValues: {
+                    firstName: updated.firstName,
+                    lastName: updated.lastName,
+                },
+            },
+        });
+        return {
+            id: updated.id,
+            email: updated.email,
+            firstName: updated.firstName,
+            lastName: updated.lastName,
+        };
+    }
+    async changePassword(userId, body) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            throw new common_1.NotFoundException(`User was not found`);
+        }
+        const matched = await this.passwords.verify(body.currentPassword, user.password);
+        if (!matched) {
+            throw new common_1.BadRequestException('Current password does not match');
+        }
+        const hashed = await this.passwords.hash(body.newPassword);
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: { password: hashed },
+        });
+        await this.prisma.auditLog.create({
+            data: {
+                action: 'user.password_changed',
+                entityType: 'User',
+                entityId: userId,
+            },
+        });
+        return { success: true };
     }
 };
 exports.AuthService = AuthService;

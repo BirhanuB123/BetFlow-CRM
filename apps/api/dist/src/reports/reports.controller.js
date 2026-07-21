@@ -11,32 +11,36 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReportsController = void 0;
 const common_1 = require("@nestjs/common");
+const reports_service_1 = require("./reports.service");
 const in_memory_service_1 = require("../database/in-memory.service");
+const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 let ReportsController = class ReportsController {
+    reports;
     store;
-    constructor(store) {
+    constructor(reports, store) {
+        this.reports = reports;
         this.store = store;
     }
     catalog() {
         return this.store.getReportsCatalog();
     }
     salesDashboard() {
-        return this.store.getSalesDashboardReport();
+        return this.reports.salesDashboard();
     }
     agentPerformance() {
-        return this.store.getAgentPerformanceReport();
+        return this.reports.agentPerformance();
     }
     revenue() {
-        return this.store.getRevenueReport();
+        return this.reports.revenueReport();
     }
     inventory() {
         return this.store.getInventoryReport();
     }
     conversion() {
-        return this.store.getConversionReport();
+        return this.reports.conversionFunnel();
     }
     paymentAging() {
-        return this.store.getPaymentAgingReport();
+        return this.reports.paymentAging();
     }
 };
 exports.ReportsController = ReportsController;
@@ -83,7 +87,9 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ReportsController.prototype, "paymentAging", null);
 exports.ReportsController = ReportsController = __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('reports'),
-    __metadata("design:paramtypes", [in_memory_service_1.InMemoryService])
+    __metadata("design:paramtypes", [reports_service_1.ReportsService,
+        in_memory_service_1.InMemoryService])
 ], ReportsController);
 //# sourceMappingURL=reports.controller.js.map

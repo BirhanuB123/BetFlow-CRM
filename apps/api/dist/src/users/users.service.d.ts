@@ -10,26 +10,15 @@ export declare class UsersService {
     private readonly prisma;
     private readonly passwords;
     constructor(prisma: PrismaService, passwords: PasswordService);
-    listUsers(): Promise<({
-        roles: ({
-            role: {
-                id: string;
-                name: string;
-            };
-        } & {
-            userId: string;
-            roleId: string;
-        })[];
-    } & {
+    listUsers(): Promise<{
         id: string;
+        name: string;
         email: string;
-        password: string;
-        firstName: string;
-        lastName: string;
-        isActive: boolean;
+        status: string;
         createdAt: Date;
-        updatedAt: Date;
-    })[]>;
+        roleId: string;
+        roleName: string;
+    }[]>;
     inviteUser(input: InviteUserBody): Promise<{
         roles: ({
             role: {
@@ -51,4 +40,25 @@ export declare class UsersService {
         updatedAt: Date;
     }>;
     private splitName;
+    updateUserRole(id: string, roleId: string): Promise<{
+        role: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
+            description: string | null;
+        };
+    } & {
+        userId: string;
+        roleId: string;
+    }>;
+    deleteUser(id: string): Promise<{
+        id: string;
+        deleted: boolean;
+        isActive?: undefined;
+    } | {
+        id: string;
+        deleted: boolean;
+        isActive: boolean;
+    }>;
 }

@@ -6,6 +6,8 @@ export type Tenant = {
     plan: string;
     status: 'active' | 'suspended';
     ownerUserId: string;
+    domain?: string | null;
+    currency?: string | null;
 };
 export type User = {
     id: string;
@@ -341,7 +343,7 @@ export type TenantDomain = {
 };
 export type DataTransferJob = {
     id: string;
-    type: 'export' | 'import';
+    type: 'export' | 'import' | 'excel_import';
     scope: string;
     requestedByUserId: string;
     requestedAt: string;
@@ -386,8 +388,46 @@ type CreateSignedContractInput = Omit<SignedContract, 'id'>;
 type CreateNotificationMessageInput = Omit<NotificationMessage, 'id'>;
 type CreateOverduePaymentAlertInput = Omit<OverduePaymentAlert, 'id'>;
 type CreateFollowUpReminderInput = Omit<FollowUpReminder, 'id'>;
-type CreateTenantDomainInput = Omit<TenantDomain, 'id'>;
-type CreateDataTransferJobInput = Omit<DataTransferJob, 'id' | 'requestedAt'>;
+type CreateTenantDomainInput = {
+    domain: string;
+};
+type CreateDataTransferJobInput = Omit<DataTransferJob, 'id' | 'requestedAt' | 'status'>;
+export type FeatureFlag = {
+    key: string;
+    label: string;
+    description: string;
+    enabled: boolean;
+    scope: 'Tenant' | 'Plan' | 'Beta cohort';
+    rollout: string;
+};
+export type OnboardingStep = {
+    step: string;
+    owner: string;
+    status: 'Complete' | 'In progress' | 'Blocked' | 'Not started';
+    due: string;
+};
+export type ExcelImportTemplate = {
+    template: string;
+    entity: 'Leads' | 'Customers' | 'Units' | 'Payments';
+    requiredColumns: string[];
+    lastRun: string;
+    status: 'Ready' | 'Processing' | 'Failed';
+};
+export type TrialPeriod = {
+    status: 'Active' | 'Expired' | 'Converted';
+    startedAt: string;
+    endsAt: string;
+    daysRemaining: number;
+    conversionOwner: string;
+};
+export type BillingAccount = {
+    accountName: string;
+    billingEmail: string;
+    taxId: string;
+    paymentMethod: string;
+    collectionMode: 'Auto-charge' | 'Invoice';
+    nextCharge: string;
+};
 export declare class InMemoryService {
     private readonly permissions;
     private readonly tenants;
@@ -432,6 +472,11 @@ export declare class InMemoryService {
     private readonly tenantBillingItems;
     private readonly tenantDomains;
     private readonly dataTransferJobs;
+    private readonly featureFlags;
+    private readonly onboardingSteps;
+    private readonly excelImportTemplates;
+    private readonly trialPeriod;
+    private readonly billingAccount;
     registerTenant(input: RegisterTenantInput): {
         tenant: Tenant;
         owner: User;
@@ -459,9 +504,9 @@ export declare class InMemoryService {
     createTask(input: CreateTaskInput): Task;
     listNotes(): Note[];
     createNote(input: CreateNoteInput): Note;
-    listActivities(): void;
+    listActivities(): Activity[];
     recordActivity(input: CreateActivityInput): Activity;
-    listProjects(): void;
+    listProjects(): Project[];
     createProject(input: CreateProjectInput): Project;
     listBuildings(projectId?: string): Building[];
     createBuilding(input: CreateBuildingInput): Building;
@@ -472,10 +517,10 @@ export declare class InMemoryService {
     updateUnitStatus(id: string, status: UnitStatus, availableFrom?: string): Unit;
     listPropertyMedia(projectId?: string): PropertyMedia[];
     createPropertyMedia(input: CreatePropertyMediaInput): PropertyMedia;
-    listSiteVisits(): void;
+    listSiteVisits(): SiteVisit[];
     createSiteVisit(input: CreateSiteVisitInput): SiteVisit;
     updateSiteVisitStatus(id: string, status: SiteVisit['status']): SiteVisit;
-    listReservations(): void;
+    listReservations(): Reservation[];
     createReservation(input: CreateReservationInput): Reservation;
     updateReservationStatus(id: string, status: Reservation['status']): Reservation;
     listPaymentSchedule(reservationId?: string): PaymentScheduleItem[];
@@ -484,27 +529,27 @@ export declare class InMemoryService {
     createPaymentTransaction(input: CreatePaymentTransactionInput): PaymentTransaction;
     listReceiptUploads(paymentId?: string): ReceiptUpload[];
     createReceiptUpload(input: CreateReceiptUploadInput): ReceiptUpload;
-    listFinanceApprovals(): void;
+    listFinanceApprovals(): FinanceApproval[];
     createFinanceApproval(input: CreateFinanceApprovalInput): FinanceApproval;
     updateFinanceApprovalStatus(id: string, status: FinanceApproval['status']): FinanceApproval;
-    listUploadedDocuments(): void;
+    listUploadedDocuments(): UploadedDocument[];
     createUploadedDocument(input: CreateUploadedDocumentInput): UploadedDocument;
     updateUploadedDocumentStatus(id: string, status: UploadedDocument['status']): UploadedDocument;
-    listContractTemplates(): void;
+    listContractTemplates(): ContractTemplate[];
     createContractTemplate(input: CreateContractTemplateInput): ContractTemplate;
-    listGeneratedContractPdfs(): void;
+    listGeneratedContractPdfs(): GeneratedContractPdf[];
     generateContractPdf(input: CreateGeneratedContractPdfInput): GeneratedContractPdf;
-    listLegalContractApprovals(): void;
+    listLegalContractApprovals(): LegalContractApproval[];
     createLegalContractApproval(input: CreateLegalContractApprovalInput): LegalContractApproval;
     updateLegalContractApprovalStatus(id: string, status: LegalContractApproval['status']): LegalContractApproval;
-    listSignedContracts(): void;
+    listSignedContracts(): SignedContract[];
     createSignedContract(input: CreateSignedContractInput): SignedContract;
     listNotificationMessages(channel?: NotificationMessage['channel']): NotificationMessage[];
     createNotificationMessage(input: CreateNotificationMessageInput): NotificationMessage;
     updateNotificationStatus(id: string, status: NotificationMessage['status']): NotificationMessage;
-    listOverduePaymentAlerts(): void;
+    listOverduePaymentAlerts(): OverduePaymentAlert[];
     createOverduePaymentAlert(input: CreateOverduePaymentAlertInput): OverduePaymentAlert;
-    listFollowUpReminders(): void;
+    listFollowUpReminders(): FollowUpReminder[];
     createFollowUpReminder(input: CreateFollowUpReminderInput): FollowUpReminder;
     getReportsCatalog(): ReportCatalogEntry[];
     getSalesDashboardReport(): ReportMetric[];
@@ -514,13 +559,25 @@ export declare class InMemoryService {
     getConversionReport(): ConversionReportRow[];
     getPaymentAgingReport(): PaymentAgingReportRow[];
     listSubscriptionPlans(): SubscriptionPlan[];
-    listFeatureLimits(): void;
-    listBrandingSettings(): void;
+    listFeatureLimits(): FeatureLimit[];
+    listBrandingSettings(): BrandingSetting[];
     updateBrandingSetting(id: string, value: string, status?: BrandingSetting['status']): BrandingSetting;
-    listTenantBillingItems(): void;
-    listTenantDomains(): void;
+    publishBrandingSettings(): BrandingSetting[];
+    listTenantBillingItems(): TenantBillingItem[];
+    listTenantDomains(): TenantDomain[];
     createTenantDomain(input: CreateTenantDomainInput): TenantDomain;
-    listDataTransferJobs(): void;
+    deleteTenantDomain(id: string): {
+        success: boolean;
+    };
+    listFeatureFlags(): FeatureFlag[];
+    toggleFeatureFlag(key: string, enabled: boolean): FeatureFlag;
+    listOnboardingSteps(): OnboardingStep[];
+    updateOnboardingStep(stepName: string, status: OnboardingStep['status']): OnboardingStep;
+    listExcelImportTemplates(): ExcelImportTemplate[];
+    getTrialPeriod(): TrialPeriod;
+    getBillingAccount(): BillingAccount;
+    updateBillingAccount(input: Partial<BillingAccount>): BillingAccount;
+    listDataTransferJobs(): DataTransferJob[];
     createDataTransferJob(input: CreateDataTransferJobInput): DataTransferJob;
     private nextId;
 }

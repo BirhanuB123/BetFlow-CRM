@@ -19,6 +19,8 @@ const customers_module_1 = require("./customers/customers.module");
 const deals_module_1 = require("./deals/deals.module");
 const documents_module_1 = require("./documents/documents.module");
 const enterprise_module_1 = require("./enterprise/enterprise.module");
+const website_leads_module_1 = require("./integrations/website-leads/website-leads.module");
+const social_leads_module_1 = require("./integrations/social-leads/social-leads.module");
 const leads_module_1 = require("./leads/leads.module");
 const notes_module_1 = require("./notes/notes.module");
 const notifications_module_1 = require("./notifications/notifications.module");
@@ -33,6 +35,7 @@ const site_visits_module_1 = require("./site-visits/site-visits.module");
 const tasks_module_1 = require("./tasks/tasks.module");
 const units_module_1 = require("./units/units.module");
 const users_module_1 = require("./users/users.module");
+const saas_module_1 = require("./saas/saas.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -62,6 +65,9 @@ exports.AppModule = AppModule = __decorate([
             notifications_module_1.NotificationsModule,
             reports_module_1.ReportsModule,
             enterprise_module_1.EnterpriseModule,
+            website_leads_module_1.WebsiteLeadsModule,
+            social_leads_module_1.SocialLeadsModule,
+            saas_module_1.SaasModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

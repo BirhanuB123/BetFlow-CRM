@@ -30,6 +30,12 @@ let UsersController = class UsersController {
     invite(user, body) {
         return this.users.inviteUser({ ...body });
     }
+    updateRole(user, id, body) {
+        return this.users.updateUserRole(id, body.roleId);
+    }
+    remove(user, id) {
+        return this.users.deleteUser(id);
+    }
 };
 exports.UsersController = UsersController;
 __decorate([
@@ -49,6 +55,25 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "invite", null);
+__decorate([
+    (0, common_1.Patch)(':id/role'),
+    (0, roles_decorator_1.Roles)('Owner', 'Admin'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "updateRole", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    (0, roles_decorator_1.Roles)('Owner', 'Admin'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "remove", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.Controller)('users'),

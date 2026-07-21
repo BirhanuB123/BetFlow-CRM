@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 
 export type CreateRoleBody = {
@@ -117,5 +117,58 @@ export class RolesService {
     }
 
     return [];
+  }
+
+  async updateRole(id: string, body: { name: string; description?: string }) {
+    const existing = await this.prisma.role.findFirst({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`Role ${id} was not found`);
+    }
+
+    const role = await this.prisma.role.update({
+      where: { id },
+      data: {
+        name: body.name,
+        description: body.description,
+      },
+    });
+
+    await this.prisma.auditLog.create({
+      data: {
+        action: 'role.updated',
+        entityType: 'Role',
+        entityId: role.id,
+        newValues: {
+          name: role.name,
+          description: role.description || '',
+        },
+      },
+    });
+
+    return role;
+  }
+
+  async deleteRole(id: string) {
+    const existing = await this.prisma.role.findFirst({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`Role ${id} was not found`);
+    }
+
+    // 1. Delete associated permissions
+    await this.prisma.rolePermission.deleteMany({ where: { roleId: id } });
+    // 2. Delete user role links
+    await this.prisma.userRole.deleteMany({ where: { roleId: id } });
+    // 3. Delete the role itself
+    await this.prisma.role.delete({ where: { id } });
+
+    await this.prisma.auditLog.create({
+      data: {
+        action: 'role.deleted',
+        entityType: 'Role',
+        entityId: id,
+      },
+    });
+
+    return { id, deleted: true };
   }
 }

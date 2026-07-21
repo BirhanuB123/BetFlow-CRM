@@ -24,7 +24,19 @@ let InMemoryService = class InMemoryService {
             group: 'Dashboard',
         },
     ];
-    tenants = [];
+    tenants = [
+        {
+            id: 'tenant_001',
+            name: 'BetFlow Realty',
+            slug: 'betflow',
+            region: 'US East',
+            plan: 'Growth',
+            status: 'active',
+            ownerUserId: 'user_001',
+            domain: 'crm.betflowrealty.com',
+            currency: 'ETB',
+        }
+    ];
     roles = [
         {
             id: 'role_owner',
@@ -885,6 +897,93 @@ let InMemoryService = class InMemoryService {
             status: 'processing',
         },
     ];
+    featureFlags = [
+        {
+            key: 'customer_portal',
+            label: 'Customer portal',
+            description: 'Enable buyer login, payment schedules, document downloads, and support requests.',
+            enabled: true,
+            scope: 'Tenant',
+            rollout: '100%',
+        },
+        {
+            key: 'mobile_pwa',
+            label: 'Agent mobile PWA',
+            description: 'Allow installable mobile shell, push notifications, and offline visit notes.',
+            enabled: false,
+            scope: 'Beta cohort',
+            rollout: '20%',
+        },
+        {
+            key: 'advanced_forecasting',
+            label: 'Advanced forecasting',
+            description: 'Use weighted pipeline, payment schedules, and unit absorption predictions.',
+            enabled: true,
+            scope: 'Plan',
+            rollout: 'Growth+',
+        },
+        {
+            key: 'api_marketplace',
+            label: 'API marketplace',
+            description: 'Expose webhook subscriptions, partner app scopes, and API keys.',
+            enabled: false,
+            scope: 'Tenant',
+            rollout: 'Internal preview',
+        },
+    ];
+    onboardingSteps = [
+        { step: 'Create tenant workspace', owner: 'Platform', status: 'Complete', due: 'Done' },
+        { step: 'Invite admin users', owner: 'Tenant admin', status: 'Complete', due: 'Done' },
+        { step: 'Configure roles and permissions', owner: 'Tenant admin', status: 'In progress', due: '2026-07-02' },
+        { step: 'Publish branding and domain', owner: 'Brand admin', status: 'In progress', due: '2026-07-03' },
+        { step: 'Import leads and inventory from Excel', owner: 'Sales ops', status: 'Not started', due: '2026-07-05' },
+        { step: 'Enable automation and portal', owner: 'Operations', status: 'Blocked', due: 'Needs DNS' },
+    ];
+    excelImportTemplates = [
+        {
+            template: 'Lead import workbook',
+            entity: 'Leads',
+            requiredColumns: ['firstName', 'lastName', 'phone', 'source', 'budget'],
+            lastRun: 'Yesterday',
+            status: 'Ready',
+        },
+        {
+            template: 'Customer import workbook',
+            entity: 'Customers',
+            requiredColumns: ['firstName', 'lastName', 'email', 'phone', 'nationalId'],
+            lastRun: '2026-06-28',
+            status: 'Ready',
+        },
+        {
+            template: 'Unit inventory workbook',
+            entity: 'Units',
+            requiredColumns: ['project', 'building', 'floor', 'unitNumber', 'price', 'status'],
+            lastRun: 'Today',
+            status: 'Processing',
+        },
+        {
+            template: 'Payment schedule workbook',
+            entity: 'Payments',
+            requiredColumns: ['contractRef', 'dueDate', 'amount', 'installmentNumber'],
+            lastRun: 'Never',
+            status: 'Ready',
+        },
+    ];
+    trialPeriod = {
+        status: 'Active',
+        startedAt: '2026-06-26',
+        endsAt: '2026-07-10',
+        daysRemaining: 9,
+        conversionOwner: 'Maya Johnson',
+    };
+    billingAccount = {
+        accountName: 'BetFlow Realty LLC',
+        billingEmail: 'finance@betflowrealty.com',
+        taxId: 'US-88214-CRM',
+        paymentMethod: 'Visa ending 4242',
+        collectionMode: 'Auto-charge',
+        nextCharge: '2026-07-31',
+    };
     registerTenant(input) {
         const ownerRoleId = this.nextId('role');
         const ownerUserId = this.nextId('user');
@@ -1091,8 +1190,7 @@ let InMemoryService = class InMemoryService {
         return note;
     }
     listActivities() {
-        return;
-        this.activities;
+        return this.activities;
     }
     recordActivity(input) {
         const activity = {
@@ -1104,8 +1202,7 @@ let InMemoryService = class InMemoryService {
         return activity;
     }
     listProjects() {
-        return;
-        this.projects;
+        return this.projects;
     }
     createProject(input) {
         const project = { ...input, id: this.nextId('project') };
@@ -1168,8 +1265,7 @@ let InMemoryService = class InMemoryService {
         return media;
     }
     listSiteVisits() {
-        return;
-        this.siteVisits;
+        return this.siteVisits;
     }
     createSiteVisit(input) {
         const visit = { ...input, id: this.nextId('visit') };
@@ -1185,8 +1281,7 @@ let InMemoryService = class InMemoryService {
         return visit;
     }
     listReservations() {
-        return;
-        this.reservations;
+        return this.reservations;
     }
     createReservation(input) {
         const reservation = {
@@ -1252,8 +1347,7 @@ let InMemoryService = class InMemoryService {
         return receipt;
     }
     listFinanceApprovals() {
-        return;
-        this.financeApprovals;
+        return this.financeApprovals;
     }
     createFinanceApproval(input) {
         const approval = {
@@ -1273,8 +1367,7 @@ let InMemoryService = class InMemoryService {
         return approval;
     }
     listUploadedDocuments() {
-        return;
-        this.uploadedDocuments;
+        return this.uploadedDocuments;
     }
     createUploadedDocument(input) {
         const document = {
@@ -1294,8 +1387,7 @@ let InMemoryService = class InMemoryService {
         return document;
     }
     listContractTemplates() {
-        return;
-        this.contractTemplates;
+        return this.contractTemplates;
     }
     createContractTemplate(input) {
         const template = {
@@ -1307,8 +1399,7 @@ let InMemoryService = class InMemoryService {
         return template;
     }
     listGeneratedContractPdfs() {
-        return;
-        this.generatedContractPdfs;
+        return this.generatedContractPdfs;
     }
     generateContractPdf(input) {
         const pdf = {
@@ -1320,8 +1411,7 @@ let InMemoryService = class InMemoryService {
         return pdf;
     }
     listLegalContractApprovals() {
-        return;
-        this.legalContractApprovals;
+        return this.legalContractApprovals;
     }
     createLegalContractApproval(input) {
         const approval = {
@@ -1341,8 +1431,7 @@ let InMemoryService = class InMemoryService {
         return approval;
     }
     listSignedContracts() {
-        return;
-        this.signedContracts;
+        return this.signedContracts;
     }
     createSignedContract(input) {
         const contract = {
@@ -1374,8 +1463,7 @@ let InMemoryService = class InMemoryService {
         return message;
     }
     listOverduePaymentAlerts() {
-        return;
-        this.overduePaymentAlerts;
+        return this.overduePaymentAlerts;
     }
     createOverduePaymentAlert(input) {
         const alert = {
@@ -1386,8 +1474,7 @@ let InMemoryService = class InMemoryService {
         return alert;
     }
     listFollowUpReminders() {
-        return;
-        this.followUpReminders;
+        return this.followUpReminders;
     }
     createFollowUpReminder(input) {
         const reminder = {
@@ -1419,17 +1506,13 @@ let InMemoryService = class InMemoryService {
         return this.paymentAgingReportRows;
     }
     listSubscriptionPlans() {
-        return this.subscriptionPlans.filter((plan) => {
-            return true;
-        });
+        return this.subscriptionPlans;
     }
     listFeatureLimits() {
-        return;
-        this.featureLimits;
+        return this.featureLimits;
     }
     listBrandingSettings() {
-        return;
-        this.brandingSettings;
+        return this.brandingSettings;
     }
     updateBrandingSetting(id, value, status) {
         const setting = this.brandingSettings.find((item) => item.id === id);
@@ -1442,30 +1525,82 @@ let InMemoryService = class InMemoryService {
         }
         return setting;
     }
+    publishBrandingSettings() {
+        for (const setting of this.brandingSettings) {
+            setting.status = 'live';
+        }
+        return this.brandingSettings;
+    }
     listTenantBillingItems() {
-        return;
-        this.tenantBillingItems;
+        return this.tenantBillingItems;
     }
     listTenantDomains() {
-        return;
-        this.tenantDomains;
+        return this.tenantDomains;
     }
     createTenantDomain(input) {
-        const domain = { ...input, id: this.nextId('domain') };
+        const domain = {
+            ...input,
+            id: this.nextId('domain'),
+            status: 'pending_dns',
+            ssl: 'pending',
+            target: 'tenant.betflow.app',
+        };
         this.tenantDomains.push(domain);
         return domain;
     }
+    deleteTenantDomain(id) {
+        const idx = this.tenantDomains.findIndex((item) => item.id === id);
+        if (idx !== -1) {
+            this.tenantDomains.splice(idx, 1);
+        }
+        return { success: true };
+    }
+    listFeatureFlags() {
+        return this.featureFlags;
+    }
+    toggleFeatureFlag(key, enabled) {
+        const flag = this.featureFlags.find((item) => item.key === key);
+        if (!flag) {
+            throw new common_1.NotFoundException(`Feature flag ${key} was not found`);
+        }
+        flag.enabled = enabled;
+        return flag;
+    }
+    listOnboardingSteps() {
+        return this.onboardingSteps;
+    }
+    updateOnboardingStep(stepName, status) {
+        const step = this.onboardingSteps.find((item) => item.step === stepName);
+        if (!step) {
+            throw new common_1.NotFoundException(`Onboarding step ${stepName} was not found`);
+        }
+        step.status = status;
+        return step;
+    }
+    listExcelImportTemplates() {
+        return this.excelImportTemplates;
+    }
+    getTrialPeriod() {
+        return this.trialPeriod;
+    }
+    getBillingAccount() {
+        return this.billingAccount;
+    }
+    updateBillingAccount(input) {
+        Object.assign(this.billingAccount, input);
+        return this.billingAccount;
+    }
     listDataTransferJobs() {
-        return;
-        this.dataTransferJobs;
+        return this.dataTransferJobs;
     }
     createDataTransferJob(input) {
         const job = {
             ...input,
             id: this.nextId(input.type),
-            requestedAt: new Date().toISOString(),
+            requestedAt: 'Today, ' + new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+            status: 'ready',
         };
-        this.dataTransferJobs.push(job);
+        this.dataTransferJobs.unshift(job);
         return job;
     }
     nextId(prefix) {

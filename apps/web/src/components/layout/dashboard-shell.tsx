@@ -390,6 +390,29 @@ export function DashboardShell({
     name?: string;
     email?: string;
   };
+
+  const roleText = useMemo(() => {
+    if (!session?.accessToken) return null;
+    try {
+      const base64Url = session.accessToken.split(".")[1];
+      if (!base64Url) return null;
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const rawBinary =
+        typeof window !== "undefined"
+          ? window.atob(base64)
+          : Buffer.from(base64, "base64").toString("binary");
+      const jsonPayload = decodeURIComponent(
+        rawBinary
+          .split("")
+          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+          .join("")
+      );
+      const payload = JSON.parse(jsonPayload) as { roles?: string[] };
+      return payload.roles && payload.roles.length > 0 ? payload.roles.join(", ") : null;
+    } catch {
+      return null;
+    }
+  }, [session?.accessToken]);
   const displayName =
     [user.firstName, user.lastName].filter(Boolean).join(" ") ||
     user.name ||
@@ -573,7 +596,9 @@ export function DashboardShell({
             </span>
             <div className="min-w-0 group-data-[collapsed=true]/side:lg:hidden">
               <p className="truncate text-sm font-medium text-white">{displayName}</p>
-              {user.email ? (
+              {roleText ? (
+                <p className="truncate text-xs text-[#9fb0cd]">{roleText}</p>
+              ) : user.email ? (
                 <p className="truncate text-xs text-[#9fb0cd]">{user.email}</p>
               ) : null}
             </div>
@@ -707,7 +732,9 @@ export function DashboardShell({
               >
                 <div className="border-b border-[#eef1f7] px-2.5 pb-2 pt-1">
                   <p className="truncate text-sm font-semibold text-[#1f2d45]">{displayName}</p>
-                  {user.email ? (
+                  {roleText ? (
+                    <p className="truncate text-xs text-[#8b98b1]">{roleText}</p>
+                  ) : user.email ? (
                     <p className="truncate text-xs text-[#8b98b1]">{user.email}</p>
                   ) : null}
                 </div>

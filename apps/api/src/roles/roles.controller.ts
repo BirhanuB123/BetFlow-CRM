@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -22,5 +22,21 @@ export class RolesController {
   @Roles('Owner', 'Admin')
   create(@CurrentUser() user: AuthenticatedUser, @Body() body: CreateRoleBody) {
     return this.roles.createRole({ ...body });
+  }
+
+  @Patch(':id')
+  @Roles('Owner', 'Admin')
+  update(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() body: { name: string; description?: string },
+  ) {
+    return this.roles.updateRole(id, body);
+  }
+
+  @Delete(':id')
+  @Roles('Owner', 'Admin')
+  remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.roles.deleteRole(id);
   }
 }

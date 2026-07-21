@@ -10,6 +10,8 @@ import { CustomersModule } from './customers/customers.module';
 import { DealsModule } from './deals/deals.module';
 import { DocumentsModule } from './documents/documents.module';
 import { EnterpriseModule } from './enterprise/enterprise.module';
+import { WebsiteLeadsModule } from './integrations/website-leads/website-leads.module';
+import { SocialLeadsModule } from './integrations/social-leads/social-leads.module';
 import { LeadsModule } from './leads/leads.module';
 import { NotesModule } from './notes/notes.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -24,6 +26,7 @@ import { SiteVisitsModule } from './site-visits/site-visits.module';
 import { TasksModule } from './tasks/tasks.module';
 import { UnitsModule } from './units/units.module';
 import { UsersModule } from './users/users.module';
+import { SaasModule } from './saas/saas.module';
 
 @Module({
   imports: [
@@ -52,6 +55,9 @@ import { UsersModule } from './users/users.module';
     ReportsModule,
 
     EnterpriseModule,
+    WebsiteLeadsModule,
+    SocialLeadsModule,
+    SaasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
