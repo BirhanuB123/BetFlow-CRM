@@ -39,6 +39,7 @@
     "socket.io": "^4.8.3"
   },
   "devDependencies": {
+    "@betflow/config": "*",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
     "@nestjs/cli": "^11.0.0",
