@@ -10,6 +10,14 @@ type RegisterBody = {
     email: string;
     password?: string;
 };
+type UpdateProfileBody = {
+    firstName: string;
+    lastName: string;
+};
+type ChangePasswordBody = {
+    currentPassword: string;
+    newPassword: string;
+};
 export declare class AuthController {
     private readonly auth;
     constructor(auth: AuthService);
@@ -35,6 +43,15 @@ export declare class AuthController {
             firstName: string;
             lastName: string;
         };
+    }>;
+    updateProfile(user: AuthenticatedUser, body: UpdateProfileBody): Promise<{
+        id: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+    }>;
+    changePassword(user: AuthenticatedUser, body: ChangePasswordBody): Promise<{
+        success: boolean;
     }>;
 }
 export {};

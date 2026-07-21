@@ -28,4 +28,18 @@ export declare class RolesController {
         name: string;
         description: string | null;
     }>;
+    update(user: AuthenticatedUser, id: string, body: {
+        name: string;
+        description?: string;
+    }): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        name: string;
+        description: string | null;
+    }>;
+    remove(user: AuthenticatedUser, id: string): Promise<{
+        id: string;
+        deleted: boolean;
+    }>;
 }

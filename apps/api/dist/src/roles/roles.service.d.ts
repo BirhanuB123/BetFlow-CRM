@@ -29,5 +29,19 @@ export declare class RolesService {
         description: string | null;
     }>;
     private resolvePermissions;
+    updateRole(id: string, body: {
+        name: string;
+        description?: string;
+    }): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        name: string;
+        description: string | null;
+    }>;
+    deleteRole(id: string): Promise<{
+        id: string;
+        deleted: boolean;
+    }>;
 }
 export {};

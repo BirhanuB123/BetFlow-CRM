@@ -1,19 +1,20 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { AuditLog, InMemoryService } from '../database/in-memory.service';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { AuditLogsService } from './audit-logs.service';
+import { Prisma } from '@prisma/client';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
-type CreateAuditLogBody = Omit<AuditLog, 'id' | 'createdAt'>;
-
+@UseGuards(JwtAuthGuard)
 @Controller('audit-logs')
 export class AuditLogsController {
-  constructor(private readonly store: InMemoryService) {}
+  constructor(private readonly auditLogs: AuditLogsService) {}
 
   @Get()
   list() {
-    return this.store.listAuditLogs();
+    return this.auditLogs.list();
   }
 
   @Post()
-  create(@Body() body: CreateAuditLogBody) {
-    return this.store.recordAudit(body);
+  create(@Body() body: Prisma.AuditLogUncheckedCreateInput) {
+    return this.auditLogs.create(body);
   }
 }

@@ -1,9 +1,33 @@
-import { AuditLog, InMemoryService } from '../database/in-memory.service';
-type CreateAuditLogBody = Omit<AuditLog, 'id' | 'createdAt'>;
+import { AuditLogsService } from './audit-logs.service';
+import { Prisma } from '@prisma/client';
 export declare class AuditLogsController {
-    private readonly store;
-    constructor(store: InMemoryService);
-    list(): AuditLog[];
-    create(body: CreateAuditLogBody): AuditLog;
+    private readonly auditLogs;
+    constructor(auditLogs: AuditLogsService);
+    list(): Promise<({
+        user: {
+            id: string;
+            email: string;
+            firstName: string;
+            lastName: string;
+        } | null;
+    } & {
+        id: string;
+        createdAt: Date;
+        userId: string | null;
+        entityType: string;
+        entityId: string;
+        action: string;
+        oldValues: Prisma.JsonValue | null;
+        newValues: Prisma.JsonValue | null;
+    })[]>;
+    create(body: Prisma.AuditLogUncheckedCreateInput): Promise<{
+        id: string;
+        createdAt: Date;
+        userId: string | null;
+        entityType: string;
+        entityId: string;
+        action: string;
+        oldValues: Prisma.JsonValue | null;
+        newValues: Prisma.JsonValue | null;
+    }>;
 }
-export {};

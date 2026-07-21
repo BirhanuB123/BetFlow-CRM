@@ -269,6 +269,15 @@ export class LeadsService {
         },
         include: leadInclude,
       });
+
+      await tx.notification.create({
+        data: {
+          userId,
+          title: 'Lead Converted',
+          message: `Lead ${lead.firstName} ${lead.lastName} has been successfully converted to a Customer.`,
+        },
+      });
+
       await tx.auditLog.create({
         data: {
           userId,

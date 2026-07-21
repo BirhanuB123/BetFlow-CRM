@@ -90,6 +90,48 @@ let RolesService = class RolesService {
         }
         return [];
     }
+    async updateRole(id, body) {
+        const existing = await this.prisma.role.findFirst({ where: { id } });
+        if (!existing) {
+            throw new common_1.NotFoundException(`Role ${id} was not found`);
+        }
+        const role = await this.prisma.role.update({
+            where: { id },
+            data: {
+                name: body.name,
+                description: body.description,
+            },
+        });
+        await this.prisma.auditLog.create({
+            data: {
+                action: 'role.updated',
+                entityType: 'Role',
+                entityId: role.id,
+                newValues: {
+                    name: role.name,
+                    description: role.description || '',
+                },
+            },
+        });
+        return role;
+    }
+    async deleteRole(id) {
+        const existing = await this.prisma.role.findFirst({ where: { id } });
+        if (!existing) {
+            throw new common_1.NotFoundException(`Role ${id} was not found`);
+        }
+        await this.prisma.rolePermission.deleteMany({ where: { roleId: id } });
+        await this.prisma.userRole.deleteMany({ where: { roleId: id } });
+        await this.prisma.role.delete({ where: { id } });
+        await this.prisma.auditLog.create({
+            data: {
+                action: 'role.deleted',
+                entityType: 'Role',
+                entityId: id,
+            },
+        });
+        return { id, deleted: true };
+    }
 };
 exports.RolesService = RolesService;
 exports.RolesService = RolesService = __decorate([

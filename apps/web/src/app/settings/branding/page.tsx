@@ -1,21 +1,121 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Check, Edit2, RotateCw, Save } from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
-import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
-import { brandingSettings, statusClass } from "@/features/settings/saas-data";
+import { apiFetch } from "@/lib/api";
+
+type BrandingSetting = {
+  id: string;
+  label: string;
+  value: string;
+  status: "live" | "draft";
+};
+
+const statusClass = {
+  live: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  draft: "bg-amber-50 text-amber-800 border-amber-200",
+};
 
 export default function BrandingPage() {
+  const [settings, setSettings] = useState<BrandingSetting[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
+
+  const loadSettings = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await apiFetch<BrandingSetting[]>("/saas/branding");
+      setSettings(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load branding settings");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadSettings();
+  }, []);
+
+  const handleStartEdit = (setting: BrandingSetting) => {
+    setEditingId(setting.id);
+    setEditValue(setting.value);
+  };
+
+  const handleSave = async (id: string) => {
+    setSavingId(id);
+    setError(null);
+    try {
+      const updated = await apiFetch<BrandingSetting>(`/saas/branding/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ value: editValue.trim(), status: "draft" }),
+      });
+      setSettings((prev) => prev.map((s) => (s.id === id ? updated : s)));
+      setEditingId(null);
+      showSuccess("Branding setting updated as draft");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update branding setting");
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  const handlePublish = async () => {
+    setPublishing(true);
+    setError(null);
+    try {
+      const published = await apiFetch<BrandingSetting[]>("/saas/branding/publish", {
+        method: "POST",
+      });
+      setSettings(published);
+      showSuccess("All branding changes published to live");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to publish branding changes");
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const showSuccess = (msg: string) => {
+    setSuccessMsg(msg);
+    setTimeout(() => setSuccessMsg(""), 3000);
+  };
+
+  const draftCount = settings.filter((s) => s.status === "draft").length;
+
   return (
     <DashboardShell
       title="Custom branding"
       description="Tenant-specific visual identity and login experience."
       active="Branding"
     >
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatCard label="White-label status" value="Enabled" detail="Tenant logo, colors, portal, and sender identity" />
-        <StatCard label="Brand assets" value="6" detail="Logo, favicon, palette, login, portal, email" />
-        <StatCard label="Draft changes" value="3" detail="Require publish before customer portal launch" />
+      <div className="grid gap-4 md:grid-cols-3 mb-6">
+        <StatCard label="White-label status" value={settings.length > 0 ? "Active" : "Unknown"} detail="Tenant logo, colors, and portal messaging" />
+        <StatCard label="Brand assets" value={String(settings.length)} detail="Configurable identity parameters" />
+        <StatCard label="Draft changes" value={String(draftCount)} detail="Requires publish to reflect on customer portal" />
       </div>
+
+      {error && (
+        <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {error}
+        </div>
+      )}
+
+      {successMsg && (
+        <div className="mb-4 flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-600">
+          <Check className="size-4 shrink-0" />
+          <span>{successMsg}</span>
+        </div>
+      )}
 
       <section className="rounded-lg border border-zinc-200 bg-white">
         <div className="flex items-center justify-between gap-4 border-b border-zinc-200 p-4">
@@ -23,18 +123,57 @@ export default function BrandingPage() {
             <h2 className="text-base font-semibold">Brand settings</h2>
             <p className="text-sm text-zinc-500">Workspace labels, logo, colors, and login copy.</p>
           </div>
-          <Button>Publish changes</Button>
+          <Button onClick={handlePublish} disabled={publishing || draftCount === 0}>
+            {publishing ? <RotateCw className="size-4 animate-spin mr-1" /> : null}
+            Publish changes
+          </Button>
         </div>
-        <CrmTable
-          columns={["Setting", "Value", "Status"]}
-          rows={brandingSettings.map((setting) => [
-            <span key="label" className="font-medium">{setting.label}</span>,
-            setting.value,
-            <span key="status" className={`rounded-md px-2 py-1 text-xs font-medium ${statusClass[setting.status]}`}>
-              {setting.status}
-            </span>,
-          ])}
-        />
+
+        {loading ? (
+          <p className="p-6 text-sm text-zinc-500">Loading settings…</p>
+        ) : (
+          <div className="divide-y divide-zinc-100">
+            {settings.map((setting) => (
+              <div key={setting.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 hover:bg-zinc-50 transition">
+                <div className="sm:w-1/3">
+                  <p className="text-sm font-semibold text-zinc-800">{setting.label}</p>
+                </div>
+                <div className="flex-1 flex items-center gap-3">
+                  {editingId === setting.id ? (
+                    <input
+                      className="h-9 w-full max-w-md rounded-md border border-zinc-200 px-3 text-sm outline-none focus:border-zinc-400"
+                      value={editValue}
+                      onChange={(e) => setEditValue(e.target.value)}
+                      autoFocus
+                    />
+                  ) : (
+                    <span className="text-sm text-zinc-600">{setting.value}</span>
+                  )}
+
+                  <span className={`rounded-md border px-2 py-0.5 text-xs font-medium uppercase ${statusClass[setting.status]}`}>
+                    {setting.status}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 sm:w-[120px] justify-end">
+                  {editingId === setting.id ? (
+                    <>
+                      <Button size="icon-sm" onClick={() => handleSave(setting.id)} disabled={savingId === setting.id || editValue.trim() === setting.value}>
+                        {savingId === setting.id ? <RotateCw className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
+                      </Button>
+                      <Button size="icon-sm" variant="outline" onClick={() => setEditingId(null)}>
+                        Cancel
+                      </Button>
+                    </>
+                  ) : (
+                    <Button size="icon-sm" variant="ghost" onClick={() => handleStartEdit(setting)}>
+                      <Edit2 className="size-3.5" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
     </DashboardShell>
   );

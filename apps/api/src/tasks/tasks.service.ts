@@ -68,6 +68,16 @@ export class TasksService {
       include: taskInclude,
     });
 
+    if (task.assigneeId) {
+      await this.prisma.notification.create({
+        data: {
+          userId: task.assigneeId,
+          title: 'Task Assigned',
+          message: `You have been assigned the task: ${task.title}.`,
+        },
+      });
+    }
+
     await this.recordAudit(userId, 'task.created', task.id);
 
     return task;
@@ -109,6 +119,16 @@ export class TasksService {
       data,
       include: taskInclude,
     });
+
+    if (task.assigneeId && task.assigneeId !== existing.assigneeId) {
+      await this.prisma.notification.create({
+        data: {
+          userId: task.assigneeId,
+          title: 'Task Assigned',
+          message: `You have been assigned the task: ${task.title}.`,
+        },
+      });
+    }
 
     await this.recordAudit(userId, 'task.updated', task.id);
 

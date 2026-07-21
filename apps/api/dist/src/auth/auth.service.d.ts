@@ -39,4 +39,19 @@ export declare class AuthService {
             lastName: string;
         };
     }>;
+    updateProfile(userId: string, body: {
+        firstName: string;
+        lastName: string;
+    }): Promise<{
+        id: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+    }>;
+    changePassword(userId: string, body: {
+        currentPassword: string;
+        newPassword: string;
+    }): Promise<{
+        success: boolean;
+    }>;
 }

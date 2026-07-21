@@ -9,14 +9,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuditLogsModule = void 0;
 const common_1 = require("@nestjs/common");
 const audit_logs_controller_1 = require("./audit-logs.controller");
+const audit_logs_service_1 = require("./audit-logs.service");
 const database_module_1 = require("../database/database.module");
+const auth_module_1 = require("../auth/auth.module");
 let AuditLogsModule = class AuditLogsModule {
 };
 exports.AuditLogsModule = AuditLogsModule;
 exports.AuditLogsModule = AuditLogsModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule],
+        imports: [database_module_1.DatabaseModule, auth_module_1.AuthModule],
         controllers: [audit_logs_controller_1.AuditLogsController],
+        providers: [audit_logs_service_1.AuditLogsService],
+        exports: [audit_logs_service_1.AuditLogsService],
     })
 ], AuditLogsModule);
 //# sourceMappingURL=audit-logs.module.js.map

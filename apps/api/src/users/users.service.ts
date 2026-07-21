@@ -25,13 +25,11 @@ export class UsersService {
   ) {}
 
   async listUsers() {
-
     const users = await this.prisma.user.findMany({
       where: {},
       orderBy: { createdAt: 'desc' },
       include: {
         roles: {
-          where: {},
           include: {
             role: {
               select: {
@@ -44,7 +42,18 @@ export class UsersService {
       },
     });
 
-    return users;
+    return users.map((user) => {
+      const primaryRole = user.roles[0]?.role;
+      return {
+        id: user.id,
+        name: `${user.firstName} ${user.lastName}`.trim(),
+        email: user.email,
+        status: user.isActive ? 'active' : 'inactive',
+        createdAt: user.createdAt,
+        roleId: primaryRole?.id,
+        roleName: primaryRole?.name,
+      };
+    });
   }
 
   async inviteUser(input: InviteUserBody) {
@@ -120,5 +129,79 @@ export class UsersService {
     const lastName = parts.join(' ') || 'User';
 
     return { firstName, lastName };
+  }
+
+  async updateUserRole(id: string, roleId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`User ${id} was not found`);
+    }
+
+    const role = await this.prisma.role.findUnique({ where: { id: roleId } });
+    if (!role) {
+      throw new NotFoundException(`Role ${roleId} was not found`);
+    }
+
+    await this.prisma.userRole.deleteMany({ where: { userId: id } });
+
+    const userRole = await this.prisma.userRole.create({
+      data: {
+        userId: id,
+        roleId,
+      },
+      include: {
+        role: true,
+      },
+    });
+
+    await this.prisma.auditLog.create({
+      data: {
+        action: 'user.role_updated',
+        entityType: 'User',
+        entityId: id,
+        newValues: {
+          roleId,
+          roleName: role.name,
+        },
+      },
+    });
+
+    return userRole;
+  }
+
+  async deleteUser(id: string) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`User ${id} was not found`);
+    }
+
+    try {
+      await this.prisma.userRole.deleteMany({ where: { userId: id } });
+      await this.prisma.user.delete({ where: { id } });
+      
+      await this.prisma.auditLog.create({
+        data: {
+          action: 'user.deleted',
+          entityType: 'User',
+          entityId: id,
+        },
+      });
+      return { id, deleted: true };
+    } catch (err) {
+      await this.prisma.user.update({
+        where: { id },
+        data: { isActive: false },
+      });
+
+      await this.prisma.auditLog.create({
+        data: {
+          action: 'user.deactivated',
+          entityType: 'User',
+          entityId: id,
+        },
+      });
+
+      return { id, deleted: false, isActive: false };
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -22,5 +22,21 @@ export class UsersController {
   @Roles('Owner', 'Admin')
   invite(@CurrentUser() user: AuthenticatedUser, @Body() body: InviteUserBody) {
     return this.users.inviteUser({ ...body });
+  }
+
+  @Patch(':id/role')
+  @Roles('Owner', 'Admin')
+  updateRole(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() body: { roleId: string },
+  ) {
+    return this.users.updateUserRole(id, body.roleId);
+  }
+
+  @Delete(':id')
+  @Roles('Owner', 'Admin')
+  remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.users.deleteUser(id);
   }
 }

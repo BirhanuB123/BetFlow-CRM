@@ -14,17 +14,19 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuditLogsController = void 0;
 const common_1 = require("@nestjs/common");
-const in_memory_service_1 = require("../database/in-memory.service");
+const audit_logs_service_1 = require("./audit-logs.service");
+const client_1 = require("@prisma/client");
+const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 let AuditLogsController = class AuditLogsController {
-    store;
-    constructor(store) {
-        this.store = store;
+    auditLogs;
+    constructor(auditLogs) {
+        this.auditLogs = auditLogs;
     }
     list() {
-        return this.store.listAuditLogs();
+        return this.auditLogs.list();
     }
     create(body) {
-        return this.store.recordAudit(body);
+        return this.auditLogs.create(body);
     }
 };
 exports.AuditLogsController = AuditLogsController;
@@ -42,7 +44,8 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AuditLogsController.prototype, "create", null);
 exports.AuditLogsController = AuditLogsController = __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('audit-logs'),
-    __metadata("design:paramtypes", [in_memory_service_1.InMemoryService])
+    __metadata("design:paramtypes", [audit_logs_service_1.AuditLogsService])
 ], AuditLogsController);
 //# sourceMappingURL=audit-logs.controller.js.map
