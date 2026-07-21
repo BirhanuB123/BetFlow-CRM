@@ -10,7 +10,7 @@ import {
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
-import { PortalService, type PortalLoginDto } from './portal.service';
+import { PortalService } from './portal.service';
 
 @Controller('portal')
 export class PortalController {
@@ -23,15 +23,6 @@ export class PortalController {
   @HttpCode(HttpStatus.OK)
   login(@Body() body: { identifier: string }) {
     return this.portalService.login(body.identifier);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('upload-bank-slip')
-  uploadBankSlip(
-    @CurrentUser() user: AuthenticatedUser,
-    @Body() body: any,
-  ) {
-    return this.portalService.uploadBankSlip(user.id, body);
   }
 
   /**
@@ -77,5 +68,17 @@ export class PortalController {
   @Get('invoices')
   getInvoices(@CurrentUser() user: AuthenticatedUser) {
     return this.portalService.getInvoices(user.email, user.id);
+  }
+
+  /**
+   * PROTECTED — Upload Bank Transfer Receipt Slip.
+   */
+  @UseGuards(JwtAuthGuard)
+  @Post('upload-bank-slip')
+  uploadBankSlip(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: any,
+  ) {
+    return this.portalService.uploadBankSlip(user.id, body);
   }
 }
