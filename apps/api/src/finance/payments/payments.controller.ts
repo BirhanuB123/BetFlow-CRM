@@ -13,7 +13,8 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
 import { PaymentPlanService } from './payment-plan.service';
-import type { CreatePaymentInput, UpdatePaymentInput, PaymentPlanInput } from './payments.types';
+import type { CreatePaymentInput, UpdatePaymentInput } from './payments.types';
+import type { PaymentPlanInput } from '@betflow/shared';
 
 @UseGuards(JwtAuthGuard)
 @Controller('payments')
