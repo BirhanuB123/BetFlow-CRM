@@ -6,6 +6,7 @@ import { SaasModule } from './saas/saas.module';
 import { EnterpriseModule } from './enterprise/enterprise.module';
 import { WebsiteLeadsModule } from './integrations/website-leads/website-leads.module';
 import { SocialLeadsModule } from './integrations/social-leads/social-leads.module';
+import { PortalModule } from './portal/portal.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { SocialLeadsModule } from './integrations/social-leads/social-leads.modu
     EnterpriseModule,
     WebsiteLeadsModule,
     SocialLeadsModule,
+    PortalModule,
   ],
   exports: [
     DocumentsModule,
@@ -25,6 +27,7 @@ import { SocialLeadsModule } from './integrations/social-leads/social-leads.modu
     EnterpriseModule,
     WebsiteLeadsModule,
     SocialLeadsModule,
+    PortalModule,
   ],
 })
 export class PlatformModule {}
