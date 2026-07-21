@@ -47,4 +47,9 @@ export class ReportsController {
   paymentAging() {
     return this.reports.paymentAging();
   }
+
+  @Get('forecasting')
+  forecasting() {
+    return this.reports.forecastingReport();
+  }
 }
