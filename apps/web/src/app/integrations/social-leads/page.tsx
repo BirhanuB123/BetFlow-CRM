@@ -48,7 +48,7 @@ export default function SocialLeadsPage() {
 
   const webhookUrl =
     typeof window !== "undefined"
-      ? `${window.location.origin.replace("3001", "3000")}/api/enterprise/social-leads/meta-webhook`
+      ? `${window.location.origin.replace("3001", "4000")}/api/enterprise/social-leads/meta-webhook`
       : "/api/enterprise/social-leads/meta-webhook";
 
   useEffect(() => {
