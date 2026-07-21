@@ -1,0 +1,50 @@
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { ReportsService } from './reports.service';
+import { InMemoryService } from '../../database/in-memory.service';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+
+@UseGuards(JwtAuthGuard)
+@Controller('reports')
+export class ReportsController {
+  constructor(
+    private readonly reports: ReportsService,
+    private readonly store: InMemoryService,
+  ) {}
+
+  // Still served from in-memory (static catalog metadata is fine)
+  @Get('catalog')
+  catalog() {
+    return this.store.getReportsCatalog();
+  }
+
+  @Get('sales')
+  salesDashboard() {
+    return this.reports.salesDashboard();
+  }
+
+  @Get('agents')
+  agentPerformance() {
+    return this.reports.agentPerformance();
+  }
+
+  @Get('revenue')
+  revenue() {
+    return this.reports.revenueReport();
+  }
+
+  @Get('inventory')
+  inventory() {
+    // Inventory is still in-memory (no Prisma model for inventory stats yet)
+    return this.store.getInventoryReport();
+  }
+
+  @Get('conversion')
+  conversion() {
+    return this.reports.conversionFunnel();
+  }
+
+  @Get('payment-aging')
+  paymentAging() {
+    return this.reports.paymentAging();
+  }
+}

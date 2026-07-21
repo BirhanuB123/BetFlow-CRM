@@ -448,7 +448,10 @@ type CreateNotificationMessageInput = Omit<NotificationMessage, 'id'>;
 type CreateOverduePaymentAlertInput = Omit<OverduePaymentAlert, 'id'>;
 type CreateFollowUpReminderInput = Omit<FollowUpReminder, 'id'>;
 type CreateTenantDomainInput = { domain: string };
-type CreateDataTransferJobInput = Omit<DataTransferJob, 'id' | 'requestedAt' | 'status'>;
+type CreateDataTransferJobInput = Omit<
+  DataTransferJob,
+  'id' | 'requestedAt' | 'status'
+>;
 
 export type FeatureFlag = {
   key: string;
@@ -520,7 +523,7 @@ export class InMemoryService {
       ownerUserId: 'user_001',
       domain: 'crm.betflowrealty.com',
       currency: 'ETB',
-    }
+    },
   ];
 
   private readonly roles: Role[] = [
@@ -1434,7 +1437,8 @@ export class InMemoryService {
     {
       key: 'customer_portal',
       label: 'Customer portal',
-      description: 'Enable buyer login, payment schedules, document downloads, and support requests.',
+      description:
+        'Enable buyer login, payment schedules, document downloads, and support requests.',
       enabled: true,
       scope: 'Tenant',
       rollout: '100%',
@@ -1442,7 +1446,8 @@ export class InMemoryService {
     {
       key: 'mobile_pwa',
       label: 'Agent mobile PWA',
-      description: 'Allow installable mobile shell, push notifications, and offline visit notes.',
+      description:
+        'Allow installable mobile shell, push notifications, and offline visit notes.',
       enabled: false,
       scope: 'Beta cohort',
       rollout: '20%',
@@ -1450,7 +1455,8 @@ export class InMemoryService {
     {
       key: 'advanced_forecasting',
       label: 'Advanced forecasting',
-      description: 'Use weighted pipeline, payment schedules, and unit absorption predictions.',
+      description:
+        'Use weighted pipeline, payment schedules, and unit absorption predictions.',
       enabled: true,
       scope: 'Plan',
       rollout: 'Growth+',
@@ -1458,7 +1464,8 @@ export class InMemoryService {
     {
       key: 'api_marketplace',
       label: 'API marketplace',
-      description: 'Expose webhook subscriptions, partner app scopes, and API keys.',
+      description:
+        'Expose webhook subscriptions, partner app scopes, and API keys.',
       enabled: false,
       scope: 'Tenant',
       rollout: 'Internal preview',
@@ -1466,12 +1473,42 @@ export class InMemoryService {
   ];
 
   private readonly onboardingSteps: OnboardingStep[] = [
-    { step: 'Create tenant workspace', owner: 'Platform', status: 'Complete', due: 'Done' },
-    { step: 'Invite admin users', owner: 'Tenant admin', status: 'Complete', due: 'Done' },
-    { step: 'Configure roles and permissions', owner: 'Tenant admin', status: 'In progress', due: '2026-07-02' },
-    { step: 'Publish branding and domain', owner: 'Brand admin', status: 'In progress', due: '2026-07-03' },
-    { step: 'Import leads and inventory from Excel', owner: 'Sales ops', status: 'Not started', due: '2026-07-05' },
-    { step: 'Enable automation and portal', owner: 'Operations', status: 'Blocked', due: 'Needs DNS' },
+    {
+      step: 'Create tenant workspace',
+      owner: 'Platform',
+      status: 'Complete',
+      due: 'Done',
+    },
+    {
+      step: 'Invite admin users',
+      owner: 'Tenant admin',
+      status: 'Complete',
+      due: 'Done',
+    },
+    {
+      step: 'Configure roles and permissions',
+      owner: 'Tenant admin',
+      status: 'In progress',
+      due: '2026-07-02',
+    },
+    {
+      step: 'Publish branding and domain',
+      owner: 'Brand admin',
+      status: 'In progress',
+      due: '2026-07-03',
+    },
+    {
+      step: 'Import leads and inventory from Excel',
+      owner: 'Sales ops',
+      status: 'Not started',
+      due: '2026-07-05',
+    },
+    {
+      step: 'Enable automation and portal',
+      owner: 'Operations',
+      status: 'Blocked',
+      due: 'Needs DNS',
+    },
   ];
 
   private readonly excelImportTemplates: ExcelImportTemplate[] = [
@@ -1485,21 +1522,39 @@ export class InMemoryService {
     {
       template: 'Customer import workbook',
       entity: 'Customers',
-      requiredColumns: ['firstName', 'lastName', 'email', 'phone', 'nationalId'],
+      requiredColumns: [
+        'firstName',
+        'lastName',
+        'email',
+        'phone',
+        'nationalId',
+      ],
       lastRun: '2026-06-28',
       status: 'Ready',
     },
     {
       template: 'Unit inventory workbook',
       entity: 'Units',
-      requiredColumns: ['project', 'building', 'floor', 'unitNumber', 'price', 'status'],
+      requiredColumns: [
+        'project',
+        'building',
+        'floor',
+        'unitNumber',
+        'price',
+        'status',
+      ],
       lastRun: 'Today',
       status: 'Processing',
     },
     {
       template: 'Payment schedule workbook',
       entity: 'Payments',
-      requiredColumns: ['contractRef', 'dueDate', 'amount', 'installmentNumber'],
+      requiredColumns: [
+        'contractRef',
+        'dueDate',
+        'amount',
+        'installmentNumber',
+      ],
       lastRun: 'Never',
       status: 'Ready',
     },
@@ -1523,7 +1578,6 @@ export class InMemoryService {
   };
 
   registerTenant(input: RegisterTenantInput) {
-    
     const ownerRoleId = this.nextId('role');
     const ownerUserId = this.nextId('user');
     const tenant: Tenant = {
@@ -1552,7 +1606,8 @@ export class InMemoryService {
     this.tenants.push(tenant);
     this.roles.push(ownerRole);
     this.users.push(owner);
-    this.recordAudit({ actor: owner.name,
+    this.recordAudit({
+      actor: owner.name,
       action: 'Registered tenant',
       target: tenant.name,
       severity: 'info',
@@ -1592,9 +1647,7 @@ export class InMemoryService {
   }
 
   inviteUser(input: InviteUserInput) {
-    
-    const role = this.roles.find(
-      (item) => item.id === input.roleId);
+    const role = this.roles.find((item) => item.id === input.roleId);
 
     if (!role) {
       throw new NotFoundException(`Role ${input.roleId} was not found`);
@@ -1623,7 +1676,6 @@ export class InMemoryService {
   }
 
   createRole(input: Omit<Role, 'id'>) {
-    
     const role: Role = { ...input, id: this.nextId('role') };
     this.roles.push(role);
     this.recordAudit({
@@ -1658,7 +1710,6 @@ export class InMemoryService {
   }
 
   createLead(input: CreateLeadInput) {
-    
     const lead: Lead = { ...input, id: this.nextId('lead') };
     this.leads.push(lead);
     this.recordActivity({
@@ -1692,7 +1743,6 @@ export class InMemoryService {
   }
 
   createCustomer(input: CreateCustomerInput) {
-    
     const customer: Customer = { ...input, id: this.nextId('customer') };
     this.customers.push(customer);
     return customer;
@@ -1703,7 +1753,6 @@ export class InMemoryService {
   }
 
   createDeal(input: CreateDealInput) {
-    
     const deal: Deal = { ...input, id: this.nextId('deal') };
     this.deals.push(deal);
     this.recordActivity({
@@ -1737,7 +1786,6 @@ export class InMemoryService {
   }
 
   createTask(input: CreateTaskInput) {
-    
     const task: Task = { ...input, id: this.nextId('task') };
     this.tasks.push(task);
     this.recordActivity({
@@ -1754,7 +1802,6 @@ export class InMemoryService {
   }
 
   createNote(input: CreateNoteInput) {
-    
     const note: Note = {
       ...input,
       id: this.nextId('note'),
@@ -1789,7 +1836,6 @@ export class InMemoryService {
   }
 
   createProject(input: CreateProjectInput) {
-    
     const project: Project = { ...input, id: this.nextId('project') };
     this.projects.push(project);
     return project;
@@ -1797,15 +1843,11 @@ export class InMemoryService {
 
   listBuildings(projectId?: string) {
     return this.buildings.filter((building) => {
-      return (
-        
-        (!projectId || building.projectId === projectId)
-      );
+      return !projectId || building.projectId === projectId;
     });
   }
 
   createBuilding(input: CreateBuildingInput) {
-    
     const building: Building = { ...input, id: this.nextId('building') };
     this.buildings.push(building);
     return building;
@@ -1813,15 +1855,11 @@ export class InMemoryService {
 
   listFloors(buildingId?: string) {
     return this.floors.filter((floor) => {
-      return (
-        
-        (!buildingId || floor.buildingId === buildingId)
-      );
+      return !buildingId || floor.buildingId === buildingId;
     });
   }
 
   createFloor(input: CreateFloorInput) {
-    
     const floor: Floor = { ...input, id: this.nextId('floor') };
     this.floors.push(floor);
     return floor;
@@ -1829,15 +1867,11 @@ export class InMemoryService {
 
   listUnits(status?: UnitStatus) {
     return this.units.filter((unit) => {
-      return (
-        
-        (!status || unit.status === status)
-      );
+      return !status || unit.status === status;
     });
   }
 
   createUnit(input: CreateUnitInput) {
-    
     const unit: Unit = { ...input, id: this.nextId('unit') };
     this.units.push(unit);
     return unit;
@@ -1859,15 +1893,11 @@ export class InMemoryService {
 
   listPropertyMedia(projectId?: string) {
     return this.propertyMedia.filter((media) => {
-      return (
-        
-        (!projectId || media.projectId === projectId)
-      );
+      return !projectId || media.projectId === projectId;
     });
   }
 
   createPropertyMedia(input: CreatePropertyMediaInput) {
-    
     const media: PropertyMedia = {
       ...input,
       id: this.nextId('media'),
@@ -1882,15 +1912,12 @@ export class InMemoryService {
   }
 
   createSiteVisit(input: CreateSiteVisitInput) {
-    
     const visit: SiteVisit = { ...input, id: this.nextId('visit') };
     this.siteVisits.push(visit);
     return visit;
   }
 
-  updateSiteVisitStatus(
-    id: string,
-    status: SiteVisit['status']) {
+  updateSiteVisitStatus(id: string, status: SiteVisit['status']) {
     const visit = this.siteVisits.find((item) => item.id === id);
 
     if (!visit) {
@@ -1898,7 +1925,7 @@ export class InMemoryService {
     }
 
     visit.status = status;
-    
+
     return visit;
   }
 
@@ -1907,7 +1934,6 @@ export class InMemoryService {
   }
 
   createReservation(input: CreateReservationInput) {
-    
     const reservation: Reservation = {
       ...input,
       id: this.nextId('reservation'),
@@ -1940,15 +1966,11 @@ export class InMemoryService {
 
   listPaymentSchedule(reservationId?: string) {
     return this.paymentSchedule.filter((item) => {
-      return (
-        
-        (!reservationId || item.reservationId === reservationId)
-      );
+      return !reservationId || item.reservationId === reservationId;
     });
   }
 
   createPaymentScheduleItem(input: CreatePaymentScheduleInput) {
-    
     const item: PaymentScheduleItem = {
       ...input,
       id: this.nextId('schedule'),
@@ -1959,15 +1981,11 @@ export class InMemoryService {
 
   listPaymentTransactions(reservationId?: string) {
     return this.paymentTransactions.filter((payment) => {
-      return (
-        
-        (!reservationId || payment.reservationId === reservationId)
-      );
+      return !reservationId || payment.reservationId === reservationId;
     });
   }
 
   createPaymentTransaction(input: CreatePaymentTransactionInput) {
-    
     const payment: PaymentTransaction = {
       ...input,
       id: this.nextId('payment'),
@@ -1978,15 +1996,11 @@ export class InMemoryService {
 
   listReceiptUploads(paymentId?: string) {
     return this.receiptUploads.filter((receipt) => {
-      return (
-        
-        (!paymentId || receipt.paymentId === paymentId)
-      );
+      return !paymentId || receipt.paymentId === paymentId;
     });
   }
 
   createReceiptUpload(input: CreateReceiptUploadInput) {
-    
     const receipt: ReceiptUpload = {
       ...input,
       id: this.nextId('receipt'),
@@ -2001,7 +2015,6 @@ export class InMemoryService {
   }
 
   createFinanceApproval(input: CreateFinanceApprovalInput) {
-    
     const approval: FinanceApproval = {
       ...input,
       id: this.nextId('approval'),
@@ -2011,9 +2024,7 @@ export class InMemoryService {
     return approval;
   }
 
-  updateFinanceApprovalStatus(
-    id: string,
-    status: FinanceApproval['status']) {
+  updateFinanceApprovalStatus(id: string, status: FinanceApproval['status']) {
     const approval = this.financeApprovals.find((item) => item.id === id);
 
     if (!approval) {
@@ -2021,7 +2032,7 @@ export class InMemoryService {
     }
 
     approval.status = status;
-    
+
     return approval;
   }
 
@@ -2030,7 +2041,6 @@ export class InMemoryService {
   }
 
   createUploadedDocument(input: CreateUploadedDocumentInput) {
-    
     const document: UploadedDocument = {
       ...input,
       id: this.nextId('document'),
@@ -2056,7 +2066,6 @@ export class InMemoryService {
   }
 
   createContractTemplate(input: CreateContractTemplateInput) {
-    
     const template: ContractTemplate = {
       ...input,
       id: this.nextId('template'),
@@ -2071,7 +2080,6 @@ export class InMemoryService {
   }
 
   generateContractPdf(input: CreateGeneratedContractPdfInput) {
-    
     const pdf: GeneratedContractPdf = {
       ...input,
       id: this.nextId('contract_pdf'),
@@ -2086,7 +2094,6 @@ export class InMemoryService {
   }
 
   createLegalContractApproval(input: CreateLegalContractApprovalInput) {
-    
     const approval: LegalContractApproval = {
       ...input,
       id: this.nextId('contract_approval'),
@@ -2098,7 +2105,8 @@ export class InMemoryService {
 
   updateLegalContractApprovalStatus(
     id: string,
-    status: LegalContractApproval['status']) {
+    status: LegalContractApproval['status'],
+  ) {
     const approval = this.legalContractApprovals.find((item) => item.id === id);
 
     if (!approval) {
@@ -2106,7 +2114,7 @@ export class InMemoryService {
     }
 
     approval.status = status;
-    
+
     return approval;
   }
 
@@ -2115,7 +2123,6 @@ export class InMemoryService {
   }
 
   createSignedContract(input: CreateSignedContractInput) {
-    
     const contract: SignedContract = {
       ...input,
       id: this.nextId('signed_contract'),
@@ -2124,19 +2131,13 @@ export class InMemoryService {
     return contract;
   }
 
-  listNotificationMessages(
-    channel?: NotificationMessage['channel'],
-  ) {
+  listNotificationMessages(channel?: NotificationMessage['channel']) {
     return this.notificationMessages.filter((message) => {
-      return (
-        
-        (!channel || message.channel === channel)
-      );
+      return !channel || message.channel === channel;
     });
   }
 
   createNotificationMessage(input: CreateNotificationMessageInput) {
-    
     const message: NotificationMessage = {
       ...input,
       id: this.nextId('notification'),
@@ -2326,7 +2327,13 @@ export class InMemoryService {
     const job: DataTransferJob = {
       ...input,
       id: this.nextId(input.type),
-      requestedAt: 'Today, ' + new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+      requestedAt:
+        'Today, ' +
+        new Date().toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true,
+        }),
       status: 'ready',
     };
     this.dataTransferJobs.unshift(job);

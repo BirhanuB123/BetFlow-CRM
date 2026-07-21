@@ -5,10 +5,8 @@
  *   - apps/web/src/features/leads/crm-data.ts
  */
 import type { Priority } from './common.types';
+import { TASK_STATUSES } from '../constants/task.constants';
 
-// ─── Status ────────────────────────────────────────────────────────────────────
-
-export const TASK_STATUSES = ['TODO', 'IN_PROGRESS', 'DONE'] as const;
 export type TaskStatus = (typeof TASK_STATUSES)[number];
 
 /** UI-friendly task status labels */
