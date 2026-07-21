@@ -1,17 +1,10 @@
-export type CreateCustomerInput = {
-  firstName: string;
-  lastName: string;
-  email?: string;
-  phone?: string;
-  title?: string | null;
-  accountId?: string | null;
-};
-
-export type UpdateCustomerInput = {
-  firstName?: string;
-  lastName?: string;
-  email?: string | null;
-  phone?: string | null;
-  title?: string | null;
-  accountId?: string | null;
-};
+/**
+ * Re-exports customer types from @betflow/shared.
+ * The source of truth is now packages/shared/types/customer.types.ts
+ */
+export type {
+  CreateCustomerInput,
+  UpdateCustomerInput,
+  CustomerType,
+  CustomerStatus,
+} from '@betflow/shared';
