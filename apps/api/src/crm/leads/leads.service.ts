@@ -13,6 +13,8 @@ import {
   UpdateLeadInput,
 } from './leads.types';
 
+import { AiScoringService } from './ai-scoring.service';
+
 const leadInclude = {
   source: { select: { id: true, name: true } },
   owner: { select: { id: true, firstName: true, lastName: true } },
@@ -20,14 +22,32 @@ const leadInclude = {
 
 @Injectable()
 export class LeadsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly aiScoring: AiScoringService,
+  ) {}
 
-  list() {
-    return this.prisma.lead.findMany({
+  async list() {
+    const leads = await this.prisma.lead.findMany({
       where: {},
       include: leadInclude,
       orderBy: { createdAt: 'desc' },
     });
+
+    return leads.map((lead) => ({
+      ...lead,
+      aiScore: this.aiScoring.scoreLead({
+        id: lead.id,
+        firstName: lead.firstName,
+        lastName: lead.lastName,
+        company: lead.company,
+        email: lead.email,
+        phone: lead.phone,
+        status: lead.status,
+        sourceName: lead.source?.name,
+        createdAt: lead.createdAt,
+      }),
+    }));
   }
 
   listSources() {
@@ -66,9 +86,49 @@ export class LeadsService {
       include: leadInclude,
     });
 
+    // Smart Automation: Calculate AI Score & Trigger Auto-Tasks
+    const aiScore = this.aiScoring.scoreLead({
+      id: lead.id,
+      firstName: lead.firstName,
+      lastName: lead.lastName,
+      company: lead.company,
+      email: lead.email,
+      phone: lead.phone,
+      status: lead.status,
+      sourceName: lead.source?.name,
+      createdAt: lead.createdAt,
+    });
+
+    if (aiScore.score >= 75) {
+      // Auto-create urgent follow-up task
+      await this.prisma.task.create({
+        data: {
+          title: `🔥 AI Auto-Task: Immediate VIP outreach for ${lead.firstName} ${lead.lastName}`,
+          description: aiScore.suggestedNextAction,
+          dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Due in 24h
+          status: 'TODO',
+          assigneeId: lead.ownerId ?? userId,
+          entityType: 'Lead',
+          entityId: lead.id,
+        },
+      });
+
+      // Auto-create in-app notification
+      await this.prisma.notification.create({
+        data: {
+          userId: lead.ownerId ?? userId,
+          title: `🔥 High-Intent Lead Alert (${aiScore.score}/100)`,
+          message: `Lead ${lead.firstName} ${lead.lastName} scored ${aiScore.score}/100. Action required: ${aiScore.suggestedNextAction}`,
+        },
+      });
+    }
+
     await this.recordAudit(userId, 'lead.created', lead.id);
 
-    return lead;
+    return {
+      ...lead,
+      aiScore,
+    };
   }
 
   async update(userId: string, id: string, input: UpdateLeadInput) {

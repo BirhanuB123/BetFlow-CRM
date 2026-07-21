@@ -50,7 +50,13 @@ export type ConvertLeadInput = {
   } | null;
 };
 
-// ─── Display Types (UI) ───────────────────────────────────────────────────────
+export type AiLeadScore = {
+  score: number;
+  intent: 'HOT' | 'WARM' | 'COLD';
+  factors: string[];
+  suggestedNextAction: string;
+  recommendedPriority: Priority;
+};
 
 /** Lead shape used on the frontend to display in tables / kanban */
 export type Lead = {
@@ -65,4 +71,5 @@ export type Lead = {
   assignedTo: string;
   priority: Priority;
   lastActivity: string;
+  aiScore?: AiLeadScore;
 };

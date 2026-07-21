@@ -57,6 +57,13 @@ type ApiLead = {
   convertedCustomerId: string | null;
   source: LeadSource | null;
   owner: LeadOwner | null;
+  aiScore?: {
+    score: number;
+    intent: "HOT" | "WARM" | "COLD";
+    factors: string[];
+    suggestedNextAction: string;
+    recommendedPriority: "High" | "Medium" | "Low";
+  };
 };
 
 type SortKey = "name" | "company" | "email" | "source" | "status" | "owner";
@@ -126,6 +133,7 @@ export default function LeadsPage() {
   const [creating, setCreating] = useState(false);
   const [busy, setBusy] = useState(false);
   const [convertLead, setConvertLead] = useState<ApiLead | null>(null);
+  const [aiInsightLead, setAiInsightLead] = useState<ApiLead | null>(null);
 
   const loadLeads = useCallback(async () => {
     try {
@@ -547,6 +555,7 @@ export default function LeadsPage() {
                     dir={sort.dir}
                     onClick={() => toggleSort("owner")}
                   />
+                  <th className="px-4 py-3 font-medium text-purple-700">AI Score</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100">
@@ -670,6 +679,35 @@ export default function LeadsPage() {
                             {ownerName(lead)}
                           </span>
                         </td>
+                        <td className="px-4 py-3">
+                          {lead.aiScore ? (
+                            <button
+                              type="button"
+                              onClick={() => setAiInsightLead(lead)}
+                              className={cn(
+                                "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold transition hover:scale-105",
+                                lead.aiScore.intent === "HOT" &&
+                                  "bg-rose-100 text-rose-800 border border-rose-300",
+                                lead.aiScore.intent === "WARM" &&
+                                  "bg-amber-100 text-amber-800 border border-amber-300",
+                                lead.aiScore.intent === "COLD" &&
+                                  "bg-blue-100 text-blue-800 border border-blue-300",
+                              )}
+                              title="Click to view AI Intent Analysis & Next Actions"
+                            >
+                              <span>
+                                {lead.aiScore.intent === "HOT"
+                                  ? "🔥"
+                                  : lead.aiScore.intent === "WARM"
+                                    ? "⚡"
+                                    : "🧊"}
+                              </span>
+                              <span>{lead.aiScore.score}/100</span>
+                            </button>
+                          ) : (
+                            <span className="text-xs text-zinc-400">—</span>
+                          )}
+                        </td>
                       </tr>
                     );
                   })
@@ -733,6 +771,13 @@ export default function LeadsPage() {
             setConvertLead(null);
             void loadLeads();
           }}
+        />
+      ) : null}
+
+      {aiInsightLead ? (
+        <AiInsightsModal
+          lead={aiInsightLead}
+          onClose={() => setAiInsightLead(null)}
         />
       ) : null}
     </DashboardShell>
@@ -1061,5 +1106,111 @@ function Labeled({
       </span>
       {children}
     </label>
+  );
+}
+
+function AiInsightsModal({
+  lead,
+  onClose,
+}: {
+  lead: ApiLead;
+  onClose: () => void;
+}) {
+  const score = lead.aiScore;
+  if (!score) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-xs">
+      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl border border-zinc-100">
+        <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">
+              {score.intent === "HOT"
+                ? "🔥"
+                : score.intent === "WARM"
+                  ? "⚡"
+                  : "🧊"}
+            </span>
+            <div>
+              <h2 className="text-base font-bold text-zinc-900">
+                AI Intent Analysis
+              </h2>
+              <p className="text-xs text-zinc-500">
+                {lead.firstName} {lead.lastName} ({lead.company || "Individual"})
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+
+        {/* Score Ring / Badge */}
+        <div className="my-5 flex items-center justify-between rounded-lg bg-purple-50/70 p-4 border border-purple-100">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-purple-700">
+              Lead Score
+            </p>
+            <p className="text-3xl font-extrabold text-purple-900 mt-0.5">
+              {score.score} <span className="text-sm font-normal text-purple-600">/ 100</span>
+            </p>
+          </div>
+          <div className="text-right">
+            <span
+              className={cn(
+                "inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide",
+                score.intent === "HOT" && "bg-rose-600 text-white",
+                score.intent === "WARM" && "bg-amber-500 text-white",
+                score.intent === "COLD" && "bg-blue-600 text-white",
+              )}
+            >
+              {score.intent} Intent
+            </span>
+            <p className="text-xs text-zinc-500 mt-1 font-medium">
+              Priority: <span className="text-zinc-900 font-semibold">{score.recommendedPriority}</span>
+            </p>
+          </div>
+        </div>
+
+        {/* Factors */}
+        <div className="mb-4">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">
+            AI Scoring Breakdown Factors
+          </h3>
+          <ul className="space-y-1.5 text-xs">
+            {score.factors.map((factor, idx) => (
+              <li
+                key={idx}
+                className="flex items-center gap-2 rounded-md bg-zinc-50 px-2.5 py-1.5 text-zinc-700 border border-zinc-100"
+              >
+                <span className="size-1.5 rounded-full bg-purple-600 shrink-0" />
+                <span>{factor}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Suggested Next Action */}
+        <div className="mb-5 rounded-lg bg-amber-50/80 p-3.5 border border-amber-200/60">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-amber-900 mb-1 flex items-center gap-1.5">
+            <span>💡</span> Recommended Smart Action
+          </h3>
+          <p className="text-xs leading-relaxed text-amber-900/90 font-medium">
+            {score.suggestedNextAction}
+          </p>
+        </div>
+
+        <Button
+          onClick={onClose}
+          className="w-full bg-zinc-900 hover:bg-zinc-800 text-white h-9"
+        >
+          Close Insights
+        </Button>
+      </div>
+    </div>
   );
 }
