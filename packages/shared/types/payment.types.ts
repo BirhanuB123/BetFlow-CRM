@@ -55,3 +55,49 @@ export type PaymentPlanCalculation = {
   installmentAmount: number;
   schedule: PaymentScheduleItem[];
 };
+
+// ─── Contract Builder & Multi-Level Approval Types ─────────────────────────────
+
+export type ApprovalStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export type GenerateContractInput = {
+  templateType: 'ETHIOPIAN_REAL_ESTATE_SALE' | 'COMMERCIAL_LEASE' | 'RESERVATION_AGREEMENT';
+  customerId: string;
+  unitId: string;
+  agreedPrice: number;
+  currency: 'ETB' | 'USD';
+  discountPercent?: number;
+  downPaymentPercent?: number;
+  installmentsCount?: number;
+  handoverPercent?: number;
+  specialTerms?: string;
+};
+
+export type ContractTemplateResult = {
+  contractId: string;
+  title: string;
+  buyerName: string;
+  unitNumber: string;
+  buildingName: string;
+  agreedPrice: number;
+  currency: 'ETB' | 'USD';
+  discountPercent: number;
+  requiresApproval: boolean;
+  approvalReason?: string;
+  approvalStatus: ApprovalStatus;
+  htmlContent: string;
+};
+
+export type ApprovalRequestItem = {
+  id: string;
+  contractId: string;
+  title: string;
+  requesterName: string;
+  buyerName: string;
+  amount: number;
+  currency: 'ETB' | 'USD';
+  discountPercent: number;
+  reason: string;
+  status: ApprovalStatus;
+  createdAt: string;
+};
