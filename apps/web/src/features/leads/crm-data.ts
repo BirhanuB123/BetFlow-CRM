@@ -1,68 +1,15 @@
-export type LeadStage = "New" | "Qualified" | "Tour Scheduled" | "Proposal" | "Won" | "Lost";
+import type {
+  LeadStage,
+  Lead,
+  Customer,
+  Deal,
+  Task,
+  Note,
+  Activity,
+} from "@betflow/shared";
 
-export type Lead = {
-  id: string;
-  name: string;
-  company: string;
-  email: string;
-  phone: string;
-  source: string;
-  budget: string;
-  stage: LeadStage;
-  assignedTo: string;
-  priority: "High" | "Medium" | "Low";
-  lastActivity: string;
-};
+export type { LeadStage, Lead, Customer, Deal, Task, Note, Activity };
 
-export type Customer = {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  type: "Buyer" | "Investor" | "Tenant";
-  owner: string;
-  lifetimeValue: string;
-  status: "Active" | "Onboarding" | "Dormant";
-};
-
-export type Deal = {
-  id: string;
-  leadId: string;
-  customer: string;
-  property: string;
-  value: string;
-  stage: LeadStage;
-  probability: number;
-  closeDate: string;
-  owner: string;
-};
-
-export type Task = {
-  id: string;
-  title: string;
-  owner: string;
-  relatedTo: string;
-  due: string;
-  status: "Open" | "In progress" | "Done";
-  priority: "High" | "Medium" | "Low";
-};
-
-export type Note = {
-  id: string;
-  relatedTo: string;
-  author: string;
-  body: string;
-  createdAt: string;
-};
-
-export type Activity = {
-  id: string;
-  actor: string;
-  action: string;
-  target: string;
-  time: string;
-  type: "Call" | "Email" | "Assignment" | "Task" | "Note" | "Deal";
-};
 
 export const pipelineStages: LeadStage[] = [
   "New",
