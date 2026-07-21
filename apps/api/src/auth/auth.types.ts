@@ -1,20 +1,9 @@
-export type AuthenticatedUser = {
-  id: string;
-  email: string;
-  roles: string[];
-};
-
-export type JwtPayload = {
-  sub: string;
-  email: string;
-  roles: string[];
-  iat: number;
-  exp: number;
-};
-
-export type AuthenticatedRequest = {
-  headers: {
-    authorization?: string;
-  };
-  user?: AuthenticatedUser;
-};
+/**
+ * Re-exports auth types from @betflow/shared.
+ * The source of truth is now packages/shared/types/user.types.ts
+ */
+export type {
+  AuthenticatedUser,
+  JwtPayload,
+  AuthenticatedRequest,
+} from '@betflow/shared';

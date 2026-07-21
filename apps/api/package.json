@@ -22,6 +22,7 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
+    "@betflow/shared": "*",
     "@nestjs/bullmq": "^11.0.4",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",

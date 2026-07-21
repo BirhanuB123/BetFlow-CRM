@@ -1,17 +1,12 @@
-export type CreatePaymentInput = {
-  amount: number | string;
-  method: string;
-  contractId?: string | null;
-  reservationId?: string | null;
-  date?: string;
-  status?: string;
-};
+/**
+ * Re-exports payment types from @betflow/shared.
+ * The source of truth is now packages/shared/types/payment.types.ts
+ */
+export type {
+  PaymentStatus,
+  PaymentMethod,
+  CreatePaymentInput,
+  UpdatePaymentInput,
+} from '@betflow/shared';
 
-export type UpdatePaymentInput = {
-  amount?: number | string;
-  method?: string;
-  contractId?: string | null;
-  reservationId?: string | null;
-  date?: string;
-  status?: string;
-};
+export { PAYMENT_STATUSES, PAYMENT_METHODS } from '@betflow/shared';
