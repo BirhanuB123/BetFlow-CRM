@@ -9,7 +9,7 @@
  */
 
 // All types
-export * from './types/index';
+export * from './types/index.js';
 
 // All constants
-export * from './constants/index';
+export * from './constants/index.js';

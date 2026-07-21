@@ -3,12 +3,12 @@
  * Import from '@betflow/shared' in both apps/api and apps/web.
  */
 
-export * from './common.types';
-export * from './user.types';
-export * from './lead.types';
-export * from './deal.types';
-export * from './customer.types';
-export * from './task.types';
-export * from './payment.types';
-export * from './activity.types';
-export * from './property.types';
+export * from './common.types.js';
+export * from './user.types.js';
+export * from './lead.types.js';
+export * from './deal.types.js';
+export * from './customer.types.js';
+export * from './task.types.js';
+export * from './payment.types.js';
+export * from './activity.types.js';
+export * from './property.types.js';
