@@ -6,6 +6,7 @@ import { CrmModule } from './crm/crm.module';
 import { RealEstateModule } from './real-estate/real-estate.module';
 import { FinanceModule } from './finance/finance.module';
 import { PlatformModule } from './platform/platform.module';
+import { IntegrationsModule } from './integrations/integrations.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { PlatformModule } from './platform/platform.module';
     RealEstateModule,
     FinanceModule,
     PlatformModule,
+    IntegrationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
