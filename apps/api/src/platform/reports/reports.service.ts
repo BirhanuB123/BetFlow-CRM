@@ -18,6 +18,8 @@ export class ReportsService {
       reservationCount,
       contractCount,
       leadCount,
+      wonDeals,
+      allDealsCount,
     ] = await Promise.all([
       this.prisma.contract.aggregate({
         _sum: { totalAmt: true },
@@ -34,11 +36,40 @@ export class ReportsService {
         where: { status: { in: ['ACTIVE', 'SIGNED'] } },
       }),
       this.prisma.lead.count({ where: { status: { not: 'CONVERTED' } } }),
+      this.prisma.deal.findMany({
+        where: { contracts: { some: {} } }, // Won deals are deals that have contracts
+        select: { createdAt: true, value: true, contracts: { select: { createdAt: true } } },
+      }),
+      this.prisma.deal.count(),
     ]);
 
     const bookedRevenue = Number(contractSum._sum.totalAmt ?? 0);
     const collectedPayments = Number(paymentSum._sum.amount ?? 0);
     const outstanding = bookedRevenue - collectedPayments;
+
+    // Calculate Sales Velocity
+    let avgDealValue = 0;
+    let winRate = 0;
+    let avgSalesCycleLength = 30; // default 30 days if no won deals
+
+    if (allDealsCount > 0) {
+      winRate = wonDeals.length / allDealsCount;
+    }
+
+    if (wonDeals.length > 0) {
+      const totalWonValue = wonDeals.reduce((sum, d) => sum + Number(d.value), 0);
+      avgDealValue = totalWonValue / wonDeals.length;
+      
+      const cycleLengths = wonDeals.map(d => {
+        const contractDate = d.contracts[0]?.createdAt || new Date();
+        const diffTime = Math.abs(contractDate.getTime() - d.createdAt.getTime());
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1; // min 1 day
+      });
+      avgSalesCycleLength = cycleLengths.reduce((a, b) => a + b, 0) / cycleLengths.length;
+    }
+
+    // Sales Velocity = (Deals Count × Win Rate × Avg Deal Value) / Sales Cycle Length
+    const salesVelocity = (allDealsCount * winRate * avgDealValue) / avgSalesCycleLength;
 
     return {
       bookedRevenue,
@@ -47,6 +78,7 @@ export class ReportsService {
       activeReservations: reservationCount,
       activeContracts: contractCount,
       openLeads: leadCount,
+      salesVelocity: Math.round(salesVelocity),
       metrics: [
         {
           label: 'Booked revenue',
@@ -59,9 +91,9 @@ export class ReportsService {
           detail: 'Completed payments',
         },
         {
-          label: 'Outstanding',
-          value: this.formatCurrency(outstanding),
-          detail: 'Pending collections',
+          label: 'Sales Velocity',
+          value: this.formatCurrency(Math.round(salesVelocity)),
+          detail: 'Projected revenue / day',
         },
         {
           label: 'Open leads',
