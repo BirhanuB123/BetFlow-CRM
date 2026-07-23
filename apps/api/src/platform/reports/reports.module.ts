@@ -3,10 +3,11 @@ import { DatabaseModule } from '../../database/database.module';
 import { AuthModule } from '../../core/auth/auth.module';
 import { ReportsController } from './reports.controller';
 import { ReportsService } from './reports.service';
+import { ForecastingCronService } from './forecasting-cron.service';
 
 @Module({
   imports: [DatabaseModule, AuthModule],
   controllers: [ReportsController],
-  providers: [ReportsService],
+  providers: [ReportsService, ForecastingCronService],
 })
 export class ReportsModule {}

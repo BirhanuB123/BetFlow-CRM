@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CoreModule } from './core/core.module';
@@ -7,17 +9,27 @@ import { RealEstateModule } from './real-estate/real-estate.module';
 import { FinanceModule } from './finance/finance.module';
 import { PlatformModule } from './platform/platform.module';
 import { IntegrationsModule } from './integrations/integrations.module';
+import { AuditInterceptor } from './core/audit-logs/audit.interceptor';
+import { AuditLogsModule } from './core/audit-logs/audit-logs.module';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     CoreModule,
     CrmModule,
     RealEstateModule,
     FinanceModule,
     PlatformModule,
     IntegrationsModule,
+    AuditLogsModule, // make sure AuditLogsModule is available
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
+    },
+  ],
 })
 export class AppModule {}
