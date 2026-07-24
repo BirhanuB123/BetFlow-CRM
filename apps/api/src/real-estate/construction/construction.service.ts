@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import type {
   ConstructionMilestone,
@@ -11,11 +15,31 @@ const STAGE_METADATA: Record<
   ConstructionStageKey,
   { en: string; am: string; defaultPercentShare: number }
 > = {
-  FOUNDATION: { en: 'Foundation & Substructure', am: 'መሰረት ስራ', defaultPercentShare: 20 },
-  SUPERSTRUCTURE: { en: 'Concrete Frame & Columns', am: 'ኮንክሪት ስራ', defaultPercentShare: 30 },
-  BLOCKWORK: { en: 'Masonry & Wall Blockwork', am: 'ብሎኬት ስራ', defaultPercentShare: 20 },
-  FINISHING: { en: 'MEP, Plastering & Finishing', am: 'ማጠናቀቂያ ስራ', defaultPercentShare: 20 },
-  HANDOVER: { en: 'Final Inspection & Key Handover (Carta)', am: 'ካርታና ርክክብ', defaultPercentShare: 10 },
+  FOUNDATION: {
+    en: 'Foundation & Substructure',
+    am: 'መሰረት ስራ',
+    defaultPercentShare: 20,
+  },
+  SUPERSTRUCTURE: {
+    en: 'Concrete Frame & Columns',
+    am: 'ኮንክሪት ስራ',
+    defaultPercentShare: 30,
+  },
+  BLOCKWORK: {
+    en: 'Masonry & Wall Blockwork',
+    am: 'ብሎኬት ስራ',
+    defaultPercentShare: 20,
+  },
+  FINISHING: {
+    en: 'MEP, Plastering & Finishing',
+    am: 'ማጠናቀቂያ ስራ',
+    defaultPercentShare: 20,
+  },
+  HANDOVER: {
+    en: 'Final Inspection & Key Handover (Carta)',
+    am: 'ካርታና ርክክብ',
+    defaultPercentShare: 10,
+  },
 };
 
 @Injectable()
@@ -28,7 +52,9 @@ export class ConstructionService {
   /**
    * Retrieves all 5 Ethiopian construction milestones for a given building.
    */
-  async getBuildingMilestones(buildingId: string): Promise<ConstructionMilestone[]> {
+  async getBuildingMilestones(
+    buildingId: string,
+  ): Promise<ConstructionMilestone[]> {
     const building = await this.prisma.building.findUnique({
       where: { id: buildingId },
     });
@@ -58,10 +84,23 @@ export class ConstructionService {
         stageKey,
         stageNameEnglish: STAGE_METADATA[stageKey].en,
         stageNameAmharic: STAGE_METADATA[stageKey].am,
-        completionPercent: stageKey === 'FOUNDATION' ? 100 : stageKey === 'SUPERSTRUCTURE' ? 45 : 0,
-        status: stageKey === 'FOUNDATION' ? 'COMPLETED' : stageKey === 'SUPERSTRUCTURE' ? 'IN_PROGRESS' : 'NOT_STARTED',
-        targetDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
-        completedAt: stageKey === 'FOUNDATION' ? new Date().toISOString() : null,
+        completionPercent:
+          stageKey === 'FOUNDATION'
+            ? 100
+            : stageKey === 'SUPERSTRUCTURE'
+              ? 45
+              : 0,
+        status:
+          stageKey === 'FOUNDATION'
+            ? 'COMPLETED'
+            : stageKey === 'SUPERSTRUCTURE'
+              ? 'IN_PROGRESS'
+              : 'NOT_STARTED',
+        targetDate: new Date(
+          Date.now() + 60 * 24 * 60 * 60 * 1000,
+        ).toISOString(),
+        completedAt:
+          stageKey === 'FOUNDATION' ? new Date().toISOString() : null,
       };
 
       this.progressStore.set(key, initial);
@@ -76,7 +115,8 @@ export class ConstructionService {
     userId: string,
     input: UpdateMilestoneProgressInput,
   ): Promise<MilestoneTriggerResult> {
-    const { buildingId, stageKey, completionPercent, status, photoUrl, notes } = input;
+    const { buildingId, stageKey, completionPercent, status, photoUrl, notes } =
+      input;
 
     const building = await this.prisma.building.findUnique({
       where: { id: buildingId },
@@ -103,7 +143,9 @@ export class ConstructionService {
 
     const meta = STAGE_METADATA[stageKey];
     if (!meta) {
-      throw new BadRequestException(`Invalid construction stageKey: ${stageKey}`);
+      throw new BadRequestException(
+        `Invalid construction stageKey: ${stageKey}`,
+      );
     }
 
     const key = `${buildingId}_${stageKey}`;

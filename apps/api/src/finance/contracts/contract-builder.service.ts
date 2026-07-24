@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import type {
   GenerateContractInput,
@@ -20,17 +24,27 @@ export class ContractBuilderService {
     userId: string,
     input: GenerateContractInput,
   ): Promise<ContractTemplateResult> {
-    const { customerId, unitId, agreedPrice, currency, discountPercent = 0, specialTerms } = input;
+    const {
+      customerId,
+      unitId,
+      agreedPrice,
+      currency,
+      discountPercent = 0,
+      specialTerms,
+    } = input;
 
     const [customer, unit] = await Promise.all([
       this.prisma.customer.findUnique({ where: { id: customerId } }),
       this.prisma.unit.findUnique({
         where: { id: unitId },
-        include: { floor: { include: { building: { include: { project: true } } } } },
+        include: {
+          floor: { include: { building: { include: { project: true } } } },
+        },
       }),
     ]);
 
-    if (!customer) throw new NotFoundException(`Customer ${customerId} not found`);
+    if (!customer)
+      throw new NotFoundException(`Customer ${customerId} not found`);
     if (!unit) throw new NotFoundException(`Unit ${unitId} not found`);
 
     // Multi-level approval rules
@@ -42,13 +56,16 @@ export class ContractBuilderService {
       approvalReason += `Custom discount of ${discountPercent}% exceeds 5% threshold. `;
     }
 
-    const priceUsdEquivalent = currency === 'USD' ? agreedPrice : agreedPrice / 120;
+    const priceUsdEquivalent =
+      currency === 'USD' ? agreedPrice : agreedPrice / 120;
     if (priceUsdEquivalent > 500000) {
       requiresApproval = true;
       approvalReason += `Contract value exceeding $500,000 USD / 60M ETB requires Executive Approval.`;
     }
 
-    const approvalStatus: ApprovalStatus = requiresApproval ? 'PENDING' : 'APPROVED';
+    const approvalStatus: ApprovalStatus = requiresApproval
+      ? 'PENDING'
+      : 'APPROVED';
 
     // Create contract in database
     const contract = await this.prisma.contract.create({
@@ -171,7 +188,11 @@ export class ContractBuilderService {
   /**
    * Reviews and approves/rejects a pending contract.
    */
-  async reviewApproval(userId: string, approvalId: string, action: 'APPROVE' | 'REJECT') {
+  async reviewApproval(
+    userId: string,
+    approvalId: string,
+    action: 'APPROVE' | 'REJECT',
+  ) {
     const item = this.approvalStore.get(approvalId);
     if (!item) {
       throw new NotFoundException(`Approval request ${approvalId} not found`);
@@ -189,7 +210,8 @@ export class ContractBuilderService {
     await this.prisma.auditLog.create({
       data: {
         userId,
-        action: action === 'APPROVE' ? 'contract.approved' : 'contract.rejected',
+        action:
+          action === 'APPROVE' ? 'contract.approved' : 'contract.rejected',
         entityType: 'Contract',
         entityId: item.contractId,
       },

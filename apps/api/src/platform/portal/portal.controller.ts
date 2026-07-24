@@ -75,10 +75,7 @@ export class PortalController {
    */
   @UseGuards(JwtAuthGuard)
   @Post('upload-bank-slip')
-  uploadBankSlip(
-    @CurrentUser() user: AuthenticatedUser,
-    @Body() body: any,
-  ) {
+  uploadBankSlip(@CurrentUser() user: AuthenticatedUser, @Body() body: any) {
     return this.portalService.uploadBankSlip(user.id, body);
   }
 }

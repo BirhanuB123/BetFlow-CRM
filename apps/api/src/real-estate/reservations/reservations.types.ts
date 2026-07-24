@@ -1,6 +1,7 @@
 export const RESERVATION_STATUSES = [
   'PENDING',
   'APPROVED',
+  'CONVERTED_TO_CONTRACT',
   'CANCELLED',
   'EXPIRED',
 ] as const;
@@ -13,17 +14,27 @@ export const ACTIVE_RESERVATION_STATUSES: ReservationStatus[] = [
 ];
 
 export type CreateReservationInput = {
+  reservationNumber?: string;
   customerId: string;
   unitId: string;
   amount: number | string;
+  holdPeriodDays?: number;
+  expiryDate?: string;
+  paymentMethod?: string;
+  receiptNumber?: string;
+  notes?: string;
   status?: string;
   date?: string;
 };
 
-// Status is intentionally excluded: it changes unit inventory state, so it
-// must go through PATCH /reservations/:id/status.
 export type UpdateReservationInput = {
+  reservationNumber?: string;
   amount?: number | string;
+  holdPeriodDays?: number;
+  expiryDate?: string;
+  paymentMethod?: string;
+  receiptNumber?: string;
+  notes?: string;
   date?: string;
 };
 

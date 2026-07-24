@@ -23,13 +23,19 @@ export class PaymentPlanService {
       throw new BadRequestException('unitPrice must be greater than 0');
     }
     if (downPaymentPercent < 0 || downPaymentPercent > 100) {
-      throw new BadRequestException('downPaymentPercent must be between 0 and 100');
+      throw new BadRequestException(
+        'downPaymentPercent must be between 0 and 100',
+      );
     }
     if (handoverPercent < 0 || handoverPercent > 100) {
-      throw new BadRequestException('handoverPercent must be between 0 and 100');
+      throw new BadRequestException(
+        'handoverPercent must be between 0 and 100',
+      );
     }
     if (downPaymentPercent + handoverPercent > 100) {
-      throw new BadRequestException('Combined down payment and handover percent cannot exceed 100%');
+      throw new BadRequestException(
+        'Combined down payment and handover percent cannot exceed 100%',
+      );
     }
     if (installmentsCount < 1) {
       throw new BadRequestException('installmentsCount must be at least 1');
@@ -73,7 +79,9 @@ export class PaymentPlanService {
     // 3. Final Handover Payment
     if (handoverPercent > 0) {
       const handoverDate = new Date(baseDate);
-      handoverDate.setMonth(handoverDate.getMonth() + (installmentsCount + 1) * 3);
+      handoverDate.setMonth(
+        handoverDate.getMonth() + (installmentsCount + 1) * 3,
+      );
 
       schedule.push({
         installmentNumber: installmentsCount + 2,

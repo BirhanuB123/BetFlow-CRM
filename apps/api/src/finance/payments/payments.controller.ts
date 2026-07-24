@@ -29,6 +29,11 @@ export class PaymentsController {
     return this.planService.calculatePaymentPlan(body);
   }
 
+  @Get('schedules')
+  listSchedules() {
+    return this.payments.listSchedules();
+  }
+
   @Get()
   list(@CurrentUser() user: AuthenticatedUser) {
     return this.payments.list();

@@ -74,13 +74,33 @@ export class ReservationsService {
         );
       }
 
+      const reservationDate = input.date
+        ? this.normalizeDate(input.date)
+        : new Date();
+      const holdPeriodDays = input.holdPeriodDays || 14;
+      const expiryDate = input.expiryDate
+        ? this.normalizeDate(input.expiryDate)
+        : new Date(
+            reservationDate.getTime() + holdPeriodDays * 24 * 60 * 60 * 1000,
+          );
+
+      const reservationNumber =
+        input.reservationNumber?.trim() ||
+        `BF-RES-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
+
       const reservation = await tx.reservation.create({
         data: {
+          reservationNumber,
           customerId: input.customerId,
           unitId: input.unitId,
           amount,
+          holdPeriodDays,
+          expiryDate,
+          paymentMethod: input.paymentMethod || 'BANK_TRANSFER',
+          receiptNumber: input.receiptNumber?.trim() || null,
+          notes: input.notes?.trim() || null,
           status,
-          date: input.date ? this.normalizeDate(input.date) : new Date(),
+          date: reservationDate,
         },
         include: reservationInclude,
       });
@@ -117,8 +137,21 @@ export class ReservationsService {
     }
 
     const data: Record<string, unknown> = {};
+    if (input.reservationNumber !== undefined)
+      data.reservationNumber = input.reservationNumber?.trim() || null;
     if (input.amount !== undefined)
       data.amount = this.normalizeAmount(input.amount);
+    if (input.holdPeriodDays !== undefined)
+      data.holdPeriodDays = input.holdPeriodDays;
+    if (input.expiryDate !== undefined)
+      data.expiryDate = input.expiryDate
+        ? this.normalizeDate(input.expiryDate)
+        : null;
+    if (input.paymentMethod !== undefined)
+      data.paymentMethod = input.paymentMethod || null;
+    if (input.receiptNumber !== undefined)
+      data.receiptNumber = input.receiptNumber?.trim() || null;
+    if (input.notes !== undefined) data.notes = input.notes?.trim() || null;
     if (input.date !== undefined) data.date = this.normalizeDate(input.date);
 
     const reservation = await this.prisma.reservation.update({

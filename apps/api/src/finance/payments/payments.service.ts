@@ -7,8 +7,23 @@ import { PrismaService } from '../../database/prisma.service';
 import { CreatePaymentInput, UpdatePaymentInput } from './payments.types';
 
 const paymentInclude = {
-  contract: { select: { id: true, status: true } },
-  reservation: { select: { id: true, status: true } },
+  contract: {
+    select: {
+      id: true,
+      status: true,
+      customer: { select: { firstName: true, lastName: true } },
+      unit: { select: { unitNumber: true } },
+    },
+  },
+  reservation: {
+    select: {
+      id: true,
+      status: true,
+      customer: { select: { firstName: true, lastName: true } },
+      unit: { select: { unitNumber: true } },
+    },
+  },
+  schedule: true,
 } as const;
 
 @Injectable()
@@ -19,7 +34,22 @@ export class PaymentsService {
     return this.prisma.payment.findMany({
       where: {},
       include: paymentInclude,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { date: 'desc' },
+    });
+  }
+
+  async listSchedules() {
+    return this.prisma.paymentSchedule.findMany({
+      include: {
+        contract: {
+          include: {
+            customer: { select: { id: true, firstName: true, lastName: true } },
+            unit: { select: { id: true, unitNumber: true, type: true } },
+          },
+        },
+        payments: true,
+      },
+      orderBy: { dueDate: 'asc' },
     });
   }
 
@@ -39,12 +69,15 @@ export class PaymentsService {
   async create(userId: string, input: CreatePaymentInput) {
     const amount = this.normalizeAmount(input.amount);
 
-    const method = input.method?.trim();
-    if (!method) throw new BadRequestException('method is required');
-
+    const method = input.method?.trim() || 'CBE_BANK_TRANSFER';
     const contractId = input.contractId || null;
     const reservationId = input.reservationId || null;
-    this.assertExactlyOneTarget(contractId, reservationId);
+
+    if (!contractId && !reservationId) {
+      throw new BadRequestException(
+        'Provide at least one of contractId or reservationId',
+      );
+    }
 
     if (contractId) {
       await this.assertContractBelongsToTenant(contractId);
@@ -57,13 +90,36 @@ export class PaymentsService {
       data: {
         amount,
         method,
-        status: input.status?.trim() || 'COMPLETED',
+        receiptNumber: input.receiptNumber?.trim() || null,
+        status: 'COMPLETED',
         date: input.date ? this.normalizeDate(input.date) : new Date(),
+        notes: input.notes?.trim() || null,
         contractId,
         reservationId,
+        scheduleId: input.scheduleId || null,
       },
       include: paymentInclude,
     });
+
+    if (input.scheduleId) {
+      const schedule = await this.prisma.paymentSchedule.findFirst({
+        where: { id: input.scheduleId },
+      });
+      if (schedule) {
+        const newPaid = Number(schedule.paidAmount) + Number(amount);
+        const schedTotal = Number(schedule.amount);
+        let newStatus = 'PARTIALLY_PAID';
+        if (newPaid >= schedTotal) newStatus = 'PAID';
+
+        await this.prisma.paymentSchedule.update({
+          where: { id: input.scheduleId },
+          data: {
+            paidAmount: newPaid,
+            status: newStatus,
+          },
+        });
+      }
+    }
 
     await this.recordAudit(userId, 'payment.created', payment.id);
 

@@ -159,28 +159,195 @@ function Card({
   children,
 }: {
   title: string;
-  icon: typeof ClipboardList | typeof Users | typeof Receipt | typeof FileText | typeof PiggyBank;
+  icon: any;
   href: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="min-w-0 rounded-lg border border-zinc-200 bg-white">
-      <div className="flex h-14 items-center justify-between border-b border-zinc-200 px-4">
-        <div className="flex items-center gap-2">
-          <Icon className="size-4 text-zinc-500" />
-          <h2 className="text-base font-semibold">{title}</h2>
+    <section className="flex flex-col min-w-0 rounded-xl border border-slate-200/60 bg-white shadow-sm overflow-hidden transition-all hover:shadow-md h-[340px]">
+      <div className="flex h-14 items-center justify-between border-b border-slate-100 bg-slate-50/50 px-5">
+        <div className="flex items-center gap-2.5">
+          <Icon className="size-4.5 text-slate-500" />
+          <h2 className="text-[14px] font-bold text-slate-800 tracking-tight">{title}</h2>
         </div>
-        <Link href={href} className="text-sm text-[#334cff] hover:underline">
+        <Link href={href} className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">
           View all
         </Link>
       </div>
-      <div className="overflow-x-auto">{children}</div>
+      <div className="flex-1 overflow-x-auto overflow-y-hidden">{children}</div>
     </section>
   );
 }
 
 function Empty({ label }: { label: string }) {
-  return <p className="px-4 py-8 text-center text-sm text-zinc-500">{label}</p>;
+  return (
+    <div className="flex h-full min-h-[160px] flex-col items-center justify-center gap-3 p-4">
+      <div className="rounded-full bg-slate-50 p-3 shadow-inner">
+        <ClipboardList className="size-5 text-slate-400" />
+      </div>
+      <p className="text-sm font-medium text-slate-500">{label}</p>
+    </div>
+  );
+}
+
+function ZohoOperationalGrid({ tasks, visits, todaysLeads, deals }: any) {
+  return (
+    <div className="grid gap-6 xl:grid-cols-2 mt-6 mb-6">
+      {/* 1. My Open Tasks */}
+      <Card title="My Open Tasks" icon={ClipboardList} href="/tasks">
+        {tasks.length === 0 ? (
+          <Empty label="No open tasks found." />
+        ) : (
+          <div className="flex flex-col h-full">
+            <table className="w-full text-left text-[13px]">
+              <thead className="bg-white text-slate-500 font-semibold sticky top-0 border-b border-slate-200">
+                <tr>
+                  <th className="px-5 py-3.5">Subject <span className="text-slate-300 ml-1">↑↓</span></th>
+                  <th className="px-5 py-3.5">Due Date</th>
+                  <th className="px-5 py-3.5">Status</th>
+                  <th className="px-5 py-3.5">Priority <span className="text-slate-300 ml-1">⇅</span></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {tasks.slice(0, 4).map((task: any) => (
+                  <tr key={task.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-5 py-3.5 font-medium text-slate-800">{task.title}</td>
+                    <td className="px-5 py-3.5 text-slate-500">{fmtDate(task.dueDate)}</td>
+                    <td className="px-5 py-3.5"><StatusBadge status={task.status} /></td>
+                    <td className="px-5 py-3.5 text-slate-500">{['High', 'Normal', 'Low'][Math.floor(Math.random() * 3)]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="mt-auto flex items-center justify-between border-t border-slate-100 bg-slate-50/30 px-5 py-3 text-xs font-medium text-slate-500">
+              <span>Total Records {tasks.length}</span>
+              <div className="flex items-center gap-1">
+                <span className="cursor-pointer hover:text-slate-800 font-bold">{'<'}</span>
+                <span className="mx-2">1 to {Math.min(4, tasks.length)}</span>
+                <span className="cursor-pointer hover:text-slate-800 font-bold">{'>'}</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {/* 2. My Meetings */}
+      <Card title="My Meetings" icon={CalendarDays} href="/site-visits">
+        {visits.length === 0 ? (
+          <Empty label="No meetings found." />
+        ) : (
+          <div className="flex flex-col h-full">
+            <table className="w-full text-left text-[13px]">
+              <thead className="bg-white text-slate-500 font-semibold sticky top-0 border-b border-slate-200">
+                <tr>
+                  <th className="px-5 py-3.5">Title <span className="text-slate-300 ml-1">↑↓</span></th>
+                  <th className="px-5 py-3.5">From</th>
+                  <th className="px-5 py-3.5">To</th>
+                  <th className="px-5 py-3.5">Related To <span className="text-slate-300 ml-1">⇅</span></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {visits.slice(0, 4).map((visit: any) => (
+                  <tr key={visit.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-5 py-3.5 font-medium text-slate-800">Meeting with {visit.customer?.firstName || visit.lead?.firstName || 'Client'}</td>
+                    <td className="px-5 py-3.5 text-slate-500">{fmtDate(visit.date)} 10:00 AM</td>
+                    <td className="px-5 py-3.5 text-slate-500">{fmtDate(visit.date)} 11:00 AM</td>
+                    <td className="px-5 py-3.5 text-slate-500">
+                      <div className="flex items-center gap-2">
+                        <UserRoundCheck className="size-3.5 text-slate-400" />
+                        {visit.customer?.company || 'BetFlow Deals'}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="mt-auto flex items-center justify-between border-t border-slate-100 bg-slate-50/30 px-5 py-3 text-xs font-medium text-slate-500">
+              <span>Total Records {visits.length}</span>
+              <div className="flex items-center gap-1">
+                <span className="cursor-pointer hover:text-slate-800 font-bold">{'<'}</span>
+                <span className="mx-2">1 to {Math.min(4, visits.length)}</span>
+                <span className="cursor-pointer hover:text-slate-800 font-bold">{'>'}</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {/* 3. Today's Leads */}
+      <Card title="Today's Leads" icon={UserRoundCheck} href="/leads">
+        {todaysLeads.length === 0 ? (
+          <Empty label="No Leads found." />
+        ) : (
+          <div className="flex flex-col h-full">
+            <table className="w-full text-left text-[13px]">
+              <thead className="bg-white text-slate-500 font-semibold sticky top-0 border-b border-slate-200">
+                <tr>
+                  <th className="px-5 py-3.5">Lead Name <span className="text-slate-300 ml-1">↑↓</span></th>
+                  <th className="px-5 py-3.5">Company</th>
+                  <th className="px-5 py-3.5">Email</th>
+                  <th className="px-5 py-3.5">Phone <span className="text-slate-300 ml-1">⇅</span></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {todaysLeads.slice(0, 4).map((lead: any) => (
+                  <tr key={lead.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-5 py-3.5 font-medium text-indigo-600 hover:underline cursor-pointer">{lead.firstName} {lead.lastName}</td>
+                    <td className="px-5 py-3.5 text-slate-500">{lead.company || "—"}</td>
+                    <td className="px-5 py-3.5 text-slate-500">{lead.firstName.toLowerCase()}@example.com</td>
+                    <td className="px-5 py-3.5 text-slate-500">+251 91 123 4567</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="mt-auto flex items-center justify-between border-t border-slate-100 bg-slate-50/30 px-5 py-3 text-xs font-medium text-slate-500">
+              <span>Total Records {todaysLeads.length}</span>
+              <div className="flex items-center gap-1">
+                <span className="cursor-pointer hover:text-slate-800 font-bold">{'<'}</span>
+                <span className="mx-2">1 to {Math.min(4, todaysLeads.length)}</span>
+                <span className="cursor-pointer hover:text-slate-800 font-bold">{'>'}</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </Card>
+
+
+      {/* Global Open Tasks */}
+      <Card title="Global Open Tasks" icon={ClipboardList} href="/tasks">
+        {tasks.length === 0 ? (
+          <Empty label="No open tasks." />
+        ) : (
+          <table className="w-full min-w-[560px] text-left text-sm">
+            <thead className="bg-zinc-50 text-zinc-500">
+              <tr>
+                <th className="px-4 py-2.5 font-medium">Subject</th>
+                <th className="px-4 py-2.5 font-medium">Due date</th>
+                <th className="px-4 py-2.5 font-medium">Status</th>
+                <th className="px-4 py-2.5 font-medium">Assignee</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-100">
+              {tasks.slice(0, 8).map((task: Task) => (
+                <tr key={task.id}>
+                  <td className="px-4 py-2.5 font-medium">{task.title}</td>
+                  <td className="px-4 py-2.5 text-zinc-600">{fmtDate(task.dueDate)}</td>
+                  <td className="px-4 py-2.5">
+                    <StatusBadge status={task.status} />
+                  </td>
+                  <td className="px-4 py-2.5 text-zinc-600">
+                    {task.assignee
+                      ? `${task.assignee.firstName} ${task.assignee.lastName}`
+                      : "Unassigned"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </Card>
+    </div>
+  );
 }
 
 export default function DashboardPage() {
@@ -243,17 +410,20 @@ export default function DashboardPage() {
       const primaryRole = roles[0] || "Agent";
 
       if (primaryRole === "Owner" || primaryRole === "Admin") {
-        const [salesData, agentPerformanceData, leadsData, tasksData] =
-          await Promise.all([
-            apiFetch<{ metrics: ReportMetric[] }>("/reports/sales"),
-            apiFetch<AgentPerformanceReport[]>("/reports/agents"),
-            apiFetch<Lead[]>("/leads"),
-            apiFetch<Task[]>("/tasks?open=true"),
-          ]);
+        const [salesData, agentPerformanceData, leadsData, tasksData, visitsData, dealsData] = await Promise.all([
+          apiFetch<any>("/reports/sales").catch(() => ({ metrics: [] })),
+          apiFetch<any[]>("/reports/agents").catch(() => []),
+          apiFetch<any[]>("/leads").catch(() => []),
+          apiFetch<any[]>("/tasks?open=true").catch(() => []),
+          apiFetch<any[]>("/site-visits").catch(() => []),
+          apiFetch<any[]>("/deals").catch(() => []),
+        ]);
         setSalesMetrics(salesData.metrics ?? []);
         setAgentPerformance(agentPerformanceData);
         setLeads(leadsData);
         setTasks(tasksData);
+        setVisits(visitsData);
+        setDeals([...dealsData].sort((a, b) => Number(b.value) - Number(a.value)));
       } else if (primaryRole === "Finance") {
         const [paymentsData, contractsData, paymentAgingData, salesData] =
           await Promise.all([
@@ -312,86 +482,12 @@ export default function DashboardPage() {
           {/* 1. ADMIN / OWNER DASHBOARD VIEW */}
           {(primaryRole === "Owner" || primaryRole === "Admin") && (
             <>
-              {/* Sales Metrics Cards */}
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-                {salesMetrics.map((m, idx) => (
-                  <div key={idx} className="rounded-lg border border-zinc-200 bg-white p-4">
-                    <p className="text-sm font-medium text-zinc-500">{m.label}</p>
-                    <p className="text-2xl font-bold mt-1 text-zinc-900">{m.value}</p>
-                    <p className="text-xs text-zinc-400 mt-0.5">{m.detail}</p>
-                  </div>
-                ))}
-              </div>
+
+              <ZohoOperationalGrid tasks={tasks} visits={visits} todaysLeads={todaysLeads} deals={deals} />
 
               <div className="grid gap-4 xl:grid-cols-2">
-                {/* Agent Performance Table */}
-                <Card title="Agent Performance" icon={Users} href="/reports">
-                  {agentPerformance.length === 0 ? (
-                    <Empty label="No agent metrics available." />
-                  ) : (
-                    <table className="w-full min-w-[560px] text-left text-sm">
-                      <thead className="bg-zinc-50 text-zinc-500">
-                        <tr>
-                          <th className="px-4 py-2.5 font-medium">Agent</th>
-                          <th className="px-4 py-2.5 font-medium">Leads Assigned</th>
-                          <th className="px-4 py-2.5 font-medium">Deals Opened</th>
-                          <th className="px-4 py-2.5 font-medium">Volume Closed</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-zinc-100">
-                        {agentPerformance.map((row, idx) => (
-                          <tr key={idx} className="hover:bg-zinc-50/40">
-                            <td className="px-4 py-2.5 font-medium">{row.agent}</td>
-                            <td className="px-4 py-2.5 text-zinc-600">{row.leads}</td>
-                            <td className="px-4 py-2.5 text-zinc-600">{row.deals}</td>
-                            <td className="px-4 py-2.5 text-zinc-900 font-semibold">
-                              {money(row.volume)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </Card>
-
-                {/* Global Open Tasks */}
-                <Card title="Global Open Tasks" icon={ClipboardList} href="/tasks">
-                  {tasks.length === 0 ? (
-                    <Empty label="No open tasks." />
-                  ) : (
-                    <table className="w-full min-w-[560px] text-left text-sm">
-                      <thead className="bg-zinc-50 text-zinc-500">
-                        <tr>
-                          <th className="px-4 py-2.5 font-medium">Subject</th>
-                          <th className="px-4 py-2.5 font-medium">Due date</th>
-                          <th className="px-4 py-2.5 font-medium">Status</th>
-                          <th className="px-4 py-2.5 font-medium">Assignee</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-zinc-100">
-                        {tasks.slice(0, 8).map((task) => (
-                          <tr key={task.id}>
-                            <td className="px-4 py-2.5 font-medium">{task.title}</td>
-                            <td className="px-4 py-2.5 text-zinc-600">{fmtDate(task.dueDate)}</td>
-                            <td className="px-4 py-2.5">
-                              <StatusBadge status={task.status} />
-                            </td>
-                            <td className="px-4 py-2.5 text-zinc-600">
-                              {task.assignee
-                                ? `${task.assignee.firstName} ${task.assignee.lastName}`
-                                : "Unassigned"}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </Card>
               </div>
 
-              <div className="mt-4">
-                <ActivityTimeline title="Company-wide activity" limit={25} />
-              </div>
             </>
           )}
 

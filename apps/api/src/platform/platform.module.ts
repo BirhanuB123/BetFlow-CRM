@@ -7,6 +7,7 @@ import { EnterpriseModule } from './enterprise/enterprise.module';
 import { WebsiteLeadsModule } from './integrations/website-leads/website-leads.module';
 import { SocialLeadsModule } from './integrations/social-leads/social-leads.module';
 import { PortalModule } from './portal/portal.module';
+import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PortalModule } from './portal/portal.module';
     WebsiteLeadsModule,
     SocialLeadsModule,
     PortalModule,
+    UploadsModule,
   ],
   exports: [
     DocumentsModule,
@@ -28,6 +30,7 @@ import { PortalModule } from './portal/portal.module';
     WebsiteLeadsModule,
     SocialLeadsModule,
     PortalModule,
+    UploadsModule,
   ],
 })
 export class PlatformModule {}
