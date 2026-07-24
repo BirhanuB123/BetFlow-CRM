@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import type {
   BankSlipUploadInput,
@@ -31,7 +35,9 @@ export class PortalService {
     });
 
     if (!customer) {
-      throw new NotFoundException(`Customer matching '${clean}' was not found in CRM`);
+      throw new NotFoundException(
+        `Customer matching '${clean}' was not found in CRM`,
+      );
     }
 
     return {
@@ -51,7 +57,9 @@ export class PortalService {
    */
   async getPortalMe(email?: string, customerId?: string) {
     const customer = await this.prisma.customer.findFirst({
-      where: customerId ? { id: customerId } : { email: { equals: email, mode: 'insensitive' } },
+      where: customerId
+        ? { id: customerId }
+        : { email: { equals: email, mode: 'insensitive' } },
       include: {
         account: { select: { name: true } },
         deals: {
@@ -186,7 +194,8 @@ export class PortalService {
           buildingName: c.unit.floor.building.name,
         },
         paidAmount: c.payments.reduce((acc, p) => acc + Number(p.amount), 0),
-        pendingSchedulesCount: c.schedules.filter((s) => s.status !== 'PAID').length,
+        pendingSchedulesCount: c.schedules.filter((s) => s.status !== 'PAID')
+          .length,
       })),
     };
   }
@@ -223,7 +232,9 @@ export class PortalService {
     );
 
     const totalDue = schedules.reduce((acc, s) => acc + s.amount, 0);
-    const totalPaid = schedules.filter((s) => s.status === 'PAID').reduce((acc, s) => acc + s.amount, 0);
+    const totalPaid = schedules
+      .filter((s) => s.status === 'PAID')
+      .reduce((acc, s) => acc + s.amount, 0);
 
     return {
       schedules,
@@ -279,7 +290,8 @@ export class PortalService {
     customerId: string,
     input: BankSlipUploadInput,
   ): Promise<BankSlipSubmissionResult> {
-    const { scheduleId, bankName, referenceNumber, amount, slipUrl, notes } = input;
+    const { scheduleId, bankName, referenceNumber, amount, slipUrl, notes } =
+      input;
 
     if (!scheduleId || !bankName || !referenceNumber || !amount) {
       throw new BadRequestException(

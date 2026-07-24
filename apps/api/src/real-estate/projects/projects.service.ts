@@ -19,16 +19,38 @@ export class ProjectsService {
     const projects = await this.prisma.project.findMany({
       where: {},
       include: { _count: { select: { buildings: true } } },
-      orderBy: { name: 'asc' },
+      orderBy: { createdAt: 'desc' },
     });
 
     return Promise.all(
-      projects.map(async (project) => ({
-        ...project,
-        unitsCount: await this.prisma.unit.count({
+      projects.map(async (project) => {
+        const units = await this.prisma.unit.findMany({
           where: { floor: { building: { projectId: project.id } } },
-        }),
-      })),
+          select: { status: true, price: true },
+        });
+
+        const unitsCount = units.length;
+        const availableUnitsCount = units.filter(
+          (u) => u.status === 'AVAILABLE',
+        ).length;
+        const reservedUnitsCount = units.filter(
+          (u) => u.status === 'RESERVED',
+        ).length;
+        const soldUnitsCount = units.filter((u) => u.status === 'SOLD').length;
+        const totalValueETB = units.reduce(
+          (acc, u) => acc + (Number(u.price) || 0),
+          0,
+        );
+
+        return {
+          ...project,
+          unitsCount,
+          availableUnitsCount,
+          reservedUnitsCount,
+          soldUnitsCount,
+          totalValueETB,
+        };
+      }),
     );
   }
 
@@ -57,11 +79,33 @@ export class ProjectsService {
       })),
     );
 
-    const unitsCount = await this.prisma.unit.count({
+    const units = await this.prisma.unit.findMany({
       where: { floor: { building: { projectId: id } } },
+      select: { status: true, price: true },
     });
 
-    return { ...project, buildings, unitsCount };
+    const unitsCount = units.length;
+    const availableUnitsCount = units.filter(
+      (u) => u.status === 'AVAILABLE',
+    ).length;
+    const reservedUnitsCount = units.filter(
+      (u) => u.status === 'RESERVED',
+    ).length;
+    const soldUnitsCount = units.filter((u) => u.status === 'SOLD').length;
+    const totalValueETB = units.reduce(
+      (acc, u) => acc + (Number(u.price) || 0),
+      0,
+    );
+
+    return {
+      ...project,
+      buildings,
+      unitsCount,
+      availableUnitsCount,
+      reservedUnitsCount,
+      soldUnitsCount,
+      totalValueETB,
+    };
   }
 
   async create(userId: string, input: CreateProjectInput) {
@@ -72,6 +116,23 @@ export class ProjectsService {
       data: {
         name,
         description: input.description?.trim() || null,
+        category: input.category || 'RESIDENTIAL_TOWER',
+        location: input.location?.trim() || null,
+        subCity: input.subCity || 'BOLE',
+        constructionStage: input.constructionStage || 'STRUCTURE_CONCRETE_SLAB',
+        progressPercentage:
+          input.progressPercentage != null
+            ? Number(input.progressPercentage)
+            : 50,
+        estimatedDelivery: input.estimatedDelivery?.trim() || null,
+        coverImage: input.coverImage?.trim() || null,
+        gallery: input.gallery || [],
+        videoUrl: input.videoUrl?.trim() || null,
+        amenities: input.amenities || [],
+        totalAreaSqm:
+          input.totalAreaSqm != null ? Number(input.totalAreaSqm) : null,
+        avgPricePerSqm:
+          input.avgPricePerSqm != null ? Number(input.avgPricePerSqm) : null,
         status: this.normalizeStatus(input.status ?? 'ACTIVE'),
       },
       include: { _count: { select: { buildings: true } } },
@@ -96,6 +157,28 @@ export class ProjectsService {
     }
     if (input.description !== undefined)
       data.description = input.description?.trim() || null;
+    if (input.category !== undefined) data.category = input.category;
+    if (input.location !== undefined)
+      data.location = input.location?.trim() || null;
+    if (input.subCity !== undefined) data.subCity = input.subCity || null;
+    if (input.constructionStage !== undefined)
+      data.constructionStage = input.constructionStage;
+    if (input.progressPercentage !== undefined)
+      data.progressPercentage = Number(input.progressPercentage);
+    if (input.estimatedDelivery !== undefined)
+      data.estimatedDelivery = input.estimatedDelivery?.trim() || null;
+    if (input.coverImage !== undefined)
+      data.coverImage = input.coverImage?.trim() || null;
+    if (input.gallery !== undefined) data.gallery = input.gallery;
+    if (input.videoUrl !== undefined)
+      data.videoUrl = input.videoUrl?.trim() || null;
+    if (input.amenities !== undefined) data.amenities = input.amenities;
+    if (input.totalAreaSqm !== undefined)
+      data.totalAreaSqm =
+        input.totalAreaSqm != null ? Number(input.totalAreaSqm) : null;
+    if (input.avgPricePerSqm !== undefined)
+      data.avgPricePerSqm =
+        input.avgPricePerSqm != null ? Number(input.avgPricePerSqm) : null;
     if (input.status !== undefined)
       data.status = this.normalizeStatus(input.status);
 
@@ -113,17 +196,26 @@ export class ProjectsService {
   async remove(userId: string, id: string) {
     const existing = await this.prisma.project.findFirst({
       where: { id },
-      include: { _count: { select: { buildings: true } } },
+      include: { buildings: { select: { id: true } } },
     });
     if (!existing) throw new NotFoundException(`Project ${id} was not found`);
 
-    if (existing._count.buildings > 0) {
-      throw new BadRequestException(
-        'Cannot delete a project that still has buildings',
-      );
-    }
+    const buildingIds = existing.buildings.map((b) => b.id);
+    const floors = await this.prisma.floor.findMany({
+      where: { buildingId: { in: buildingIds } },
+      select: { id: true },
+    });
+    const floorIds = floors.map((f) => f.id);
 
-    await this.prisma.project.delete({ where: { id } });
+    await this.prisma.$transaction([
+      this.prisma.unit.deleteMany({ where: { floorId: { in: floorIds } } }),
+      this.prisma.floor.deleteMany({
+        where: { buildingId: { in: buildingIds } },
+      }),
+      this.prisma.building.deleteMany({ where: { projectId: id } }),
+      this.prisma.project.delete({ where: { id } }),
+    ]);
+
     await this.recordAudit(userId, 'project.deleted', id);
 
     return { id, deleted: true };

@@ -22,7 +22,9 @@ export class ForecastingCronService {
 
       // Log the forecast run to the audit log or create a notification
       // (For enterprise, you'd save this to a snapshot table, but for now we log it)
-      this.logger.log(`Forecast complete: Weighted Pipeline ${forecast.totalWeightedPipeline}, Sales Velocity: ${salesDash.salesVelocity}`);
+      this.logger.log(
+        `Forecast complete: Weighted Pipeline ${forecast.totalWeightedPipeline}, Sales Velocity: ${salesDash.salesVelocity}`,
+      );
 
       // We can also create a notification for admin users
       const admins = await this.prisma.user.findMany({

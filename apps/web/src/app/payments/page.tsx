@@ -1,12 +1,27 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { Plus, Trash2, X } from "lucide-react";
+import Link from "next/link";
+import {
+  Coins,
+  Plus,
+  Trash2,
+  X,
+  Building,
+  CheckCircle2,
+  Clock,
+  AlertTriangle,
+  Receipt,
+  User,
+  Sparkles,
+  Layers,
+  Banknote,
+  ArrowUpRight,
+  ShieldCheck,
+} from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
-import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
-import { StatCard } from "@/components/ui/stat-card";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
@@ -14,84 +29,110 @@ import { cn } from "@/lib/utils";
 type ApiPayment = {
   id: string;
   amount: string;
-  method: string;
-  status: string;
   date: string;
-  contract: { id: string; status: string } | null;
-  reservation: { id: string; status: string } | null;
+  method: string;
+  receiptNumber: string | null;
+  status: string;
+  notes: string | null;
+  contract?: { id: string; status: string; customer?: { firstName: string; lastName: string }; unit?: { unitNumber: string } } | null;
+  reservation?: { id: string; status: string; customer?: { firstName: string; lastName: string }; unit?: { unitNumber: string } } | null;
 };
 
-type ContractOption = {
+type ApiSchedule = {
   id: string;
-  customer: { firstName: string; lastName: string };
-  unit: { unitNumber: string };
-};
-type ReservationOption = {
-  id: string;
-  customer: { firstName: string; lastName: string };
-  unit: { unitNumber: string };
+  milestoneName: string;
+  percentage: number;
+  dueDate: string;
+  amount: string;
+  paidAmount: string;
+  status: string;
+  notes: string | null;
+  contract: {
+    id: string;
+    customer: { id: string; firstName: string; lastName: string };
+    unit: { id: string; unitNumber: string; type: string };
+  };
 };
 
-const PAYMENT_METHODS = ["CASH", "CARD", "TRANSFER", "CHECK"] as const;
-type TargetType = "contract" | "reservation";
+type ContractOption = { id: string; customer: { firstName: string; lastName: string }; unit: { unitNumber: string } };
+
+const milestoneLabels: Record<string, string> = {
+  DOWNPAYMENT_30: "1st Downpayment (30% - ውል ሲፈረም)",
+  FOUNDATION_SLAB_20: "2nd Milestone (20% - መሠረት ሲጠናቀቅ)",
+  STRUCTURE_SLAB_20: "3rd Milestone (20% - ፍሬም/ኮንክሪት ሲጠናቀቅ)",
+  FINISHING_TILE_20: "4th Milestone (20% - ፊኒሺንግ ሲጀምር)",
+  HANDOVER_KEYS_10: "Final Handover (10% - ቁልፍ እና ካርታ ሲረከብ)",
+};
+
+const methodLabels: Record<string, string> = {
+  CBE_BANK_TRANSFER: "CBE / Bank Transfer (የባንክ ሐዋላ)",
+  TELEBIRR: "Telebirr (ቴሌብር)",
+  CBE_BIRR: "CBE Birr (ሲቢኢ ብር)",
+  CASH_DEPOSIT: "Cash Deposit (በጥሬ ገንዘብ)",
+  CHECK: "Check (በቼክ)",
+};
 
 const statusClass: Record<string, string> = {
-  COMPLETED: "bg-emerald-100 text-emerald-700",
-  PENDING: "bg-amber-100 text-amber-700",
-  FAILED: "bg-rose-100 text-rose-700",
+  PAID: "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold",
+  PARTIALLY_PAID: "bg-blue-50 text-blue-700 border-blue-200 font-semibold",
+  PENDING: "bg-amber-50 text-amber-700 border-amber-200",
+  OVERDUE: "bg-rose-50 text-rose-700 border-rose-200 font-bold",
 };
 
-function formatAmount(value: string | number) {
-  return formatCurrency(value);
+function fmtDate(iso: string | null) {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
-export default function PaymentsPage() {
+export default function RealEstatePaymentsPage() {
   const [payments, setPayments] = useState<ApiPayment[]>([]);
+  const [schedules, setSchedules] = useState<ApiSchedule[]>([]);
   const [contracts, setContracts] = useState<ContractOption[]>([]);
-  const [reservations, setReservations] = useState<ReservationOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showForm, setShowForm] = useState(false);
+  const [activeTab, setActiveTab] = useState<"SCHEDULES" | "LOGS">("SCHEDULES");
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [selectedScheduleId, setSelectedScheduleId] = useState<string | null>(null);
+
   const [form, setForm] = useState({
-    targetType: "contract" as TargetType,
-    targetId: "",
+    contractId: "",
     amount: "",
-    method: "TRANSFER" as (typeof PAYMENT_METHODS)[number],
+    method: "CBE_BANK_TRANSFER",
+    receiptNumber: "",
+    notes: "",
   });
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [paymentsData, contractsData, reservationsData] = await Promise.all([
+      const [paymentsData, schedulesData, contractsData] = await Promise.all([
         apiFetch<ApiPayment[]>("/payments"),
+        apiFetch<ApiSchedule[]>("/payments/schedules"),
         apiFetch<ContractOption[]>("/contracts"),
-        apiFetch<ReservationOption[]>("/reservations"),
       ]);
       setPayments(paymentsData);
+      setSchedules(schedulesData);
       setContracts(contractsData);
-      setReservations(reservationsData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load payments");
+      setError(err instanceof Error ? err.message : "Failed to load payment schedules");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    void load();
+    queueMicrotask(() => {
+      void load();
+    });
   }, [load]);
 
-  const totalCollected = useMemo(
-    () =>
-      payments
-        .filter((p) => p.status === "COMPLETED")
-        .reduce((sum, p) => sum + Number(p.amount || 0), 0),
-    [payments],
-  );
-
-  const handleCreate = async (event: FormEvent) => {
+  const handleRecordPayment = async (event: FormEvent) => {
     event.preventDefault();
     setSaving(true);
     setError(null);
@@ -99,15 +140,17 @@ export default function PaymentsPage() {
       await apiFetch<ApiPayment>("/payments", {
         method: "POST",
         body: JSON.stringify({
-          amount: form.amount,
+          contractId: form.contractId || undefined,
+          amount: Number(form.amount),
           method: form.method,
-          ...(form.targetType === "contract"
-            ? { contractId: form.targetId }
-            : { reservationId: form.targetId }),
+          receiptNumber: form.receiptNumber || undefined,
+          notes: form.notes || undefined,
+          scheduleId: selectedScheduleId || undefined,
         }),
       });
-      setForm({ ...form, targetId: "", amount: "" });
-      setShowForm(false);
+      setForm({ contractId: "", amount: "", method: "CBE_BANK_TRANSFER", receiptNumber: "", notes: "" });
+      setSelectedScheduleId(null);
+      setShowPaymentForm(false);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to record payment");
@@ -116,180 +159,421 @@ export default function PaymentsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Delete this payment?")) return;
-    setError(null);
-    try {
-      await apiFetch(`/payments/${id}`, { method: "DELETE" });
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete payment");
-    }
+  const openDepositModalForSchedule = (sched: ApiSchedule) => {
+    setSelectedScheduleId(sched.id);
+    const remaining = Math.max(0, Number(sched.amount) - Number(sched.paidAmount));
+    setForm({
+      contractId: sched.contract.id,
+      amount: String(remaining),
+      method: "CBE_BANK_TRANSFER",
+      receiptNumber: "",
+      notes: `Payment for ${milestoneLabels[sched.milestoneName] || sched.milestoneName}`,
+    });
+    setShowPaymentForm(true);
   };
 
-  const targetOptions =
-    form.targetType === "contract" ? contracts : reservations;
+  // KPI calculations
+  const totalCollectionsETB = payments.reduce((acc, p) => acc + (Number(p.amount) || 0), 0);
+  const totalScheduledETB = schedules.reduce((acc, s) => acc + (Number(s.amount) || 0), 0);
+  const totalPaidScheduledETB = schedules.reduce((acc, s) => acc + (Number(s.paidAmount) || 0), 0);
+  const totalPendingETB = Math.max(0, totalScheduledETB - totalPaidScheduledETB);
+  const overdueCount = schedules.filter(
+    (s) => s.status !== "PAID" && new Date(s.dueDate) < new Date()
+  ).length;
 
   return (
     <DashboardShell
-      title="Payments"
-      description="Record and track payments against contracts and reservations."
+      title="Real Estate Milestone Payment Schedules (የክፍያ መርሃግብር)"
+      description="Track construction stage milestones (Downpayment, Slab, Finishing, Handover) and verify bank deposit receipts."
       active="Payments"
     >
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          label="Total collected"
-          value={formatAmount(totalCollected)}
-          detail="Completed payments"
-        />
-        <StatCard
-          label="Payments recorded"
-          value={String(payments.length)}
-          detail="All statuses"
-        />
-        <StatCard
-          label="Against contracts"
-          value={String(payments.filter((p) => p.contract).length)}
-          detail="Contract-linked"
-        />
-        <StatCard
-          label="Against reservations"
-          value={String(payments.filter((p) => p.reservation).length)}
-          detail="Deposit-linked"
-        />
-      </div>
-
-      <section className="mt-6 rounded-lg border border-zinc-200 bg-white">
-        <div className="flex items-center justify-between gap-4 border-b border-zinc-200 p-4">
-          <div>
-            <h2 className="text-base font-semibold">Payment tracking</h2>
-            <p className="text-sm text-zinc-500">
-              Each payment is tied to exactly one contract or reservation.
-            </p>
+      <div className="space-y-6">
+        {/* KPI Summary Cards */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold text-emerald-600">Total Milestone Collections</p>
+              <Coins className="size-4 text-emerald-500" />
+            </div>
+            <p className="mt-1 text-2xl font-bold text-emerald-700">{formatCurrency(totalCollectionsETB)}</p>
+            <p className="mt-1 text-[11px] text-slate-400">Total bank deposit receipts</p>
           </div>
-          <Button
-            onClick={() => setShowForm((value) => !value)}
-            disabled={
-              !showForm && contracts.length === 0 && reservations.length === 0
-            }
-          >
-            {showForm ? <X className="size-4" /> : <Plus className="size-4" />}
-            {showForm ? "Cancel" : "Record payment"}
-          </Button>
+
+          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold text-blue-600">Total Scheduled Portfolio</p>
+              <Layers className="size-4 text-blue-500" />
+            </div>
+            <p className="mt-1 text-2xl font-bold text-blue-700">{formatCurrency(totalScheduledETB)}</p>
+            <p className="mt-1 text-[11px] text-slate-400">Contract milestone value</p>
+          </div>
+
+          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold text-indigo-600">Remaining Milestone Balance</p>
+              <Banknote className="size-4 text-indigo-500" />
+            </div>
+            <p className="mt-1 text-2xl font-bold text-indigo-700">{formatCurrency(totalPendingETB)}</p>
+            <p className="mt-1 text-[11px] text-slate-400">Future construction installments</p>
+          </div>
+
+          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold text-rose-600">Overdue Milestones</p>
+              <AlertTriangle className="size-4 text-rose-500" />
+            </div>
+            <p className="mt-1 text-2xl font-bold text-rose-700">{overdueCount}</p>
+            <p className="mt-1 text-[11px] text-slate-400">Installments past due date</p>
+          </div>
         </div>
 
-        {showForm && (
-          <form
-            onSubmit={handleCreate}
-            className="grid gap-3 border-b border-zinc-200 bg-zinc-50 p-4 sm:grid-cols-2"
-          >
-            <select
-              value={form.targetType}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  targetType: e.target.value as TargetType,
-                  targetId: "",
-                })
-              }
-              className="h-9 rounded-md border border-zinc-200 bg-white px-3 text-sm"
-            >
-              <option value="contract">Against a contract</option>
-              <option value="reservation">Against a reservation</option>
-            </select>
-            <select
-              required
-              value={form.targetId}
-              onChange={(e) => setForm({ ...form, targetId: e.target.value })}
-              className="h-9 rounded-md border border-zinc-200 bg-white px-3 text-sm"
-            >
-              <option value="">Select {form.targetType}…</option>
-              {targetOptions.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.customer.firstName} {option.customer.lastName} · Unit{" "}
-                  {option.unit.unitNumber}
-                </option>
-              ))}
-            </select>
-            <input
-              required
-              type="number"
-              min="0"
-              step="0.01"
-              value={form.amount}
-              onChange={(e) => setForm({ ...form, amount: e.target.value })}
-              placeholder="Amount"
-              className="h-9 rounded-md border border-zinc-200 bg-white px-3 text-sm"
-            />
-            <select
-              value={form.method}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  method: e.target.value as (typeof PAYMENT_METHODS)[number],
-                })
-              }
-              className="h-9 rounded-md border border-zinc-200 bg-white px-3 text-sm"
-            >
-              {PAYMENT_METHODS.map((method) => (
-                <option key={method} value={method}>
-                  {method}
-                </option>
-              ))}
-            </select>
-            <div className="sm:col-span-2">
-              <Button type="submit" disabled={saving}>
-                {saving ? "Recording…" : "Record payment"}
-              </Button>
+        {/* Section Header & Record Deposit Button */}
+        <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <Layers className="size-5 text-indigo-600" />
+                <h2 className="text-lg font-bold text-slate-900">Construction Milestone Schedules (የክፍያ መርሃግብር)</h2>
+              </div>
+              <p className="mt-1 text-sm text-slate-500">
+                Log CBE bank deposit receipts, track 30/20/20/20/10 milestone progress, and issue receipts.
+              </p>
             </div>
-          </form>
-        )}
+            <Button
+              onClick={() => setShowPaymentForm((v) => !v)}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition-all"
+            >
+              {showPaymentForm ? <X className="size-4 mr-1.5" /> : <Plus className="size-4 mr-1.5" />}
+              {showPaymentForm ? "Cancel Log" : "Log Deposit Receipt"}
+            </Button>
+          </div>
 
-        {error && (
-          <p className="border-b border-zinc-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-            {error}
-          </p>
-        )}
+          {/* Record Deposit Modal / Form */}
+          {showPaymentForm && (
+            <form
+              onSubmit={handleRecordPayment}
+              className="mt-6 rounded-xl border border-indigo-100 bg-gradient-to-b from-indigo-50/40 to-slate-50/50 p-5 shadow-inner"
+            >
+              <h3 className="text-xs font-bold text-indigo-950 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <Sparkles className="size-4 text-indigo-600" />
+                Deposit Receipt & Milestone Allocation
+              </h3>
 
-        {loading ? (
-          <p className="p-6 text-sm text-zinc-500">Loading payments…</p>
-        ) : payments.length === 0 ? (
-          <p className="p-6 text-sm text-zinc-500">No payments recorded yet.</p>
-        ) : (
-          <CrmTable
-            columns={["Amount", "Method", "Against", "Date", "Status", ""]}
-            rows={payments.map((payment) => [
-              <span key="amount" className="font-medium">
-                {formatAmount(payment.amount)}
-              </span>,
-              payment.method,
-              payment.contract
-                ? `Contract ${payment.contract.id.slice(0, 8)}`
-                : payment.reservation
-                  ? `Reservation ${payment.reservation.id.slice(0, 8)}`
-                  : "—",
-              new Date(payment.date).toLocaleDateString(),
-              <span
-                key="status"
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Select Contract / Customer *</label>
+                  <select
+                    required
+                    value={form.contractId}
+                    onChange={(e) => setForm({ ...form, contractId: e.target.value })}
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  >
+                    <option value="">Select contract…</option>
+                    {contracts.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.customer.firstName} {c.customer.lastName} · Unit {c.unit.unitNumber}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Amount (ETB) *</label>
+                  <input
+                    required
+                    type="number"
+                    min="0"
+                    placeholder="e.g. 1500000"
+                    value={form.amount}
+                    onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Method</label>
+                  <select
+                    value={form.method}
+                    onChange={(e) => setForm({ ...form, method: e.target.value })}
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  >
+                    <option value="CBE_BANK_TRANSFER">CBE / Bank Transfer (የባንክ ሐዋላ)</option>
+                    <option value="TELEBIRR">Telebirr (ቴሌብር)</option>
+                    <option value="CBE_BIRR">CBE Birr (ሲቢኢ ብር)</option>
+                    <option value="CASH_DEPOSIT">Cash Deposit (በጥሬ ገንዘብ)</option>
+                    <option value="CHECK">Check (በቼክ)</option>
+                  </select>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Bank Receipt / Swift Reference Number</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. CBE Ref FT2620689431..."
+                    value={form.receiptNumber}
+                    onChange={(e) => setForm({ ...form, receiptNumber: e.target.value })}
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  />
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Notes & Deposit Remarks</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 2nd milestone installment for Bole 3-Bed unit structure completion..."
+                    value={form.notes}
+                    onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-5 flex justify-end gap-3 border-t border-indigo-100 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowPaymentForm(false)}
+                  className="border-slate-300 text-slate-700 hover:bg-slate-100 text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={saving} className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs shadow-sm">
+                  {saving ? "Recording…" : "Record & Verify Deposit"}
+                </Button>
+              </div>
+            </form>
+          )}
+
+          {error && (
+            <p className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-700">
+              {error}
+            </p>
+          )}
+        </section>
+
+        {/* Tab Selection */}
+        <section className="rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
+          <div className="border-b border-slate-200 bg-slate-50/50 px-5 py-3 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-1.5 overflow-x-auto">
+              <button
+                onClick={() => setActiveTab("SCHEDULES")}
                 className={cn(
-                  "rounded-md px-2 py-1 text-xs font-medium",
-                  statusClass[payment.status] ?? "bg-zinc-100 text-zinc-700",
+                  "px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5",
+                  activeTab === "SCHEDULES" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
-                {payment.status}
-              </span>,
+                <Layers className="size-3.5" />
+                Milestone Schedules ({schedules.length})
+              </button>
+
               <button
-                key="delete"
-                onClick={() => handleDelete(payment.id)}
-                className="text-zinc-400 transition-colors hover:text-red-600"
-                aria-label="Delete payment"
+                onClick={() => setActiveTab("LOGS")}
+                className={cn(
+                  "px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5",
+                  activeTab === "LOGS" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                )}
               >
-                <Trash2 className="size-4" />
-              </button>,
-            ])}
-          />
-        )}
-      </section>
+                <Receipt className="size-3.5" />
+                Deposit Receipts & Log ({payments.length})
+              </button>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="flex h-36 items-center justify-center">
+              <p className="text-sm text-slate-500">Loading milestone schedules…</p>
+            </div>
+          ) : activeTab === "SCHEDULES" ? (
+            /* Milestone Schedules View */
+            schedules.length === 0 ? (
+              <div className="flex flex-col items-center justify-center p-8 text-center">
+                <div className="rounded-full bg-slate-50 p-4 border border-slate-100 mb-2">
+                  <Layers className="size-6 text-slate-400" />
+                </div>
+                <p className="text-sm font-semibold text-slate-800">No milestone schedules found</p>
+                <p className="text-xs text-slate-500 max-w-sm mt-1">
+                  Create a sales contract to automatically generate standard 30/20/20/20/10 milestone schedules.
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs whitespace-nowrap">
+                  <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                    <tr>
+                      <th className="px-5 py-3">Buyer & Unit</th>
+                      <th className="px-5 py-3">Construction Milestone Stage</th>
+                      <th className="px-5 py-3">Target Amount (ETB)</th>
+                      <th className="px-5 py-3">Paid Amount & Progress</th>
+                      <th className="px-5 py-3">Due Date</th>
+                      <th className="px-5 py-3">Status</th>
+                      <th className="px-5 py-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {schedules.map((sched) => {
+                      const totalAmt = Number(sched.amount) || 0;
+                      const paidAmt = Number(sched.paidAmount) || 0;
+                      const pct = totalAmt > 0 ? Math.min(100, Math.round((paidAmt / totalAmt) * 100)) : 0;
+                      const isOverdue = sched.status !== "PAID" && new Date(sched.dueDate) < new Date();
+
+                      return (
+                        <tr key={sched.id} className="hover:bg-slate-50/60 transition-colors">
+                          <td className="px-5 py-3">
+                            <p className="font-semibold text-slate-800">
+                              {sched.contract.customer.firstName} {sched.contract.customer.lastName}
+                            </p>
+                            <span className="inline-flex items-center gap-1 text-[11px] text-indigo-600 font-medium">
+                              <Building className="size-3" />
+                              Unit {sched.contract.unit.unitNumber} ({sched.contract.unit.type})
+                            </span>
+                          </td>
+
+                          <td className="px-5 py-3">
+                            <span className="font-semibold text-slate-700">
+                              {milestoneLabels[sched.milestoneName] ?? sched.milestoneName}
+                            </span>
+                            <span className="block text-[10px] text-slate-400 font-medium mt-0.5">
+                              {sched.percentage}% of agreement total
+                            </span>
+                          </td>
+
+                          <td className="px-5 py-3 font-bold text-slate-900">
+                            {formatCurrency(sched.amount)}
+                          </td>
+
+                          <td className="px-5 py-3 min-w-[170px]">
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-[11px]">
+                                <span className="font-bold text-emerald-700">{formatCurrency(sched.paidAmount)}</span>
+                                <span className="font-semibold text-slate-500">{pct}%</span>
+                              </div>
+                              <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                                <div
+                                  className={cn(
+                                    "h-full rounded-full transition-all",
+                                    pct >= 100 ? "bg-emerald-500" : pct > 0 ? "bg-indigo-500" : "bg-slate-300"
+                                  )}
+                                  style={{ width: `${pct}%` }}
+                                />
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="px-5 py-3 font-medium text-slate-600">
+                            {fmtDate(sched.dueDate)}
+                          </td>
+
+                          <td className="px-5 py-3">
+                            <span
+                              className={cn(
+                                "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold border",
+                                isOverdue ? statusClass.OVERDUE : (statusClass[sched.status] ?? "bg-slate-100 text-slate-700")
+                              )}
+                            >
+                              {sched.status === "PAID" && <CheckCircle2 className="size-3 text-emerald-600" />}
+                              {isOverdue && <AlertTriangle className="size-3 text-rose-600" />}
+                              {sched.status !== "PAID" && !isOverdue && <Clock className="size-3 text-amber-600" />}
+                              {isOverdue ? "OVERDUE" : sched.status}
+                            </span>
+                          </td>
+
+                          <td className="px-5 py-3 text-right">
+                            {sched.status !== "PAID" && (
+                              <Button
+                                size="xs"
+                                onClick={() => openDepositModalForSchedule(sched)}
+                                className="bg-indigo-600 hover:bg-indigo-700 text-white h-7 text-[11px] px-2.5 shadow-2xs"
+                              >
+                                <Coins className="size-3 mr-1" />
+                                Record Payment
+                              </Button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )
+          ) : (
+            /* Deposit Receipts Log View */
+            payments.length === 0 ? (
+              <div className="flex flex-col items-center justify-center p-8 text-center">
+                <div className="rounded-full bg-slate-50 p-4 border border-slate-100 mb-2">
+                  <Receipt className="size-6 text-slate-400" />
+                </div>
+                <p className="text-sm font-semibold text-slate-800">No deposit receipts logged</p>
+                <p className="text-xs text-slate-500 max-w-sm mt-1">
+                  Click "Log Deposit Receipt" to record bank transfers and Telebirr receipts.
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs whitespace-nowrap">
+                  <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                    <tr>
+                      <th className="px-5 py-3">Receipt Date</th>
+                      <th className="px-5 py-3">Buyer & Target Contract</th>
+                      <th className="px-5 py-3">Amount Paid (ETB)</th>
+                      <th className="px-5 py-3">Payment Method & Bank Ref</th>
+                      <th className="px-5 py-3">Deposit Notes</th>
+                      <th className="px-5 py-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {payments.map((p) => (
+                      <tr key={p.id} className="hover:bg-slate-50/60 transition-colors">
+                        <td className="px-5 py-3 font-medium text-slate-600">
+                          {fmtDate(p.date)}
+                        </td>
+
+                        <td className="px-5 py-3">
+                          <p className="font-semibold text-slate-800">
+                            {p.contract?.customer?.firstName ?? p.reservation?.customer?.firstName ?? "Customer"}{" "}
+                            {p.contract?.customer?.lastName ?? p.reservation?.customer?.lastName ?? ""}
+                          </p>
+                          <span className="text-[11px] text-indigo-600 font-medium">
+                            Unit {p.contract?.unit?.unitNumber ?? p.reservation?.unit?.unitNumber ?? "N/A"}
+                          </span>
+                        </td>
+
+                        <td className="px-5 py-3 font-bold text-emerald-700">
+                          {formatCurrency(p.amount)}
+                        </td>
+
+                        <td className="px-5 py-3">
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-medium text-slate-700">
+                              {methodLabels[p.method] ?? p.method}
+                            </span>
+                            {p.receiptNumber && (
+                              <span className="text-[10px] text-slate-400 font-mono">
+                                Ref: {p.receiptNumber}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+
+                        <td className="px-5 py-3 text-slate-600 max-w-[200px] truncate">
+                          {p.notes ?? "—"}
+                        </td>
+
+                        <td className="px-5 py-3">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 border border-emerald-200">
+                            <ShieldCheck className="size-3" />
+                            VERIFIED
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
+          )}
+        </section>
+      </div>
     </DashboardShell>
   );
 }

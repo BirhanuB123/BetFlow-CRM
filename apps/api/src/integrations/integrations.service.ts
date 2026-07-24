@@ -9,17 +9,21 @@ export class IntegrationsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getSocialLeadsStats() {
-    const facebookLeads = await this.prisma.lead.count({ where: { source: { name: 'Facebook' } } });
-    const instagramLeads = await this.prisma.lead.count({ where: { source: { name: 'Instagram' } } });
+    const facebookLeads = await this.prisma.lead.count({
+      where: { source: { name: 'Facebook' } },
+    });
+    const instagramLeads = await this.prisma.lead.count({
+      where: { source: { name: 'Instagram' } },
+    });
     const total = facebookLeads + instagramLeads;
-    
+
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
     const thisWeek = await this.prisma.lead.count({
       where: {
         createdAt: { gte: oneWeekAgo },
-        source: { name: { in: ['Facebook', 'Instagram'] } }
-      }
+        source: { name: { in: ['Facebook', 'Instagram'] } },
+      },
     });
 
     return {
@@ -37,9 +41,9 @@ export class IntegrationsService {
 
     for (const change of entry.changes) {
       if (change.field !== 'leadgen') continue;
-      
+
       const leadData = change.value;
-      
+
       let firstName = 'Meta';
       let lastName = 'Lead';
       let email = 'lead@facebook.com';
@@ -59,29 +63,53 @@ export class IntegrationsService {
         }
       }
 
-      await this.createLeadFromSource('Facebook', firstName, lastName, email, phone);
+      await this.createLeadFromSource(
+        'Facebook',
+        firstName,
+        lastName,
+        email,
+        phone,
+      );
     }
   }
 
   async processTelegramLead(payload: any) {
     if (!payload.message) return;
-    
+
     const message = payload.message;
     const text = message.text || '';
     const from = message.from;
-    
+
     let firstName = from?.first_name || 'Telegram';
     let lastName = from?.last_name || 'User';
     let email = '';
     let phone = '';
-    
-    await this.createLeadFromSource('Telegram', firstName, lastName, email, phone, text);
+
+    await this.createLeadFromSource(
+      'Telegram',
+      firstName,
+      lastName,
+      email,
+      phone,
+      text,
+    );
   }
 
-  private async createLeadFromSource(sourceName: string, firstName: string, lastName: string, email: string, phone: string, notes?: string) {
-    let source = await this.prisma.leadSource.findFirst({ where: { name: sourceName } });
+  private async createLeadFromSource(
+    sourceName: string,
+    firstName: string,
+    lastName: string,
+    email: string,
+    phone: string,
+    notes?: string,
+  ) {
+    let source = await this.prisma.leadSource.findFirst({
+      where: { name: sourceName },
+    });
     if (!source) {
-      source = await this.prisma.leadSource.create({ data: { name: sourceName } });
+      source = await this.prisma.leadSource.create({
+        data: { name: sourceName },
+      });
     }
 
     const lead = await this.prisma.lead.create({
@@ -91,7 +119,7 @@ export class IntegrationsService {
         email,
         phone,
         sourceId: source.id,
-      }
+      },
     });
 
     if (notes) {
@@ -103,15 +131,18 @@ export class IntegrationsService {
 
   validateMetaSignature(payload: string, signature: string): boolean {
     const secret = process.env.META_APP_SECRET;
-    if (!secret) return true; 
-    
+    if (!secret) return true;
+
     if (!signature) return false;
 
     const hmac = crypto.createHmac('sha256', secret);
     const digest = 'sha256=' + hmac.update(payload).digest('hex');
-    
+
     try {
-      return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
+      return crypto.timingSafeEqual(
+        Buffer.from(signature),
+        Buffer.from(digest),
+      );
     } catch {
       return false;
     }

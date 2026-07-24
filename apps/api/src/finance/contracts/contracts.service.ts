@@ -54,6 +54,14 @@ export class ContractsService {
     }
 
     const totalAmt = this.normalizeAmount(input.totalAmt);
+    const downPaymentAmt =
+      input.downPaymentAmt != null && input.downPaymentAmt !== ''
+        ? this.normalizeAmount(input.downPaymentAmt)
+        : null;
+
+    const contractNumber =
+      input.contractNumber?.trim() ||
+      `ET-CNT-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
 
     await this.assertCustomerBelongsToTenant(input.customerId);
     await this.assertUnitBelongsToTenant(input.unitId);
@@ -63,12 +71,17 @@ export class ContractsService {
 
     const contract = await this.prisma.contract.create({
       data: {
+        contractNumber,
+        contractType: input.contractType || 'SALES_AGREEMENT',
         customerId: input.customerId,
         unitId: input.unitId,
         dealId: input.dealId || null,
         startDate,
         endDate,
         totalAmt,
+        downPaymentAmt,
+        paymentPlan: input.paymentPlan || 'INSTALLMENTS_24M',
+        notes: input.notes?.trim() || null,
         status: input.status?.trim() || 'ACTIVE',
       },
       include: contractInclude,
@@ -99,6 +112,10 @@ export class ContractsService {
     }
 
     const data: Record<string, unknown> = {};
+    if (input.contractNumber !== undefined)
+      data.contractNumber = input.contractNumber?.trim() || null;
+    if (input.contractType !== undefined)
+      data.contractType = input.contractType;
     if (input.customerId !== undefined) data.customerId = input.customerId;
     if (input.unitId !== undefined) data.unitId = input.unitId;
     if (input.dealId !== undefined) data.dealId = input.dealId || null;
@@ -111,6 +128,14 @@ export class ContractsService {
           : null;
     if (input.totalAmt !== undefined)
       data.totalAmt = this.normalizeAmount(input.totalAmt);
+    if (input.downPaymentAmt !== undefined)
+      data.downPaymentAmt =
+        input.downPaymentAmt != null && input.downPaymentAmt !== ''
+          ? this.normalizeAmount(input.downPaymentAmt)
+          : null;
+    if (input.paymentPlan !== undefined)
+      data.paymentPlan = input.paymentPlan || null;
+    if (input.notes !== undefined) data.notes = input.notes?.trim() || null;
     if (input.status !== undefined) {
       const status = input.status.trim();
       if (!status) throw new BadRequestException('status cannot be empty');

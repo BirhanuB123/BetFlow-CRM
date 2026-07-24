@@ -9,15 +9,6 @@ import { clearSession, getSession } from "@/lib/api";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
 
-type AuthMode = "register" | "login";
-
-type RegisterState = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-};
-
 type LoginState = {
   email: string;
   password: string;
@@ -29,14 +20,7 @@ const inputClass =
 
 export default function AuthPage() {
   const router = useRouter();
-  const [mode, setMode] = useState<AuthMode>("login");
   const [remember, setRemember] = useState(true);
-  const [registerState, setRegisterState] = useState<RegisterState>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-  });
   const [loginState, setLoginState] = useState<LoginState>({
     email: "admin@betflow.example",
     password: "admin123",
@@ -73,8 +57,6 @@ export default function AuthPage() {
     };
   }, [router]);
 
-  // Remember me persists across browser restarts (localStorage); otherwise the
-  // session lives only for the tab (sessionStorage). getSession() reads both.
   const persistSession = (payload: {
     accessToken: string;
     tenant: unknown;
@@ -93,55 +75,6 @@ export default function AuthPage() {
       return body.message || fallback;
     } catch {
       return fallback;
-    }
-  };
-
-  const handleRegister = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setLoading(true);
-    setError(null);
-    setFeedback(null);
-
-    try {
-      const registerResponse = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          firstName: registerState.firstName,
-          lastName: registerState.lastName,
-          email: registerState.email,
-          password: registerState.password,
-        }),
-      });
-
-      if (!registerResponse.ok) {
-        throw new Error(
-          await readErrorMessage(registerResponse, "Unable to create your account."),
-        );
-      }
-
-      const loginResponse = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: registerState.email,
-          password: registerState.password,
-        }),
-      });
-
-      if (!loginResponse.ok) {
-        throw new Error(
-          await readErrorMessage(loginResponse, "Registration succeeded, but login failed."),
-        );
-      }
-
-      persistSession(await loginResponse.json());
-      setFeedback("Workspace created. Redirecting…");
-      router.push("/dashboard");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -174,12 +107,6 @@ export default function AuthPage() {
     }
   };
 
-  const switchMode = (next: AuthMode) => {
-    setMode(next);
-    setError(null);
-    setFeedback(null);
-  };
-
   return (
     <main className="relative min-h-screen w-full overflow-hidden bg-[#e9edf2]">
       {/* Full-bleed real-estate background (swap /login-bg.svg for your own photo) */}
@@ -199,7 +126,7 @@ export default function AuthPage() {
               className="h-11 w-auto"
             />
             <p className="mt-2 text-[13px] font-medium tracking-wide text-zinc-400">
-              Real Estate CRM
+              Corporate CRM Portal
             </p>
           </div>
 
@@ -211,149 +138,66 @@ export default function AuthPage() {
             </p>
           ) : null}
 
-          {mode === "login" ? (
-            <form className="mt-6 grid gap-4" onSubmit={handleLogin}>
-              <label className="block">
-                <span className={labelClass}>Email</span>
-                <input
-                  className={inputClass}
-                  type="email"
-                  autoComplete="email"
-                  placeholder="you@company.com"
-                  value={loginState.email}
-                  onChange={(e) => setLoginState((s) => ({ ...s, email: e.target.value }))}
-                  required
-                />
-              </label>
-              <label className="block">
-                <span className={labelClass}>Password</span>
-                <input
-                  className={inputClass}
-                  type="password"
-                  autoComplete="current-password"
-                  placeholder="••••••••"
-                  value={loginState.password}
-                  onChange={(e) => setLoginState((s) => ({ ...s, password: e.target.value }))}
-                  required
-                />
-              </label>
+          <form className="mt-6 grid gap-4" onSubmit={handleLogin}>
+            <label className="block">
+              <span className={labelClass}>Email</span>
+              <input
+                className={inputClass}
+                type="email"
+                autoComplete="email"
+                placeholder="you@betflow.com"
+                value={loginState.email}
+                onChange={(e) => setLoginState((s) => ({ ...s, email: e.target.value }))}
+                required
+              />
+            </label>
+            <label className="block">
+              <span className={labelClass}>Password</span>
+              <input
+                className={inputClass}
+                type="password"
+                autoComplete="current-password"
+                placeholder="••••••••"
+                value={loginState.password}
+                onChange={(e) => setLoginState((s) => ({ ...s, password: e.target.value }))}
+                required
+              />
+            </label>
 
-              <div className="flex items-center justify-between pt-1">
-                <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-600">
-                  <input
-                    type="checkbox"
-                    className="size-4 rounded border-zinc-300 accent-[#0E6E63]"
-                    checked={remember}
-                    onChange={(e) => setRemember(e.target.checked)}
-                  />
-                  Remember me
-                </label>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#0E6E63] px-4 text-sm font-medium text-white transition hover:bg-[#0b5c52] disabled:opacity-60"
-                >
-                  {loading ? "Signing in…" : "Sign in"}
-                  {!loading && <ArrowRight className="size-4" />}
-                </button>
-              </div>
-
-              <p className="pt-1 text-sm text-zinc-500">
-                Don&apos;t have a workspace?{" "}
-                <button
-                  type="button"
-                  onClick={() => switchMode("register")}
-                  className="font-semibold text-[#0E6E63] hover:underline"
-                >
-                  Create one
-                </button>
-              </p>
-            </form>
-          ) : (
-            <form className="mt-6 grid gap-4" onSubmit={handleRegister}>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="block">
-                  <span className={labelClass}>First name</span>
-                  <input
-                    className={inputClass}
-                    placeholder="Jordan"
-                    value={registerState.firstName}
-                    onChange={(e) => setRegisterState((s) => ({ ...s, firstName: e.target.value }))}
-                    required
-                  />
-                </label>
-                <label className="block">
-                  <span className={labelClass}>Last name</span>
-                  <input
-                    className={inputClass}
-                    placeholder="Lee"
-                    value={registerState.lastName}
-                    onChange={(e) => setRegisterState((s) => ({ ...s, lastName: e.target.value }))}
-                    required
-                  />
-                </label>
-              </div>
-              <label className="block">
-                <span className={labelClass}>Email address</span>
+            <div className="flex items-center justify-between pt-1">
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-600">
                 <input
-                  className={inputClass}
-                  type="email"
-                  placeholder="jordan@example.com"
-                  value={registerState.email}
-                  onChange={(e) => setRegisterState((s) => ({ ...s, email: e.target.value }))}
-                  required
+                  type="checkbox"
+                  className="size-4 rounded border-zinc-300 accent-[#0E6E63]"
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
                 />
+                Remember me
               </label>
-              <label className="block">
-                <span className={labelClass}>Password</span>
-                <input
-                  className={inputClass}
-                  type="password"
-                  placeholder="Minimum 8 characters"
-                  value={registerState.password}
-                  onChange={(e) => setRegisterState((s) => ({ ...s, password: e.target.value }))}
-                  required
-                />
-              </label>
-
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-[#0E6E63] text-sm font-medium text-white transition hover:bg-[#0b5c52] disabled:opacity-60"
+                className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#0E6E63] px-4 text-sm font-medium text-white transition hover:bg-[#0b5c52] disabled:opacity-60"
               >
-                {loading ? "Creating account…" : "Create account"}
+                {loading ? "Signing in…" : "Sign in"}
                 {!loading && <ArrowRight className="size-4" />}
               </button>
-
-              <p className="text-sm text-zinc-500">
-                Already have a workspace?{" "}
-                <button
-                  type="button"
-                  onClick={() => switchMode("login")}
-                  className="font-semibold text-[#0E6E63] hover:underline"
-                >
-                  Sign in
-                </button>
-              </p>
-            </form>
-          )}
-
-          {mode === "login" ? (
-            <p className="mt-6 border-t border-zinc-100 pt-4 text-center text-xs text-zinc-400">
-            <a href="https://www.gebetatech.com" className="hover:text-zinc-700">Developed By: Gebeta Trading Technology</a>
+            </div>
+            
+            <p className="pt-2 text-center text-[13px] text-zinc-500">
+              Need access? Ask your administrator.
             </p>
-          ) : null}
-          {mode === "register" ? (
-            <p className="mt-6 border-t border-zinc-100 pt-4 text-center text-xs text-zinc-400">
+          </form>
+
+          <p className="mt-6 border-t border-zinc-100 pt-4 text-center text-xs text-zinc-400">
             <a href="https://www.gebetatech.com" className="hover:text-zinc-700">Developed By: Gebeta Trading Technology</a>
-            </p>
-          ) : null}
+          </p>
         </div>
       </div>
 
       {/* Footer */}
       <footer className="absolute inset-x-0 bottom-0 z-10 flex justify-center gap-6 pb-5 text-xs text-zinc-500">
-        <a href="#" className="hover:text-zinc-700">Terms of Service</a>
+        <a href="#" className="hover:text-zinc-700">Internal Use Only</a>
         <a href="#" className="hover:text-zinc-700">Privacy Policy</a>
       </footer>
     </main>

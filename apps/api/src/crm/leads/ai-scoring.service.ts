@@ -31,7 +31,11 @@ export class AiScoringService {
     } else if (source.includes('website') || source.includes('inbound')) {
       score += 20;
       factors.push('Direct website inbound lead (+20)');
-    } else if (source.includes('meta') || source.includes('facebook') || source.includes('social')) {
+    } else if (
+      source.includes('meta') ||
+      source.includes('facebook') ||
+      source.includes('social')
+    ) {
       score += 15;
       factors.push('Social media campaign lead (+15)');
     } else {

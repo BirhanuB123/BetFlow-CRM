@@ -66,6 +66,15 @@ export class SiteVisitsService {
         notes: input.notes?.trim() || null,
         leadId,
         customerId,
+        preferredSqm: input.preferredSqm ? Number(input.preferredSqm) : null,
+        bedroomCount: input.bedroomCount ? Number(input.bedroomCount) : null,
+        preferredFloor: input.preferredFloor?.trim() || null,
+        facingDirection: input.facingDirection?.trim() || null,
+        propertyType: input.propertyType?.trim() || null,
+        purpose: input.purpose?.trim() || null,
+        budgetETB: input.budgetETB ? Number(input.budgetETB) : null,
+        paymentMethod: input.paymentMethod?.trim() || null,
+        demands: input.demands?.trim() || null,
       },
       include: siteVisitInclude,
     });
@@ -94,6 +103,28 @@ export class SiteVisitsService {
     if (input.leadId !== undefined) data.leadId = input.leadId || null;
     if (input.customerId !== undefined)
       data.customerId = input.customerId || null;
+    if (input.preferredSqm !== undefined)
+      data.preferredSqm = input.preferredSqm
+        ? Number(input.preferredSqm)
+        : null;
+    if (input.bedroomCount !== undefined)
+      data.bedroomCount = input.bedroomCount
+        ? Number(input.bedroomCount)
+        : null;
+    if (input.preferredFloor !== undefined)
+      data.preferredFloor = input.preferredFloor?.trim() || null;
+    if (input.facingDirection !== undefined)
+      data.facingDirection = input.facingDirection?.trim() || null;
+    if (input.propertyType !== undefined)
+      data.propertyType = input.propertyType?.trim() || null;
+    if (input.purpose !== undefined)
+      data.purpose = input.purpose?.trim() || null;
+    if (input.budgetETB !== undefined)
+      data.budgetETB = input.budgetETB ? Number(input.budgetETB) : null;
+    if (input.paymentMethod !== undefined)
+      data.paymentMethod = input.paymentMethod?.trim() || null;
+    if (input.demands !== undefined)
+      data.demands = input.demands?.trim() || null;
 
     const visit = await this.prisma.siteVisit.update({
       where: { id },
@@ -121,6 +152,27 @@ export class SiteVisitsService {
       data: { status: normalized },
       include: siteVisitInclude,
     });
+
+    // Auto-schedule a 48-hour follow-up call reminder when a site visit is marked COMPLETED
+    if (normalized === 'COMPLETED') {
+      try {
+        const dueDate = new Date(Date.now() + 48 * 60 * 60 * 1000);
+        await this.prisma.callLog.create({
+          data: {
+            subject: `Post-Visit Follow-Up: Review Property Specs & Send Pro-Forma`,
+            callType: 'OUTBOUND',
+            callPurpose: 'POST_VISIT_FOLLOWUP',
+            dueDate,
+            status: 'PENDING',
+            leadId: visit.leadId,
+            customerId: visit.customerId,
+            notes: `Auto-generated follow-up reminder 48 hours after site visit completed on ${new Date().toLocaleDateString()}.`,
+          },
+        });
+      } catch {
+        // Non-blocking background trigger
+      }
+    }
 
     await this.recordAudit(userId, 'site_visit.status_changed', visit.id, {
       from: existing.status,

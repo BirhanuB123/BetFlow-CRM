@@ -95,11 +95,11 @@ const moduleNavItems = [
   { label: "Accounts", href: "/accounts", icon: Building, aliases: ["Companies"] },
   { label: "Deals", href: "/deals", icon: CircleDollarSign},
   { label: "Tasks", href: "/tasks", icon: ClipboardList },
-  { label: "Meetings", href: "/site-visits", icon: CalendarDays, aliases: ["Site visits"] },
+  { label: "Meetings", href: "/meetings", icon: CalendarDays },
   { label: "Calls", href: "/notifications/follow-ups", icon: Phone },
-  { label: "Campaigns", href: "/automation/email-campaigns", icon: Megaphone },
+  { label: "Social Outreach", href: "/automation/email-campaigns", icon: Megaphone, aliases: ["Campaigns", "Telegram", "Social leads"] },
   { label: "Documents", href: "/documents", icon: FileText },
-  { label: "Visits", href: "/site-visits", icon: Route },
+  { label: "Visits", href: "/site-visits", icon: Route, aliases: ["Site visits"] },
   { label: "Projects", href: "/projects", icon: Building2 },
   { label: "Units", href: "/units", icon: SquareStack },
   { label: "Reservations", href: "/reservations", icon: ShoppingBag },
@@ -107,7 +107,7 @@ const moduleNavItems = [
 ];
 
 const utilityNavItems = [
-  { label: "Payments", href: "/payments", icon: CircleDollarSign },
+  { label: "Payment Schedules", href: "/payments", icon: CircleDollarSign, aliases: ["Payments", "Milestones"] },
   { label: "Settings", href: "/settings", icon: Settings },
 ];
 
@@ -116,7 +116,7 @@ const createItems = [
   { label: "New Contact", href: "/customers", icon: UsersRound },
   { label: "New Deal", href: "/deals", icon: CircleDollarSign },
   { label: "New Task", href: "/tasks", icon: ClipboardList },
-  { label: "New Meeting", href: "/site-visits", icon: CalendarDays },
+  { label: "New Meeting", href: "/meetings", icon: CalendarDays },
 ];
 
 const searchIndex = [...primaryNavItems, ...moduleNavItems, ...utilityNavItems];
@@ -426,6 +426,17 @@ export function DashboardShell({
       .map((part) => part[0])
       .join("")
       .toUpperCase() || "U";
+
+  const hour = new Date().getHours();
+  let greeting = "Good evening";
+  let emoji = "🌙";
+  if (hour < 12) {
+    greeting = "Good morning";
+    emoji = "🌅";
+  } else if (hour < 18) {
+    greeting = "Good afternoon";
+    emoji = "☀️";
+  }
 
   const filteredModules = useMemo(() => {
     const term = moduleQuery.trim().toLowerCase();
@@ -774,15 +785,19 @@ export function DashboardShell({
           </div>
         </header>
 
-        {/* Welcome / record toolbar: only on the Home dashboard (redundant elsewhere) */}
         {active === "Dashboard" ? (
-        <div className="flex h-[56px] items-center justify-between gap-3 border-b border-[#d9e1ee] bg-[#eef2f8] px-4">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="flex size-12 items-center justify-center rounded-md border border-[#d5deeb] bg-[#e3e9f2] text-[#9badc5]">
-              <Building2 className="size-7" />
+        <div className="flex h-[72px] items-center justify-between gap-3 border-b border-[#d9e1ee] bg-gradient-to-r from-[#eef2f8] to-[#f5f8fc] px-5">
+          <div className="flex min-w-0 items-center gap-4">
+            <div className="flex size-12 items-center justify-center rounded-full border-2 border-white bg-white/50 text-xl shadow-sm backdrop-blur-md">
+              {emoji}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-[18px] font-semibold">Welcome {displayName}</p>
+              <p className="truncate text-[19px] font-bold tracking-tight text-slate-800">
+                {greeting}, {displayName.split(" ")[0]}!
+              </p>
+              <p className="truncate text-[13px] font-medium text-slate-500">
+                Here's what's happening with your pipeline today.
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">

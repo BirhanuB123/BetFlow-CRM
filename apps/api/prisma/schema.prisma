@@ -81,10 +81,25 @@ model Branch {
 }
 
 model Project {
-  id          String  @id @default(uuid())
-  name        String
-  description String?
-  status      String  @default("ACTIVE")
+  id                 String   @id @default(uuid())
+  name               String
+  description        String?
+  category           String   @default("RESIDENTIAL_TOWER") // RESIDENTIAL_TOWER, LUXURY_VILLA_COMPOUND, COMMERCIAL_PLAZA, MIXED_USE_DEVELOPMENT, TOWN_HOUSES
+  location           String?  // e.g. Bole Medhanialem, Kazanchis, CMC
+  subCity            String?  // BOLE, KIRKOS, NIFAS_SILK_LAFTO, YEKA, ARADA, GULLELE
+  constructionStage  String   @default("STRUCTURE_CONCRETE_SLAB") // EXCAVATION_FOUNDATION, STRUCTURE_CONCRETE_SLAB, BRICKWORK_PLASTERING, FINISHING_TILING, HANDOVER_READY
+  progressPercentage Int      @default(50)
+  estimatedDelivery  String?  // e.g. Q4 2027
+  coverImage         String?  // Image URL / path
+  gallery            String[] // Rendering & progress photo URLs
+  videoUrl           String?  // Telegram / YouTube walkthrough video link
+  amenities          String[] // Backup Generator, Elevator, Underground Parking, Water Reservoir, CCTV
+  totalAreaSqm       Float?
+  avgPricePerSqm     Decimal? @db.Decimal(10, 2)
+  status             String   @default("ACTIVE") // PLANNING, ACTIVE, SELLING, COMPLETED, ON_HOLD
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   buildings Building[]
 }
@@ -153,6 +168,8 @@ model Lead {
   convertedCustomerId String?
 
   siteVisits SiteVisit[]
+  meetings   Meeting[]
+  callLogs   CallLog[]
 }
 
 // Zoho-style company/organization accounts
@@ -207,6 +224,8 @@ model Customer {
 
   deals        Deal[]
   siteVisits   SiteVisit[]
+  meetings     Meeting[]
+  callLogs     CallLog[]
   reservations Reservation[]
   contracts    Contract[]
 
@@ -250,64 +269,145 @@ model SiteVisit {
   status String   @default("SCHEDULED")
   notes  String?
 
+  // Ethiopian Real Estate Buyer Preferences & Demands
+  preferredSqm    Decimal? @db.Decimal(10, 2)
+  bedroomCount    Int?
+  preferredFloor  String?
+  facingDirection String?
+  propertyType    String?
+  purpose         String?
+  budgetETB       Decimal? @db.Decimal(14, 2)
+  paymentMethod   String?
+  demands         String?
+
   leadId     String?
   lead       Lead?     @relation(fields: [leadId], references: [id])
   customerId String?
   customer   Customer? @relation(fields: [customerId], references: [id])
 }
 
+model Meeting {
+  id              String   @id @default(uuid())
+  title           String
+  meetingType     String   @default("IN_PERSON_OFFICE") // IN_PERSON_OFFICE, VIRTUAL_ZOOM, PHONE_CALL
+  date            DateTime
+  durationMinutes Int      @default(30)
+  location        String?
+  agenda          String?
+  notes           String?
+  status          String   @default("SCHEDULED") // SCHEDULED, COMPLETED, CANCELLED, NO_SHOW
+
+  leadId     String?
+  lead       Lead?     @relation(fields: [leadId], references: [id])
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CallLog {
+  id              String    @id @default(uuid())
+  subject         String
+  callType        String    @default("OUTBOUND") // OUTBOUND, INBOUND, TELEGRAM, WHATSAPP
+  callPurpose     String    @default("POST_VISIT_FOLLOWUP") // POST_VISIT_FOLLOWUP, PAYMENT_REMINDER, DIASPORA_OUTREACH, PROPOSAL_REVIEW, GENERAL_INQUIRY
+  callResult      String?   // INTERESTED, REQUESTED_PROFORMA, BUSY_CALL_BACK, NOT_INTERESTED, NO_ANSWER, SCHEDULED_SITE_VISIT
+  dueDate         DateTime
+  completedAt     DateTime?
+  durationSeconds Int?
+  notes           String?
+  status          String    @default("PENDING") // PENDING, COMPLETED, OVERDUE, SKIPPED
+
+  leadId     String?
+  lead       Lead?     @relation(fields: [leadId], references: [id])
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Reservation {
-  id         String   @id @default(uuid())
-  customerId String
-  customer   Customer @relation(fields: [customerId], references: [id])
-  unitId     String
-  unit       Unit     @relation(fields: [unitId], references: [id])
-  amount     Decimal  @db.Decimal(10, 2)
-  status     String   @default("PENDING")
-  date       DateTime @default(now())
+  id                String    @id @default(uuid())
+  reservationNumber String?
+  customerId        String
+  customer          Customer  @relation(fields: [customerId], references: [id])
+  unitId            String
+  unit              Unit      @relation(fields: [unitId], references: [id])
+  amount            Decimal   @db.Decimal(14, 2)
+  holdPeriodDays    Int       @default(14)
+  expiryDate        DateTime?
+  paymentMethod     String?   // BANK_TRANSFER, TELEBIRR, CBE_BIRR, CASH_DEPOSIT, CHECK
+  receiptNumber     String?
+  status            String    @default("PENDING") // PENDING, APPROVED, CONVERTED_TO_CONTRACT, CANCELLED, EXPIRED
+  date              DateTime  @default(now())
+  notes             String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   payments Payment[]
 }
 
 model Contract {
-  id         String    @id @default(uuid())
-  customerId String
-  customer   Customer  @relation(fields: [customerId], references: [id])
-  unitId     String
-  unit       Unit      @relation(fields: [unitId], references: [id])
-  dealId     String?
-  deal       Deal?     @relation(fields: [dealId], references: [id])
-  startDate  DateTime
-  endDate    DateTime?
-  totalAmt   Decimal   @db.Decimal(10, 2)
-  status     String    @default("ACTIVE")
-  createdAt  DateTime  @default(now())
+  id             String    @id @default(uuid())
+  contractNumber String?
+  contractType   String    @default("SALES_AGREEMENT") // SALES_AGREEMENT, RESERVATION_AGREEMENT, COMMERCIAL_LEASE
+  customerId     String
+  customer       Customer  @relation(fields: [customerId], references: [id])
+  unitId         String
+  unit           Unit      @relation(fields: [unitId], references: [id])
+  dealId         String?
+  deal           Deal?     @relation(fields: [dealId], references: [id])
+  startDate      DateTime
+  endDate        DateTime?
+  totalAmt       Decimal   @db.Decimal(14, 2)
+  downPaymentAmt Decimal?  @db.Decimal(14, 2)
+  paymentPlan    String?   // INSTALLMENTS_24M, BANK_MORTGAGE_3070, FULL_CASH, DIASPORA_USD
+  status         String    @default("ACTIVE") // ACTIVE, PENDING_SIGNATURE, SIGNED, CANCELLED
+  notes          String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   payments  Payment[]
   schedules PaymentSchedule[]
 }
 
 model Payment {
-  id        String   @id @default(uuid())
-  amount    Decimal  @db.Decimal(10, 2)
-  date      DateTime @default(now())
-  method    String // e.g., CASH, CARD, TRANSFER
-  status    String   @default("COMPLETED")
-  createdAt DateTime @default(now())
+  id            String    @id @default(uuid())
+  amount        Decimal   @db.Decimal(14, 2)
+  date          DateTime  @default(now())
+  method        String    @default("CBE_BANK_TRANSFER") // CBE_BANK_TRANSFER, TELEBIRR, CBE_BIRR, CASH_DEPOSIT, CHECK
+  receiptNumber String?
+  status        String    @default("COMPLETED")
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
 
   contractId    String?
-  contract      Contract?    @relation(fields: [contractId], references: [id])
+  contract      Contract?        @relation(fields: [contractId], references: [id])
   reservationId String?
-  reservation   Reservation? @relation(fields: [reservationId], references: [id])
+  reservation   Reservation?     @relation(fields: [reservationId], references: [id])
+  scheduleId    String?
+  schedule      PaymentSchedule? @relation(fields: [scheduleId], references: [id])
 }
 
 model PaymentSchedule {
-  id         String   @id @default(uuid())
-  contractId String
-  contract   Contract @relation(fields: [contractId], references: [id])
-  dueDate    DateTime
-  amount     Decimal  @db.Decimal(10, 2)
-  status     String   @default("PENDING") // PENDING, PAID, LATE
+  id            String   @id @default(uuid())
+  contractId    String
+  contract      Contract @relation(fields: [contractId], references: [id])
+  milestoneName String   @default("DOWNPAYMENT_30") // DOWNPAYMENT_30, FOUNDATION_SLAB_20, STRUCTURE_SLAB_20, FINISHING_TILE_20, HANDOVER_KEYS_10
+  percentage    Float    @default(30.0)
+  dueDate       DateTime
+  amount        Decimal  @db.Decimal(14, 2)
+  paidAmount    Decimal  @default(0) @db.Decimal(14, 2)
+  status        String   @default("PENDING") // PENDING, PAID, PARTIALLY_PAID, OVERDUE
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+
+  payments Payment[]
 }
 
 // --------------------------------------
@@ -346,12 +446,17 @@ model Task {
   title       String
   description String?
   dueDate     DateTime?
-  status      String    @default("TODO")
+  status      String    @default("TODO") // TODO, IN_PROGRESS, DONE
+  priority    String    @default("MEDIUM") // HIGH, MEDIUM, LOW
+  category    String    @default("CLIENT_FOLLOWUP") // PROPOSAL_PREPARATION, SITE_VISIT_PREP, BANK_MORTGAGE_DOCS, CONTRACT_DRAFTING, PAYMENT_COLLECTION, CLIENT_FOLLOWUP
   assigneeId  String?
   assignee    User?     @relation(fields: [assigneeId], references: [id])
 
   entityType String?
   entityId   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Note {

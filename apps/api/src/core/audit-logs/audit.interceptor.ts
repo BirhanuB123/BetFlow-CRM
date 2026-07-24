@@ -24,21 +24,22 @@ export class AuditInterceptor implements NestInterceptor {
           try {
             let entityType = 'Unknown';
             let action = 'Unknown';
-            
+
             // Basic heuristic to determine entity type and action based on URL/Method
             const parts = url.split('/').filter(Boolean);
             // e.g. /api/crm/leads => parts: ['api', 'crm', 'leads']
             if (parts.length > 0) {
               const lastPart = parts[parts.length - 1];
-              const secondLastPart = parts.length > 1 ? parts[parts.length - 2] : '';
-              
+              const secondLastPart =
+                parts.length > 1 ? parts[parts.length - 2] : '';
+
               if (lastPart.match(/^[0-9a-fA-F-]+$/) && secondLastPart) {
                 // If it ends with UUID, the entity is the second last part
                 entityType = secondLastPart;
               } else {
                 entityType = lastPart;
               }
-              
+
               // Clean query strings if any
               entityType = entityType.split('?')[0];
             }

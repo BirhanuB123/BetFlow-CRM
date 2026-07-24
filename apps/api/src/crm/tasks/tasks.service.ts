@@ -61,6 +61,8 @@ export class TasksService {
         description: input.description?.trim() || null,
         dueDate: input.dueDate ? this.normalizeDate(input.dueDate) : null,
         status,
+        priority: input.priority || 'MEDIUM',
+        category: input.category || 'CLIENT_FOLLOWUP',
         assigneeId: input.assigneeId || null,
         entityType: input.entityType || null,
         entityId: input.entityId || null,
@@ -108,6 +110,8 @@ export class TasksService {
       data.dueDate = input.dueDate ? this.normalizeDate(input.dueDate) : null;
     if (input.status !== undefined)
       data.status = this.normalizeStatus(input.status);
+    if (input.priority !== undefined) data.priority = input.priority;
+    if (input.category !== undefined) data.category = input.category;
     if (input.assigneeId !== undefined)
       data.assigneeId = input.assigneeId || null;
     if (input.entityType !== undefined)

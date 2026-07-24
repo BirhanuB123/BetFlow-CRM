@@ -38,7 +38,11 @@ export class ReportsService {
       this.prisma.lead.count({ where: { status: { not: 'CONVERTED' } } }),
       this.prisma.deal.findMany({
         where: { contracts: { some: {} } }, // Won deals are deals that have contracts
-        select: { createdAt: true, value: true, contracts: { select: { createdAt: true } } },
+        select: {
+          createdAt: true,
+          value: true,
+          contracts: { select: { createdAt: true } },
+        },
       }),
       this.prisma.deal.count(),
     ]);
@@ -57,19 +61,26 @@ export class ReportsService {
     }
 
     if (wonDeals.length > 0) {
-      const totalWonValue = wonDeals.reduce((sum, d) => sum + Number(d.value), 0);
+      const totalWonValue = wonDeals.reduce(
+        (sum, d) => sum + Number(d.value),
+        0,
+      );
       avgDealValue = totalWonValue / wonDeals.length;
-      
-      const cycleLengths = wonDeals.map(d => {
+
+      const cycleLengths = wonDeals.map((d) => {
         const contractDate = d.contracts[0]?.createdAt || new Date();
-        const diffTime = Math.abs(contractDate.getTime() - d.createdAt.getTime());
+        const diffTime = Math.abs(
+          contractDate.getTime() - d.createdAt.getTime(),
+        );
         return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1; // min 1 day
       });
-      avgSalesCycleLength = cycleLengths.reduce((a, b) => a + b, 0) / cycleLengths.length;
+      avgSalesCycleLength =
+        cycleLengths.reduce((a, b) => a + b, 0) / cycleLengths.length;
     }
 
     // Sales Velocity = (Deals Count × Win Rate × Avg Deal Value) / Sales Cycle Length
-    const salesVelocity = (allDealsCount * winRate * avgDealValue) / avgSalesCycleLength;
+    const salesVelocity =
+      (allDealsCount * winRate * avgDealValue) / avgSalesCycleLength;
 
     return {
       bookedRevenue,
