@@ -788,9 +788,6 @@ export function DashboardShell({
         {active === "Dashboard" ? (
         <div className="flex h-[72px] items-center justify-between gap-3 border-b border-[#d9e1ee] bg-gradient-to-r from-[#eef2f8] to-[#f5f8fc] px-5">
           <div className="flex min-w-0 items-center gap-4">
-            <div className="flex size-12 items-center justify-center rounded-full border-2 border-white bg-white/50 text-xl shadow-sm backdrop-blur-md">
-              {emoji}
-            </div>
             <div className="min-w-0">
               <p className="truncate text-[19px] font-bold tracking-tight text-slate-800">
                 {greeting}, {displayName.split(" ")[0]}!

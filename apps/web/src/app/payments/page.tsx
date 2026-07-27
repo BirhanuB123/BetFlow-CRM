@@ -188,45 +188,6 @@ export default function RealEstatePaymentsPage() {
       active="Payments"
     >
       <div className="space-y-6">
-        {/* KPI Summary Cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-emerald-600">Total Milestone Collections</p>
-              <Coins className="size-4 text-emerald-500" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-emerald-700">{formatCurrency(totalCollectionsETB)}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Total bank deposit receipts</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-blue-600">Total Scheduled Portfolio</p>
-              <Layers className="size-4 text-blue-500" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-blue-700">{formatCurrency(totalScheduledETB)}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Contract milestone value</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-indigo-600">Remaining Milestone Balance</p>
-              <Banknote className="size-4 text-indigo-500" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-indigo-700">{formatCurrency(totalPendingETB)}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Future construction installments</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-rose-600">Overdue Milestones</p>
-              <AlertTriangle className="size-4 text-rose-500" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-rose-700">{overdueCount}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Installments past due date</p>
-          </div>
-        </div>
-
         {/* Section Header & Record Deposit Button */}
         <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

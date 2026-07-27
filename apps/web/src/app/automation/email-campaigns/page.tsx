@@ -103,45 +103,6 @@ export default function SocialBroadcastsPage() {
       active="Automation"
     >
       <div className="space-y-6">
-        {/* KPI Summary Cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-sky-600">Telegram Subscribers</p>
-              <Send className="size-4 text-sky-500" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-sky-700">2,450</p>
-            <p className="mt-1 text-[11px] text-slate-400">BetFlow Official Channel</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-indigo-600">Meta & TikTok Leads</p>
-              <Share2 className="size-4 text-indigo-500" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-indigo-700">312</p>
-            <p className="mt-1 text-[11px] text-slate-400">Captured this month</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-emerald-600">Broadcasts Sent</p>
-              <Megaphone className="size-4 text-emerald-500" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-emerald-700">{campaigns.length}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Site progress & launch broadcasts</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-purple-600">Avg. Click Rate</p>
-              <Radio className="size-4 text-purple-500" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-purple-700">28.4%</p>
-            <p className="mt-1 text-[11px] text-slate-400">Buyer engagement rate</p>
-          </div>
-        </div>
-
         {/* Section Header & Broadcast Button */}
         <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

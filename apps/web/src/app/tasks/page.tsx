@@ -9,7 +9,6 @@ import {
   X,
   FileText,
   Building2,
-  Building,
   Landmark,
   FileSignature,
   Coins,
@@ -19,6 +18,8 @@ import {
   AlertTriangle,
   User,
   Sparkles,
+  Search,
+  Check,
 } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
@@ -59,7 +60,7 @@ type UserOption = { id: string; firstName: string; lastName: string } | null;
 
 const statusClass: Record<string, string> = {
   TODO: "bg-slate-100 text-slate-700 border-slate-200",
-  IN_PROGRESS: "bg-blue-50 text-blue-700 border-blue-200",
+  IN_PROGRESS: "bg-indigo-50 text-indigo-700 border-indigo-200",
   DONE: "bg-emerald-50 text-emerald-700 border-emerald-200",
 };
 
@@ -105,7 +106,16 @@ export default function TasksPage() {
   const [users, setUsers] = useState<UserOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Filters & search
   const [filter, setFilter] = useState<"OPEN" | "ALL" | "HIGH_PRIORITY" | "DUE_TODAY" | "DONE">("OPEN");
+  const [priorityFilter, setPriorityFilter] = useState<string>("ALL");
+  const [assigneeFilter, setAssigneeFilter] = useState<string>("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Selections state
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
+
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -149,15 +159,59 @@ export default function TasksPage() {
   const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
 
   const visible = useMemo(() => {
-    if (filter === "ALL") return tasks;
-    if (filter === "OPEN") return tasks.filter((t) => t.status !== "DONE");
-    if (filter === "HIGH_PRIORITY") return tasks.filter((t) => t.priority === "HIGH");
-    if (filter === "DUE_TODAY") {
-      return tasks.filter((t) => t.dueDate && new Date(t.dueDate) >= startOfDay && new Date(t.dueDate) <= endOfDay);
+    return tasks.filter((t) => {
+      // 1. View tab filter
+      if (filter === "OPEN" && t.status === "DONE") return false;
+      if (filter === "HIGH_PRIORITY" && t.priority !== "HIGH") return false;
+      if (filter === "DUE_TODAY") {
+        if (!t.dueDate || new Date(t.dueDate) < startOfDay || new Date(t.dueDate) > endOfDay) return false;
+      }
+      if (filter === "DONE" && t.status !== "DONE") return false;
+
+      // 2. Priority filter dropdown
+      if (priorityFilter !== "ALL" && (t.priority ?? "MEDIUM") !== priorityFilter) return false;
+
+      // 3. Assignee filter dropdown
+      if (assigneeFilter !== "ALL") {
+        if (assigneeFilter === "UNASSIGNED" && t.assignee) return false;
+        if (assigneeFilter !== "UNASSIGNED" && t.assignee?.id !== assigneeFilter) return false;
+      }
+
+      // 4. Text search
+      const q = searchQuery.trim().toLowerCase();
+      if (q) {
+        const assigneeName = t.assignee ? `${t.assignee.firstName} ${t.assignee.lastName}` : "";
+        const matches =
+          t.title.toLowerCase().includes(q) ||
+          (t.description ?? "").toLowerCase().includes(q) ||
+          (t.category ?? "").toLowerCase().includes(q) ||
+          assigneeName.toLowerCase().includes(q);
+        if (!matches) return false;
+      }
+
+      return true;
+    });
+  }, [tasks, filter, priorityFilter, assigneeFilter, searchQuery, startOfDay, endOfDay]);
+
+  const allRowsSelected =
+    visible.length > 0 && visible.every((t) => selectedTaskIds.has(t.id));
+
+  const toggleSelectAllRows = () => {
+    if (allRowsSelected) {
+      setSelectedTaskIds(new Set());
+    } else {
+      setSelectedTaskIds(new Set(visible.map((t) => t.id)));
     }
-    if (filter === "DONE") return tasks.filter((t) => t.status === "DONE");
-    return tasks;
-  }, [tasks, filter, startOfDay, endOfDay]);
+  };
+
+  const toggleSelectRow = (id: string) => {
+    setSelectedTaskIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const handleCreate = async (event: FormEvent) => {
     event.preventDefault();
@@ -195,26 +249,95 @@ export default function TasksPage() {
   };
 
   const changeStatus = async (id: string, status: string) => {
+    // Optimistic state update
+    setTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, status } : t))
+    );
     setError(null);
     try {
       await apiFetch(`/tasks/${id}/status`, {
         method: "PATCH",
         body: JSON.stringify({ status }),
       });
-      await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update task");
+      setError(err instanceof Error ? err.message : "Failed to update task status");
+      await load();
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Delete this task?")) return;
+  const toggleTaskDone = (task: ApiTask) => {
+    const nextStatus = task.status === "DONE" ? "TODO" : "DONE";
+    void changeStatus(task.id, nextStatus);
+  };
+
+  const handleDeleteSingle = async (id: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (typeof window !== "undefined" && !window.confirm("Are you sure you want to delete this task?")) {
+      return;
+    }
     setError(null);
     try {
       await apiFetch(`/tasks/${id}`, { method: "DELETE" });
-      await load();
+      setTasks((prev) => prev.filter((t) => t.id !== id));
+      setSelectedTaskIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete task");
+      await load();
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedTaskIds.size === 0) return;
+    const count = selectedTaskIds.size;
+    if (typeof window !== "undefined" && !window.confirm(`Are you sure you want to delete ${count} selected task(s)?`)) {
+      return;
+    }
+    setError(null);
+    const ids = Array.from(selectedTaskIds);
+    try {
+      await Promise.all(
+        ids.map((id) =>
+          apiFetch(`/tasks/${id}`, { method: "DELETE" }).catch((err) => {
+            console.error(`Failed to delete task ${id}:`, err);
+            return null;
+          })
+        )
+      );
+      setTasks((prev) => prev.filter((t) => !selectedTaskIds.has(t.id)));
+      setSelectedTaskIds(new Set());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete selected tasks");
+      await load();
+    }
+  };
+
+  const handleBulkMarkDone = async () => {
+    if (selectedTaskIds.size === 0) return;
+    const ids = Array.from(selectedTaskIds);
+    setTasks((prev) =>
+      prev.map((t) => (selectedTaskIds.has(t.id) ? { ...t, status: "DONE" } : t))
+    );
+    setError(null);
+    try {
+      await Promise.all(
+        ids.map((id) =>
+          apiFetch(`/tasks/${id}/status`, {
+            method: "PATCH",
+            body: JSON.stringify({ status: "DONE" }),
+          }).catch(() => null)
+        )
+      );
+      setSelectedTaskIds(new Set());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update selected tasks");
+      await load();
     }
   };
 
@@ -246,45 +369,6 @@ export default function TasksPage() {
       active="Tasks"
     >
       <div className="space-y-6">
-        {/* Top KPI Queue Summary Cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-rose-600">Overdue Tasks</p>
-              <AlertTriangle className="size-4 text-rose-500" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-rose-700">{overdueCount}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Past due deadline</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-blue-600">Due Today</p>
-              <Clock className="size-4 text-blue-500" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-blue-700">{dueTodayCount}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Today's action items</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-indigo-600">High Priority Tasks</p>
-              <Sparkles className="size-4 text-indigo-500" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-indigo-700">{highPriorityCount}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Urgent sales tasks</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-emerald-600">Completed Tasks</p>
-              <CheckCircle2 className="size-4 text-emerald-500" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-emerald-700">{completedCount}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Finished actions</p>
-          </div>
-        </div>
-
         {/* Section Header & Task Creator Button */}
         <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -421,8 +505,8 @@ export default function TasksPage() {
 
         {/* Task Grid Table */}
         <section className="rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
-          {/* Table Filter Tabs */}
-          <div className="border-b border-slate-200 bg-slate-50/50 px-5 py-3 flex items-center justify-between gap-4">
+          {/* Table Filter Bar & Search */}
+          <div className="border-b border-slate-200 bg-slate-50/50 p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-1.5 overflow-x-auto">
               <button
                 onClick={() => setFilter("OPEN")}
@@ -474,7 +558,69 @@ export default function TasksPage() {
                 All ({tasks.length})
               </button>
             </div>
+
+            <div className="flex items-center gap-2">
+              <select
+                aria-label="Filter priority"
+                value={priorityFilter}
+                onChange={(e) => setPriorityFilter(e.target.value)}
+                className="h-8 rounded-md border border-slate-200 bg-white px-2.5 text-xs text-slate-700 outline-none focus:border-indigo-500"
+              >
+                <option value="ALL">All Priorities</option>
+                <option value="HIGH">High Priority</option>
+                <option value="MEDIUM">Medium Priority</option>
+                <option value="LOW">Low Priority</option>
+              </select>
+
+              <select
+                aria-label="Filter assignee"
+                value={assigneeFilter}
+                onChange={(e) => setAssigneeFilter(e.target.value)}
+                className="h-8 rounded-md border border-slate-200 bg-white px-2.5 text-xs text-slate-700 outline-none focus:border-indigo-500"
+              >
+                <option value="ALL">All Assignees</option>
+                <option value="UNASSIGNED">Unassigned</option>
+                {users.filter(Boolean).map((u) => (
+                  <option key={u!.id} value={u!.id}>
+                    {u!.firstName} {u!.lastName}
+                  </option>
+                ))}
+              </select>
+
+              <label className="flex h-8 w-44 items-center gap-2 rounded-md border border-slate-200 bg-white px-2.5 text-slate-500">
+                <Search className="size-3.5 shrink-0 text-slate-400" />
+                <input
+                  aria-label="Search tasks"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search tasks"
+                  className="w-full bg-transparent text-xs text-slate-800 outline-none placeholder:text-slate-400"
+                />
+              </label>
+            </div>
           </div>
+
+          {selectedTaskIds.size > 0 && (
+            <div className="flex items-center gap-3 border-b border-indigo-100 bg-indigo-50/70 px-5 py-2.5 text-xs">
+              <span className="font-semibold text-indigo-900">
+                {selectedTaskIds.size} selected
+              </span>
+              <button
+                onClick={handleBulkMarkDone}
+                className="flex items-center gap-1 text-xs text-emerald-700 hover:text-emerald-900 font-medium hover:underline ml-2"
+              >
+                <Check className="size-3.5" />
+                Mark Selected Completed
+              </button>
+              <button
+                onClick={handleBulkDelete}
+                className="flex items-center gap-1 text-xs text-rose-600 hover:text-rose-800 font-medium hover:underline ml-3"
+              >
+                <Trash2 className="size-3.5" />
+                Delete Selected
+              </button>
+            </div>
+          )}
 
           {loading ? (
             <div className="flex h-36 items-center justify-center">
@@ -495,6 +641,14 @@ export default function TasksPage() {
               <table className="w-full text-left text-xs whitespace-nowrap">
                 <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
                   <tr>
+                    <th className="w-10 px-4 py-3 text-center">
+                      <input
+                        type="checkbox"
+                        checked={allRowsSelected}
+                        onChange={toggleSelectAllRows}
+                        className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 size-3.5 cursor-pointer accent-indigo-600"
+                      />
+                    </th>
                     <th className="px-5 py-3">Task & Category</th>
                     <th className="px-5 py-3">Priority</th>
                     <th className="px-5 py-3">Assignee</th>
@@ -507,16 +661,45 @@ export default function TasksPage() {
                 <tbody className="divide-y divide-slate-100">
                   {visible.map((task) => {
                     const CategoryIcon = categoryIcons[task.category ?? "CLIENT_FOLLOWUP"] ?? FileText;
+                    const isSelected = selectedTaskIds.has(task.id);
+                    const isCompleted = task.status === "DONE";
 
                     return (
-                      <tr key={task.id} className="hover:bg-slate-50/60 transition-colors">
+                      <tr
+                        key={task.id}
+                        className={cn(
+                          "transition-colors group cursor-pointer",
+                          isSelected ? "bg-indigo-50/40" : "hover:bg-slate-50/60"
+                        )}
+                      >
+                        <td className="px-4 py-3 text-center">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleSelectRow(task.id)}
+                            className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 size-3.5 cursor-pointer accent-indigo-600"
+                          />
+                        </td>
                         <td className="px-5 py-3">
                           <div className="flex items-start gap-2.5">
+                            <button
+                              type="button"
+                              onClick={() => toggleTaskDone(task)}
+                              className={cn(
+                                "size-5 mt-0.5 rounded-full flex items-center justify-center border transition-colors cursor-pointer",
+                                isCompleted ? "bg-emerald-500 border-emerald-600 text-white" : "border-slate-300 hover:border-indigo-500 bg-white"
+                              )}
+                              title={isCompleted ? "Mark incomplete" : "Mark completed"}
+                            >
+                              {isCompleted && <Check className="size-3 stroke-[3]" />}
+                            </button>
                             <div className="rounded-lg bg-indigo-50 p-2 text-indigo-600 border border-indigo-100">
                               <CategoryIcon className="size-3.5" />
                             </div>
                             <div>
-                              <p className="font-semibold text-slate-800">{task.title}</p>
+                              <p className={cn("font-semibold", isCompleted ? "line-through text-slate-400" : "text-slate-800")}>
+                                {task.title}
+                              </p>
                               <p className="text-[11px] text-slate-500 mt-0.5">
                                 {categoryLabels[task.category ?? "CLIENT_FOLLOWUP"] ?? "General Task"}
                               </p>
@@ -560,9 +743,9 @@ export default function TasksPage() {
                         <td className="px-5 py-3">
                           <select
                             value={task.status}
-                            onChange={(e) => changeStatus(task.id, e.target.value)}
+                            onChange={(e) => void changeStatus(task.id, e.target.value)}
                             className={cn(
-                              "h-7 rounded-md border-0 px-2.5 text-xs font-semibold shadow-2xs cursor-pointer",
+                              "h-7 rounded-md border-0 px-2.5 text-xs font-semibold cursor-pointer outline-none",
                               statusClass[task.status] ?? "bg-slate-100 text-slate-700"
                             )}
                             aria-label={`Status for ${task.title}`}
@@ -580,8 +763,8 @@ export default function TasksPage() {
                             {task.status !== "DONE" && (
                               <Button
                                 size="xs"
-                                onClick={() => changeStatus(task.id, "DONE")}
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white h-7 text-[11px] px-2 shadow-2xs"
+                                onClick={() => void changeStatus(task.id, "DONE")}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white h-7 text-[11px] px-2 shadow-2xs font-medium"
                               >
                                 Mark Done
                               </Button>
@@ -589,7 +772,7 @@ export default function TasksPage() {
 
                             <button
                               type="button"
-                              onClick={() => handleDelete(task.id)}
+                              onClick={(e) => void handleDeleteSingle(task.id, e)}
                               className="rounded p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
                               title="Delete task"
                             >
@@ -604,8 +787,12 @@ export default function TasksPage() {
               </table>
             </div>
           )}
+          <div className="border-t border-slate-200 px-5 py-2.5 text-xs text-slate-500">
+            {loading ? "Loading…" : `Total Tasks: ${visible.length} ${visible.length !== tasks.length ? `(Filtered from ${tasks.length})` : ""}`}
+          </div>
         </section>
       </div>
     </DashboardShell>
   );
 }
+

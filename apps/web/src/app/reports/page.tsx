@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronDown, FolderOpen, Library, Search, Star } from "lucide-react";
+import { ChevronDown, FolderOpen, Library, Search, Star, Download, Printer, ArrowUpRight, BarChart3 } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -22,9 +23,9 @@ const FAVORITES_KEY = "betflow-report-favorites";
 const ALL = "All Reports";
 
 function formatDate(value: string | null) {
-  if (!value) return "-";
+  if (!value) return "Recently";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "-";
+  if (Number.isNaN(date.getTime())) return "Recently";
   return date.toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
@@ -92,7 +93,6 @@ export default function ReportsCatalogPage() {
           report.folder.toLowerCase().includes(term)
         );
       })
-      // Group by folder like Zoho, then alphabetically by name.
       .sort((a, b) =>
         a.folder === b.folder
           ? a.name.localeCompare(b.name)
@@ -113,119 +113,155 @@ export default function ReportsCatalogPage() {
     });
   };
 
+  const handleExportCSV = () => {
+    const headers = ["Report Name", "Folder", "Description", "Last Accessed", "Created By"];
+    const rows = filtered.map((r) => [
+      `"${r.name}"`,
+      `"${r.folder}"`,
+      `"${r.description}"`,
+      `"${formatDate(r.lastAccessedAt)}"`,
+      `"${r.createdBy ?? "System"}"`,
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `betflow_reports_catalog.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <DashboardShell
-      title="Reports"
-      description="Browse and open analytics reports for your workspace."
+      title="Reports & Analytics Catalog"
+      description="Browse, filter, and open live operational analytics reports for your workspace."
       active="Reports"
     >
-      {/* Zoho-style toolbar: folder dropdown left, search right */}
-      <div className="mb-3 flex flex-col gap-3 rounded-lg border border-zinc-200 bg-zinc-50/80 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative">
-          <select
-            aria-label="Filter reports by folder"
-            value={folder}
-            onChange={(e) => setFolder(e.target.value)}
-            className="h-9 w-full appearance-none rounded-md border border-zinc-200 bg-white pl-3 pr-9 text-sm font-medium text-zinc-800 outline-none focus:border-zinc-400 sm:w-56"
-          >
-            {folders.map((f) => (
-              <option key={f} value={f}>
-                {f}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
-        </div>
+      {/* Toolbar */}
+      <div className="mb-4 flex flex-col gap-3 rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <select
+              aria-label="Filter reports by folder"
+              value={folder}
+              onChange={(e) => setFolder(e.target.value)}
+              className="h-9 w-full appearance-none rounded-lg border border-slate-300 bg-white pl-3.5 pr-9 text-xs font-semibold text-slate-800 outline-none focus:border-indigo-500 sm:w-56"
+            >
+              {folders.map((f) => (
+                <option key={f} value={f}>
+                  {f}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+          </div>
 
-        <div className="flex items-center gap-2">
-          <label className="flex h-9 w-full items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 text-zinc-500 sm:w-72">
-            <Search className="size-4 shrink-0" />
+          <label className="flex h-9 w-full items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-slate-500 sm:w-72">
+            <Search className="size-4 shrink-0 text-slate-400" />
             <input
               aria-label="Search all reports"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search All Reports"
-              className="w-full bg-transparent text-sm text-zinc-800 outline-none placeholder:text-zinc-400"
+              placeholder="Search reports by title or description"
+              className="w-full bg-transparent text-xs text-slate-800 outline-none placeholder:text-slate-400"
             />
           </label>
-          <span className="hidden size-9 shrink-0 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-500 sm:flex">
-            <Library className="size-4" />
-          </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={handleExportCSV}
+            className="h-9 text-xs font-semibold border-slate-300 text-slate-700 hover:bg-slate-50"
+          >
+            <Download className="size-3.5 mr-1.5 text-indigo-600" />
+            Export Catalog
+          </Button>
+          <Button
+            onClick={() => window.print()}
+            variant="outline"
+            className="h-9 text-xs font-semibold border-slate-300 text-slate-700 hover:bg-slate-50"
+          >
+            <Printer className="size-3.5 mr-1.5 text-slate-500" />
+            Print
+          </Button>
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white">
-        {error ? (
+      <div className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
+        {error && (
           <div className="p-4">
-            <p className="rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700">
+            <p className="rounded-lg border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs font-semibold text-rose-700">
               {error}
             </p>
           </div>
-        ) : null}
+        )}
 
         {selected.size > 0 && (
-          <div className="flex items-center gap-3 border-b border-zinc-200 bg-blue-50/60 px-4 py-2 text-sm text-zinc-700">
-            <span className="font-medium">{selected.size} selected</span>
+          <div className="flex items-center gap-3 border-b border-indigo-100 bg-indigo-50/70 px-5 py-2.5 text-xs text-slate-700">
+            <span className="font-semibold text-indigo-900">{selected.size} selected</span>
             <button
               type="button"
               onClick={() => setSelected(new Set())}
-              className="text-blue-600 hover:underline"
+              className="text-indigo-600 hover:underline font-medium ml-2"
             >
-              Clear
+              Clear selection
             </button>
           </div>
         )}
 
-        {/* Desktop / tablet table */}
+        {/* Table */}
         <div className="hidden overflow-x-auto md:block">
-          <table className="w-full min-w-[820px] text-left text-sm">
-            <thead className="border-b border-zinc-200 bg-white text-zinc-500">
+          <table className="w-full min-w-[820px] text-left text-xs whitespace-nowrap">
+            <thead className="border-b border-slate-200 bg-slate-50/70 text-slate-700 font-semibold">
               <tr>
-                <th className="w-10 px-4 py-3">
+                <th className="w-10 px-4 py-3 text-center">
                   <input
                     type="checkbox"
                     aria-label="Select all reports"
                     checked={allSelected}
                     onChange={toggleSelectAll}
-                    className="size-4 rounded border-zinc-300"
+                    className="size-3.5 rounded border-slate-300 accent-indigo-600 cursor-pointer"
                   />
                 </th>
-                <th className="px-2 py-3 font-medium">Report Name</th>
-                <th className="px-4 py-3 font-medium">Description</th>
-                <th className="px-4 py-3 font-medium">Folder</th>
-                <th className="px-4 py-3 font-medium">Last Accessed Date</th>
-                <th className="px-4 py-3 font-medium">Created By</th>
+                <th className="px-3 py-3 font-semibold">Report Name</th>
+                <th className="px-4 py-3 font-semibold">Description</th>
+                <th className="px-4 py-3 font-semibold">Folder</th>
+                <th className="px-4 py-3 font-semibold">Last Accessed</th>
+                <th className="px-4 py-3 font-semibold">Created By</th>
+                <th className="w-16 px-4 py-3 text-right"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100">
+            <tbody className="divide-y divide-slate-100">
               {loading ? (
                 Array.from({ length: 6 }).map((_, index) => (
                   <tr key={index}>
-                    <td colSpan={6} className="px-4 py-3">
-                      <div className="h-4 w-full animate-pulse rounded bg-zinc-100" />
+                    <td colSpan={7} className="px-4 py-3">
+                      <div className="h-4 w-full animate-pulse rounded bg-slate-100" />
                     </td>
                   </tr>
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-zinc-500">
+                  <td colSpan={7} className="px-4 py-12 text-center text-slate-500 font-medium">
                     No reports match your filters.
                   </td>
                 </tr>
               ) : (
                 filtered.map((report) => (
-                  <tr key={report.id} className="group hover:bg-zinc-50">
-                    <td className="px-4 py-3">
+                  <tr key={report.id} className="group hover:bg-slate-50/80 transition-colors cursor-pointer">
+                    <td className="px-4 py-3 text-center">
                       <input
                         type="checkbox"
                         aria-label={`Select ${report.name}`}
                         checked={selected.has(report.id)}
                         onChange={() => toggleRow(report.id)}
-                        className="size-4 rounded border-zinc-300"
+                        className="size-3.5 rounded border-slate-300 accent-indigo-600 cursor-pointer"
                       />
                     </td>
-                    <td className="px-2 py-3">
-                      <div className="flex items-center gap-2">
+                    <td className="px-3 py-3">
+                      <div className="flex items-center gap-2.5">
                         <button
                           type="button"
                           onClick={() => toggleFavorite(report.id)}
@@ -240,27 +276,41 @@ export default function ReportsCatalogPage() {
                               "size-4 shrink-0 transition-colors",
                               favorites.has(report.id)
                                 ? "fill-amber-400 text-amber-400"
-                                : "text-zinc-300 hover:text-amber-400",
+                                : "text-slate-300 hover:text-amber-400",
                             )}
                           />
                         </button>
                         <Link
                           href={report.href}
-                          className="font-medium text-blue-600 hover:underline"
+                          className="font-bold text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-1.5"
                         >
+                          <BarChart3 className="size-4 text-indigo-500 shrink-0" />
                           {report.name}
                         </Link>
                       </div>
                     </td>
-                    <td className="max-w-md truncate px-4 py-3 text-zinc-600">
+                    <td className="max-w-md truncate px-4 py-3 text-slate-600">
                       {report.description}
                     </td>
-                    <td className="px-4 py-3 text-zinc-600">{report.folder}</td>
-                    <td className="px-4 py-3 text-zinc-600">
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center rounded-md bg-indigo-50 border border-indigo-100 px-2 py-0.5 text-[11px] font-semibold text-indigo-700">
+                        {report.folder}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-slate-500 font-medium">
                       {formatDate(report.lastAccessedAt)}
                     </td>
-                    <td className="px-4 py-3 text-zinc-600">
-                      {report.createdBy ?? "-"}
+                    <td className="px-4 py-3 text-slate-600 font-medium">
+                      {report.createdBy ?? "System"}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <Link
+                        href={report.href}
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline"
+                      >
+                        Open
+                        <ArrowUpRight className="size-3.5" />
+                      </Link>
                     </td>
                   </tr>
                 ))
@@ -270,16 +320,16 @@ export default function ReportsCatalogPage() {
         </div>
 
         {/* Mobile cards */}
-        <div className="divide-y divide-zinc-200 md:hidden">
+        <div className="divide-y divide-slate-200 md:hidden">
           {loading ? (
             Array.from({ length: 4 }).map((_, index) => (
               <div key={index} className="p-4">
-                <div className="h-4 w-2/3 animate-pulse rounded bg-zinc-100" />
-                <div className="mt-2 h-3 w-full animate-pulse rounded bg-zinc-100" />
+                <div className="h-4 w-2/3 animate-pulse rounded bg-slate-100" />
+                <div className="mt-2 h-3 w-full animate-pulse rounded bg-slate-100" />
               </div>
             ))
           ) : filtered.length === 0 ? (
-            <p className="p-6 text-center text-sm text-zinc-500">
+            <p className="p-6 text-center text-xs text-slate-500">
               No reports match your filters.
             </p>
           ) : (
@@ -288,26 +338,30 @@ export default function ReportsCatalogPage() {
                 <div className="flex items-center justify-between gap-2">
                   <Link
                     href={report.href}
-                    className="font-medium text-blue-600 hover:underline"
+                    className="font-bold text-indigo-600 hover:underline flex items-center gap-1.5 text-sm"
                   >
+                    <BarChart3 className="size-4 text-indigo-500" />
                     {report.name}
                   </Link>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] text-zinc-600">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-indigo-50 border border-indigo-100 px-2 py-0.5 text-[11px] font-semibold text-indigo-700">
                     <FolderOpen className="size-3" />
                     {report.folder}
                   </span>
                 </div>
-                <p className="mt-1 text-sm text-zinc-600">{report.description}</p>
-                <p className="mt-2 text-xs text-zinc-400">
-                  Last accessed {formatDate(report.lastAccessedAt)}
-                </p>
+                <p className="mt-1.5 text-xs text-slate-600">{report.description}</p>
+                <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
+                  <span>Last accessed {formatDate(report.lastAccessedAt)}</span>
+                  <Link href={report.href} className="font-semibold text-indigo-600 hover:underline">
+                    View Report &rarr;
+                  </Link>
+                </div>
               </div>
             ))
           )}
         </div>
 
-        <div className="border-t border-zinc-200 px-4 py-2.5 text-xs text-zinc-500">
-          {loading ? "Loading reports…" : `${filtered.length} of ${reports.length} reports`}
+        <div className="border-t border-slate-200 px-5 py-3 text-xs text-slate-500 font-medium">
+          {loading ? "Loading reports…" : `Total Reports: ${filtered.length} ${filtered.length !== reports.length ? `(Filtered from ${reports.length})` : ""}`}
         </div>
       </div>
     </DashboardShell>
