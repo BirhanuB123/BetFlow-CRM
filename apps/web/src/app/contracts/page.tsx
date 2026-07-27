@@ -202,33 +202,6 @@ export default function ContractsPage() {
       active="Contracts"
     >
       <div className="space-y-6">
-        {/* KPI Summary Cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold text-slate-500">Total Contract Value (ETB)</p>
-            <p className="mt-1 text-2xl font-bold text-slate-900">{formatCurrency(totalVolumeETB)}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Gross contract portfolio</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold text-emerald-600">Downpayments Collected</p>
-            <p className="mt-1 text-2xl font-bold text-emerald-700">{formatCurrency(totalDownpaymentsETB)}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Total initial deposits</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold text-indigo-600">Signed Contracts & Sold</p>
-            <p className="mt-1 text-2xl font-bold text-indigo-700">{signedCount}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Units marked as SOLD</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold text-amber-600">Pending Signatures</p>
-            <p className="mt-1 text-2xl font-bold text-amber-700">{pendingCount}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Awaiting client/admin signature</p>
-          </div>
-        </div>
-
         {/* Section Header & Creator Button */}
         <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

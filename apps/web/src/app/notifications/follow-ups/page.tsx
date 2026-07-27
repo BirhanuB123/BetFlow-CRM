@@ -255,63 +255,6 @@ export default function FollowUpsPage() {
       active="Notifications"
     >
       <div className="space-y-6">
-        {/* Top KPI Queue Summary */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <button
-            onClick={() => setActiveFilter("OVERDUE")}
-            className={cn(
-              "rounded-xl border p-4 text-left shadow-sm transition-all cursor-pointer",
-              activeFilter === "OVERDUE" ? "border-rose-500 bg-rose-50/60 ring-2 ring-rose-400/20" : "border-slate-200/80 bg-white hover:border-rose-200"
-            )}
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-rose-600">Overdue Reminders</p>
-              <AlertCircle className="size-4 text-rose-500" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-rose-700">{overdueCalls.length}</p>
-            <p className="mt-1 text-[11px] text-slate-500">Requires immediate call</p>
-          </button>
-
-          <button
-            onClick={() => setActiveFilter("DUE_TODAY")}
-            className={cn(
-              "rounded-xl border p-4 text-left shadow-sm transition-all cursor-pointer",
-              activeFilter === "DUE_TODAY" ? "border-blue-500 bg-blue-50/60 ring-2 ring-blue-400/20" : "border-slate-200/80 bg-white hover:border-blue-200"
-            )}
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-blue-600">Due Today</p>
-              <Clock className="size-4 text-blue-500" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-blue-700">{dueTodayCalls.length}</p>
-            <p className="mt-1 text-[11px] text-slate-500">Today's call schedule</p>
-          </button>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-indigo-600">Diaspora Buyer Calls</p>
-              <PhoneCall className="size-4 text-indigo-500" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-indigo-700">{diasporaCalls.length}</p>
-            <p className="mt-1 text-[11px] text-slate-500">Foreign currency leads</p>
-          </div>
-
-          <button
-            onClick={() => setActiveFilter("ALL")}
-            className={cn(
-              "rounded-xl border p-4 text-left shadow-sm transition-all cursor-pointer",
-              activeFilter === "ALL" ? "border-slate-400 bg-slate-100/60 ring-2 ring-slate-400/20" : "border-slate-200/80 bg-white hover:border-slate-300"
-            )}
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-slate-600">Total Pending Queue</p>
-              <CalendarClock className="size-4 text-slate-400" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-slate-900">{pendingCalls.length}</p>
-            <p className="mt-1 text-[11px] text-slate-500">Active follow-ups</p>
-          </button>
-        </div>
-
         {/* Section Header & Schedule Action */}
         <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

@@ -289,26 +289,54 @@ export default function LeadsPage() {
     }
   };
 
+  const handleDeleteSingle = async (id: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (typeof window !== "undefined" && !window.confirm("Delete this lead? This cannot be undone.")) {
+      return;
+    }
+    setError(null);
+    try {
+      await apiFetch(`/leads/${id}`, { method: "DELETE" });
+      setLeads((prev) => prev.filter((l) => l.id !== id));
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete lead.");
+      await loadLeads();
+    }
+  };
+
   const handleDeleteSelected = async () => {
     if (selected.size === 0) return;
     if (
       typeof window !== "undefined" &&
-      !window.confirm(`Delete ${selected.size} lead(s)? This cannot be undone.`)
+      !window.confirm(`Delete ${selected.size} selected lead(s)? This cannot be undone.`)
     ) {
       return;
     }
     setBusy(true);
     setError(null);
+    const ids = Array.from(selected);
     try {
       await Promise.all(
-        [...selected].map((id) =>
-          apiFetch(`/leads/${id}`, { method: "DELETE" }),
-        ),
+        ids.map((id) =>
+          apiFetch(`/leads/${id}`, { method: "DELETE" }).catch((err) => {
+            console.error(`Failed to delete lead ${id}:`, err);
+            return null;
+          })
+        )
       );
+      setLeads((prev) => prev.filter((l) => !selected.has(l.id)));
       setSelected(new Set());
-      await loadLeads();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete leads.");
+      await loadLeads();
     } finally {
       setBusy(false);
     }
@@ -327,9 +355,9 @@ export default function LeadsPage() {
       active="Leads"
     >
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-t-lg border border-zinc-200 bg-white px-3 py-2">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-t-lg border border-zinc-200 bg-white px-4 py-3 h-[60px]">
         <div className="flex items-center gap-1">
-          <span className="rounded-md bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700">
+          <span className="rounded-md bg-indigo-50 px-3 py-1.5 text-sm font-semibold text-indigo-700">
             All Leads
           </span>
           <button
@@ -344,14 +372,14 @@ export default function LeadsPage() {
             type="button"
             onClick={() => setShowFilters((v) => !v)}
             className={cn(
-              "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm hover:bg-zinc-100",
-              showFilters ? "text-blue-700" : "text-zinc-600",
+              "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm hover:bg-zinc-100 transition-colors font-medium",
+              showFilters ? "text-indigo-700 bg-indigo-50/50" : "text-zinc-600",
             )}
           >
             <FilterIcon className="size-4" />
             Filter
             {activeFilterCount > 0 ? (
-              <span className="rounded-full bg-blue-600 px-1.5 text-xs text-white">
+              <span className="rounded-full bg-indigo-600 px-1.5 text-xs text-white font-bold">
                 {activeFilterCount}
               </span>
             ) : null}
@@ -359,18 +387,18 @@ export default function LeadsPage() {
           <button
             type="button"
             onClick={() => toggleSort(sort.key)}
-            className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm text-zinc-600 hover:bg-zinc-100"
+            className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm text-zinc-600 hover:bg-zinc-100 transition-colors"
           >
             <SlidersHorizontal className="size-4" />
             Sort
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <div className="flex items-center rounded-md border border-zinc-200">
             <button
               type="button"
-              className="rounded-l-md bg-blue-50 p-1.5 text-blue-700"
+              className="rounded-l-md bg-indigo-50 p-1.5 text-indigo-700"
               aria-label="List view"
             >
               <List className="size-4" />
@@ -384,8 +412,12 @@ export default function LeadsPage() {
               <LayoutGrid className="size-4" />
             </button>
           </div>
-          <Button className="h-9" onClick={() => setCreateOpen(true)}>
-            <Plus className="size-4" />
+          <Button
+            onClick={() => setCreateOpen(true)}
+            size="sm"
+            className="h-8 bg-indigo-600 hover:bg-indigo-700 text-white rounded shadow-sm text-[13px] px-4 font-medium"
+          >
+            <Plus className="size-3.5 mr-1" />
             Create Lead
           </Button>
         </div>
@@ -469,7 +501,7 @@ export default function LeadsPage() {
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="mt-3 text-sm text-blue-600 hover:underline"
+                  className="mt-3 text-sm font-medium text-indigo-600 hover:underline"
                 >
                   Clear all filters
                 </button>
@@ -482,8 +514,8 @@ export default function LeadsPage() {
         <section className="min-w-0 flex-1 border border-zinc-200 bg-white">
           {/* Selection bar */}
           {selected.size > 0 ? (
-            <div className="flex items-center gap-3 border-b border-zinc-200 bg-blue-50 px-4 py-2 text-sm">
-              <span className="font-medium text-blue-800">
+            <div className="flex items-center gap-3 border-b border-zinc-200 bg-indigo-50/60 px-4 py-2 text-sm">
+              <span className="font-semibold text-indigo-900">
                 {selected.size} selected
               </span>
               <button
@@ -556,18 +588,19 @@ export default function LeadsPage() {
                     onClick={() => toggleSort("owner")}
                   />
                   <th className="px-4 py-3 font-medium text-purple-700">AI Score</th>
+                  <th className="w-10 px-4 py-3"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100">
                 {loading ? (
                   <tr>
-                    <td colSpan={8} className="px-4 py-10 text-center text-zinc-500">
+                    <td colSpan={10} className="px-4 py-10 text-center text-zinc-500">
                       Loading leads…
                     </td>
                   </tr>
                 ) : pageRows.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-4 py-16 text-center text-zinc-500">
+                    <td colSpan={10} className="px-4 py-16 text-center text-zinc-500">
                       {leads.length === 0
                         ? "No leads yet. Create your first one."
                         : "No leads match your filters."}
@@ -580,15 +613,15 @@ export default function LeadsPage() {
                       <tr
                         key={lead.id}
                         className={cn(
-                          "group hover:bg-zinc-50",
-                          isSelected && "bg-blue-50/60",
+                          "group hover:bg-zinc-50 transition-colors",
+                          isSelected && "bg-indigo-50/50",
                         )}
                       >
                         <td className="px-4 py-3">
                           <input
                             type="checkbox"
                             aria-label={`Select ${fullName(lead)}`}
-                            className="size-4 rounded border-zinc-300"
+                            className="size-4 rounded border-zinc-300 accent-indigo-600 cursor-pointer"
                             checked={isSelected}
                             onChange={() => toggleSet(setSelected, lead.id)}
                           />
@@ -597,13 +630,13 @@ export default function LeadsPage() {
                           {lead.convertedCustomerId ? (
                             <Link
                               href={`/customers/${lead.convertedCustomerId}`}
-                              className="font-medium text-blue-600 hover:underline"
+                              className="font-medium text-indigo-600 hover:text-indigo-800 hover:underline"
                             >
                               {fullName(lead)}
                             </Link>
                           ) : (
                             <div className="flex items-center gap-2">
-                              <span className="font-medium text-blue-600">
+                              <span className="font-medium text-indigo-600">
                                 {fullName(lead)}
                               </span>
                               {lead.status !== "LOST" && (
@@ -708,6 +741,17 @@ export default function LeadsPage() {
                             <span className="text-xs text-zinc-400">—</span>
                           )}
                         </td>
+                        <td className="px-4 py-3 text-right opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            type="button"
+                            onClick={(e) => handleDeleteSingle(lead.id, e)}
+                            className="text-zinc-400 hover:text-rose-600 p-1.5 rounded hover:bg-rose-50 transition-colors"
+                            title="Delete lead"
+                            aria-label="Delete lead"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </td>
                       </tr>
                     );
                   })
@@ -795,9 +839,9 @@ function ConvertLeadModal({
 }) {
   const [stages, setStages] = useState<{ id: string; name: string }[]>([]);
   const [createAccount, setCreateAccount] = useState(true);
-  const [createDeal, setCreateDeal] = useState(false);
-  const [dealName, setDealName] = useState(`${fullName(lead)} - Deal`);
-  const [dealValue, setDealValue] = useState("");
+  const [createDeal, setCreateDeal] = useState(true);
+  const [dealName, setDealName] = useState(`${fullName(lead)} - Opportunity`);
+  const [dealValue, setDealValue] = useState("50000");
   const [dealStageId, setDealStageId] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -839,95 +883,120 @@ function ConvertLeadModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-lg rounded-lg bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-zinc-200 px-5 py-3">
-          <h2 className="text-base font-semibold text-zinc-900">
-            Convert {fullName(lead)}
-          </h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-xs">
+      <div className="w-full max-w-lg rounded-xl bg-white shadow-2xl border border-slate-200 overflow-hidden">
+        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50/80 px-6 py-4">
+          <div>
+            <h2 className="text-base font-bold text-slate-900">
+              Convert Qualified Lead
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Transform <span className="font-semibold text-slate-800">{fullName(lead)}</span> into Contact, Account & Deal
+            </p>
+          </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-1 text-zinc-400 hover:bg-zinc-100"
+            className="rounded-md p-1.5 text-slate-400 hover:bg-slate-200/60 hover:text-slate-600 transition-colors"
             aria-label="Close"
           >
             <X className="size-4" />
           </button>
         </div>
-        <form onSubmit={submit} className="space-y-4 p-5">
+
+        <form onSubmit={submit} className="space-y-4 p-6">
           {error && (
-            <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+            <p className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs font-semibold text-rose-700">
+              {error}
+            </p>
           )}
-          <p className="text-sm text-zinc-500">
-            Creates a contact from this lead and marks the lead as converted.
-          </p>
 
-          <label className="flex items-start gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={createAccount}
-              onChange={(e) => setCreateAccount(e.target.checked)}
-              className="mt-0.5 size-4 rounded border-zinc-300 accent-[#0E6E63]"
-            />
-            <span>
-              Create an account{" "}
-              <span className="font-medium text-zinc-700">“{accountName}”</span> and
-              link the contact to it
-            </span>
-          </label>
+          {/* Contact Details Card */}
+          <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3.5 text-xs space-y-1">
+            <div className="font-bold text-slate-700 uppercase tracking-wider text-[11px]">1. Contact Entity</div>
+            <div className="font-semibold text-indigo-900 text-sm">{fullName(lead)}</div>
+            <div className="text-slate-600">{lead.email || "No email"} · {lead.phone || "No phone"}</div>
+          </div>
 
-          <div className="rounded-md border border-zinc-200 p-3">
-            <label className="flex items-center gap-2 text-sm font-medium">
+          {/* Account Creation Options */}
+          <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-2">
+            <label className="flex items-start gap-2.5 text-xs font-medium text-slate-800 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={createAccount}
+                onChange={(e) => setCreateAccount(e.target.checked)}
+                className="mt-0.5 size-4 rounded border-slate-300 accent-indigo-600 cursor-pointer"
+              />
+              <div>
+                <span>Create linked Account entity:</span>
+                <span className="font-bold text-indigo-700 block mt-0.5">“{accountName}”</span>
+              </div>
+            </label>
+          </div>
+
+          {/* Sales Deal Creation Options */}
+          <div className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 space-y-3">
+            <label className="flex items-center gap-2.5 text-xs font-bold text-indigo-900 cursor-pointer">
               <input
                 type="checkbox"
                 checked={createDeal}
                 onChange={(e) => setCreateDeal(e.target.checked)}
-                className="size-4 rounded border-zinc-300 accent-[#0E6E63]"
+                className="size-4 rounded border-slate-300 accent-indigo-600 cursor-pointer"
               />
-              Also open a deal
+              <span>2. Create Sales Opportunity in Kanban Pipeline</span>
             </label>
+
             {createDeal && (
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                <input
-                  required
-                  className="h-9 rounded-md border border-zinc-200 px-3 text-sm sm:col-span-2"
-                  placeholder="Deal name"
-                  value={dealName}
-                  onChange={(e) => setDealName(e.target.value)}
-                />
-                <input
-                  required
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  className="h-9 rounded-md border border-zinc-200 px-3 text-sm"
-                  placeholder="Value"
-                  value={dealValue}
-                  onChange={(e) => setDealValue(e.target.value)}
-                />
-                <select
-                  required
-                  aria-label="Deal stage"
-                  className="h-9 rounded-md border border-zinc-200 px-3 text-sm"
-                  value={dealStageId}
-                  onChange={(e) => setDealStageId(e.target.value)}
-                >
-                  {stages.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="sm:col-span-2">
+                  <label className="text-[11px] font-semibold text-slate-600 block mb-1">Opportunity Name *</label>
+                  <input
+                    required
+                    className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500 font-medium"
+                    placeholder="Deal name"
+                    value={dealName}
+                    onChange={(e) => setDealName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-600 block mb-1">Target Value ($) *</label>
+                  <input
+                    required
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500 font-medium"
+                    placeholder="Value"
+                    value={dealValue}
+                    onChange={(e) => setDealValue(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-600 block mb-1">Pipeline Stage *</label>
+                  <select
+                    required
+                    aria-label="Deal stage"
+                    className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500 font-medium"
+                    value={dealStageId}
+                    onChange={(e) => setDealStageId(e.target.value)}
+                  >
+                    {stages.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             )}
           </div>
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>
+          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+            <Button type="button" variant="outline" onClick={onClose} className="h-9 text-xs font-semibold">
               Cancel
             </Button>
-            <Button type="submit" disabled={saving}>
-              {saving ? "Converting…" : "Convert lead"}
+            <Button type="submit" disabled={saving} className="h-9 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white">
+              {saving ? "Converting Lead…" : "Convert Lead Now"}
             </Button>
           </div>
         </form>

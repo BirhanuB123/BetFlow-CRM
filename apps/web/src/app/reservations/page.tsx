@@ -197,45 +197,6 @@ export default function ReservationsPage() {
       active="Reservations"
     >
       <div className="space-y-6">
-        {/* Top KPI Queue Summary Cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-blue-600">Active Unit Holds</p>
-              <Lock className="size-4 text-blue-500" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-blue-700">{activeCount}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Units locked on hold</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-emerald-600">Deposit Receipts (ETB)</p>
-              <Coins className="size-4 text-emerald-500" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-emerald-700">{formatCurrency(totalDepositVolumeETB)}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Total hold deposits</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-amber-600">Expiring Within 3 Days</p>
-              <ShieldAlert className="size-4 text-amber-500" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-amber-700">{expiringSoonCount}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Holds near expiration</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-slate-600">Released / Expired</p>
-              <Unlock className="size-4 text-slate-400" />
-            </div>
-            <p className="mt-1 text-2xl font-bold text-slate-700">{releasedCount}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Returned to AVAILABLE</p>
-          </div>
-        </div>
-
         {/* Section Header & Form Trigger */}
         <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

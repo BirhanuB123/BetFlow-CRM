@@ -330,33 +330,6 @@ export default function ProjectsPage() {
       active="Projects"
     >
       <div className="space-y-6">
-        {/* KPI Summary Cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold text-sky-600">Active Real Estate Developments</p>
-            <p className="mt-1 text-2xl font-bold text-sky-700">{activeDevsCount}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Projects in active sales & build</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold text-emerald-600">Total Portfolio Value (ETB)</p>
-            <p className="mt-1 text-2xl font-bold text-emerald-700">{formatCurrency(totalPortfolioValueETB)}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Gross inventory valuation</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold text-indigo-600">Available Units for Sale</p>
-            <p className="mt-1 text-2xl font-bold text-indigo-700">{totalAvailableUnits}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Ready for buyer reservation</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold text-purple-600">Executed Sold Units</p>
-            <p className="mt-1 text-2xl font-bold text-purple-700">{totalSoldUnits}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Signed contract agreements</p>
-          </div>
-        </div>
-
         {/* Section Header & Creator Button */}
         <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

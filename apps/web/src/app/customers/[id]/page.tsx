@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Building2, Mail, Phone } from "lucide-react";
+import { ArrowLeft, Building2, Mail, Phone, Trash2 } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
@@ -14,6 +14,7 @@ import { DocumentsPanel } from "@/components/documents/documents-panel";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 type UnitRef = { id: string; unitNumber: string } | null;
 
@@ -83,10 +84,12 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function CustomerDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const id = params.id;
   const [customer, setCustomer] = useState<CustomerDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   // Bumped when a note is added/removed to force the timeline to refetch.
   const [timelineKey, setTimelineKey] = useState(0);
 
@@ -108,6 +111,20 @@ export default function CustomerDetailPage() {
       void load();
     });
   }, [load]);
+
+  const handleDelete = async () => {
+    if (!customer) return;
+    if (!window.confirm(`Are you sure you want to delete ${customer.firstName} ${customer.lastName}?`)) return;
+    setDeleting(true);
+    setError(null);
+    try {
+      await apiFetch(`/customers/${id}`, { method: "DELETE" });
+      router.push("/customers");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete customer");
+      setDeleting(false);
+    }
+  };
 
   const totals = useMemo(() => {
     if (!customer) return { pipeline: 0, paid: 0 };
@@ -147,33 +164,47 @@ export default function CustomerDetailPage() {
           <div className="space-y-6 lg:col-span-2">
             {/* Header card */}
             <section className="rounded-lg border border-zinc-200 bg-white p-5">
-              <h2 className="text-lg font-semibold">
-                {customer.firstName} {customer.lastName}
-              </h2>
-              <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-zinc-600">
-                {customer.email && (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Mail className="size-4 text-zinc-400" />
-                    {customer.email}
-                  </span>
-                )}
-                {customer.phone && (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Phone className="size-4 text-zinc-400" />
-                    {customer.phone}
-                  </span>
-                )}
-                {customer.account && (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Building2 className="size-4 text-zinc-400" />
-                    <Link href={`/accounts/${customer.account.id}`} className="text-[#334cff] hover:underline">
-                      {customer.account.name}
-                    </Link>
-                  </span>
-                )}
-                <span className="text-zinc-400">
-                  Customer since {new Date(customer.createdAt).toLocaleDateString()}
-                </span>
+              <div className="flex items-start justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold">
+                    {customer.firstName} {customer.lastName}
+                  </h2>
+                  <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-zinc-600">
+                    {customer.email && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <Mail className="size-4 text-zinc-400" />
+                        {customer.email}
+                      </span>
+                    )}
+                    {customer.phone && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <Phone className="size-4 text-zinc-400" />
+                        {customer.phone}
+                      </span>
+                    )}
+                    {customer.account && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <Building2 className="size-4 text-zinc-400" />
+                        <Link href={`/accounts/${customer.account.id}`} className="text-[#334cff] hover:underline">
+                          {customer.account.name}
+                        </Link>
+                      </span>
+                    )}
+                    <span className="text-zinc-400">
+                      Customer since {new Date(customer.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={deleting}
+                  onClick={handleDelete}
+                  className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 font-medium"
+                >
+                  <Trash2 className="size-4 mr-1.5" />
+                  {deleting ? "Deleting..." : "Delete Contact"}
+                </Button>
               </div>
             </section>
 

@@ -34,8 +34,7 @@ export class ReportsController {
 
   @Get('inventory')
   inventory() {
-    // Inventory is still in-memory (no Prisma model for inventory stats yet)
-    return this.store.getInventoryReport();
+    return this.reports.inventoryReport();
   }
 
   @Get('conversion')

@@ -233,7 +233,7 @@ export default function UnitsPage() {
                             </div>
                             <div className="mt-1 flex items-center justify-between text-[10px] text-zinc-500">
                               <span>{u.area ? `${u.area} m²` : "—"}</span>
-                              <span className="font-semibold text-[#334cff] group-hover:underline flex items-center gap-0.5">
+                              <span className="font-semibold text-indigo-600 group-hover:underline flex items-center gap-0.5">
                                 <Calculator className="size-3" /> Plan
                               </span>
                             </div>

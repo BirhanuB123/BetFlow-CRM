@@ -45,8 +45,15 @@ export async function apiFetch<T>(
   }
 
   if (!response.ok) {
-    const message = await response.text().catch(() => "");
-    throw new Error(message || `Request failed (${response.status})`);
+    const rawText = await response.text().catch(() => "");
+    let parsedMessage = rawText;
+    try {
+      const json = JSON.parse(rawText);
+      if (json.message) {
+        parsedMessage = Array.isArray(json.message) ? json.message.join(", ") : String(json.message);
+      }
+    } catch {}
+    throw new Error(parsedMessage || `Request failed (${response.status})`);
   }
 
   return (await response.json()) as T;

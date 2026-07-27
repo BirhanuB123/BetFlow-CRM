@@ -201,33 +201,6 @@ export default function MeetingsPage() {
       active="Meetings"
     >
       <div className="space-y-6">
-        {/* KPI Summary Cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold text-slate-500">Total Appointments</p>
-            <p className="mt-1 text-2xl font-bold text-slate-900">{meetings.length}</p>
-            <p className="mt-1 text-[11px] text-slate-400">All registered meetings</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold text-blue-600">Upcoming Scheduled</p>
-            <p className="mt-1 text-2xl font-bold text-blue-700">{scheduledCount}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Awaiting consultation</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold text-emerald-600">Completed Meetings</p>
-            <p className="mt-1 text-2xl font-bold text-emerald-700">{completedCount}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Successful discussions</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold text-indigo-600">Virtual / Zoom Calls</p>
-            <p className="mt-1 text-2xl font-bold text-indigo-700">{virtualCount}</p>
-            <p className="mt-1 text-[11px] text-slate-400">Remote consultations</p>
-          </div>
-        </div>
-
         {/* Schedule Header & Action */}
         <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
