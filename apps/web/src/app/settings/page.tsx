@@ -5,6 +5,7 @@ import { Check, Edit2, Plus, RotateCw, Save, ShieldAlert, Trash2, X, User as Use
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { apiFetch, updateSessionCurrency } from "@/lib/api";
 import { CURRENCIES } from "@/lib/currency";
 import { cn } from "@/lib/utils";
@@ -88,6 +89,20 @@ export default function SettingsPage() {
   // User status loaders
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
   const [updatingUserRoleId, setUpdatingUserRoleId] = useState<string | null>(null);
+
+  // Custom confirmation modal
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    onConfirm: () => void | Promise<void>;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -344,20 +359,23 @@ export default function SettingsPage() {
     }
   };
 
-  const handleDeleteRole = async (id: string) => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this role? This will also remove it from any users assigned to it."
-      )
-    )
-      return;
-    setError(null);
-    try {
-      await apiFetch(`/roles/${id}`, { method: "DELETE" });
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete role");
-    }
+  const handleDeleteRole = (id: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete Role Confirmation",
+      message: "Are you sure you want to delete this role? This will also remove it from any users assigned to it.",
+      confirmText: "Delete Role",
+      onConfirm: async () => {
+        setError(null);
+        try {
+          await apiFetch(`/roles/${id}`, { method: "DELETE" });
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+          await load();
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to delete role");
+        }
+      },
+    });
   };
 
   const handleUpdateUserRole = async (userId: string, roleId: string) => {
@@ -377,23 +395,26 @@ export default function SettingsPage() {
     }
   };
 
-  const handleDeleteUser = async (id: string) => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this user? If they own accounts or leads, they will be deactivated instead."
-      )
-    )
-      return;
-    setDeletingUserId(id);
-    setError(null);
-    try {
-      await apiFetch(`/users/${id}`, { method: "DELETE" });
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete user");
-    } finally {
-      setDeletingUserId(null);
-    }
+  const handleDeleteUser = (id: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete User Confirmation",
+      message: "Are you sure you want to delete this user? If they own accounts or leads, they will be deactivated instead.",
+      confirmText: "Delete User",
+      onConfirm: async () => {
+        setDeletingUserId(id);
+        setError(null);
+        try {
+          await apiFetch(`/users/${id}`, { method: "DELETE" });
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+          await load();
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to delete user");
+        } finally {
+          setDeletingUserId(null);
+        }
+      },
+    });
   };
 
   return (
@@ -931,6 +952,18 @@ export default function SettingsPage() {
           )}
         </>
       )}
+
+      {/* Custom Confirmation Dialog */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        variant="danger"
+        loading={Boolean(deletingUserId)}
+      />
     </DashboardShell>
   );
 }

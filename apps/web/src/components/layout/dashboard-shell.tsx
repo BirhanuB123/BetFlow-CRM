@@ -32,6 +32,7 @@ import {
   LogOut,
   Megaphone,
   Menu,
+  MessageSquare,
   MoreHorizontal,
   Phone,
   Plus,
@@ -91,13 +92,13 @@ const primaryNavItems = [
 
 const moduleNavItems = [
   { label: "Leads", href: "/leads", icon: UserRoundCheck },
-  { label: "Contacts", href: "/customers", icon: UsersRound, aliases: ["Customers"] },
-  { label: "Accounts", href: "/accounts", icon: Building, aliases: ["Companies"] },
+  { label: "Customers", href: "/customers", icon: UsersRound, aliases: ["Contacts", "Buyers"] },
   { label: "Deals", href: "/deals", icon: CircleDollarSign},
   { label: "Tasks", href: "/tasks", icon: ClipboardList },
   { label: "Meetings", href: "/meetings", icon: CalendarDays },
   { label: "Calls", href: "/notifications/follow-ups", icon: Phone },
   { label: "Social Outreach", href: "/automation/email-campaigns", icon: Megaphone, aliases: ["Campaigns", "Telegram", "Social leads"] },
+  { label: "SMS & Drip Automation", href: "/automation/sms", icon: MessageSquare, aliases: ["SMS", "Ethio Telecom", "Drip"] },
   { label: "Documents", href: "/documents", icon: FileText },
   { label: "Visits", href: "/site-visits", icon: Route, aliases: ["Site visits"] },
   { label: "Projects", href: "/projects", icon: Building2 },
@@ -113,7 +114,7 @@ const utilityNavItems = [
 
 const createItems = [
   { label: "New Lead", href: "/leads", icon: UserRoundCheck },
-  { label: "New Contact", href: "/customers", icon: UsersRound },
+  { label: "New Customer", href: "/customers", icon: UsersRound },
   { label: "New Deal", href: "/deals", icon: CircleDollarSign },
   { label: "New Task", href: "/tasks", icon: ClipboardList },
   { label: "New Meeting", href: "/meetings", icon: CalendarDays },
