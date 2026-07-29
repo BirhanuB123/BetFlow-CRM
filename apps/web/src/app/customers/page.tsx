@@ -531,7 +531,10 @@ export default function ContactsPage() {
                 </div>
               )}
             </div>
-            <Button onClick={() => setShowForm((value) => !value)} size="sm" className="h-8 bg-[#233b66] hover:bg-[#1d3257] text-white rounded shadow-sm text-[13px] px-4 font-medium">
+            <Button 
+              onClick={() => setShowForm((value) => !value)} 
+              size="sm" className="h-8 bg-[#233b66] hover:bg-[#1d3257] text-white rounded shadow-sm text-[13px] px-4 font-medium">
+              <Plus className="size-3.5 mr-1" />
               {showForm ? "Cancel" : "Create Customer"}
             </Button>
           </div>
@@ -598,7 +601,7 @@ export default function ContactsPage() {
               />
               <div className="sm:col-span-4 flex justify-end">
                 <Button type="submit" disabled={saving} size="sm" className="bg-indigo-600 hover:bg-indigo-700">
-                  {saving ? "Saving..." : "Save Contact"}
+                  {saving ? "Saving..." : "Save Customer"}
                 </Button>
               </div>
             </form>

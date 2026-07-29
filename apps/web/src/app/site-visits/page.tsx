@@ -249,20 +249,20 @@ export default function SiteVisitsPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <Building2 className="size-5 text-indigo-600" />
-                <h2 className="text-lg font-bold text-slate-900">Site Visit Intake & Buyer Requirements</h2>
+                <Building2 className="size-5 text-[#233b66]" />
+                <h2 className="text-lg font-bold text-slate-900">Site Visit Bookings & Buyer Preferences</h2>
               </div>
               <p className="mt-1 text-sm text-slate-500">
-                Record buyer site visits along with their specific demands (Square Meters, Bedrooms, Floor Placement, Facing, & Budget).
+                Book physical property tours, track client transport details, and record exact unit specifications requested.
               </p>
             </div>
             <Button
               onClick={() => setShowForm((v) => !v)}
               disabled={!showForm && customers.length === 0 && leads.length === 0}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition-all"
+              className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium shadow-sm transition-all"
             >
               {showForm ? <X className="size-4 mr-1.5" /> : <CalendarPlus className="size-4 mr-1.5" />}
-              {showForm ? "Cancel Intake" : "Schedule New Visit & Intake"}
+              {showForm ? "Cancel Intake" : "Book Site Visit"}
             </Button>
           </div>
 
@@ -270,11 +270,11 @@ export default function SiteVisitsPage() {
           {showForm && (
             <form
               onSubmit={handleCreate}
-              className="mt-6 rounded-xl border border-indigo-100 bg-gradient-to-b from-indigo-50/40 to-slate-50/50 p-5 shadow-inner"
+              className="mt-6 rounded-xl border border-[#233b66]/20 bg-gradient-to-b from-[#233b66]/5 to-slate-50/50 p-5 shadow-inner"
             >
-              <div className="border-b border-indigo-100 pb-3 mb-4 flex items-center justify-between">
-                <h3 className="text-sm font-bold text-indigo-950 uppercase tracking-wider flex items-center gap-2">
-                  <span className="flex size-5 items-center justify-center rounded-full bg-indigo-600 text-[10px] text-white font-bold">1</span>
+              <div className="border-b border-[#233b66]/20 pb-3 mb-4 flex items-center justify-between">
+                <h3 className="text-sm font-bold text-[#233b66] uppercase tracking-wider flex items-center gap-2">
+                  <span className="flex size-5 items-center justify-center rounded-full bg-[#233b66] text-[10px] text-white font-bold">1</span>
                   Visit Appointment & Client Selection
                 </h3>
               </div>

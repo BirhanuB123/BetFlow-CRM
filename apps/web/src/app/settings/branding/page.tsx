@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Edit2, RotateCw, Save } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Check, Edit2, RotateCw, Save } from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
@@ -94,10 +95,17 @@ export default function BrandingPage() {
 
   return (
     <DashboardShell
-      title="Custom branding"
-      description="Tenant-specific visual identity and login experience."
+      title="Branding & Portal Settings"
+      description="Customize tenant workspace appearance and portal theme."
       active="Branding"
     >
+      <Link
+        href="/settings"
+        className="mb-4 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#233b66] transition-colors"
+      >
+        <ArrowLeft className="size-4" />
+        Back to Settings
+      </Link>
       <div className="grid gap-4 md:grid-cols-3 mb-6">
         <StatCard label="White-label status" value={settings.length > 0 ? "Active" : "Unknown"} detail="Tenant logo, colors, and portal messaging" />
         <StatCard label="Brand assets" value={String(settings.length)} detail="Configurable identity parameters" />

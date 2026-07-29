@@ -280,11 +280,11 @@ export default function FollowUpsPage() {
           {showForm && (
             <form
               onSubmit={handleCreate}
-              className="mt-6 rounded-xl border border-indigo-100 bg-gradient-to-b from-indigo-50/40 to-slate-50/50 p-5 shadow-inner"
+              className="mt-6 rounded-xl border border-[#233b66]/20 bg-gradient-to-b from-[#233b66]/5 to-slate-50/50 p-5 shadow-inner"
             >
-              <h3 className="text-xs font-bold text-indigo-950 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <Sparkles className="size-4 text-indigo-600" />
-                New Follow-Up Call Appointment
+              <h3 className="text-xs font-bold text-[#233b66] uppercase tracking-wider mb-4 flex items-center gap-2">
+                <Sparkles className="size-4 text-[#233b66]" />
+                Call Activity & Scheduling Details
               </h3>
 
               <div className="grid gap-4 sm:grid-cols-3">
@@ -378,12 +378,12 @@ export default function FollowUpsPage() {
                     placeholder="Provide context (e.g. Buyer interested in 120 sqm 2-Bed unit on 5th floor, schedule afternoon follow-up call)"
                     value={form.notes}
                     onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                    className="w-full rounded-lg border border-slate-300 bg-white p-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full rounded-lg border border-slate-300 bg-white p-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   />
                 </div>
               </div>
 
-              <div className="mt-4 flex items-center justify-end gap-2 border-t border-indigo-100 pt-3">
+              <div className="mt-4 flex items-center justify-end gap-2 border-t border-[#233b66]/20 pt-3">
                 <Button
                   type="button"
                   variant="outline"
@@ -395,7 +395,7 @@ export default function FollowUpsPage() {
                 <Button
                   type="submit"
                   disabled={saving}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium h-9 text-xs shadow-sm"
+                  className="bg-[#233b66] hover:bg-[#1d3257] text-white font-medium h-9 text-xs shadow-sm"
                 >
                   {saving ? "Scheduling Call…" : "Schedule & Queue Call"}
                 </Button>
@@ -421,7 +421,7 @@ export default function FollowUpsPage() {
                 onClick={() => setActiveFilter("ALL")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  activeFilter === "ALL" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  activeFilter === "ALL" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
                 All ({calls.length})
@@ -430,7 +430,7 @@ export default function FollowUpsPage() {
                 onClick={() => setActiveFilter("DUE_TODAY")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  activeFilter === "DUE_TODAY" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  activeFilter === "DUE_TODAY" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
                 Due Today ({dueTodayCalls.length})
@@ -439,7 +439,7 @@ export default function FollowUpsPage() {
                 onClick={() => setActiveFilter("OVERDUE")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  activeFilter === "OVERDUE" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  activeFilter === "OVERDUE" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
                 Overdue ({overdueCalls.length})
@@ -448,7 +448,7 @@ export default function FollowUpsPage() {
                 onClick={() => setActiveFilter("COMPLETED")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  activeFilter === "COMPLETED" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  activeFilter === "COMPLETED" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
                 Completed
@@ -462,8 +462,8 @@ export default function FollowUpsPage() {
             </div>
           ) : filteredCalls.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center">
-              <div className="rounded-full bg-indigo-50 p-4 border border-indigo-100 mb-2">
-                <CalendarClock className="size-6 text-indigo-600" />
+              <div className="rounded-full bg-[#233b66]/10 p-4 border border-[#233b66]/20 mb-2">
+                <CalendarClock className="size-6 text-[#233b66]" />
               </div>
               <p className="text-sm font-bold text-slate-900">No follow-up calls in this queue</p>
               <p className="text-xs text-slate-500 max-w-sm mt-1">
@@ -471,7 +471,7 @@ export default function FollowUpsPage() {
               </p>
               <Button
                 onClick={() => setShowForm(true)}
-                className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs px-4 h-9 shadow-sm"
+                className="mt-4 bg-[#233b66] hover:bg-[#1d3257] text-white font-medium text-xs px-4 h-9 shadow-sm"
               >
                 <Plus className="size-4 mr-1.5" />
                 Schedule Follow-up Call

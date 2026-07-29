@@ -60,7 +60,7 @@ type UserOption = { id: string; firstName: string; lastName: string } | null;
 
 const statusClass: Record<string, string> = {
   TODO: "bg-slate-100 text-slate-700 border-slate-200",
-  IN_PROGRESS: "bg-indigo-50 text-indigo-700 border-indigo-200",
+  IN_PROGRESS: "bg-[#233b66]/10 text-[#233b66] border-[#233b66]/20 font-semibold",
   DONE: "bg-emerald-50 text-emerald-700 border-emerald-200",
 };
 
@@ -374,7 +374,7 @@ export default function TasksPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <ClipboardList className="size-5 text-indigo-600" />
+                <ClipboardList className="size-5 text-[#233b66]" />
                 <h2 className="text-lg font-bold text-slate-900">Ethiopian Real Estate Sales Tasks</h2>
               </div>
               <p className="mt-1 text-sm text-slate-500">
@@ -383,7 +383,7 @@ export default function TasksPage() {
             </div>
             <Button
               onClick={() => setShowForm((v) => !v)}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition-all"
+              className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium shadow-sm transition-all"
             >
               {showForm ? <X className="size-4 mr-1.5" /> : <Plus className="size-4 mr-1.5" />}
               {showForm ? "Cancel Intake" : "Create New Task"}
@@ -394,10 +394,10 @@ export default function TasksPage() {
           {showForm && (
             <form
               onSubmit={handleCreate}
-              className="mt-6 rounded-xl border border-indigo-100 bg-gradient-to-b from-indigo-50/40 to-slate-50/50 p-5 shadow-inner"
+              className="mt-6 rounded-xl border border-[#233b66]/20 bg-gradient-to-b from-[#233b66]/5 to-slate-50/50 p-5 shadow-inner"
             >
-              <h3 className="text-xs font-bold text-indigo-950 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <Sparkles className="size-4 text-indigo-600" />
+              <h3 className="text-xs font-bold text-[#233b66] uppercase tracking-wider mb-4 flex items-center gap-2">
+                <Sparkles className="size-4 text-[#233b66]" />
                 Task Creation & Assignment Details
               </h3>
 
@@ -410,7 +410,7 @@ export default function TasksPage() {
                     placeholder="e.g. Prepare Pro-Forma Invoice for Bole 3-Bed Unit 14B"
                     value={form.title}
                     onChange={(e) => setForm({ ...form, title: e.target.value })}
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   />
                 </div>
 
@@ -419,7 +419,7 @@ export default function TasksPage() {
                   <select
                     value={form.category}
                     onChange={(e) => setForm({ ...form, category: e.target.value as TaskCategory })}
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   >
                     {TASK_CATEGORIES.map((cat) => (
                       <option key={cat} value={cat}>
@@ -434,7 +434,7 @@ export default function TasksPage() {
                   <select
                     value={form.priority}
                     onChange={(e) => setForm({ ...form, priority: e.target.value as TaskPriority })}
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   >
                     <option value="HIGH">High Priority (Urgent Action)</option>
                     <option value="MEDIUM">Medium Priority (Normal)</option>
@@ -448,7 +448,7 @@ export default function TasksPage() {
                     type="date"
                     value={form.dueDate}
                     onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   />
                 </div>
 
@@ -457,7 +457,7 @@ export default function TasksPage() {
                   <select
                     value={form.assigneeId}
                     onChange={(e) => setForm({ ...form, assigneeId: e.target.value })}
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   >
                     <option value="">Unassigned (Open Team Task)</option>
                     {users.filter(Boolean).map((u) => (
@@ -475,12 +475,12 @@ export default function TasksPage() {
                     placeholder="e.g. Client requested 30% downpayment breakdown over 24 months with 30/70 bank mortgage calculation..."
                     value={form.description}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
-                    className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   />
                 </div>
               </div>
 
-              <div className="mt-5 flex justify-end gap-3 border-t border-indigo-100 pt-4">
+              <div className="mt-5 flex justify-end gap-3 border-t border-[#233b66]/20 pt-4">
                 <Button
                   type="button"
                   variant="outline"
@@ -489,7 +489,7 @@ export default function TasksPage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={saving} className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs shadow-sm">
+                <Button type="submit" disabled={saving} className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium text-xs shadow-sm">
                   {saving ? "Saving…" : "Create Real Estate Task"}
                 </Button>
               </div>
@@ -512,7 +512,7 @@ export default function TasksPage() {
                 onClick={() => setFilter("OPEN")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "OPEN" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "OPEN" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
                 Open Tasks ({tasks.filter((t) => t.status !== "DONE").length})
@@ -522,7 +522,7 @@ export default function TasksPage() {
                 onClick={() => setFilter("HIGH_PRIORITY")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "HIGH_PRIORITY" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "HIGH_PRIORITY" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
                 High Priority ({highPriorityCount})
@@ -532,7 +532,7 @@ export default function TasksPage() {
                 onClick={() => setFilter("DUE_TODAY")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "DUE_TODAY" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "DUE_TODAY" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
                 Due Today ({dueTodayCount})
@@ -542,7 +542,7 @@ export default function TasksPage() {
                 onClick={() => setFilter("DONE")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "DONE" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "DONE" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
                 Completed ({completedCount})
@@ -552,7 +552,7 @@ export default function TasksPage() {
                 onClick={() => setFilter("ALL")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "ALL" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "ALL" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
                 All ({tasks.length})
@@ -564,7 +564,7 @@ export default function TasksPage() {
                 aria-label="Filter priority"
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
-                className="h-8 rounded-md border border-slate-200 bg-white px-2.5 text-xs text-slate-700 outline-none focus:border-indigo-500"
+                className="h-8 rounded-md border border-slate-200 bg-white px-2.5 text-xs text-slate-700 outline-none focus:border-[#233b66]"
               >
                 <option value="ALL">All Priorities</option>
                 <option value="HIGH">High Priority</option>
@@ -576,7 +576,7 @@ export default function TasksPage() {
                 aria-label="Filter assignee"
                 value={assigneeFilter}
                 onChange={(e) => setAssigneeFilter(e.target.value)}
-                className="h-8 rounded-md border border-slate-200 bg-white px-2.5 text-xs text-slate-700 outline-none focus:border-indigo-500"
+                className="h-8 rounded-md border border-slate-200 bg-white px-2.5 text-xs text-slate-700 outline-none focus:border-[#233b66]"
               >
                 <option value="ALL">All Assignees</option>
                 <option value="UNASSIGNED">Unassigned</option>
@@ -601,8 +601,8 @@ export default function TasksPage() {
           </div>
 
           {selectedTaskIds.size > 0 && (
-            <div className="flex items-center gap-3 border-b border-indigo-100 bg-indigo-50/70 px-5 py-2.5 text-xs">
-              <span className="font-semibold text-indigo-900">
+            <div className="flex items-center gap-3 border-b border-[#233b66]/20 bg-[#233b66]/10 px-5 py-2.5 text-xs">
+              <span className="font-semibold text-[#233b66]">
                 {selectedTaskIds.size} selected
               </span>
               <button

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { Check, Plus, RotateCw, Trash2, X } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Check, Plus, RotateCw, Trash2, X } from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
@@ -103,10 +104,17 @@ export default function DomainsPage() {
 
   return (
     <DashboardShell
-      title="Custom domain"
-      description="Tenant domain routing, DNS verification, and SSL status."
-      active="Domains"
+      title="Custom domains"
+      description="CNAME records, SSL Certificates, and domain routing."
+      active="Custom domains"
     >
+      <Link
+        href="/settings"
+        className="mb-4 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#233b66] transition-colors"
+      >
+        <ArrowLeft className="size-4" />
+        Back to Settings
+      </Link>
       <div className="grid gap-4 md:grid-cols-3 mb-6">
         <StatCard label="Verified domains" value={String(verifiedCount)} detail="Production traffic is routable" />
         <StatCard label="Pending DNS" value={String(pendingCount)} detail="CNAME records required" />

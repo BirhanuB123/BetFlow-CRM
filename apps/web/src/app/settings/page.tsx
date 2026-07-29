@@ -1,7 +1,36 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { Check, Edit2, Plus, RotateCw, Save, ShieldAlert, Trash2, X, User as UserIcon, Settings2 } from "lucide-react";
+import Link from "next/link";
+import {
+  Check,
+  Edit2,
+  Plus,
+  RotateCw,
+  Save,
+  ShieldAlert,
+  Trash2,
+  X,
+  User as UserIcon,
+  Settings2,
+  Building2,
+  KeyRound,
+  ShieldCheck,
+  Users,
+  Lock,
+  Globe,
+  Sparkles,
+  CreditCard,
+  FileCheck,
+  Palette,
+  Database,
+  Flag,
+  UploadCloud,
+  History,
+  CheckCircle2,
+  Mail,
+  ArrowRight,
+} from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
@@ -39,10 +68,10 @@ type User = {
 };
 
 const inputClass =
-  "h-10 w-full rounded-md border border-zinc-200 px-3 text-sm outline-none focus:border-zinc-400";
+  "h-10 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#233b66] focus:ring-2 focus:ring-[#233b66]/20";
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<"profile" | "tenant">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "tenant" | "rbac" | "users">("profile");
   const [isAdmin, setIsAdmin] = useState(false);
   const [tenant, setTenant] = useState<Tenant | null>(null);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -51,7 +80,7 @@ export default function SettingsPage() {
   const [error, setError] = useState<string | null>(null);
 
   // User Profile
-  const [profileForm, setProfileForm] = useState({ firstName: "", lastName: "" });
+  const [profileForm, setProfileForm] = useState({ firstName: "", lastName: "", email: "" });
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
 
@@ -108,7 +137,6 @@ export default function SettingsPage() {
     setLoading(true);
     setError(null);
 
-    // Retrieve active user details and roles from local storage
     const raw =
       typeof window !== "undefined"
         ? window.localStorage.getItem("betflow-auth") ??
@@ -116,7 +144,7 @@ export default function SettingsPage() {
         : null;
 
     let rolesList: string[] = [];
-    let initialUser: { firstName?: string; lastName?: string } | null = null;
+    let initialUser: { firstName?: string; lastName?: string; email?: string } | null = null;
 
     if (raw) {
       try {
@@ -126,6 +154,7 @@ export default function SettingsPage() {
           setProfileForm({
             firstName: initialUser.firstName || "",
             lastName: initialUser.lastName || "",
+            email: initialUser.email || "",
           });
         }
         const token = parsed.accessToken;
@@ -183,6 +212,12 @@ export default function SettingsPage() {
     return map;
   }, [users]);
 
+  const initials = useMemo(() => {
+    const first = profileForm.firstName[0] || "";
+    const last = profileForm.lastName[0] || "";
+    return `${first}${last}`.toUpperCase() || "U";
+  }, [profileForm]);
+
   const saveProfile = async (event: FormEvent) => {
     event.preventDefault();
     setSavingProfile(true);
@@ -202,7 +237,6 @@ export default function SettingsPage() {
         }),
       });
 
-      // Update stored session data
       const raw =
         window.localStorage.getItem("betflow-auth") ??
         window.sessionStorage.getItem("betflow-auth");
@@ -283,7 +317,7 @@ export default function SettingsPage() {
       setTenantSaved(true);
       setTimeout(() => setTenantSaved(false), 2500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save tenant");
+      setError(err instanceof Error ? err.message : "Failed to save tenant settings");
     } finally {
       setSavingTenant(false);
     }
@@ -417,486 +451,707 @@ export default function SettingsPage() {
     });
   };
 
+  const settingsModules = [
+    { title: "Branding & Portal", desc: "Logo, colors, and white-label theme", icon: Palette, href: "/settings/branding", badge: "Design" },
+    { title: "Custom Domains", desc: "Map custom portal domain names", icon: Globe, href: "/settings/domains", badge: "DNS" },
+    { title: "Audit Logs", desc: "Security and system activity history", icon: History, href: "/settings/audit-logs", badge: "Security" },
+    { title: "Data Backup & Export", desc: "Database backups and bulk exports", icon: Database, href: "/settings/data", badge: "Storage" },
+    { title: "Data Import", desc: "Import leads, contacts, and units", icon: UploadCloud, href: "/settings/import", badge: "CSV / Excel" },
+    { title: "Feature Flags", desc: "Toggle experimental features", icon: Flag, href: "/settings/feature-flags", badge: "System" },
+    { title: "Subscription & Billing", desc: "Manage plan, seats, and invoices", icon: CreditCard, href: "/settings/subscription", badge: "Plan" },
+  ];
+
   return (
     <DashboardShell
-      title="Settings"
-      description="Personal account profiles and workspace-wide controls."
+      title="System Settings"
+      description="Personal account security and workspace organization controls."
       active="Settings"
     >
       {loading ? (
-        <p className="p-6 text-sm text-zinc-500">Loading settings…</p>
+        <div className="flex h-64 items-center justify-center rounded-xl border border-slate-200/80 bg-white shadow-2xs">
+          <p className="text-xs font-semibold text-slate-500">Loading system settings…</p>
+        </div>
       ) : (
-        <>
+        <div className="space-y-6">
           {error && (
-            <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-semibold text-rose-700 shadow-2xs">
               {error}
-            </p>
-          )}
-
-          {/* Tab Navigation (Only show if user has Admin rights) */}
-          {isAdmin && (
-            <div className="mb-6 flex border-b border-zinc-200 text-sm font-medium">
-              <button
-                type="button"
-                className={cn(
-                  "flex items-center gap-2 border-b-2 px-4 py-2.5 transition",
-                  activeTab === "profile"
-                    ? "border-[#0E6E63] text-[#0E6E63]"
-                    : "border-transparent text-zinc-500 hover:text-zinc-700"
-                )}
-                onClick={() => setActiveTab("profile")}
-              >
-                <UserIcon className="size-4" />
-                My Profile
-              </button>
-              <button
-                type="button"
-                className={cn(
-                  "flex items-center gap-2 border-b-2 px-4 py-2.5 transition",
-                  activeTab === "tenant"
-                    ? "border-[#0E6E63] text-[#0E6E63]"
-                    : "border-transparent text-zinc-500 hover:text-zinc-700"
-                )}
-                onClick={() => setActiveTab("tenant")}
-              >
-                <Settings2 className="size-4" />
-                Workspace Settings
-              </button>
             </div>
           )}
+
+          {/* Top Segmented Navigation Tabs matching Sidebar #233b66 Theme */}
+          <div className="no-print flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-slate-200/80 bg-white p-2 shadow-2xs">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setActiveTab("profile")}
+                className={cn(
+                  "flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-bold transition-all cursor-pointer",
+                  activeTab === "profile"
+                    ? "bg-[#233b66] text-white shadow-xs"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-[#233b66]"
+                )}
+              >
+                <UserIcon className="size-3.5" />
+                My Profile
+              </button>
+
+              {isAdmin && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("tenant")}
+                    className={cn(
+                      "flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-bold transition-all cursor-pointer",
+                      activeTab === "tenant"
+                        ? "bg-[#233b66] text-white shadow-xs"
+                        : "text-slate-600 hover:bg-slate-100 hover:text-[#233b66]"
+                    )}
+                  >
+                    <Building2 className="size-3.5" />
+                    Workspace Profile
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("rbac")}
+                    className={cn(
+                      "flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-bold transition-all cursor-pointer",
+                      activeTab === "rbac"
+                        ? "bg-[#233b66] text-white shadow-xs"
+                        : "text-slate-600 hover:bg-slate-100 hover:text-[#233b66]"
+                    )}
+                  >
+                    <ShieldCheck className="size-3.5" />
+                    Roles & Permissions ({roles.length})
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("users")}
+                    className={cn(
+                      "flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-bold transition-all cursor-pointer",
+                      activeTab === "users"
+                        ? "bg-[#233b66] text-white shadow-xs"
+                        : "text-slate-600 hover:bg-slate-100 hover:text-[#233b66]"
+                    )}
+                  >
+                    <Users className="size-3.5" />
+                    User Directory ({users.length})
+                  </button>
+                </>
+              )}
+            </div>
+
+            {tenant && (
+              <div className="flex items-center gap-2 px-3 py-1 text-xs text-slate-500 font-semibold">
+                <span className="inline-flex size-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Workspace: <strong className="text-[#233b66]">{tenant.name}</strong></span>
+              </div>
+            )}
+          </div>
 
           {/* TAB 1: PERSONAL PROFILE TAB */}
           {activeTab === "profile" && (
-            <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
-              {/* Profile Details Form */}
-              <section className="rounded-lg border border-zinc-200 bg-white p-4">
-                <h2 className="text-base font-semibold">Personal details</h2>
-                <p className="text-sm text-zinc-500 mb-5">
-                  Update your identity details within this workspace.
-                </p>
-                <form onSubmit={saveProfile} className="grid gap-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <label className="grid gap-2 text-sm font-medium">
-                      First name
-                      <input
-                        className={inputClass}
-                        value={profileForm.firstName}
-                        onChange={(e) =>
-                          setProfileForm({ ...profileForm, firstName: e.target.value })
-                        }
-                        required
-                      />
-                    </label>
-                    <label className="grid gap-2 text-sm font-medium">
-                      Last name
-                      <input
-                        className={inputClass}
-                        value={profileForm.lastName}
-                        onChange={(e) =>
-                          setProfileForm({ ...profileForm, lastName: e.target.value })
-                        }
-                        required
-                      />
-                    </label>
+            <div className="grid gap-6 xl:grid-cols-3">
+              
+              {/* Profile Summary Card */}
+              <div className="xl:col-span-1 space-y-6">
+                <div className="rounded-xl border border-slate-200/80 bg-white p-6 shadow-xs text-center">
+                  <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[#233b66] to-[#162744] text-2xl font-extrabold text-white shadow-md">
+                    {initials}
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Button type="submit" disabled={savingProfile}>
-                      {savingProfile ? "Saving…" : "Save details"}
-                    </Button>
-                    {profileSaved && (
-                      <span className="inline-flex items-center gap-1 text-sm text-emerald-600">
-                        <Check className="size-4" /> Profile updated
-                      </span>
-                    )}
-                  </div>
-                </form>
-              </section>
+                  <h3 className="text-lg font-extrabold text-slate-900">
+                    {profileForm.firstName || "User"} {profileForm.lastName}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">{profileForm.email || "Registered Account"}</p>
 
-              {/* Change Password Form */}
-              <section className="rounded-lg border border-zinc-200 bg-white p-4">
-                <h2 className="text-base font-semibold">Change password</h2>
-                <p className="text-sm text-zinc-500 mb-5">
-                  Ensure your account is using a secure password.
-                </p>
-                {passwordFeedback && (
-                  <p
-                    className={cn(
-                      "mb-4 rounded-md border px-4 py-2 text-sm",
-                      passwordFeedback.type === "success"
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                        : "border-red-200 bg-red-50 text-red-700"
-                    )}
-                  >
-                    {passwordFeedback.message}
-                  </p>
-                )}
-                <form onSubmit={savePassword} className="grid gap-4">
-                  <label className="grid gap-2 text-sm font-medium">
-                    Current password
-                    <input
-                      className={inputClass}
-                      type="password"
-                      placeholder="••••••••"
-                      value={passwordForm.currentPassword}
-                      onChange={(e) =>
-                        setPasswordForm({ ...passwordForm, currentPassword: e.target.value })
-                      }
-                      required
-                    />
-                  </label>
-                  <label className="grid gap-2 text-sm font-medium">
-                    New password
-                    <input
-                      className={inputClass}
-                      type="password"
-                      placeholder="Minimum 8 characters"
-                      value={passwordForm.newPassword}
-                      onChange={(e) =>
-                        setPasswordForm({ ...passwordForm, newPassword: e.target.value })
-                      }
-                      required
-                    />
-                  </label>
-                  <label className="grid gap-2 text-sm font-medium">
-                    Confirm new password
-                    <input
-                      className={inputClass}
-                      type="password"
-                      placeholder="Re-type new password"
-                      value={passwordForm.confirmPassword}
-                      onChange={(e) =>
-                        setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })
-                      }
-                      required
-                    />
-                  </label>
-                  <div>
-                    <Button type="submit" disabled={savingPassword}>
-                      {savingPassword ? "Updating…" : "Change password"}
-                    </Button>
+                  <div className="mt-4 flex items-center justify-center gap-2">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[#233b66]/10 border border-[#233b66]/20 px-3 py-1 text-xs font-bold text-[#233b66] shadow-2xs">
+                      <ShieldCheck className="size-3.5 text-[#233b66]" />
+                      {isAdmin ? "Workspace Administrator" : "Standard User"}
+                    </span>
                   </div>
-                </form>
-              </section>
+
+                  <div className="mt-6 border-t border-slate-100 pt-4 text-left text-xs space-y-2 text-slate-600">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Account Type</span>
+                      <span className="font-semibold text-[#233b66]">Corporate CRM</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Security Status</span>
+                      <span className="font-semibold text-emerald-600">Protected</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Navigation Modules */}
+                <div className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs">
+                  <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">Workspace Modules</h4>
+                  <div className="space-y-2">
+                    {settingsModules.slice(0, 4).map((mod) => {
+                      const ModIcon = mod.icon;
+                      return (
+                        <Link
+                          key={mod.title}
+                          href={mod.href}
+                          className="flex items-center justify-between rounded-lg border border-slate-100 p-2.5 hover:bg-slate-50 transition"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <div className="flex size-7 items-center justify-center rounded-md bg-[#233b66]/10 text-[#233b66]">
+                              <ModIcon className="size-3.5" />
+                            </div>
+                            <span className="text-xs font-bold text-slate-800">{mod.title}</span>
+                          </div>
+                          <ArrowRight className="size-3.5 text-slate-400" />
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Forms Column */}
+              <div className="xl:col-span-2 space-y-6">
+                
+                {/* Personal Details Form */}
+                <section className="rounded-xl border border-slate-200/80 bg-white p-6 shadow-xs">
+                  <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-5">
+                    <UserIcon className="size-5 text-[#233b66]" />
+                    <div>
+                      <h2 className="text-sm font-bold text-slate-900">Personal Profile Details</h2>
+                      <p className="text-xs text-slate-500">Update your identity and display preferences in this workspace.</p>
+                    </div>
+                  </div>
+
+                  <form onSubmit={saveProfile} className="grid gap-4">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <label className="grid gap-1.5 text-xs font-bold text-slate-700">
+                        First name
+                        <input
+                          className={inputClass}
+                          value={profileForm.firstName}
+                          onChange={(e) =>
+                            setProfileForm({ ...profileForm, firstName: e.target.value })
+                          }
+                          required
+                        />
+                      </label>
+                      <label className="grid gap-1.5 text-xs font-bold text-slate-700">
+                        Last name
+                        <input
+                          className={inputClass}
+                          value={profileForm.lastName}
+                          onChange={(e) =>
+                            setProfileForm({ ...profileForm, lastName: e.target.value })
+                          }
+                          required
+                        />
+                      </label>
+                    </div>
+
+                    <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-2">
+                      {profileSaved ? (
+                        <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+                          <CheckCircle2 className="size-4" /> Profile updated successfully
+                        </span>
+                      ) : <div />}
+
+                      <Button
+                        type="submit"
+                        disabled={savingProfile}
+                        className="bg-[#233b66] hover:bg-[#192b4b] text-white font-bold text-xs h-9 px-4"
+                      >
+                        {savingProfile ? "Saving Details…" : "Save Changes"}
+                      </Button>
+                    </div>
+                  </form>
+                </section>
+
+                {/* Change Password Form */}
+                <section className="rounded-xl border border-slate-200/80 bg-white p-6 shadow-xs">
+                  <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-5">
+                    <KeyRound className="size-5 text-[#233b66]" />
+                    <div>
+                      <h2 className="text-sm font-bold text-slate-900">Security & Password</h2>
+                      <p className="text-xs text-slate-500">Ensure your account is protected with a strong security key.</p>
+                    </div>
+                  </div>
+
+                  {passwordFeedback && (
+                    <div
+                      className={cn(
+                        "mb-4 rounded-xl border p-3.5 text-xs font-semibold shadow-2xs",
+                        passwordFeedback.type === "success"
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          : "border-rose-200 bg-rose-50 text-rose-700"
+                      )}
+                    >
+                      {passwordFeedback.message}
+                    </div>
+                  )}
+
+                  <form onSubmit={savePassword} className="grid gap-4">
+                    <label className="grid gap-1.5 text-xs font-bold text-slate-700">
+                      Current password
+                      <input
+                        className={inputClass}
+                        type="password"
+                        placeholder="••••••••"
+                        value={passwordForm.currentPassword}
+                        onChange={(e) =>
+                          setPasswordForm({ ...passwordForm, currentPassword: e.target.value })
+                        }
+                        required
+                      />
+                    </label>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <label className="grid gap-1.5 text-xs font-bold text-slate-700">
+                        New password
+                        <input
+                          className={inputClass}
+                          type="password"
+                          placeholder="Min 8 characters"
+                          value={passwordForm.newPassword}
+                          onChange={(e) =>
+                            setPasswordForm({ ...passwordForm, newPassword: e.target.value })
+                          }
+                          required
+                        />
+                      </label>
+                      <label className="grid gap-1.5 text-xs font-bold text-slate-700">
+                        Confirm new password
+                        <input
+                          className={inputClass}
+                          type="password"
+                          placeholder="Re-type password"
+                          value={passwordForm.confirmPassword}
+                          onChange={(e) =>
+                            setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })
+                          }
+                          required
+                        />
+                      </label>
+                    </div>
+
+                    <div className="flex items-center justify-end border-t border-slate-100 pt-4 mt-2">
+                      <Button
+                        type="submit"
+                        disabled={savingPassword}
+                        className="bg-[#233b66] hover:bg-[#192b4b] text-white font-bold text-xs h-9 px-4"
+                      >
+                        {savingPassword ? "Updating Password…" : "Update Password"}
+                      </Button>
+                    </div>
+                  </form>
+                </section>
+
+              </div>
             </div>
           )}
 
-          {/* TAB 2: TENANT & RBAC SETTINGS TAB */}
+          {/* TAB 2: WORKSPACE PROFILE TAB */}
           {activeTab === "tenant" && isAdmin && (
-            <>
-              <div className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
-                {/* Tenant profile */}
-                <section className="rounded-lg border border-zinc-200 bg-white p-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <h2 className="text-base font-semibold">Tenant profile</h2>
-                      <p className="text-sm text-zinc-500">
-                        Operational defaults for this workspace.
-                      </p>
+            <div className="space-y-6">
+              
+              <div className="grid gap-6 xl:grid-cols-3">
+                {/* Tenant Config Form */}
+                <div className="xl:col-span-2">
+                  <section className="rounded-xl border border-slate-200/80 bg-white p-6 shadow-xs">
+                    <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-5">
+                      <Building2 className="size-5 text-[#233b66]" />
+                      <div>
+                        <h2 className="text-sm font-bold text-slate-900">Workspace Tenant Profile</h2>
+                        <p className="text-xs text-slate-500">Operational settings and default financial currency.</p>
+                      </div>
                     </div>
-                  </div>
-                  <form onSubmit={saveTenant} className="mt-5 grid gap-4">
-                    <label className="grid gap-2 text-sm font-medium">
-                      Tenant name
-                      <input
-                        className={inputClass}
-                        value={tenantName}
-                        onChange={(e) => setTenantName(e.target.value)}
-                        required
-                      />
-                    </label>
-                    <label className="grid gap-2 text-sm font-medium text-zinc-500">
-                      Workspace slug
-                      <input
-                        className={cn(inputClass, "bg-zinc-50 text-zinc-500")}
-                        value={tenant?.slug ?? tenant?.domain ?? ""}
-                        readOnly
-                        title="Slug is used for sign-in and cannot be changed here"
-                      />
-                    </label>
-                    <label className="grid gap-2 text-sm font-medium">
-                      Default currency
-                      <select
-                        className={inputClass}
-                        value={tenantCurrency}
-                        onChange={(e) => setTenantCurrency(e.target.value)}
-                      >
-                        {CURRENCIES.map((currency) => (
-                          <option key={currency.code} value={currency.code}>
-                            {currency.label}
-                          </option>
-                        ))}
-                      </select>
-                      <span className="text-xs font-normal text-zinc-500">
-                        New monetary values are recorded in this workspace currency. Changing it does not convert existing amounts.
-                      </span>
-                    </label>
-                    <div className="grid grid-cols-2 gap-4">
-                      <label className="grid gap-2 text-sm font-medium text-zinc-500">
-                        Region
-                        <input
-                          className={cn(inputClass, "bg-zinc-50 text-zinc-500")}
-                          value={tenant?.region ?? ""}
-                          readOnly
-                        />
-                      </label>
-                      <label className="grid gap-2 text-sm font-medium text-zinc-500">
-                        Plan
-                        <input
-                          className={cn(inputClass, "bg-zinc-50 text-zinc-500")}
-                          value={tenant?.plan ?? ""}
-                          readOnly
-                        />
-                      </label>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Button
-                        type="submit"
-                        disabled={
-                          savingTenant ||
-                          (tenantName.trim() === tenant?.name &&
-                            tenantCurrency === tenant?.currency)
-                        }
-                      >
-                        {savingTenant ? "Saving…" : "Save"}
-                      </Button>
-                      {tenantSaved && (
-                        <span className="inline-flex items-center gap-1 text-sm text-emerald-600">
-                          <Check className="size-4" /> Saved
+
+                    <form onSubmit={saveTenant} className="grid gap-4">
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <label className="grid gap-1.5 text-xs font-bold text-slate-700">
+                          Workspace name
+                          <input
+                            className={inputClass}
+                            value={tenantName}
+                            onChange={(e) => setTenantName(e.target.value)}
+                            required
+                          />
+                        </label>
+                        <label className="grid gap-1.5 text-xs font-bold text-slate-700">
+                          Domain Slug
+                          <input
+                            className={cn(inputClass, "bg-slate-50 text-slate-500 cursor-not-allowed")}
+                            value={tenant?.slug ?? tenant?.domain ?? ""}
+                            readOnly
+                          />
+                        </label>
+                      </div>
+
+                      <label className="grid gap-1.5 text-xs font-bold text-slate-700">
+                        Default System Currency
+                        <select
+                          className={inputClass}
+                          value={tenantCurrency}
+                          onChange={(e) => setTenantCurrency(e.target.value)}
+                        >
+                          {CURRENCIES.map((currency) => (
+                            <option key={currency.code} value={currency.code}>
+                              {currency.label} ({currency.code})
+                            </option>
+                          ))}
+                        </select>
+                        <span className="text-[11px] font-medium text-slate-400">
+                          New deals, contracts, and payment records are recorded in this currency.
                         </span>
-                      )}
-                    </div>
-                  </form>
-                </section>
+                      </label>
 
-                {/* RBAC */}
-                <section className="rounded-lg border border-zinc-200 bg-white">
-                  <div className="flex items-center justify-between border-b border-zinc-200 p-4">
-                    <div>
-                      <h2 className="text-base font-semibold">RBAC</h2>
-                      <p className="text-sm text-zinc-500">
-                        Role scopes and assigned permissions.
-                      </p>
-                    </div>
-                    <Button variant="outline" onClick={() => setShowRoleForm((v) => !v)}>
-                      {showRoleForm ? <X className="size-4" /> : <Plus className="size-4" />}
-                      {showRoleForm ? "Cancel" : "New role"}
-                    </Button>
-                  </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <label className="grid gap-1.5 text-xs font-bold text-slate-700">
+                          Hosting Region
+                          <input
+                            className={cn(inputClass, "bg-slate-50 text-slate-500 cursor-not-allowed")}
+                            value={tenant?.region ?? "US-East"}
+                            readOnly
+                          />
+                        </label>
+                        <label className="grid gap-1.5 text-xs font-bold text-slate-700">
+                          Subscription Plan
+                          <input
+                            className={cn(inputClass, "bg-slate-50 text-[#233b66] font-extrabold cursor-not-allowed")}
+                            value={tenant?.plan ?? "ENTERPRISE"}
+                            readOnly
+                          />
+                        </label>
+                      </div>
 
-                  {showRoleForm && (
-                    <form
-                      onSubmit={createRole}
-                      className="grid gap-3 border-b border-zinc-200 bg-zinc-50 p-4 sm:grid-cols-2"
-                    >
-                      <input
-                        className={inputClass}
-                        placeholder="Role name"
-                        value={roleForm.name}
-                        onChange={(e) => setRoleForm({ ...roleForm, name: e.target.value })}
-                        required
-                      />
-                      <input
-                        className={inputClass}
-                        placeholder="Description (optional)"
-                        value={roleForm.description}
-                        onChange={(e) =>
-                          setRoleForm({ ...roleForm, description: e.target.value })
-                        }
-                      />
-                      <div className="sm:col-span-2">
-                        <Button type="submit" disabled={savingRole}>
-                          {savingRole ? "Creating…" : "Create role"}
+                      <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-2">
+                        {tenantSaved ? (
+                          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+                            <CheckCircle2 className="size-4" /> Workspace updated
+                          </span>
+                        ) : <div />}
+
+                        <Button
+                          type="submit"
+                          disabled={
+                            savingTenant ||
+                            (tenantName.trim() === tenant?.name &&
+                              tenantCurrency === tenant?.currency)
+                          }
+                          className="bg-[#233b66] hover:bg-[#192b4b] text-white font-bold text-xs h-9 px-4"
+                        >
+                          {savingTenant ? "Saving…" : "Save Workspace Profile"}
                         </Button>
                       </div>
                     </form>
-                  )}
-
-                  <div className="overflow-x-auto">
-                    <table className="w-full min-w-[680px] text-left text-sm">
-                      <thead className="bg-zinc-50 text-zinc-500">
-                        <tr>
-                          <th className="px-4 py-3 font-medium">Role</th>
-                          <th className="px-4 py-3 font-medium">Scope</th>
-                          <th className="px-4 py-3 font-medium">Users</th>
-                          <th className="px-4 py-3 font-medium">Permissions</th>
-                          <th className="px-4 py-3 font-medium text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-zinc-200">
-                        {roles.map((role) => (
-                          <tr key={role.id} className="hover:bg-zinc-50/50 transition">
-                            <td className="px-4 py-3 font-medium">
-                              {editingRoleId === role.id ? (
-                                <input
-                                  className="h-8 rounded border border-zinc-200 px-2 text-sm focus:border-zinc-400 outline-none"
-                                  value={editRoleForm.name}
-                                  onChange={(e) =>
-                                    setEditRoleForm({ ...editRoleForm, name: e.target.value })
-                                  }
-                                />
-                              ) : (
-                                role.name
-                              )}
-                            </td>
-                            <td className="px-4 py-3 text-zinc-600">
-                              {editingRoleId === role.id ? (
-                                <input
-                                  className="h-8 w-full rounded border border-zinc-200 px-2 text-sm focus:border-zinc-400 outline-none"
-                                  value={editRoleForm.description}
-                                  onChange={(e) =>
-                                    setEditRoleForm({
-                                      ...editRoleForm,
-                                      description: e.target.value,
-                                    })
-                                  }
-                                />
-                              ) : (
-                                role.description ?? "—"
-                              )}
-                            </td>
-                            <td className="px-4 py-3 text-zinc-600">
-                              {usersByRole.get(role.id) ?? 0}
-                            </td>
-                            <td className="px-4 py-3 text-zinc-600">
-                              {role.permissionKeys.length > 0
-                                ? role.permissionKeys.join(", ")
-                                : "—"}
-                            </td>
-                            <td className="px-4 py-3 text-right">
-                              <div className="flex justify-end gap-1.5">
-                                {editingRoleId === role.id ? (
-                                  <>
-                                    <Button
-                                      size="icon-sm"
-                                      onClick={() => handleSaveRole(role.id)}
-                                      disabled={savingRoleId === role.id}
-                                    >
-                                      {savingRoleId === role.id ? (
-                                        <RotateCw className="size-3.5 animate-spin" />
-                                      ) : (
-                                        <Save className="size-3.5" />
-                                      )}
-                                    </Button>
-                                    <Button
-                                      size="icon-sm"
-                                      variant="outline"
-                                      onClick={() => setEditingRoleId(null)}
-                                    >
-                                      <X className="size-3.5" />
-                                    </Button>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Button
-                                      size="icon-sm"
-                                      variant="ghost"
-                                      onClick={() => handleStartEditRole(role)}
-                                    >
-                                      <Edit2 className="size-3.5" />
-                                    </Button>
-                                    <Button
-                                      size="icon-sm"
-                                      variant="ghost"
-                                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                                      onClick={() => handleDeleteRole(role.id)}
-                                    >
-                                      <Trash2 className="size-3.5" />
-                                    </Button>
-                                  </>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </section>
-              </div>
-
-              {/* User management */}
-              <section className="mt-6 rounded-lg border border-zinc-200 bg-white">
-                <div className="flex items-center justify-between border-b border-zinc-200 p-4">
-                  <div>
-                    <h2 className="text-base font-semibold">User management</h2>
-                    <p className="text-sm text-zinc-500">
-                      Invite users, assign roles, and monitor status.
-                    </p>
-                  </div>
-                  <Button
-                    onClick={() => setShowInvite((v) => !v)}
-                    disabled={!showInvite && roles.length === 0}
-                  >
-                    {showInvite ? <X className="size-4" /> : <Plus className="size-4" />}
-                    {showInvite ? "Cancel" : "Invite user"}
-                  </Button>
+                  </section>
                 </div>
 
-                {showInvite && (
-                  <form
-                    onSubmit={inviteUser}
-                    className="grid gap-3 border-b border-zinc-200 bg-zinc-50 p-4 sm:grid-cols-3"
-                  >
-                    <input
-                      className={inputClass}
-                      placeholder="Full name"
-                      value={inviteForm.name}
-                      onChange={(e) => setInviteForm({ ...inviteForm, name: e.target.value })}
-                      required
-                    />
-                    <input
-                      className={inputClass}
-                      type="email"
-                      placeholder="Email"
-                      value={inviteForm.email}
-                      onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
-                      required
-                    />
-                    <select
-                      className={inputClass}
-                      aria-label="Assign role"
-                      value={inviteForm.roleId}
-                      onChange={(e) => setInviteForm({ ...inviteForm, roleId: e.target.value })}
-                      required
-                    >
-                      <option value="">Assign role…</option>
-                      {roles.map((role) => (
-                        <option key={role.id} value={role.id}>
-                          {role.name}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="sm:col-span-3">
-                      <Button type="submit" disabled={savingInvite}>
-                        {savingInvite ? "Inviting…" : "Send invite"}
-                      </Button>
-                      <span className="ml-3 text-xs text-zinc-400">
-                        Invited users get a temporary password to reset on first sign-in.
-                      </span>
+                {/* Workspace Admin Modules Grid */}
+                <div className="xl:col-span-1">
+                  <div className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs space-y-4">
+                    <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Enterprise Modules</h3>
+                    <div className="grid gap-2.5">
+                      {settingsModules.map((mod) => {
+                        const ModIcon = mod.icon;
+                        return (
+                          <Link
+                            key={mod.title}
+                            href={mod.href}
+                            className="flex items-center justify-between rounded-xl border border-slate-100 p-3 hover:border-[#233b66]/30 hover:bg-slate-50 transition group"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="flex size-8 items-center justify-center rounded-lg bg-[#233b66]/10 text-[#233b66] group-hover:bg-[#233b66] group-hover:text-white transition">
+                                <ModIcon className="size-4" />
+                              </div>
+                              <div>
+                                <h4 className="text-xs font-bold text-slate-800">{mod.title}</h4>
+                                <p className="text-[11px] text-slate-500">{mod.desc}</p>
+                              </div>
+                            </div>
+                            <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">
+                              {mod.badge}
+                            </span>
+                          </Link>
+                        );
+                      })}
                     </div>
-                  </form>
-                )}
+                  </div>
+                </div>
+              </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[760px] text-left text-sm">
-                    <thead className="bg-zinc-50 text-zinc-500">
-                      <tr>
-                        <th className="px-4 py-3 font-medium">User</th>
-                        <th className="px-4 py-3 font-medium">Email</th>
-                        <th className="px-4 py-3 font-medium">Role</th>
-                        <th className="px-4 py-3 font-medium">Status</th>
-                        <th className="px-4 py-3 font-medium">Joined</th>
-                        <th className="px-4 py-3 font-medium text-right">Actions</th>
+            </div>
+          )}
+
+          {/* TAB 3: ROLES & PERMISSIONS TAB */}
+          {activeTab === "rbac" && isAdmin && (
+            <section className="rounded-xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
+              <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/70 p-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="size-4.5 text-[#233b66]" />
+                    <h2 className="text-sm font-bold text-slate-900">Role-Based Access Control (RBAC)</h2>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">Define team role scopes and granular system permission policies.</p>
+                </div>
+                <Button
+                  onClick={() => setShowRoleForm((v) => !v)}
+                  className="bg-[#233b66] hover:bg-[#192b4b] text-white font-bold text-xs h-8.5 px-3"
+                >
+                  {showRoleForm ? <X className="size-3.5 mr-1" /> : <Plus className="size-3.5 mr-1" />}
+                  {showRoleForm ? "Cancel" : "New Role"}
+                </Button>
+              </div>
+
+              {showRoleForm && (
+                <form
+                  onSubmit={createRole}
+                  className="grid gap-3 border-b border-slate-200 bg-[#233b66]/5 p-4 sm:grid-cols-2"
+                >
+                  <input
+                    className={inputClass}
+                    placeholder="Role name (e.g. Sales Manager)"
+                    value={roleForm.name}
+                    onChange={(e) => setRoleForm({ ...roleForm, name: e.target.value })}
+                    required
+                  />
+                  <input
+                    className={inputClass}
+                    placeholder="Description (optional)"
+                    value={roleForm.description}
+                    onChange={(e) =>
+                      setRoleForm({ ...roleForm, description: e.target.value })
+                    }
+                  />
+                  <div className="sm:col-span-2">
+                    <Button type="submit" disabled={savingRole} className="bg-[#233b66] text-white font-bold text-xs">
+                      {savingRole ? "Creating…" : "Create Role"}
+                    </Button>
+                  </div>
+                </form>
+              )}
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs whitespace-nowrap">
+                  <thead className="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+                    <tr>
+                      <th className="px-5 py-3">Role</th>
+                      <th className="px-5 py-3">Scope Description</th>
+                      <th className="px-5 py-3 text-center">Assigned Users</th>
+                      <th className="px-5 py-3">Permission Keys</th>
+                      <th className="px-5 py-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {roles.map((role) => (
+                      <tr key={role.id} className="hover:bg-slate-50/80 transition-colors">
+                        <td className="px-5 py-3.5 font-bold text-slate-900">
+                          {editingRoleId === role.id ? (
+                            <input
+                              className="h-8 rounded-lg border border-slate-300 px-2 text-xs font-semibold outline-none focus:border-[#233b66]"
+                              value={editRoleForm.name}
+                              onChange={(e) =>
+                                setEditRoleForm({ ...editRoleForm, name: e.target.value })
+                              }
+                            />
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 rounded-md bg-[#233b66]/10 border border-[#233b66]/20 px-2.5 py-1 font-bold text-[#233b66]">
+                              {role.name}
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-5 py-3.5 text-slate-600">
+                          {editingRoleId === role.id ? (
+                            <input
+                              className="h-8 w-full rounded-lg border border-slate-300 px-2 text-xs outline-none focus:border-[#233b66]"
+                              value={editRoleForm.description}
+                              onChange={(e) =>
+                                setEditRoleForm({
+                                  ...editRoleForm,
+                                  description: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            role.description ?? "—"
+                          )}
+                        </td>
+                        <td className="px-5 py-3.5 text-center">
+                          <span className="inline-flex items-center rounded-lg bg-slate-100 border border-slate-200 px-2.5 py-1 text-xs font-bold text-slate-800">
+                            {usersByRole.get(role.id) ?? 0} members
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5 text-slate-600 max-w-xs truncate">
+                          {role.permissionKeys.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {role.permissionKeys.slice(0, 3).map((pk) => (
+                                <span key={pk} className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-mono text-slate-600">
+                                  {pk}
+                                </span>
+                              ))}
+                              {role.permissionKeys.length > 3 && (
+                                <span className="text-[10px] font-bold text-slate-400">+{role.permissionKeys.length - 3} more</span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 font-mono text-[11px]">full_access</span>
+                          )}
+                        </td>
+                        <td className="px-5 py-3.5 text-right">
+                          <div className="flex justify-end gap-1.5">
+                            {editingRoleId === role.id ? (
+                              <>
+                                <Button
+                                  size="icon-sm"
+                                  onClick={() => handleSaveRole(role.id)}
+                                  disabled={savingRoleId === role.id}
+                                  className="bg-emerald-600 text-white"
+                                >
+                                  {savingRoleId === role.id ? (
+                                    <RotateCw className="size-3.5 animate-spin" />
+                                  ) : (
+                                    <Save className="size-3.5" />
+                                  )}
+                                </Button>
+                                <Button
+                                  size="icon-sm"
+                                  variant="outline"
+                                  onClick={() => setEditingRoleId(null)}
+                                >
+                                  <X className="size-3.5" />
+                                </Button>
+                              </>
+                            ) : (
+                              <>
+                                <Button
+                                  size="icon-sm"
+                                  variant="ghost"
+                                  onClick={() => handleStartEditRole(role)}
+                                  className="text-slate-600 hover:text-slate-900"
+                                >
+                                  <Edit2 className="size-3.5" />
+                                </Button>
+                                <Button
+                                  size="icon-sm"
+                                  variant="ghost"
+                                  className="text-rose-500 hover:text-rose-700 hover:bg-rose-50"
+                                  onClick={() => handleDeleteRole(role.id)}
+                                >
+                                  <Trash2 className="size-3.5" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody className="divide-y divide-zinc-200">
-                      {users.map((user) => (
-                        <tr key={user.id} className="hover:bg-zinc-50/50 transition">
-                          <td className="px-4 py-3 font-medium">{user.name}</td>
-                          <td className="px-4 py-3 text-zinc-600">{user.email}</td>
-                          <td className="px-4 py-3 text-zinc-600">
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          {/* TAB 4: USER DIRECTORY MANAGEMENT TAB */}
+          {activeTab === "users" && isAdmin && (
+            <section className="rounded-xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
+              <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/70 p-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Users className="size-4.5 text-[#233b66]" />
+                    <h2 className="text-sm font-bold text-slate-900">Workspace User Directory</h2>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">Invite team members, assign workspace roles, and manage access status.</p>
+                </div>
+                <Button
+                  onClick={() => setShowInvite((v) => !v)}
+                  disabled={!showInvite && roles.length === 0}
+                  className="bg-[#233b66] hover:bg-[#192b4b] text-white font-bold text-xs h-8.5 px-3"
+                >
+                  {showInvite ? <X className="size-3.5 mr-1" /> : <Plus className="size-3.5 mr-1" />}
+                  {showInvite ? "Cancel" : "Invite User"}
+                </Button>
+              </div>
+
+              {showInvite && (
+                <form
+                  onSubmit={inviteUser}
+                  className="grid gap-3 border-b border-slate-200 bg-[#233b66]/5 p-4 sm:grid-cols-3"
+                >
+                  <input
+                    className={inputClass}
+                    placeholder="Full Name"
+                    value={inviteForm.name}
+                    onChange={(e) => setInviteForm({ ...inviteForm, name: e.target.value })}
+                    required
+                  />
+                  <input
+                    className={inputClass}
+                    type="email"
+                    placeholder="Email Address"
+                    value={inviteForm.email}
+                    onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
+                    required
+                  />
+                  <select
+                    className={inputClass}
+                    aria-label="Assign role"
+                    value={inviteForm.roleId}
+                    onChange={(e) => setInviteForm({ ...inviteForm, roleId: e.target.value })}
+                    required
+                  >
+                    <option value="">Assign role…</option>
+                    {roles.map((role) => (
+                      <option key={role.id} value={role.id}>
+                        {role.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="sm:col-span-3 flex items-center justify-between">
+                    <Button type="submit" disabled={savingInvite} className="bg-[#233b66] text-white font-bold text-xs">
+                      {savingInvite ? "Sending Invite…" : "Send Invite"}
+                    </Button>
+                    <span className="text-xs text-slate-500 font-medium">
+                      Invited users receive an email link with a temporary sign-in token.
+                    </span>
+                  </div>
+                </form>
+              )}
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs whitespace-nowrap">
+                  <thead className="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+                    <tr>
+                      <th className="px-5 py-3">User</th>
+                      <th className="px-5 py-3">Email Address</th>
+                      <th className="px-5 py-3">Assigned Role</th>
+                      <th className="px-5 py-3">Status</th>
+                      <th className="px-5 py-3">Joined Date</th>
+                      <th className="px-5 py-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {users.map((user) => {
+                      const userInitials = user.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()
+                        .slice(0, 2);
+
+                      return (
+                        <tr key={user.id} className="hover:bg-slate-50/80 transition-colors">
+                          <td className="px-5 py-3.5 font-bold text-slate-900">
+                            <div className="flex items-center gap-2.5">
+                              <div className="flex size-7 items-center justify-center rounded-full bg-[#233b66] text-[11px] font-extrabold text-white">
+                                {userInitials}
+                              </div>
+                              <span>{user.name}</span>
+                            </div>
+                          </td>
+                          <td className="px-5 py-3.5 text-slate-600 font-medium">{user.email}</td>
+                          <td className="px-5 py-3.5">
                             <select
-                              className="h-8 rounded border border-zinc-200 px-2 text-sm bg-white outline-none focus:border-zinc-400 disabled:opacity-50"
+                              className="h-8 rounded-lg border border-slate-200 px-2 text-xs font-semibold bg-white outline-none focus:border-[#233b66] disabled:opacity-50"
                               value={user.roleId ?? ""}
                               onChange={(e) => handleUpdateUserRole(user.id, e.target.value)}
                               disabled={updatingUserRoleId === user.id}
@@ -909,29 +1164,30 @@ export default function SettingsPage() {
                               ))}
                             </select>
                             {updatingUserRoleId === user.id && (
-                              <RotateCw className="size-3.5 animate-spin inline ml-2 text-zinc-500" />
+                              <RotateCw className="size-3.5 animate-spin inline ml-2 text-slate-500" />
                             )}
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-5 py-3.5">
                             <span
                               className={cn(
-                                "rounded-md px-2 py-1 text-xs font-medium",
+                                "inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-bold uppercase tracking-wider shadow-2xs",
                                 user.status === "active"
-                                  ? "bg-emerald-100 text-emerald-700"
-                                  : "bg-zinc-100 text-zinc-600"
+                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                  : "bg-slate-100 text-slate-600 border-slate-200"
                               )}
                             >
+                              {user.status === "active" && <CheckCircle2 className="size-3 text-emerald-600" />}
                               {user.status}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-zinc-600">
+                          <td className="px-5 py-3.5 text-slate-500 font-medium">
                             {new Date(user.createdAt).toLocaleDateString()}
                           </td>
-                          <td className="px-4 py-3 text-right">
+                          <td className="px-5 py-3.5 text-right">
                             <Button
                               variant="ghost"
                               size="icon-sm"
-                              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                              className="text-rose-500 hover:text-rose-700 hover:bg-rose-50"
                               onClick={() => handleDeleteUser(user.id)}
                               disabled={deletingUserId === user.id}
                             >
@@ -943,14 +1199,14 @@ export default function SettingsPage() {
                             </Button>
                           </td>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-            </>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </section>
           )}
-        </>
+        </div>
       )}
 
       {/* Custom Confirmation Dialog */}

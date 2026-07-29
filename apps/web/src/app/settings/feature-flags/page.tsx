@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, RotateCw, ToggleLeft, ToggleRight } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Check, RotateCw, ToggleLeft, ToggleRight } from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
@@ -70,9 +71,16 @@ export default function FeatureFlagsPage() {
   return (
     <DashboardShell
       title="Feature flags"
-      description="Tenant-scoped feature rollout controls for SaaS capabilities."
+      description="System rollout controls, beta features, and tenant capabilities."
       active="Feature flags"
     >
+      <Link
+        href="/settings"
+        className="mb-4 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#233b66] transition-colors"
+      >
+        <ArrowLeft className="size-4" />
+        Back to Settings
+      </Link>
       <div className="grid gap-4 md:grid-cols-3 mb-6">
         <StatCard label="Enabled flags" value={`${enabledCount}/${flags.length}`} detail="Tenant-visible capabilities" />
         <StatCard label="Beta controls" value={String(betaCount)} detail="Limited cohort rollout" />

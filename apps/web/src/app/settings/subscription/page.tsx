@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
 import { StatCard } from "@/components/ui/stat-card";
@@ -121,10 +123,17 @@ export default function SubscriptionPage() {
 
   return (
     <DashboardShell
-      title="Subscription plans"
-      description="Plan selection and feature usage for this tenant."
-      active="Plans"
+      title="Subscription & Billing"
+      description="Subscription plans, seat usage limits, and invoice statements."
+      active="Subscription"
     >
+      <Link
+        href="/settings"
+        className="mb-4 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#233b66] transition-colors"
+      >
+        <ArrowLeft className="size-4" />
+        Back to Settings
+      </Link>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {saasMetrics.map((metric) => (
           <StatCard key={metric.label} {...metric} />

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { apiFetch } from "@/lib/api";
 
@@ -67,9 +69,16 @@ export default function AuditLogsPage() {
   return (
     <DashboardShell
       title="Audit logs"
-      description="Security, tenant, and administration events."
+      description="Immutable event trail for security, governance, and compliance."
       active="Audit logs"
     >
+      <Link
+        href="/settings"
+        className="mb-4 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#233b66] transition-colors"
+      >
+        <ArrowLeft className="size-4" />
+        Back to Settings
+      </Link>
       <section className="rounded-lg border border-zinc-200 bg-white">
         <div className="border-b border-zinc-200 p-4">
           <h2 className="text-base font-semibold">Event timeline</h2>
