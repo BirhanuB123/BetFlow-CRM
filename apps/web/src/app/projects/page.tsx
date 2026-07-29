@@ -335,7 +335,7 @@ export default function ProjectsPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <Building2 className="size-5 text-indigo-600" />
+                <Building2 className="size-5 text-[#233b66]" />
                 <h2 className="text-lg font-bold text-slate-900">Addis Ababa Real Estate Projects</h2>
               </div>
               <p className="mt-1 text-sm text-slate-500">
@@ -347,7 +347,7 @@ export default function ProjectsPage() {
                 if (showForm) setShowForm(false);
                 else openNewForm();
               }}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition-all"
+              className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium shadow-sm transition-all"
             >
               {showForm ? <X className="size-4 mr-1.5" /> : <Plus className="size-4 mr-1.5" />}
               {showForm ? "Cancel Intake" : "New Real Estate Project"}
@@ -358,10 +358,10 @@ export default function ProjectsPage() {
           {showForm && (
             <form
               onSubmit={handleSave}
-              className="mt-6 rounded-xl border border-indigo-100 bg-gradient-to-b from-indigo-50/40 to-slate-50/50 p-5 shadow-inner"
+              className="mt-6 rounded-xl border border-[#233b66]/20 bg-gradient-to-b from-[#233b66]/5 to-slate-50/50 p-5 shadow-inner"
             >
-              <h3 className="text-xs font-bold text-indigo-950 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <Sparkles className="size-4 text-indigo-600" />
+              <h3 className="text-xs font-bold text-[#233b66] uppercase tracking-wider mb-4 flex items-center gap-2">
+                <Sparkles className="size-4 text-[#233b66]" />
                 {editingProjectId ? "Edit Real Estate Project Details & Renderings" : "Project Specification & Architectural Details"}
               </h3>
 
@@ -651,7 +651,7 @@ export default function ProjectsPage() {
               onClick={() => setFilterCategory("ALL")}
               className={cn(
                 "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap",
-                filterCategory === "ALL" ? "bg-indigo-600 text-white shadow-sm" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                filterCategory === "ALL" ? "bg-[#233b66] text-white shadow-sm" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
               )}
             >
               All Projects ({projects.length})
@@ -660,28 +660,28 @@ export default function ProjectsPage() {
               onClick={() => setFilterCategory("RESIDENTIAL_TOWER")}
               className={cn(
                 "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap",
-                filterCategory === "RESIDENTIAL_TOWER" ? "bg-indigo-600 text-white shadow-sm" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                filterCategory === "RESIDENTIAL_TOWER" ? "bg-[#233b66] text-white shadow-sm" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
               )}
             >
-              Residential Towers
+              Residential Towers ({projects.filter((p) => p.category === "RESIDENTIAL_TOWER").length})
             </button>
             <button
               onClick={() => setFilterCategory("LUXURY_VILLA_COMPOUND")}
               className={cn(
                 "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap",
-                filterCategory === "LUXURY_VILLA_COMPOUND" ? "bg-indigo-600 text-white shadow-sm" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                filterCategory === "LUXURY_VILLA_COMPOUND" ? "bg-[#233b66] text-white shadow-sm" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
               )}
             >
-              Villas
+              Villa Compounds ({projects.filter((p) => p.category === "LUXURY_VILLA_COMPOUND").length})
             </button>
             <button
               onClick={() => setFilterCategory("COMMERCIAL_PLAZA")}
               className={cn(
                 "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap",
-                filterCategory === "COMMERCIAL_PLAZA" ? "bg-indigo-600 text-white shadow-sm" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                filterCategory === "COMMERCIAL_PLAZA" ? "bg-[#233b66] text-white shadow-sm" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
               )}
             >
-              Commercial Plazas
+              Commercial Plazas ({projects.filter((p) => p.category === "COMMERCIAL_PLAZA").length})
             </button>
           </div>
 

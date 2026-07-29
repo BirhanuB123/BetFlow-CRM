@@ -202,32 +202,32 @@ export default function ReservationsPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <FilePlus2 className="size-5 text-indigo-600" />
-                <h2 className="text-lg font-bold text-slate-900">Ethiopian Real Estate Unit Holds</h2>
+                <FilePlus2 className="size-5 text-[#233b66]" />
+                <h2 className="text-lg font-bold text-slate-900">Unit Reservation Agreements & Deposits</h2>
               </div>
               <p className="mt-1 text-sm text-slate-500">
-                Freeze units post-site-visit, collect deposit receipts, and manage 7/14-day expiration windows.
+                Manage holding deposits, unit reservation locks, validity deadlines, and contract conversion.
               </p>
             </div>
             <Button
               onClick={() => setShowForm((v) => !v)}
               disabled={!showForm && (customers.length === 0 || availableUnits.length === 0)}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition-all"
+              className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium shadow-sm transition-all"
             >
               {showForm ? <X className="size-4 mr-1.5" /> : <Plus className="size-4 mr-1.5" />}
-              {showForm ? "Cancel Intake" : "New Unit Reservation"}
+              {showForm ? "Cancel Intake" : "Create Reservation"}
             </Button>
           </div>
 
-          {/* New Reservation Form */}
+          {/* New Reservation Intake Form */}
           {showForm && (
             <form
               onSubmit={handleCreate}
-              className="mt-6 rounded-xl border border-indigo-100 bg-gradient-to-b from-indigo-50/40 to-slate-50/50 p-5 shadow-inner"
+              className="mt-6 rounded-xl border border-[#233b66]/20 bg-gradient-to-b from-[#233b66]/5 to-slate-50/50 p-5 shadow-inner"
             >
-              <h3 className="text-xs font-bold text-indigo-950 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <Sparkles className="size-4 text-indigo-600" />
-                Unit Hold & Deposit Receipt Intake
+              <h3 className="text-xs font-bold text-[#233b66] uppercase tracking-wider mb-4 flex items-center gap-2">
+                <Sparkles className="size-4 text-[#233b66]" />
+                Unit Lock & Holding Deposit Details
               </h3>
 
               <div className="grid gap-4 sm:grid-cols-3">

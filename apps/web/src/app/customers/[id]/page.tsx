@@ -3,16 +3,35 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Building2, Mail, Phone, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Building2,
+  Mail,
+  Phone,
+  Trash2,
+  Copy,
+  Check,
+  Printer,
+  Calendar,
+  DollarSign,
+  FileText,
+  BookmarkCheck,
+  WalletCards,
+  CheckCircle2,
+  Briefcase,
+  UserCheck,
+  Sparkles,
+  ExternalLink,
+} from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
-import { StatCard } from "@/components/ui/stat-card";
 import { ActivityTimeline } from "@/components/activity/activity-timeline";
 import { NotesPanel } from "@/components/notes/notes-panel";
 import { DocumentsPanel } from "@/components/documents/documents-panel";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
+import { printReportDocument } from "@/lib/print";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -63,21 +82,29 @@ function money(value: string | number) {
   return formatCurrency(value);
 }
 
-const badge = "rounded-md px-2 py-1 text-xs font-medium";
 const statusTone: Record<string, string> = {
-  SIGNED: "bg-emerald-100 text-emerald-700",
-  APPROVED: "bg-emerald-100 text-emerald-700",
-  COMPLETED: "bg-emerald-100 text-emerald-700",
-  PENDING: "bg-amber-100 text-amber-700",
-  PENDING_SIGNATURE: "bg-amber-100 text-amber-700",
-  CANCELLED: "bg-rose-100 text-rose-700",
-  EXPIRED: "bg-zinc-200 text-zinc-600",
+  SIGNED: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  APPROVED: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  COMPLETED: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  PAID: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  PENDING: "bg-amber-50 text-amber-700 border-amber-200",
+  PENDING_SIGNATURE: "bg-amber-50 text-amber-700 border-amber-200",
+  CANCELLED: "bg-rose-50 text-rose-700 border-rose-200",
+  EXPIRED: "bg-slate-100 text-slate-600 border-slate-200",
 };
 
 function StatusBadge({ status }: { status: string }) {
   return (
-    <span className={cn(badge, statusTone[status] ?? "bg-zinc-100 text-zinc-700")}>
-      {status}
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-bold shadow-2xs uppercase tracking-wider",
+        statusTone[status] ?? "bg-slate-100 text-slate-700 border-slate-200"
+      )}
+    >
+      {status === "SIGNED" || status === "APPROVED" || status === "COMPLETED" ? (
+        <CheckCircle2 className="size-3 text-emerald-600" />
+      ) : null}
+      {status.replace(/_/g, " ")}
     </span>
   );
 }
@@ -90,7 +117,8 @@ export default function CustomerDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
-  // Bumped when a note is added/removed to force the timeline to refetch.
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const [copiedPhone, setCopiedPhone] = useState(false);
   const [timelineKey, setTimelineKey] = useState(0);
 
   const load = useCallback(async () => {
@@ -100,7 +128,7 @@ export default function CustomerDetailPage() {
       const data = await apiFetch<CustomerDetail>(`/customers/${id}`);
       setCustomer(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load customer");
+      setError(err instanceof Error ? err.message : "Failed to load customer details");
     } finally {
       setLoading(false);
     }
@@ -114,7 +142,12 @@ export default function CustomerDetailPage() {
 
   const handleDelete = async () => {
     if (!customer) return;
-    if (!window.confirm(`Are you sure you want to delete ${customer.firstName} ${customer.lastName}?`)) return;
+    if (
+      !window.confirm(
+        `Are you sure you want to delete ${customer.firstName} ${customer.lastName}?`
+      )
+    )
+      return;
     setDeleting(true);
     setError(null);
     try {
@@ -126,196 +159,407 @@ export default function CustomerDetailPage() {
     }
   };
 
+  const copyEmail = () => {
+    if (!customer?.email) return;
+    navigator.clipboard.writeText(customer.email);
+    setCopiedEmail(true);
+    setTimeout(() => setCopiedEmail(false), 2000);
+  };
+
+  const copyPhone = () => {
+    if (!customer?.phone) return;
+    navigator.clipboard.writeText(customer.phone);
+    setCopiedPhone(true);
+    setTimeout(() => setCopiedPhone(false), 2000);
+  };
+
+  const handlePrint = () => {
+    if (!customer) return;
+    printReportDocument({
+      title: `Customer Record: ${customer.firstName} ${customer.lastName}`,
+      subtitle: `Email: ${customer.email || "N/A"} | Phone: ${customer.phone || "N/A"} | Company: ${customer.account?.name || "Independent"}`,
+      metrics: [
+        { label: "Pipeline Value", value: money(totals.pipeline), detail: `${customer.deals.length} active deals` },
+        { label: "Collected Payments", value: money(totals.paid), detail: `${customer.payments.length} transactions` },
+        { label: "Sale Contracts", value: String(customer.contracts.length), detail: "Active agreements" },
+        { label: "Unit Reservations", value: String(customer.reservations.length), detail: "Reserved units" },
+      ],
+      columns: ["Section", "Summary Count", "Total Value", "Key Status"],
+      rows: [
+        ["Deals Pipeline", `${customer.deals.length} Deals`, money(totals.pipeline), "Active Commercial Interest"],
+        ["Contracts", `${customer.contracts.length} Agreements`, money(totals.contractTotal), "Active Legal Bindings"],
+        ["Reservations", `${customer.reservations.length} Holds`, money(totals.reservationTotal), "Unit Reserves"],
+        ["Payments", `${customer.payments.length} Records`, money(totals.paid), "Verified Receipts"],
+      ],
+    });
+  };
+
   const totals = useMemo(() => {
-    if (!customer) return { pipeline: 0, paid: 0 };
+    if (!customer) return { pipeline: 0, paid: 0, contractTotal: 0, reservationTotal: 0 };
     const pipeline = customer.deals.reduce((s, d) => s + Number(d.value || 0), 0);
     const paid = customer.payments
-      .filter((p) => p.status === "COMPLETED")
+      .filter((p) => p.status === "COMPLETED" || p.status === "PAID")
       .reduce((s, p) => s + Number(p.amount || 0), 0);
-    return { pipeline, paid };
+    const contractTotal = customer.contracts.reduce((s, c) => s + Number(c.totalAmt || 0), 0);
+    const reservationTotal = customer.reservations.reduce((s, r) => s + Number(r.amount || 0), 0);
+    return { pipeline, paid, contractTotal, reservationTotal };
+  }, [customer]);
+
+  const initials = useMemo(() => {
+    if (!customer) return "C";
+    return `${customer.firstName[0] || ""}${customer.lastName[0] || ""}`.toUpperCase();
   }, [customer]);
 
   return (
     <DashboardShell
-      title={customer ? `${customer.firstName} ${customer.lastName}` : "Customer"}
-      description="Full relationship history across deals, contracts, and payments."
+      title={customer ? `${customer.firstName} ${customer.lastName}` : "Customer Details"}
+      description="Full relationship history across deals, contracts, reservations, and payments."
       active="Contacts"
     >
-      <Link
-        href="/customers"
-        className="mb-4 inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900"
-      >
-        <ArrowLeft className="size-4" />
-        Back to customers
-      </Link>
+      <div className="space-y-6">
+        {/* Back Navigation Bar */}
+        <div className="flex items-center justify-between">
+          <Link
+            href="/customers"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-indigo-600 transition-colors"
+          >
+            <ArrowLeft className="size-4" />
+            Back to Customer Directory
+          </Link>
 
-      {error && (
-        <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-          {error}
-        </p>
-      )}
+          {customer && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePrint}
+                className="h-8.5 text-xs font-semibold border-slate-200 text-slate-700 hover:bg-slate-50"
+              >
+                <Printer className="size-3.5 mr-1.5 text-slate-500" />
+                Print Record
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={deleting}
+                onClick={handleDelete}
+                className="h-8.5 text-xs font-semibold text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+              >
+                <Trash2 className="size-3.5 mr-1.5" />
+                {deleting ? "Deleting..." : "Delete Contact"}
+              </Button>
+            </div>
+          )}
+        </div>
 
-      {loading ? (
-        <p className="p-6 text-sm text-zinc-500">Loading customer…</p>
-      ) : !customer ? (
-        <p className="p-6 text-sm text-zinc-500">Customer not found.</p>
-      ) : (
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-2">
-            {/* Header card */}
-            <section className="rounded-lg border border-zinc-200 bg-white p-5">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h2 className="text-lg font-semibold">
-                    {customer.firstName} {customer.lastName}
-                  </h2>
-                  <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-zinc-600">
-                    {customer.email && (
-                      <span className="inline-flex items-center gap-1.5">
-                        <Mail className="size-4 text-zinc-400" />
-                        {customer.email}
-                      </span>
-                    )}
-                    {customer.phone && (
-                      <span className="inline-flex items-center gap-1.5">
-                        <Phone className="size-4 text-zinc-400" />
-                        {customer.phone}
-                      </span>
-                    )}
-                    {customer.account && (
-                      <span className="inline-flex items-center gap-1.5">
-                        <Building2 className="size-4 text-zinc-400" />
-                        <Link href={`/accounts/${customer.account.id}`} className="text-[#334cff] hover:underline">
-                          {customer.account.name}
-                        </Link>
-                      </span>
-                    )}
-                    <span className="text-zinc-400">
-                      Customer since {new Date(customer.createdAt).toLocaleDateString()}
-                    </span>
+        {error && (
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-semibold text-rose-700 shadow-2xs">
+            {error}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="flex h-64 items-center justify-center rounded-xl border border-slate-200/80 bg-white shadow-2xs">
+            <p className="text-xs font-semibold text-slate-500">Loading customer profile…</p>
+          </div>
+        ) : !customer ? (
+          <div className="flex h-64 items-center justify-center rounded-xl border border-slate-200/80 bg-white shadow-2xs">
+            <p className="text-xs font-semibold text-slate-500">Customer record not found.</p>
+          </div>
+        ) : (
+          <div className="grid gap-6 lg:grid-cols-3">
+            {/* Main Left Content Panel */}
+            <div className="space-y-6 lg:col-span-2">
+              
+              {/* Header Profile Card */}
+              <section className="relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-6 shadow-xs">
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-start gap-4">
+                    {/* Initials Avatar */}
+                    <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0E6E63] to-teal-700 text-lg font-extrabold text-white shadow-md">
+                      {initials}
+                    </div>
+
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                          {customer.firstName} {customer.lastName}
+                        </h2>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 shadow-2xs">
+                          <UserCheck className="size-3 text-emerald-600" />
+                          Active Client
+                        </span>
+                      </div>
+
+                      {/* Contact Info Pills */}
+                      <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-600">
+                        {customer.email && (
+                          <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1">
+                            <Mail className="size-3.5 text-slate-400" />
+                            <a
+                              href={`mailto:${customer.email}`}
+                              className="text-slate-700 hover:text-indigo-600 transition"
+                            >
+                              {customer.email}
+                            </a>
+                            <button
+                              onClick={copyEmail}
+                              className="ml-1 text-slate-400 hover:text-slate-600"
+                              title="Copy Email"
+                            >
+                              {copiedEmail ? <Check className="size-3 text-emerald-600" /> : <Copy className="size-3" />}
+                            </button>
+                          </div>
+                        )}
+
+                        {customer.phone && (
+                          <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1">
+                            <Phone className="size-3.5 text-slate-400" />
+                            <a
+                              href={`tel:${customer.phone}`}
+                              className="text-slate-700 hover:text-indigo-600 transition"
+                            >
+                              {customer.phone}
+                            </a>
+                            <button
+                              onClick={copyPhone}
+                              className="ml-1 text-slate-400 hover:text-slate-600"
+                              title="Copy Phone"
+                            >
+                              {copiedPhone ? <Check className="size-3 text-emerald-600" /> : <Copy className="size-3" />}
+                            </button>
+                          </div>
+                        )}
+
+                        {customer.account && (
+                          <div className="flex items-center gap-1.5 rounded-lg border border-indigo-200/80 bg-indigo-50/60 px-2.5 py-1 text-indigo-700 font-bold">
+                            <Building2 className="size-3.5 text-indigo-500" />
+                            <Link href={`/accounts/${customer.account.id}`} className="hover:underline">
+                              {customer.account.name}
+                            </Link>
+                          </div>
+                        )}
+                      </div>
+
+                      <p className="mt-2 text-[11px] text-slate-400">
+                        Customer relationship established on {new Date(customer.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={deleting}
-                  onClick={handleDelete}
-                  className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 font-medium"
-                >
-                  <Trash2 className="size-4 mr-1.5" />
-                  {deleting ? "Deleting..." : "Delete Contact"}
-                </Button>
-              </div>
-            </section>
+              </section>
 
-            {/* Summary */}
-            <div className="grid gap-4 sm:grid-cols-4">
-              <StatCard label="Pipeline" value={money(totals.pipeline)} detail={`${customer.deals.length} deals`} />
-              <StatCard label="Collected" value={money(totals.paid)} detail={`${customer.payments.length} payments`} />
-              <StatCard label="Contracts" value={String(customer.contracts.length)} detail="Sale agreements" />
-              <StatCard label="Reservations" value={String(customer.reservations.length)} detail="Unit holds" />
+              {/* Stat Cards Overview Grid */}
+              <div className="grid gap-4 sm:grid-cols-4">
+                {/* Pipeline */}
+                <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-2xs transition hover:shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Pipeline</span>
+                    <div className="flex size-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100">
+                      <Briefcase className="size-3.5" />
+                    </div>
+                  </div>
+                  <h3 className="mt-1.5 text-lg font-extrabold text-slate-900">{money(totals.pipeline)}</h3>
+                  <p className="mt-1 text-[11px] font-semibold text-slate-500">{customer.deals.length} active deals</p>
+                </div>
+
+                {/* Collected */}
+                <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-2xs transition hover:shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Collected</span>
+                    <div className="flex size-7 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100">
+                      <CheckCircle2 className="size-3.5" />
+                    </div>
+                  </div>
+                  <h3 className="mt-1.5 text-lg font-extrabold text-emerald-600">{money(totals.paid)}</h3>
+                  <p className="mt-1 text-[11px] font-semibold text-slate-500">{customer.payments.length} payments</p>
+                </div>
+
+                {/* Contracts */}
+                <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-2xs transition hover:shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Contracts</span>
+                    <div className="flex size-7 items-center justify-center rounded-lg bg-purple-50 text-purple-600 border border-purple-100">
+                      <FileText className="size-3.5" />
+                    </div>
+                  </div>
+                  <h3 className="mt-1.5 text-lg font-extrabold text-slate-900">{customer.contracts.length}</h3>
+                  <p className="mt-1 text-[11px] font-semibold text-slate-500">Sale agreements</p>
+                </div>
+
+                {/* Reservations */}
+                <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-2xs transition hover:shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Reservations</span>
+                    <div className="flex size-7 items-center justify-center rounded-lg bg-amber-50 text-amber-600 border border-amber-100">
+                      <BookmarkCheck className="size-3.5" />
+                    </div>
+                  </div>
+                  <h3 className="mt-1.5 text-lg font-extrabold text-slate-900">{customer.reservations.length}</h3>
+                  <p className="mt-1 text-[11px] font-semibold text-slate-500">Unit holds</p>
+                </div>
+              </div>
+
+              {/* 1. Deals Section */}
+              <section className="rounded-xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
+                <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/70 p-4">
+                  <div className="flex items-center gap-2">
+                    <WalletCards className="size-4 text-indigo-600" />
+                    <h3 className="text-sm font-bold text-slate-900">Deals ({customer.deals.length})</h3>
+                  </div>
+                  <Link href="/deals" className="text-xs font-semibold text-indigo-600 hover:underline">
+                    Manage Deals →
+                  </Link>
+                </div>
+                {customer.deals.length === 0 ? (
+                  <p className="p-6 text-center text-xs font-medium text-slate-500">No active deals associated with this customer.</p>
+                ) : (
+                  <CrmTable
+                    columns={["Deal Name", "Unit", "Value", "Stage", "Probability"]}
+                    rows={customer.deals.map((deal) => [
+                      <span key="n" className="font-bold text-slate-900">{deal.name}</span>,
+                      deal.unit ? (
+                        <span key="u" className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700">
+                          Unit {deal.unit.unitNumber}
+                        </span>
+                      ) : (
+                        "—"
+                      ),
+                      <span key="v" className="font-extrabold text-indigo-600">{money(deal.value)}</span>,
+                      <span key="s" className="inline-flex items-center rounded-md bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-xs font-bold text-indigo-700">
+                        {deal.stage.name}
+                      </span>,
+                      <div key="p" className="flex items-center gap-2">
+                        <div className="w-12 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                          <div className="h-full rounded-full bg-indigo-600" style={{ width: `${deal.stage.probability}%` }} />
+                        </div>
+                        <span className="font-bold text-slate-700 text-xs">{deal.stage.probability}%</span>
+                      </div>,
+                    ])}
+                  />
+                )}
+              </section>
+
+              {/* 2. Contracts Section */}
+              <section className="rounded-xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
+                <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/70 p-4">
+                  <div className="flex items-center gap-2">
+                    <FileText className="size-4 text-purple-600" />
+                    <h3 className="text-sm font-bold text-slate-900">Contracts ({customer.contracts.length})</h3>
+                  </div>
+                  <Link href="/contracts" className="text-xs font-semibold text-indigo-600 hover:underline">
+                    View Contracts →
+                  </Link>
+                </div>
+                {customer.contracts.length === 0 ? (
+                  <p className="p-6 text-center text-xs font-medium text-slate-500">No active contracts for this customer.</p>
+                ) : (
+                  <CrmTable
+                    columns={["Unit", "Total Amount", "Start Date", "Status"]}
+                    rows={customer.contracts.map((contract) => [
+                      contract.unit ? (
+                        <span key="u" className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700">
+                          Unit {contract.unit.unitNumber}
+                        </span>
+                      ) : (
+                        "—"
+                      ),
+                      <span key="t" className="font-extrabold text-slate-900">{money(contract.totalAmt)}</span>,
+                      new Date(contract.startDate).toLocaleDateString(),
+                      <StatusBadge key="s" status={contract.status} />,
+                    ])}
+                  />
+                )}
+              </section>
+
+              {/* 3. Reservations Section */}
+              <section className="rounded-xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
+                <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/70 p-4">
+                  <div className="flex items-center gap-2">
+                    <BookmarkCheck className="size-4 text-amber-600" />
+                    <h3 className="text-sm font-bold text-slate-900">Reservations ({customer.reservations.length})</h3>
+                  </div>
+                  <Link href="/reservations" className="text-xs font-semibold text-indigo-600 hover:underline">
+                    View Reservations →
+                  </Link>
+                </div>
+                {customer.reservations.length === 0 ? (
+                  <p className="p-6 text-center text-xs font-medium text-slate-500">No unit reservations found.</p>
+                ) : (
+                  <CrmTable
+                    columns={["Unit", "Deposit Amount", "Date", "Status"]}
+                    rows={customer.reservations.map((reservation) => [
+                      reservation.unit ? (
+                        <span key="u" className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700">
+                          Unit {reservation.unit.unitNumber}
+                        </span>
+                      ) : (
+                        "—"
+                      ),
+                      <span key="a" className="font-bold text-slate-900">{money(reservation.amount)}</span>,
+                      new Date(reservation.date).toLocaleDateString(),
+                      <StatusBadge key="s" status={reservation.status} />,
+                    ])}
+                  />
+                )}
+              </section>
+
+              {/* 4. Payments Section */}
+              <section className="rounded-xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
+                <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/70 p-4">
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="size-4 text-emerald-600" />
+                    <h3 className="text-sm font-bold text-slate-900">Payments ({customer.payments.length})</h3>
+                  </div>
+                  <Link href="/payments" className="text-xs font-semibold text-indigo-600 hover:underline">
+                    Payment Ledger →
+                  </Link>
+                </div>
+                {customer.payments.length === 0 ? (
+                  <p className="p-6 text-center text-xs font-medium text-slate-500">No payment transactions recorded.</p>
+                ) : (
+                  <CrmTable
+                    columns={["Amount", "Method", "Applied Against", "Date", "Status"]}
+                    rows={customer.payments.map((payment) => [
+                      <span key="a" className="font-extrabold text-emerald-600">{money(payment.amount)}</span>,
+                      <span key="m" className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-700 uppercase">
+                        {payment.method}
+                      </span>,
+                      payment.contractId ? "Contract" : payment.reservationId ? "Reservation" : "—",
+                      new Date(payment.date).toLocaleDateString(),
+                      <StatusBadge key="s" status={payment.status} />,
+                    ])}
+                  />
+                )}
+              </section>
+
             </div>
 
-            {/* Deals */}
-            <section className="rounded-lg border border-zinc-200 bg-white">
-              <div className="border-b border-zinc-200 p-4">
-                <h3 className="text-base font-semibold">Deals</h3>
+            {/* Right Side Panel: Documents, Notes, Activity */}
+            <div className="space-y-6 lg:col-span-1">
+              <div className="rounded-xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
+                <DocumentsPanel entityType="CUSTOMER" entityId={customer.id} title="Customer Documents" />
               </div>
-              {customer.deals.length === 0 ? (
-                <p className="p-6 text-sm text-zinc-500">No deals.</p>
-              ) : (
-                <CrmTable
-                  columns={["Deal", "Unit", "Value", "Stage", "Probability"]}
-                  rows={customer.deals.map((deal) => [
-                    <span key="n" className="font-medium">{deal.name}</span>,
-                    deal.unit ? `Unit ${deal.unit.unitNumber}` : "—",
-                    money(deal.value),
-                    deal.stage.name,
-                    `${deal.stage.probability}%`,
-                  ])}
+              <div className="rounded-xl border border-slate-200/80 bg-white shadow-xs overflow-hidden p-4">
+                <NotesPanel
+                  entityType="Customer"
+                  entityId={customer.id}
+                  onChange={() => setTimelineKey((k) => k + 1)}
                 />
-              )}
-            </section>
+              </div>
+              <div className="rounded-xl border border-slate-200/80 bg-white shadow-xs overflow-hidden p-4">
+                <ActivityTimeline
+                  key={timelineKey}
+                  entityType="Customer"
+                  entityId={customer.id}
+                  title="Customer Activity History"
+                />
+              </div>
+            </div>
 
-            {/* Contracts */}
-            <section className="rounded-lg border border-zinc-200 bg-white">
-              <div className="border-b border-zinc-200 p-4">
-                <h3 className="text-base font-semibold">Contracts</h3>
-              </div>
-              {customer.contracts.length === 0 ? (
-                <p className="p-6 text-sm text-zinc-500">No contracts.</p>
-              ) : (
-                <CrmTable
-                  columns={["Unit", "Total", "Start", "Status"]}
-                  rows={customer.contracts.map((contract) => [
-                    contract.unit ? `Unit ${contract.unit.unitNumber}` : "—",
-                    money(contract.totalAmt),
-                    new Date(contract.startDate).toLocaleDateString(),
-                    <StatusBadge key="s" status={contract.status} />,
-                  ])}
-                />
-              )}
-            </section>
-
-            {/* Reservations */}
-            <section className="rounded-lg border border-zinc-200 bg-white">
-              <div className="border-b border-zinc-200 p-4">
-                <h3 className="text-base font-semibold">Reservations</h3>
-              </div>
-              {customer.reservations.length === 0 ? (
-                <p className="p-6 text-sm text-zinc-500">No reservations.</p>
-              ) : (
-                <CrmTable
-                  columns={["Unit", "Deposit", "Date", "Status"]}
-                  rows={customer.reservations.map((reservation) => [
-                    reservation.unit ? `Unit ${reservation.unit.unitNumber}` : "—",
-                    money(reservation.amount),
-                    new Date(reservation.date).toLocaleDateString(),
-                    <StatusBadge key="s" status={reservation.status} />,
-                  ])}
-                />
-              )}
-            </section>
-
-            {/* Payments */}
-            <section className="rounded-lg border border-zinc-200 bg-white">
-              <div className="border-b border-zinc-200 p-4">
-                <h3 className="text-base font-semibold">Payments</h3>
-              </div>
-              {customer.payments.length === 0 ? (
-                <p className="p-6 text-sm text-zinc-500">No payments.</p>
-              ) : (
-                <CrmTable
-                  columns={["Amount", "Method", "Against", "Date", "Status"]}
-                  rows={customer.payments.map((payment) => [
-                    <span key="a" className="font-medium">{money(payment.amount)}</span>,
-                    payment.method,
-                    payment.contractId ? "Contract" : payment.reservationId ? "Reservation" : "—",
-                    new Date(payment.date).toLocaleDateString(),
-                    <StatusBadge key="s" status={payment.status} />,
-                  ])}
-                />
-              )}
-            </section>
           </div>
-
-          {/* Notes + timeline */}
-          <div className="space-y-6 lg:col-span-1">
-            <DocumentsPanel entityType="CUSTOMER" entityId={customer.id} title="Customer documents" />
-            <NotesPanel
-              entityType="Customer"
-              entityId={customer.id}
-              onChange={() => setTimelineKey((k) => k + 1)}
-            />
-            <ActivityTimeline
-              key={timelineKey}
-              entityType="Customer"
-              entityId={customer.id}
-              title="Customer activity"
-            />
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </DashboardShell>
   );
 }

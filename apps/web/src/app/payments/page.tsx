@@ -193,7 +193,7 @@ export default function RealEstatePaymentsPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <Layers className="size-5 text-indigo-600" />
+                <Layers className="size-5 text-[#233b66]" />
                 <h2 className="text-lg font-bold text-slate-900">Construction Milestone Schedules (የክፍያ መርሃግብር)</h2>
               </div>
               <p className="mt-1 text-sm text-slate-500">
@@ -202,7 +202,7 @@ export default function RealEstatePaymentsPage() {
             </div>
             <Button
               onClick={() => setShowPaymentForm((v) => !v)}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition-all"
+              className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium shadow-sm transition-all"
             >
               {showPaymentForm ? <X className="size-4 mr-1.5" /> : <Plus className="size-4 mr-1.5" />}
               {showPaymentForm ? "Cancel Log" : "Log Deposit Receipt"}
@@ -213,10 +213,10 @@ export default function RealEstatePaymentsPage() {
           {showPaymentForm && (
             <form
               onSubmit={handleRecordPayment}
-              className="mt-6 rounded-xl border border-indigo-100 bg-gradient-to-b from-indigo-50/40 to-slate-50/50 p-5 shadow-inner"
+              className="mt-6 rounded-xl border border-[#233b66]/20 bg-gradient-to-b from-[#233b66]/5 to-slate-50/50 p-5 shadow-inner"
             >
-              <h3 className="text-xs font-bold text-indigo-950 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <Sparkles className="size-4 text-indigo-600" />
+              <h3 className="text-xs font-bold text-[#233b66] uppercase tracking-wider mb-4 flex items-center gap-2">
+                <Sparkles className="size-4 text-[#233b66]" />
                 Deposit Receipt & Milestone Allocation
               </h3>
 
@@ -320,7 +320,7 @@ export default function RealEstatePaymentsPage() {
                 onClick={() => setActiveTab("SCHEDULES")}
                 className={cn(
                   "px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5",
-                  activeTab === "SCHEDULES" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  activeTab === "SCHEDULES" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
                 <Layers className="size-3.5" />
@@ -331,7 +331,7 @@ export default function RealEstatePaymentsPage() {
                 onClick={() => setActiveTab("LOGS")}
                 className={cn(
                   "px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5",
-                  activeTab === "LOGS" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  activeTab === "LOGS" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
                 <Receipt className="size-3.5" />

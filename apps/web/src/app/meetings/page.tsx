@@ -206,7 +206,7 @@ export default function MeetingsPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <CalendarDays className="size-5 text-indigo-600" />
+                <CalendarDays className="size-5 text-[#233b66]" />
                 <h2 className="text-lg font-bold text-slate-900">Meeting Calendar & Appointments</h2>
               </div>
               <p className="mt-1 text-sm text-slate-500">
@@ -216,7 +216,7 @@ export default function MeetingsPage() {
             <Button
               onClick={() => setShowForm((v) => !v)}
               disabled={!showForm && customers.length === 0 && leads.length === 0}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition-all"
+              className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium shadow-sm transition-all"
             >
               {showForm ? <X className="size-4 mr-1.5" /> : <Plus className="size-4 mr-1.5" />}
               {showForm ? "Cancel Schedule" : "Schedule Meeting"}
@@ -227,9 +227,9 @@ export default function MeetingsPage() {
           {showForm && (
             <form
               onSubmit={handleCreate}
-              className="mt-6 rounded-xl border border-indigo-100 bg-gradient-to-b from-indigo-50/40 to-slate-50/50 p-5 shadow-inner"
+              className="mt-6 rounded-xl border border-[#233b66]/20 bg-gradient-to-b from-[#233b66]/5 to-slate-50/50 p-5 shadow-inner"
             >
-              <h3 className="text-xs font-bold text-indigo-950 uppercase tracking-wider mb-4">
+              <h3 className="text-xs font-bold text-[#233b66] uppercase tracking-wider mb-4">
                 Meeting Appointment Details
               </h3>
 
@@ -242,7 +242,7 @@ export default function MeetingsPage() {
                     placeholder="e.g., Payment Schedule & Bank Mortgage Review"
                     value={form.title}
                     onChange={(e) => setForm({ ...form, title: e.target.value })}
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   />
                 </div>
 
@@ -251,7 +251,7 @@ export default function MeetingsPage() {
                   <select
                     value={form.meetingType}
                     onChange={(e) => setForm({ ...form, meetingType: e.target.value })}
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   >
                     <option value="IN_PERSON_OFFICE">In-Person Office Meeting</option>
                     <option value="VIRTUAL_ZOOM">Virtual Zoom / Google Meet Call</option>
@@ -266,7 +266,7 @@ export default function MeetingsPage() {
                     onChange={(e) =>
                       setForm({ ...form, withType: e.target.value as "customer" | "lead", withId: "" })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   >
                     <option value="customer">Customer (Contact)</option>
                     <option value="lead">Lead (Prospect)</option>
@@ -279,7 +279,7 @@ export default function MeetingsPage() {
                     required
                     value={form.withId}
                     onChange={(e) => setForm({ ...form, withId: e.target.value })}
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   >
                     <option value="">Select {form.withType}…</option>
                     {withOptions.map((person) => (
@@ -297,7 +297,7 @@ export default function MeetingsPage() {
                     type="datetime-local"
                     value={form.date}
                     onChange={(e) => setForm({ ...form, date: e.target.value })}
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   />
                 </div>
 
@@ -306,7 +306,7 @@ export default function MeetingsPage() {
                   <select
                     value={form.durationMinutes}
                     onChange={(e) => setForm({ ...form, durationMinutes: e.target.value })}
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   >
                     <option value="15">15 Minutes</option>
                     <option value="30">30 Minutes</option>
@@ -323,7 +323,7 @@ export default function MeetingsPage() {
                     placeholder="e.g. Sales Office Conference Room B or https://zoom.us/j/123456"
                     value={form.location}
                     onChange={(e) => setForm({ ...form, location: e.target.value })}
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   />
                 </div>
 
@@ -334,12 +334,12 @@ export default function MeetingsPage() {
                     placeholder="Discussion points, contract terms to cover, client questions..."
                     value={form.agenda}
                     onChange={(e) => setForm({ ...form, agenda: e.target.value })}
-                    className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   />
                 </div>
               </div>
 
-              <div className="mt-5 flex justify-end gap-3 border-t border-indigo-100 pt-4">
+              <div className="mt-5 flex justify-end gap-3 border-t border-[#233b66]/20 pt-4">
                 <Button
                   type="button"
                   variant="outline"
@@ -348,7 +348,7 @@ export default function MeetingsPage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={saving} className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs shadow-sm">
+                <Button type="submit" disabled={saving} className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium text-xs shadow-sm">
                   {saving ? "Scheduling…" : "Save & Book Meeting"}
                 </Button>
               </div>
@@ -413,9 +413,9 @@ export default function MeetingsPage() {
                             isCustomer ? (
                               <Link
                                 href={`/customers/${person.id}`}
-                                className="font-semibold text-indigo-600 hover:underline inline-flex items-center gap-1.5"
+                                className="font-semibold text-[#233b66] hover:underline inline-flex items-center gap-1.5"
                               >
-                                <User className="size-3.5 text-indigo-500" />
+                                <User className="size-3.5 text-[#233b66]" />
                                 {person.firstName} {person.lastName}
                               </Link>
                             ) : (
@@ -434,7 +434,7 @@ export default function MeetingsPage() {
 
                         <td className="px-5 py-3">
                           <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-700 border border-slate-200">
-                            <TypeIcon className="size-3 text-indigo-600" />
+                            <TypeIcon className="size-3 text-[#233b66]" />
                             {meetingTypeLabels[meeting.meetingType] ?? meeting.meetingType}
                           </span>
                         </td>

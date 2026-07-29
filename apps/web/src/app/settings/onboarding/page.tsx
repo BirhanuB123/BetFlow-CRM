@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, ClipboardCheck, RotateCw } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Check, ClipboardCheck, RotateCw } from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
@@ -74,10 +75,17 @@ export default function OnboardingPage() {
 
   return (
     <DashboardShell
-      title="Tenant onboarding wizard"
-      description="Guided tenant setup for users, roles, domains, branding, imports, and automation."
+      title="Tenant Onboarding"
+      description="Step-by-step workspace setup and team readiness progress."
       active="Onboarding"
     >
+      <Link
+        href="/settings"
+        className="mb-4 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#233b66] transition-colors"
+      >
+        <ArrowLeft className="size-4" />
+        Back to Settings
+      </Link>
       <div className="grid gap-4 md:grid-cols-3 mb-6">
         <StatCard label="Progress" value={`${completed}/${steps.length}`} detail="Required onboarding steps complete" />
         <StatCard label="Blocked items" value={String(blocked)} detail="Items currently blocked" />

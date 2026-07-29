@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FileSpreadsheet, Upload } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, FileSpreadsheet, Upload } from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
@@ -64,10 +65,17 @@ export default function ExcelImportPage() {
 
   return (
     <DashboardShell
-      title="Data import from Excel"
-      description="Map tenant workbooks into leads, customers, units, and payment schedules."
+      title="Data Import"
+      description="Workbook templates for bulk importing leads, contacts, and inventory."
       active="Excel import"
     >
+      <Link
+        href="/settings"
+        className="mb-4 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#233b66] transition-colors"
+      >
+        <ArrowLeft className="size-4" />
+        Back to Settings
+      </Link>
       {error && (
         <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
           {error}
