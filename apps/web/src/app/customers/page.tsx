@@ -344,8 +344,8 @@ export default function ContactsPage() {
 
   return (
     <DashboardShell
-      title="Contacts"
-      description="Converted relationships and account ownership."
+      title="Customers"
+      description="Manage property buyers, client records, and customer relationships."
       active="Customers"
     >
       <div className="flex h-[calc(100vh-160px)] gap-0 overflow-hidden rounded-md border border-zinc-200 bg-white shadow-sm">
@@ -356,9 +356,9 @@ export default function ContactsPage() {
             <div className="p-4 border-b border-zinc-200">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-semibold text-zinc-800">
-                  Filter Contacts by
+                  Filter Customers by
                   {selectedFilters.size > 0 && (
-                    <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-600 text-white">
+                    <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-[#233b66] text-white">
                       {selectedFilters.size}
                     </span>
                   )}
@@ -366,7 +366,7 @@ export default function ContactsPage() {
                 {(selectedFilters.size > 0 || filterSearch) && (
                   <button
                     onClick={clearAllFilters}
-                    className="text-xs font-medium text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                    className="text-xs font-medium text-[#233b66] hover:text-[#1d3257] flex items-center gap-1"
                     title="Clear all filters"
                   >
                     <RotateCcw className="size-3" />
@@ -512,13 +512,13 @@ export default function ContactsPage() {
                 </Button>
                 <div className="h-4 w-px bg-zinc-300 mx-1"></div>
                 <Button variant="ghost" size="sm" className="h-8 text-[13px] font-medium text-zinc-700">
-                  All Contacts <ChevronDown className="size-3.5 ml-1" />
+                  All Customers <ChevronDown className="size-3.5 ml-1" />
                 </Button>
               </div>
 
               {selectedRowIds.size > 0 && (
-                <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded px-2.5 py-1">
-                  <span className="text-xs font-semibold text-indigo-900">
+                <div className="flex items-center gap-2 bg-[#233b66]/10 border border-[#233b66]/20 rounded px-2.5 py-1">
+                  <span className="text-xs font-semibold text-[#233b66]">
                     {selectedRowIds.size} selected
                   </span>
                   <button
@@ -531,8 +531,8 @@ export default function ContactsPage() {
                 </div>
               )}
             </div>
-            <Button onClick={() => setShowForm((value) => !value)} size="sm" className="h-8 bg-indigo-600 hover:bg-indigo-700 text-white rounded shadow-sm text-[13px] px-4 font-medium">
-              {showForm ? "Cancel" : "Create Contact"}
+            <Button onClick={() => setShowForm((value) => !value)} size="sm" className="h-8 bg-[#233b66] hover:bg-[#1d3257] text-white rounded shadow-sm text-[13px] px-4 font-medium">
+              {showForm ? "Cancel" : "Create Customer"}
             </Button>
           </div>
 

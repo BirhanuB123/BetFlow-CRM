@@ -252,7 +252,7 @@ export default function FollowUpsPage() {
     <DashboardShell
       title="Follow-up Reminders & Calls Queue"
       description="Track phone call follow-ups, post-site-visit check-ins, diaspora buyer outreach, and installment payment reminders."
-      active="Notifications"
+      active="Calls"
     >
       <div className="space-y-6">
         {/* Section Header & Schedule Action */}
@@ -260,7 +260,7 @@ export default function FollowUpsPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <PhoneCall className="size-5 text-indigo-600" />
+                <PhoneCall className="size-5 text-[#233b66]" />
                 <h2 className="text-lg font-bold text-slate-900">Real Estate Follow-up Queue</h2>
               </div>
               <p className="mt-1 text-sm text-slate-500">
@@ -269,8 +269,7 @@ export default function FollowUpsPage() {
             </div>
             <Button
               onClick={() => setShowForm((v) => !v)}
-              disabled={!showForm && customers.length === 0 && leads.length === 0}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition-all"
+              className="bg-[#233b66] hover:bg-[#1d3257] text-white font-medium shadow-sm transition-all"
             >
               {showForm ? <X className="size-4 mr-1.5" /> : <Plus className="size-4 mr-1.5" />}
               {showForm ? "Cancel Intake" : "Schedule Follow-up Call"}
@@ -355,7 +354,7 @@ export default function FollowUpsPage() {
                     <option value="">Select {form.withType}…</option>
                     {withOptions.map((person) => (
                       <option key={person.id} value={person.id}>
-                        {person.firstName} {person.lastName} {person.phone ? `(${person.phone})` : ""}
+                        {person.firstName} {person.lastName}
                       </option>
                     ))}
                   </select>
@@ -372,46 +371,52 @@ export default function FollowUpsPage() {
                   />
                 </div>
 
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Call Preparation & Objective Notes</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Review 3-bedroom unit 120 sqm layout options before calling..."
+                <div className="sm:col-span-3">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Call Notes / Objectives</label>
+                  <textarea
+                    rows={2}
+                    placeholder="Provide context (e.g. Buyer interested in 120 sqm 2-Bed unit on 5th floor, schedule afternoon follow-up call)"
                     value={form.notes}
                     onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full rounded-lg border border-slate-300 bg-white p-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
               </div>
 
-              <div className="mt-5 flex justify-end gap-3 border-t border-indigo-100 pt-4">
+              <div className="mt-4 flex items-center justify-end gap-2 border-t border-indigo-100 pt-3">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setShowForm(false)}
-                  className="border-slate-300 text-slate-700 hover:bg-slate-100 text-xs"
+                  className="h-9 text-xs font-medium text-slate-700"
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={saving} className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs shadow-sm">
-                  {saving ? "Scheduling…" : "Add Follow-up Reminder"}
+                <Button
+                  type="submit"
+                  disabled={saving}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium h-9 text-xs shadow-sm"
+                >
+                  {saving ? "Scheduling Call…" : "Schedule & Queue Call"}
                 </Button>
               </div>
             </form>
           )}
-
-          {error && (
-            <p className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-700">
-              {error}
-            </p>
-          )}
         </section>
 
-        {/* Reminders Queue Data Table */}
+        {error && (
+          <p className="rounded-lg border border-rose-200 bg-rose-50 p-3.5 text-xs font-semibold text-rose-700">
+            {error}
+          </p>
+        )}
+
+        {/* Reminders Queue Table */}
         <section className="rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
-          {/* Table Filter Tabs */}
-          <div className="border-b border-slate-200 bg-slate-50/50 px-5 py-3 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-1.5 overflow-x-auto">
+          <div className="border-b border-slate-200 bg-slate-50/50 px-5 py-3.5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Follow-up Calls Queue</h3>
+
+            {/* Filter Tabs */}
+            <div className="flex items-center gap-1.5 overflow-x-auto bg-slate-200/50 p-1 rounded-lg">
               <button
                 onClick={() => setActiveFilter("ALL")}
                 className={cn(
@@ -419,7 +424,7 @@ export default function FollowUpsPage() {
                   activeFilter === "ALL" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
-                All Reminders ({calls.length})
+                All ({calls.length})
               </button>
               <button
                 onClick={() => setActiveFilter("DUE_TODAY")}
@@ -446,7 +451,7 @@ export default function FollowUpsPage() {
                   activeFilter === "COMPLETED" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
-                Completed Log
+                Completed
               </button>
             </div>
           </div>
@@ -457,13 +462,20 @@ export default function FollowUpsPage() {
             </div>
           ) : filteredCalls.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center">
-              <div className="rounded-full bg-slate-50 p-4 border border-slate-100 mb-2">
-                <CalendarClock className="size-6 text-slate-400" />
+              <div className="rounded-full bg-indigo-50 p-4 border border-indigo-100 mb-2">
+                <CalendarClock className="size-6 text-indigo-600" />
               </div>
-              <p className="text-sm font-semibold text-slate-800">No follow-up calls in this queue</p>
+              <p className="text-sm font-bold text-slate-900">No follow-up calls in this queue</p>
               <p className="text-xs text-slate-500 max-w-sm mt-1">
-                You're all caught up! Click "Schedule Follow-up Call" to queue a new reminder for your leads or customers.
+                You're all caught up! Click "Schedule Follow-up Call" to queue a new reminder for your leads or contacts.
               </p>
+              <Button
+                onClick={() => setShowForm(true)}
+                className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs px-4 h-9 shadow-sm"
+              >
+                <Plus className="size-4 mr-1.5" />
+                Schedule Follow-up Call
+              </Button>
             </div>
           ) : (
             <div className="overflow-x-auto">

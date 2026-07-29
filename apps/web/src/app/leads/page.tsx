@@ -28,6 +28,7 @@ import Link from "next/link";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -134,6 +135,19 @@ export default function LeadsPage() {
   const [busy, setBusy] = useState(false);
   const [convertLead, setConvertLead] = useState<ApiLead | null>(null);
   const [aiInsightLead, setAiInsightLead] = useState<ApiLead | null>(null);
+
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    onConfirm: () => void | Promise<void>;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
 
   const loadLeads = useCallback(async () => {
     try {
@@ -289,57 +303,66 @@ export default function LeadsPage() {
     }
   };
 
-  const handleDeleteSingle = async (id: string, e?: React.MouseEvent) => {
+  const handleDeleteSingle = (id: string, e?: React.MouseEvent) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
-    if (typeof window !== "undefined" && !window.confirm("Delete this lead? This cannot be undone.")) {
-      return;
-    }
-    setError(null);
-    try {
-      await apiFetch(`/leads/${id}`, { method: "DELETE" });
-      setLeads((prev) => prev.filter((l) => l.id !== id));
-      setSelected((prev) => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete lead.");
-      await loadLeads();
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete Lead Confirmation",
+      message: "Are you sure you want to delete this lead? This action cannot be undone.",
+      confirmText: "Delete Lead",
+      onConfirm: async () => {
+        setError(null);
+        try {
+          await apiFetch(`/leads/${id}`, { method: "DELETE" });
+          setLeads((prev) => prev.filter((l) => l.id !== id));
+          setSelected((prev) => {
+            const next = new Set(prev);
+            next.delete(id);
+            return next;
+          });
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to delete lead.");
+          await loadLeads();
+        }
+      },
+    });
   };
 
-  const handleDeleteSelected = async () => {
+  const handleDeleteSelected = () => {
     if (selected.size === 0) return;
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm(`Delete ${selected.size} selected lead(s)? This cannot be undone.`)
-    ) {
-      return;
-    }
-    setBusy(true);
-    setError(null);
-    const ids = Array.from(selected);
-    try {
-      await Promise.all(
-        ids.map((id) =>
-          apiFetch(`/leads/${id}`, { method: "DELETE" }).catch((err) => {
-            console.error(`Failed to delete lead ${id}:`, err);
-            return null;
-          })
-        )
-      );
-      setLeads((prev) => prev.filter((l) => !selected.has(l.id)));
-      setSelected(new Set());
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete leads.");
-      await loadLeads();
-    } finally {
-      setBusy(false);
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: "Batch Delete Leads Confirmation",
+      message: `Are you sure you want to delete ${selected.size} selected lead(s)? This action cannot be undone.`,
+      confirmText: `Delete ${selected.size} Lead(s)`,
+      onConfirm: async () => {
+        setBusy(true);
+        setError(null);
+        const ids = Array.from(selected);
+        try {
+          await Promise.all(
+            ids.map((id) =>
+              apiFetch(`/leads/${id}`, { method: "DELETE" }).catch((err) => {
+                console.error(`Failed to delete lead ${id}:`, err);
+                return null;
+              })
+            )
+          );
+          setLeads((prev) => prev.filter((l) => !selected.has(l.id)));
+          setSelected(new Set());
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to delete leads.");
+          await loadLeads();
+        } finally {
+          setBusy(false);
+        }
+      },
+    });
   };
 
   const activeFilterCount =
@@ -415,7 +438,7 @@ export default function LeadsPage() {
           <Button
             onClick={() => setCreateOpen(true)}
             size="sm"
-            className="h-8 bg-indigo-600 hover:bg-indigo-700 text-white rounded shadow-sm text-[13px] px-4 font-medium"
+            className="h-8 bg-[#233b66] hover:bg-[#1d3257] text-white rounded shadow-sm text-[13px] px-4 font-medium"
           >
             <Plus className="size-3.5 mr-1" />
             Create Lead
@@ -824,6 +847,18 @@ export default function LeadsPage() {
           onClose={() => setAiInsightLead(null)}
         />
       ) : null}
+
+      {/* Custom Confirmation Dialog */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        variant="danger"
+        loading={busy}
+      />
     </DashboardShell>
   );
 }

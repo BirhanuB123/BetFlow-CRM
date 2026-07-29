@@ -98,9 +98,9 @@ export default function SocialBroadcastsPage() {
 
   return (
     <DashboardShell
-      title="Social Leads & Telegram Broadcasts (ቴሌግራም እና የሶሻል ሚዲያ መገናኛ)"
+      title="Social Leads Broadcasts (የሶሻል ሚዲያ መገናኛ)"
       description="Connect real estate Telegram channels, Meta Lead Ads, and launch broadcast updates directly to property buyers."
-      active="Automation"
+      active="Social Outreach"
     >
       <div className="space-y-6">
         {/* Section Header & Broadcast Button */}
@@ -108,7 +108,7 @@ export default function SocialBroadcastsPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <Send className="size-5 text-sky-600" />
+                <Send className="size-5 text-[#233b66]" />
                 <h2 className="text-lg font-bold text-slate-900">Telegram & Social Outreach Engine</h2>
               </div>
               <p className="mt-1 text-sm text-slate-500">
@@ -117,7 +117,7 @@ export default function SocialBroadcastsPage() {
             </div>
             <Button
               onClick={() => setShowComposer((v) => !v)}
-              className="bg-sky-600 hover:bg-sky-700 text-white font-medium shadow-sm transition-all"
+              className="bg-[#233b66] hover:bg-[#1d3257] text-white font-medium shadow-sm transition-all"
             >
               {showComposer ? <X className="size-4 mr-1.5" /> : <Plus className="size-4 mr-1.5" />}
               {showComposer ? "Cancel Broadcast" : "New Telegram Broadcast"}

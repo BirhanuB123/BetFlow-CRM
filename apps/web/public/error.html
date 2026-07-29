@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unable to Connect - BetFlow CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #0b0f17;
+      color: #f3f4f6;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient Background Glows */
+    .bg-glow-1 {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(239, 68, 68, 0.12) 0%, rgba(14, 110, 99, 0.08) 50%, rgba(0, 0, 0, 0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(60px);
+      animation: pulseGlow 8s ease-in-out infinite alternate;
+    }
+
+    .bg-glow-2 {
+      position: absolute;
+      bottom: 10%;
+      right: 15%;
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(14, 110, 99, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(50px);
+    }
+
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    @keyframes pulseGlow {
+      0% { opacity: 0.5; transform: translate(-50%, -50%) scale(0.95); }
+      100% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+    }
+
+    /* Card Container */
+    .card {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 520px;
+      background: rgba(17, 24, 39, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 1.5rem;
+      padding: 2.5rem;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      text-align: center;
+      animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Header Logo Badge */
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.05em;
+      color: #9ca3af;
+      margin-bottom: 2rem;
+      text-transform: uppercase;
+    }
+
+    .brand-accent {
+      color: #0E6E63;
+      font-weight: 800;
+    }
+
+    /* Icon Radar Ring */
+    .icon-wrapper {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-bg {
+      position: absolute;
+      inset: 0;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 50%;
+    }
+
+    .icon-ring {
+      position: absolute;
+      inset: -8px;
+      border: 1.5px dashed rgba(239, 68, 68, 0.3);
+      border-radius: 50%;
+      animation: spin 12s linear infinite;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    .icon-svg {
+      position: relative;
+      z-index: 2;
+      width: 38px;
+      height: 38px;
+      color: #ef4444;
+    }
+
+    /* Error Code Pill */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #fca5a5;
+      margin-bottom: 1rem;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: #ef4444;
+      box-shadow: 0 0 10px #ef4444;
+      animation: blink 1.5s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* Text */
+    h1 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+
+    p.description {
+      font-size: 0.925rem;
+      color: #9ca3af;
+      line-height: 1.5;
+      margin-bottom: 1.75rem;
+    }
+
+    /* Target URL Container */
+    .url-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 0.75rem;
+      padding: 0.65rem 0.85rem;
+      margin-bottom: 1.75rem;
+      text-align: left;
+    }
+
+    .url-content {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-width: 0;
+    }
+
+    .url-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .url-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.825rem;
+      color: #38bdf8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: none;
+      color: #9ca3af;
+      cursor: pointer;
+      padding: 0.3rem;
+      border-radius: 0.4rem;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+
+    /* Actions */
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      width: 100%;
+      height: 2.75rem;
+      background: linear-gradient(135deg, #0E6E63 0%, #0b5c52 100%);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 14px rgba(14, 110, 99, 0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(14, 110, 99, 0.45);
+      background: linear-gradient(135deg, #107e71 0%, #0d695d 100%);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      height: 2.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      color: #d1d5db;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+
+    /* Auto-Retry Timer */
+    .timer-bar {
+      width: 100%;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 9999px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .timer-progress {
+      height: 100%;
+      width: 100%;
+      background: #0E6E63;
+      transition: width 1s linear;
+    }
+
+    .timer-text {
+      font-size: 0.775rem;
+      color: #6b7280;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Diagnostics Accordion */
+    .diagnostics {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 1.25rem;
+      text-align: left;
+    }
+
+    .diag-toggle {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      font-size: 0.825rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0;
+      transition: color 0.2s;
+    }
+
+    .diag-toggle:hover {
+      color: #e5e7eb;
+    }
+
+    .diag-list {
+      display: none;
+      margin-top: 0.85rem;
+      padding-left: 0;
+      list-style: none;
+      gap: 0.6rem;
+      flex-direction: column;
+    }
+
+    .diag-list.open {
+      display: flex;
+    }
+
+    .diag-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.8rem;
+      color: #9ca3af;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 0.6rem 0.75rem;
+      border-radius: 0.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .diag-num {
+      background: rgba(14, 110, 99, 0.2);
+      color: #2dd4bf;
+      font-weight: 700;
+      font-size: 0.7rem;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    .loading .spinner {
+      display: block;
+    }
+
+    .loading .btn-icon {
+      display: none;
+    }
+
+    .footer-text {
+      margin-top: 1.5rem;
+      font-size: 0.75rem;
+      color: #4b5563;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-glow-1"></div>
+  <div class="bg-glow-2"></div>
+  <div class="bg-grid"></div>
+
+  <div class="card">
+    <!-- Brand Header -->
+    <div class="brand-logo">
+      <span>BetFlow</span> <span class="brand-accent">CRM</span>
+    </div>
+
+    <!-- Animated Globe / Connection Icon -->
+    <div class="icon-wrapper">
+      <div class="icon-bg"></div>
+      <div class="icon-ring"></div>
+      <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="1" y1="1" x2="23" y2="23"></line>
+        <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+        <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+        <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+        <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+        <line x1="12" y1="20" x2="12.01" y2="20"></line>
+      </svg>
+    </div>
+
+    <!-- Error Code Badge -->
+    <div class="status-pill">
+      <span class="status-dot"></span>
+      ERR_CONNECTION_REFUSED (-102)
+    </div>
+
+    <!-- Title & Description -->
+    <h1>Unable to Connect</h1>
+    <p class="description">
+      The application couldn't reach the server. Make sure your local development server is running and accessible.
+    </p>
+
+    <!-- Target URL Card -->
+    <div class="url-box">
+      <div class="url-content">
+        <span class="url-label">URL</span>
+        <span class="url-text" id="targetUrl">http://localhost:3001/auth</span>
+      </div>
+      <button class="copy-btn" id="copyBtn" title="Copy URL">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn-primary" id="retryBtn">
+        <div class="spinner"></div>
+        <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.5 2v6h-6"></path>
+          <path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+        </svg>
+        <span>Try Reconnecting</span>
+      </button>
+    </div>
+
+    <!-- Auto Retry Timer -->
+    <div class="timer-bar">
+      <div class="timer-progress" id="timerProgress"></div>
+    </div>
+    <div class="timer-text" id="timerText">Auto-retrying in 10s</div>
+
+    <!-- Troubleshooting Steps Accordion -->
+    <div class="diagnostics">
+      <button class="diag-toggle" id="diagToggle">
+        <span>Quick Troubleshooting Checklist</span>
+        <span id="diagArrow">↓</span>
+      </button>
+      <ul class="diag-list" id="diagList">
+        <li class="diag-item">
+          <span class="diag-num">1</span>
+          <span>Ensure the Web server is active by running <code>npm run dev</code> in <code>apps/web</code>.</span>
+        </li>
+        <li class="diag-item">
+          <span class="diag-num">2</span>
+          <span>Ensure the API server is active on port 4000 (<code>http://localhost:4000/api</code>).</span>
+        </li>
+        <li class="diag-item">
+          <span class="diag-num">3</span>
+          <span>Check if any local firewall, proxy, or VPN is blocking connections to <code>localhost</code>.</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="footer-text">
+      BetFlow CRM • Developed by Gebeta Trading Technology
+    </div>
+  </div>
+
+  <script>
+    // Copy URL to Clipboard
+    const targetUrl = document.getElementById('targetUrl').innerText;
+    const copyBtn = document.getElementById('copyBtn');
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(targetUrl);
+      copyBtn.innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      `;
+      setTimeout(() => {
+        copyBtn.innerHTML = `
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+        `;
+      }, 2000);
+    });
+
+    // Retry Logic
+    const retryBtn = document.getElementById('retryBtn');
+    function executeRetry() {
+      retryBtn.classList.add('loading');
+      retryBtn.querySelector('span').innerText = 'Reconnecting...';
+      setTimeout(() => {
+        window.location.reload();
+      }, 600);
+    }
+    retryBtn.addEventListener('click', executeRetry);
+
+    // Auto Countdown Timer
+    let countdown = 10;
+    const timerText = document.getElementById('timerText');
+    const timerProgress = document.getElementById('timerProgress');
+    
+    const interval = setInterval(() => {
+      countdown--;
+      if (countdown <= 0) {
+        clearInterval(interval);
+        executeRetry();
+      } else {
+        timerText.innerText = `Auto-retrying in ${countdown}s`;
+        timerProgress.style.width = `${(countdown / 10) * 100}%`;
+      }
+    }, 1000);
+
+    // Accordion Toggle
+    const diagToggle = document.getElementById('diagToggle');
+    const diagList = document.getElementById('diagList');
+    const diagArrow = document.getElementById('diagArrow');
+    diagToggle.addEventListener('click', () => {
+      const isOpen = diagList.classList.toggle('open');
+      diagArrow.innerText = isOpen ? '↑' : '↓';
+    });
+  </script>
+</body>
+</html>
