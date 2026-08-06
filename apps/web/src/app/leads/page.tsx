@@ -22,6 +22,12 @@ import {
   SlidersHorizontal,
   Trash2,
   X,
+  Share2,
+  Webhook,
+  Copy,
+  Check,
+  ExternalLink,
+  MessageSquare,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -111,6 +117,32 @@ function initials(text: string) {
   return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase() || "?";
 }
 
+function SocialSourceBadge({ sourceName }: { sourceName: string | null | undefined }) {
+  if (!sourceName) return <span className="text-zinc-400">—</span>;
+  const lower = sourceName.toLowerCase();
+  let bg = "bg-zinc-100 text-zinc-700 border-zinc-200";
+  let icon = "🌐";
+  if (lower.includes("facebook") || lower.includes("meta")) {
+    bg = "bg-blue-50 text-blue-700 border-blue-200 font-semibold";
+    icon = "🟦";
+  } else if (lower.includes("instagram")) {
+    bg = "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200 font-semibold";
+    icon = "📸";
+  } else if (lower.includes("telegram")) {
+    bg = "bg-sky-50 text-sky-700 border-sky-200 font-semibold";
+    icon = "✈️";
+  } else if (lower.includes("referral")) {
+    bg = "bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold";
+    icon = "🤝";
+  }
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs ${bg}`}>
+      <span>{icon}</span>
+      <span>{sourceName}</span>
+    </span>
+  );
+}
+
 export default function LeadsPage() {
   const [leads, setLeads] = useState<ApiLead[]>([]);
   const [sources, setSources] = useState<LeadSource[]>([]);
@@ -121,6 +153,8 @@ export default function LeadsPage() {
   const [statusFilter, setStatusFilter] = useState<Set<string>>(new Set());
   const [sourceFilter, setSourceFilter] = useState<Set<string>>(new Set());
   const [showFilters, setShowFilters] = useState(true);
+  const [showSocialDrawer, setShowSocialDrawer] = useState(false);
+  const [copiedUrl, setCopiedUrl] = useState(false);
 
   const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" }>({
     key: "name",
@@ -385,10 +419,16 @@ export default function LeadsPage() {
           </span>
           <button
             type="button"
-            className="rounded-md px-2 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100"
-            aria-label="More views"
+            onClick={() => setShowSocialDrawer((prev) => !prev)}
+            className={cn(
+              "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-semibold transition-colors border",
+              showSocialDrawer
+                ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                : "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
+            )}
           >
-            …
+            <Webhook className="size-3.5" />
+            Social Outreach Webhooks
           </button>
           <div className="mx-1 h-5 w-px bg-zinc-200" />
           <button
@@ -445,6 +485,54 @@ export default function LeadsPage() {
           </Button>
         </div>
       </div>
+
+      {/* Social Outreach Integration Drawer */}
+      {showSocialDrawer && (
+        <div className="border-x border-b border-blue-200 bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-slate-50 p-4 text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="rounded-lg bg-blue-600 p-2 text-white shadow-xs">
+                <Webhook className="size-4" />
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                  Social Lead Outreach & Meta Webhook Intake
+                  <span className="rounded bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700 uppercase">Integrated</span>
+                </h4>
+                <p className="text-slate-600 mt-0.5">
+                  Meta Lead Ads (Facebook & Instagram) and Telegram Bot submissions automatically create leads in this table.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const url = typeof window !== "undefined"
+                    ? `${window.location.origin.replace("3001", "4000")}/api/enterprise/social-leads/meta-webhook`
+                    : "/api/enterprise/social-leads/meta-webhook";
+                  void navigator.clipboard.writeText(url);
+                  setCopiedUrl(true);
+                  setTimeout(() => setCopiedUrl(false), 2000);
+                }}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
+              >
+                {copiedUrl ? <Check className="size-3.5 text-emerald-600" /> : <Copy className="size-3.5 text-slate-400" />}
+                <span>{copiedUrl ? "Copied Webhook URL!" : "Copy Meta Callback URL"}</span>
+              </button>
+
+              <Link
+                href="/integrations/social-leads"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 font-bold text-white hover:bg-blue-700 transition-colors shadow-xs"
+              >
+                <span>Full Webhook Guide</span>
+                <ExternalLink className="size-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {error ? (
         <p className="border-x border-zinc-200 bg-rose-50 px-4 py-2 text-sm text-rose-700">
@@ -696,8 +784,8 @@ export default function LeadsPage() {
                             "—"
                           )}
                         </td>
-                        <td className="px-4 py-3 text-zinc-600">
-                          {lead.source?.name ?? "—"}
+                        <td className="px-4 py-3">
+                          <SocialSourceBadge sourceName={lead.source?.name} />
                         </td>
                         <td className="px-4 py-3">
                           {lead.convertedCustomerId ? (

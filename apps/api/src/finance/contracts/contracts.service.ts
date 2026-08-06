@@ -63,10 +63,10 @@ export class ContractsService {
       input.contractNumber?.trim() ||
       `ET-CNT-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
 
-    await this.assertCustomerBelongsToTenant(input.customerId);
-    await this.assertUnitBelongsToTenant(input.unitId);
+    await this.assertCustomerExists(input.customerId);
+    await this.assertUnitExists(input.unitId);
     if (input.dealId) {
-      await this.assertDealBelongsToTenant(input.dealId);
+      await this.assertDealExists(input.dealId);
     }
 
     const contract = await this.prisma.contract.create({
@@ -102,13 +102,13 @@ export class ContractsService {
     }
 
     if (input.customerId) {
-      await this.assertCustomerBelongsToTenant(input.customerId);
+      await this.assertCustomerExists(input.customerId);
     }
     if (input.unitId) {
-      await this.assertUnitBelongsToTenant(input.unitId);
+      await this.assertUnitExists(input.unitId);
     }
     if (input.dealId) {
-      await this.assertDealBelongsToTenant(input.dealId);
+      await this.assertDealExists(input.dealId);
     }
 
     const data: Record<string, unknown> = {};
@@ -234,7 +234,7 @@ export class ContractsService {
     return date;
   }
 
-  private async assertCustomerBelongsToTenant(customerId: string) {
+  private async assertCustomerExists(customerId: string) {
     const customer = await this.prisma.customer.findFirst({
       where: { id: customerId },
     });
@@ -243,7 +243,7 @@ export class ContractsService {
     }
   }
 
-  private async assertUnitBelongsToTenant(unitId: string) {
+  private async assertUnitExists(unitId: string) {
     const unit = await this.prisma.unit.findFirst({
       where: { id: unitId },
     });
@@ -252,7 +252,7 @@ export class ContractsService {
     }
   }
 
-  private async assertDealBelongsToTenant(dealId: string) {
+  private async assertDealExists(dealId: string) {
     const deal = await this.prisma.deal.findFirst({
       where: { id: dealId },
     });

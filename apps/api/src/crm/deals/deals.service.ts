@@ -45,13 +45,13 @@ export class DealsService {
     if (!input.customerId)
       throw new BadRequestException('customerId is required');
 
-    await this.assertStageBelongsToTenant(input.stageId);
-    await this.assertCustomerBelongsToTenant(input.customerId);
+    await this.assertStageExists(input.stageId);
+    await this.assertCustomerExists(input.customerId);
     if (input.accountId) {
-      await this.assertAccountBelongsToTenant(input.accountId);
+      await this.assertAccountExists(input.accountId);
     }
     if (input.unitId) {
-      await this.assertUnitBelongsToTenant(input.unitId);
+      await this.assertUnitExists(input.unitId);
     }
 
     // Prefer explicit accountId; otherwise inherit from the contact when present.
@@ -91,16 +91,16 @@ export class DealsService {
     }
 
     if (input.stageId) {
-      await this.assertStageBelongsToTenant(input.stageId);
+      await this.assertStageExists(input.stageId);
     }
     if (input.customerId) {
-      await this.assertCustomerBelongsToTenant(input.customerId);
+      await this.assertCustomerExists(input.customerId);
     }
     if (input.accountId) {
-      await this.assertAccountBelongsToTenant(input.accountId);
+      await this.assertAccountExists(input.accountId);
     }
     if (input.unitId) {
-      await this.assertUnitBelongsToTenant(input.unitId);
+      await this.assertUnitExists(input.unitId);
     }
 
     const data: Record<string, unknown> = {};
@@ -138,7 +138,7 @@ export class DealsService {
       throw new NotFoundException(`Deal ${id} was not found`);
     }
 
-    await this.assertStageBelongsToTenant(stageId);
+    await this.assertStageExists(stageId);
 
     const deal = await this.prisma.deal.update({
       where: { id },
@@ -189,7 +189,7 @@ export class DealsService {
     return parsed.toFixed(2);
   }
 
-  private async assertStageBelongsToTenant(stageId: string) {
+  private async assertStageExists(stageId: string) {
     const stage = await this.prisma.dealStage.findFirst({
       where: { id: stageId },
     });
@@ -198,7 +198,7 @@ export class DealsService {
     }
   }
 
-  private async assertCustomerBelongsToTenant(customerId: string) {
+  private async assertCustomerExists(customerId: string) {
     const customer = await this.prisma.customer.findFirst({
       where: { id: customerId },
     });
@@ -207,7 +207,7 @@ export class DealsService {
     }
   }
 
-  private async assertAccountBelongsToTenant(accountId: string) {
+  private async assertAccountExists(accountId: string) {
     const account = await this.prisma.account.findFirst({
       where: { id: accountId },
     });
@@ -216,7 +216,7 @@ export class DealsService {
     }
   }
 
-  private async assertUnitBelongsToTenant(unitId: string) {
+  private async assertUnitExists(unitId: string) {
     const unit = await this.prisma.unit.findFirst({
       where: { id: unitId },
     });

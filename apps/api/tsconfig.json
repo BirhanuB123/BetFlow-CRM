@@ -1,6 +1,15 @@
 {
   "extends": "../../packages/config/typescript/nestjs.json",
   "compilerOptions": {
-    "outDir": "./dist"
-  }
+    "target": "ES2022",
+    "baseUrl": "./",
+    "rootDir": "src",
+    "outDir": "./dist",
+    "incremental": false,
+    "paths": {
+      "@betflow/shared": ["../../packages/shared/dist/index.d.ts"],
+      "@betflow/shared/*": ["../../packages/shared/dist/*"]
+    }
+  },
+  "include": ["src/**/*"]
 }

@@ -1,13 +1,8 @@
-# BetFlow CRM — Sequence Diagrams
+# BetFlow CRM — Sequence Diagrams & Architecture
 
-Multi-tenant real-estate CRM. Frontend: **Next.js** (`apps/web`). API: **NestJS** (`apps/api`,
-served under `/api`). Data: **PostgreSQL via Prisma**. Auth: custom HMAC **JWT**.
+Single-tenant enterprise real-estate CRM & ERP. Frontend: **Next.js** (`apps/web`). API: **NestJS** (`apps/api`, served under `/api`). Data: **PostgreSQL via Prisma**. Auth: custom HMAC **JWT**.
 
-**Common pattern:** the browser calls the API through `apiFetch` (`apps/web/src/lib/api.ts`),
-which attaches `Authorization: Bearer <jwt>`. The API's `JwtAuthGuard` verifies the token and
-exposes `request.user = {id, tenantId, roles}` (via the `@CurrentUser()` decorator). Controllers
-delegate to services; every query is **scoped by `tenantId`**, and mutations write an `AuditLog`
-row, which the **activity timeline** reads back (humanized).
+**Common pattern:** the browser calls the API through `apiFetch` (`apps/web/src/lib/api.ts`), which attaches `Authorization: Bearer <jwt>`. The API's `JwtAuthGuard` verifies the token and exposes `request.user = {id, email, roles}` (via the `@CurrentUser()` decorator). Controllers delegate to services; queries read directly from PostgreSQL via `PrismaService`, and mutations write an `AuditLog` row, which the **activity timeline** reads back (humanized).
 
 ## Legend
 
@@ -30,12 +25,10 @@ sequenceDiagram
     participant Auth as AuthService
     participant DB as PostgreSQL (Prisma)
 
-    User->>Web: email, workspace slug, password
+    User->>Web: email, password
     Web->>API: POST /api/auth/login
-    API->>Auth: login({email, tenantSlug, password})
-    Auth->>DB: tenant.findUnique(domain = slug)
-    DB-->>Auth: tenant
-    Auth->>DB: user.findFirst(tenantId, email, isActive) + roles
+    API->>Auth: login({email, password})
+    Auth->>DB: user.findFirst(email, isActive) + roles
     DB-->>Auth: user
     Auth->>Auth: passwords.verify(password, hash)
     alt invalid credentials
@@ -43,14 +36,14 @@ sequenceDiagram
         Web-->>User: "Unable to sign in"
     else valid
         Auth->>DB: auditLog.create(auth.login)
-        Auth->>Auth: jwt.sign({sub, tenantId, email, roles})
-        Auth-->>Web: 201 {accessToken, user, tenant}
+        Auth->>Auth: jwt.sign({sub, email, roles})
+        Auth-->>Web: 201 {accessToken, user}
         Web->>Web: persistSession (local/sessionStorage per "Remember me")
         Web-->>User: redirect /dashboard
     end
 ```
 
-## 2. Authenticated request pattern (tenant-scoped) + 401 handling
+## 2. Authenticated request pattern + 401 handling
 
 ```mermaid
 sequenceDiagram
@@ -69,10 +62,10 @@ sequenceDiagram
         Web->>Web: clearSession()
         Web-->>User: redirect /auth
     else valid
-        Guard->>Ctrl: request.user = {id, tenantId, roles}
-        Ctrl->>Svc: list(user.tenantId)
-        Svc->>DB: account.findMany(where tenantId)
-        DB-->>Svc: rows (scoped to tenant)
+        Guard->>Ctrl: request.user = {id, email, roles}
+        Ctrl->>Svc: list()
+        Svc->>DB: account.findMany()
+        DB-->>Svc: rows
         Svc-->>Ctrl: accounts
         Ctrl-->>Web: 200 [accounts]
         Web-->>User: render
@@ -92,7 +85,7 @@ sequenceDiagram
 
     User->>Web: add a note
     Web->>Ctrl: POST /api/notes {content, entityType, entityId}
-    Ctrl->>Svc: create(tenantId, userId, input)
+    Ctrl->>Svc: create(userId, input)
     Svc->>DB: note.create(...)
     Svc->>DB: auditLog.create(note.created, {preview})
     Svc-->>Web: 201 note
@@ -116,12 +109,11 @@ sequenceDiagram
     Agent->>Web: reserve unit for customer
     Web->>RSvc: POST /api/reservations {customerId, unitId, amount}
     RSvc->>DB: BEGIN tx
-    RSvc->>DB: unit.findFirst(id, tenantId)
-    alt unit not AVAILABLE
+    RSvc->>DB: unit.updateMany(where id & status AVAILABLE -> RESERVED)
+    alt unit not AVAILABLE (atomic count == 0)
         RSvc-->>Web: 400 "unit is reserved/sold" (double-booking blocked)
-    else AVAILABLE
+    else AVAILABLE (atomic count == 1)
         RSvc->>DB: reservation.create(status PENDING)
-        RSvc->>DB: unit.update(status -> RESERVED)
         RSvc->>DB: auditLog.create(reservation.created)
         RSvc->>DB: COMMIT
         RSvc-->>Web: 201 reservation (unit RESERVED)
@@ -137,25 +129,22 @@ sequenceDiagram
     CSvc-->>Web: 200 contract (unit SOLD)
 ```
 
-## 5. Tenant registration (sign-up)
+## 5. Automated Reservation Expiration
 
 ```mermaid
 sequenceDiagram
-    actor Owner
-    participant Web as Next.js · auth (register)
-    participant TSvc as TenantsService
+    participant Cron as ReservationsCronService (@Cron)
+    participant RSvc as ReservationsService
     participant DB as PostgreSQL (transaction)
 
-    Owner->>Web: company, slug, owner name/email, password
-    Web->>TSvc: POST /api/auth/register
-    TSvc->>DB: BEGIN tx
-    TSvc->>DB: tenant.create(name, domain = slug)
-    TSvc->>DB: role.create(Owner)
-    TSvc->>DB: user.create(owner) + userRole
-    TSvc->>DB: subscription.create(plan)
-    TSvc->>DB: auditLog.create(tenant.registered)
-    TSvc->>DB: COMMIT
-    TSvc-->>Web: 201 {tenant, owner}
-    Web->>Web: auto-login -> POST /api/auth/login
-    Web-->>Owner: redirect /dashboard
+    Cron->>RSvc: processExpiredReservations()
+    RSvc->>DB: reservation.findMany(status PENDING/APPROVED, expiryDate <= NOW)
+    loop for each expired reservation
+        RSvc->>DB: BEGIN tx
+        RSvc->>DB: reservation.update(status -> EXPIRED)
+        RSvc->>DB: unit.update(status RESERVED -> AVAILABLE)
+        RSvc->>DB: auditLog.create(reservation.auto_expired)
+        RSvc->>DB: COMMIT
+    end
+    RSvc-->>Cron: expiredCount
 ```

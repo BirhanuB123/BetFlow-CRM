@@ -52,7 +52,7 @@ export class TasksService {
     const status = this.normalizeStatus(input.status ?? 'TODO');
 
     if (input.assigneeId) {
-      await this.assertUserBelongsToTenant(input.assigneeId);
+      await this.assertUserExists(input.assigneeId);
     }
 
     const task = await this.prisma.task.create({
@@ -95,7 +95,7 @@ export class TasksService {
     }
 
     if (input.assigneeId) {
-      await this.assertUserBelongsToTenant(input.assigneeId);
+      await this.assertUserExists(input.assigneeId);
     }
 
     const data: Record<string, unknown> = {};
@@ -198,7 +198,7 @@ export class TasksService {
     return date;
   }
 
-  private async assertUserBelongsToTenant(userId: string) {
+  private async assertUserExists(userId: string) {
     const user = await this.prisma.user.findFirst({
       where: { id: userId },
     });

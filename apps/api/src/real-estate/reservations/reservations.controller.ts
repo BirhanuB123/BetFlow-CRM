@@ -33,6 +33,12 @@ export class ReservationsController {
     return this.reservations.get(id);
   }
 
+  @Post('process-expirations')
+  async processExpirations(@CurrentUser() user: AuthenticatedUser) {
+    const count = await this.reservations.processExpiredReservations();
+    return { success: true, expiredReservationsCount: count };
+  }
+
   @Post()
   create(
     @CurrentUser() user: AuthenticatedUser,

@@ -69,7 +69,7 @@ export class LeadsService {
     const status = this.normalizeStatus(input.status ?? 'NEW');
 
     if (input.sourceId) {
-      await this.assertSourceBelongsToTenant(input.sourceId);
+      await this.assertSourceExists(input.sourceId);
     }
 
     const lead = await this.prisma.lead.create({
@@ -141,7 +141,7 @@ export class LeadsService {
     }
 
     if (input.sourceId) {
-      await this.assertSourceBelongsToTenant(input.sourceId);
+      await this.assertSourceExists(input.sourceId);
     }
 
     const data: Record<string, unknown> = {};
@@ -319,7 +319,43 @@ export class LeadsService {
         });
       }
 
-      // 4. Mark the lead converted and link it to the new contact.
+      // 4. Migrate all pre-conversion historical interactions and records to the new Customer
+      await tx.siteVisit.updateMany({
+        where: { leadId: id },
+        data: { customerId: customer.id },
+      });
+
+      await tx.meeting.updateMany({
+        where: { leadId: id },
+        data: { customerId: customer.id },
+      });
+
+      await tx.callLog.updateMany({
+        where: { leadId: id },
+        data: { customerId: customer.id },
+      });
+
+      await tx.note.updateMany({
+        where: { entityType: 'Lead', entityId: id },
+        data: { entityType: 'Customer', entityId: customer.id },
+      });
+
+      await tx.task.updateMany({
+        where: { entityType: 'Lead', entityId: id },
+        data: { entityType: 'Customer', entityId: customer.id },
+      });
+
+      await tx.document.updateMany({
+        where: { entityType: 'Lead', entityId: id },
+        data: { entityType: 'Customer', entityId: customer.id },
+      });
+
+      await tx.activity.updateMany({
+        where: { entityType: 'Lead', entityId: id },
+        data: { entityType: 'Customer', entityId: customer.id },
+      });
+
+      // 5. Mark the lead converted and link it to the new contact.
       const updatedLead = await tx.lead.update({
         where: { id },
         data: {
@@ -368,7 +404,7 @@ export class LeadsService {
     return upper as LeadStatus;
   }
 
-  private async assertSourceBelongsToTenant(sourceId: string) {
+  private async assertSourceExists(sourceId: string) {
     const source = await this.prisma.leadSource.findFirst({
       where: { id: sourceId },
     });

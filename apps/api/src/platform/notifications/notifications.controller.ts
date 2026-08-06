@@ -88,7 +88,7 @@ export class NotificationsController {
 
   @Get('overdue-payments')
   listOverduePayments() {
-    return this.store.listOverduePaymentAlerts();
+    return this.notifications.listOverduePayments();
   }
 
   @Post('overdue-payments')
@@ -107,7 +107,7 @@ export class NotificationsController {
 
   @Get('follow-ups')
   listFollowUps() {
-    return this.store.listFollowUpReminders();
+    return this.notifications.listFollowUps();
   }
 
   @Post('follow-ups')

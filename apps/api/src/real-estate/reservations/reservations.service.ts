@@ -58,17 +58,29 @@ export class ReservationsService {
       );
     }
 
-    await this.assertCustomerBelongsToTenant(input.customerId);
+    await this.assertCustomerExists(input.customerId);
 
     return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      const unit = await tx.unit.findFirst({
-        where: { id: input.unitId },
+      // Atomic conditional update to prevent double-booking race conditions.
+      // SQL row-level check ensures only ONE concurrent transaction succeeds in transitioning AVAILABLE -> RESERVED.
+      const updateResult = await tx.unit.updateMany({
+        where: {
+          id: input.unitId,
+          status: 'AVAILABLE',
+        },
+        data: {
+          status: 'RESERVED',
+        },
       });
 
-      if (!unit) {
-        throw new BadRequestException(`Unit ${input.unitId} was not found`);
-      }
-      if (unit.status !== 'AVAILABLE') {
+      if (updateResult.count === 0) {
+        const unit = await tx.unit.findFirst({
+          where: { id: input.unitId },
+        });
+
+        if (!unit) {
+          throw new BadRequestException(`Unit ${input.unitId} was not found`);
+        }
         throw new BadRequestException(
           `Unit ${unit.unitNumber} is ${unit.status.toLowerCase()}, not available`,
         );
@@ -103,11 +115,6 @@ export class ReservationsService {
           date: reservationDate,
         },
         include: reservationInclude,
-      });
-
-      await tx.unit.update({
-        where: { id: unit.id },
-        data: { status: 'RESERVED' },
       });
 
       await tx.auditLog.create({
@@ -197,16 +204,22 @@ export class ReservationsService {
       }
 
       if (!wasActive && willBeActive) {
-        // Re-activating requires the unit to still be available.
-        if (existing.unit.status !== 'AVAILABLE') {
+        // Re-activating requires an atomic conditional transition AVAILABLE -> RESERVED
+        const updateResult = await tx.unit.updateMany({
+          where: {
+            id: existing.unitId,
+            status: 'AVAILABLE',
+          },
+          data: {
+            status: 'RESERVED',
+          },
+        });
+
+        if (updateResult.count === 0) {
           throw new BadRequestException(
             `Unit ${existing.unit.unitNumber} is ${existing.unit.status.toLowerCase()}, not available`,
           );
         }
-        await tx.unit.update({
-          where: { id: existing.unitId },
-          data: { status: 'RESERVED' },
-        });
         unitTransition = 'AVAILABLE -> RESERVED';
       }
 
@@ -276,6 +289,57 @@ export class ReservationsService {
     });
   }
 
+  async processExpiredReservations(): Promise<number> {
+    const now = new Date();
+
+    const expiredReservations = await this.prisma.reservation.findMany({
+      where: {
+        status: { in: ACTIVE_RESERVATION_STATUSES },
+        expiryDate: { lte: now },
+      },
+      include: {
+        unit: true,
+        customer: true,
+      },
+    });
+
+    let processedCount = 0;
+
+    for (const reservation of expiredReservations) {
+      await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        await tx.reservation.update({
+          where: { id: reservation.id },
+          data: { status: 'EXPIRED' },
+        });
+
+        if (reservation.unit.status === 'RESERVED') {
+          await tx.unit.update({
+            where: { id: reservation.unitId },
+            data: { status: 'AVAILABLE' },
+          });
+        }
+
+        await tx.auditLog.create({
+          data: {
+            action: 'reservation.auto_expired',
+            entityType: 'Reservation',
+            entityId: reservation.id,
+            newValues: {
+              previousStatus: reservation.status,
+              newStatus: 'EXPIRED',
+              unitStatus: 'RESERVED -> AVAILABLE',
+              expiryDate: reservation.expiryDate?.toISOString(),
+            },
+          },
+        });
+      });
+
+      processedCount++;
+    }
+
+    return processedCount;
+  }
+
   private normalizeStatus(status: string): ReservationStatus {
     const upper = status?.trim().toUpperCase();
 
@@ -309,7 +373,7 @@ export class ReservationsService {
     return date;
   }
 
-  private async assertCustomerBelongsToTenant(customerId: string) {
+  private async assertCustomerExists(customerId: string) {
     const customer = await this.prisma.customer.findFirst({
       where: { id: customerId },
     });

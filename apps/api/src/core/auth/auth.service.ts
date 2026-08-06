@@ -32,22 +32,30 @@ export class AuthService {
     firstName: string;
     lastName: string;
     email: string;
-    password?: string;
+    password: string;
   }) {
+    if (!input.firstName?.trim() || !input.lastName?.trim() || !input.email?.trim()) {
+      throw new BadRequestException('firstName, lastName, and email are required');
+    }
+
+    if (!input.password || input.password.trim().length < 8) {
+      throw new BadRequestException(
+        'password is required and must be at least 8 characters long',
+      );
+    }
+
     const email = input.email.trim().toLowerCase();
     const existing = await this.prisma.user.findUnique({ where: { email } });
     if (existing) {
       throw new UnauthorizedException('User already exists');
     }
 
-    const passwordHash = await this.passwords.hash(
-      input.password || 'tempPassword123',
-    );
+    const passwordHash = await this.passwords.hash(input.password.trim());
 
-    const adminRole = await this.prisma.role.findFirst({
+    const defaultRole = await this.prisma.role.findFirst({
       where: {
         name: {
-          in: ['Admin', 'admin', 'Owner', 'owner'],
+          in: ['Agent', 'agent', 'User', 'user', 'Member', 'member'],
         },
       },
     });
@@ -58,11 +66,11 @@ export class AuthService {
         lastName: input.lastName,
         email,
         password: passwordHash,
-        roles: adminRole
+        roles: defaultRole
           ? {
               create: [
                 {
-                  roleId: adminRole.id,
+                  roleId: defaultRole.id,
                 },
               ],
             }

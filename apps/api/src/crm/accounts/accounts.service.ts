@@ -100,9 +100,9 @@ export class AccountsService {
     const ownerId = input.ownerId || userId;
 
     if (input.parentAccountId) {
-      await this.assertAccountBelongsToTenant(input.parentAccountId);
+      await this.assertAccountExists(input.parentAccountId);
     }
-    await this.assertOwnerBelongsToTenant(ownerId);
+    await this.assertOwnerExists(ownerId);
 
     const account = await this.prisma.account.create({
       data: {
@@ -160,11 +160,11 @@ export class AccountsService {
     }
 
     if (input.parentAccountId) {
-      await this.assertAccountBelongsToTenant(input.parentAccountId);
+      await this.assertAccountExists(input.parentAccountId);
     }
 
     if (input.ownerId) {
-      await this.assertOwnerBelongsToTenant(input.ownerId);
+      await this.assertOwnerExists(input.ownerId);
     }
 
     const data: Prisma.AccountUpdateInput = {};
@@ -338,7 +338,7 @@ export class AccountsService {
     return trimmed || null;
   }
 
-  private async assertAccountBelongsToTenant(accountId: string) {
+  private async assertAccountExists(accountId: string) {
     const account = await this.prisma.account.findFirst({
       where: { id: accountId },
       select: { id: true },
@@ -350,7 +350,7 @@ export class AccountsService {
     }
   }
 
-  private async assertOwnerBelongsToTenant(ownerId: string) {
+  private async assertOwnerExists(ownerId: string) {
     const user = await this.prisma.user.findFirst({
       where: { id: ownerId, isActive: true },
       select: { id: true },

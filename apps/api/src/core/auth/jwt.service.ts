@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { JwtPayload } from './auth.types';
 
@@ -7,7 +7,27 @@ const tokenType = 'JWT';
 
 @Injectable()
 export class JwtService {
-  private readonly secret = process.env.JWT_SECRET ?? 'betflow-dev-jwt-secret';
+  private readonly logger = new Logger(JwtService.name);
+  private readonly secret: string;
+
+  constructor() {
+    const envSecret = process.env.JWT_SECRET?.trim();
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    if (!envSecret) {
+      if (isProduction) {
+        throw new Error(
+          'CRITICAL SECURITY FAILURE: JWT_SECRET environment variable is missing in production environment.',
+        );
+      }
+      this.logger.warn(
+        'SECURITY WARNING: JWT_SECRET is not configured in environment variables. Falling back to development secret. DO NOT USE IN PRODUCTION.',
+      );
+      this.secret = 'betflow-dev-jwt-secret';
+    } else {
+      this.secret = envSecret;
+    }
+  }
 
   sign(payload: Omit<JwtPayload, 'iat' | 'exp'>, expiresInSeconds = 3600) {
     const now = Math.floor(Date.now() / 1000);

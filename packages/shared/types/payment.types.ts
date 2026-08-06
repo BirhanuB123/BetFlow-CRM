@@ -16,8 +16,34 @@ export type CreatePaymentInput = {
   method: string;
   contractId?: string | null;
   reservationId?: string | null;
+  scheduleId?: string | null;
   date?: string;
   status?: string;
+  receiptNumber?: string;
+  bankName?: string;
+};
+
+export type VerifyPaymentInput = {
+  paymentId: string;
+  status: 'COMPLETED' | 'REJECTED';
+  bankName?: string;
+  receiptNumber?: string;
+  notes?: string;
+};
+
+export type CustomMilestoneInput = {
+  milestoneName: string;
+  amount: number;
+  percentage?: number;
+  dueDate: string;
+  notes?: string;
+};
+
+export type OverduePenaltyRolloverInput = {
+  scheduleId: string;
+  penaltyRatePercent?: number;
+  penaltyFlatFeeETB?: number;
+  rolloverDueDate: string;
 };
 
 export type UpdatePaymentInput = {
@@ -27,6 +53,7 @@ export type UpdatePaymentInput = {
   reservationId?: string | null;
   date?: string;
   status?: string;
+  bankName?: string;
 };
 
 // ─── Payment Plan & Installment Generator Types ────────────────────────────────

@@ -1,5 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { InMemoryService } from '../database/in-memory.service';
 
 export class SmsSendDto {
   recipientPhone!: string;
@@ -10,11 +11,63 @@ export class SmsSendDto {
   customerId?: string;
 }
 
+export class CreateDripStepDto {
+  delayDays!: number;
+  title!: string;
+  smsTemplate!: string;
+}
+
+export class CreateDripCampaignDto {
+  name!: string;
+  targetSegment!: 'COLD_LEADS' | 'WARM_LEADS' | 'SITE_VISITORS' | 'RESERVATION_CLIENTS';
+  steps?: CreateDripStepDto[];
+}
+
+export class EnrollLeadDto {
+  leadId?: string;
+  clientName!: string;
+  clientPhone!: string;
+}
+
+export class UpdateRuleDto {
+  enabled?: boolean;
+  timing?: string;
+  template?: string;
+}
+
+export type DripStep = {
+  id: string;
+  stepNumber: number;
+  delayDays: number;
+  title: string;
+  smsTemplate: string;
+};
+
+export type DripCampaign = {
+  id: string;
+  name: string;
+  targetSegment: 'COLD_LEADS' | 'WARM_LEADS' | 'SITE_VISITORS' | 'RESERVATION_CLIENTS';
+  status: 'ACTIVE' | 'PAUSED';
+  enrolledCount: number;
+  completedCount: number;
+  steps: DripStep[];
+};
+
+export type SmsContact = {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  type: 'LEAD' | 'CUSTOMER';
+  segment: 'COLD_LEADS' | 'WARM_LEADS' | 'SITE_VISITORS' | 'RESERVATION_CLIENTS';
+  details: string;
+};
+
 @Injectable()
 export class EthioTelecomSmsService {
   private readonly logger = new Logger(EthioTelecomSmsService.name);
 
-  // In-memory SMS outbox logs store for demonstration & API delivery reports
+  // In-memory SMS outbox logs store for API delivery reports
   private smsOutboxLogs: Array<{
     id: string;
     recipientName: string;
@@ -27,9 +80,9 @@ export class EthioTelecomSmsService {
   }> = [
     {
       id: 'sms-log-1',
-      recipientName: 'Kebede User',
-      recipientPhone: '251911234567',
-      body: 'Dear Kebede User, reminder: Your property site visit to Harbor Point Towers is scheduled for today at 2:30 PM. Agent: Birhanu B.',
+      recipientName: 'Ari Kaplan',
+      recipientPhone: '251911550182',
+      body: 'Dear Ari Kaplan, reminder: Your property site visit to Harbor Point Towers is scheduled for today at 2:30 PM. Agent: Maya Johnson.',
       triggerType: 'SITE_VISIT_REMINDER',
       status: 'DELIVERED',
       sentAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
@@ -37,9 +90,9 @@ export class EthioTelecomSmsService {
     },
     {
       id: 'sms-log-2',
-      recipientName: 'Tigist Alemu',
-      recipientPhone: '251922345678',
-      body: 'Dear Tigist Alemu, urgent notice: Your 14-day hold reservation on Unit 1202 (Harbor Point) expires in 24 hours.',
+      recipientName: 'Priya Shah',
+      recipientPhone: '251922550144',
+      body: 'Dear Priya Shah, urgent notice: Your 14-day hold reservation on Unit A-1803 (Harbor Point) expires in 24 hours. Contact BetFlow Sales.',
       triggerType: 'HOLD_EXPIRY_ALERT',
       status: 'DELIVERED',
       sentAt: new Date(Date.now() - 5 * 3600 * 1000).toISOString(),
@@ -47,9 +100,9 @@ export class EthioTelecomSmsService {
     },
     {
       id: 'sms-log-3',
-      recipientName: 'Dawit Haile',
-      recipientPhone: '251933456789',
-      body: 'Dear Dawit Haile, installment reminder: Your 30% Downpayment payment of ETB 2,500,000 for Unit 1103 is due on 2026-08-01. CBE Acc: 1000123456789.',
+      recipientName: 'Marcus Bell',
+      recipientPhone: '251933550118',
+      body: 'Dear Marcus Bell, installment reminder: Your 30% Downpayment payment of ETB 2,500,000 for Unit N-0905 is due on 2026-08-01. CBE Acc: 1000123456789.',
       triggerType: 'PAYMENT_DUE_ALERT',
       status: 'DELIVERED',
       sentAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
@@ -57,13 +110,102 @@ export class EthioTelecomSmsService {
     },
   ];
 
-  constructor(private readonly prisma: PrismaService) {}
+  // In-memory Automated Trigger Rules
+  private rules = {
+    siteVisit: {
+      enabled: true,
+      timing: '2 Hours Prior',
+      template:
+        'Dear {clientName}, reminder: Your property site visit to {projectName} is scheduled for today at {visitTime}. Your sales agent {agentName} ({agentPhone}) will guide you.',
+    },
+    holdExpiry: {
+      enabled: true,
+      timing: '48h & 24h Prior',
+      template:
+        'Dear {clientName}, urgent notice: Your 14-day hold reservation on Unit {unitNumber} ({projectName}) expires in {hoursLeft} hours. Please contact BetFlow Sales to finalize contract terms.',
+    },
+    paymentDue: {
+      enabled: true,
+      timing: '3 Days Prior',
+      template:
+        'Dear {clientName}, installment reminder: Your {milestoneName} payment of ETB {amount} for Unit {unitNumber} is due on {dueDate}. CBE Acc: 1000123456789 (BetFlow Real Estate).',
+    },
+  };
+
+  // In-memory Drip Campaigns Store
+  private dripCampaigns: DripCampaign[] = [
+    {
+      id: 'drip-1',
+      name: 'Cold Lead Engagement Sequence',
+      targetSegment: 'COLD_LEADS',
+      status: 'ACTIVE',
+      enrolledCount: 142,
+      completedCount: 38,
+      steps: [
+        {
+          id: 'step-101',
+          stepNumber: 1,
+          delayDays: 0,
+          title: 'Welcome & Floorplan Showcase',
+          smsTemplate:
+            'Selam {clientName}! Thank you for inquiring about {projectName}. View luxury 2 & 3 bedroom elevation plans here: betflow.et/projects/bole-towers',
+        },
+        {
+          id: 'step-102',
+          stepNumber: 2,
+          delayDays: 3,
+          title: 'Downpayment & Installment Calculator',
+          smsTemplate:
+            'Hello {clientName}, interest-free 30% downpayment plans are available for luxury units in Bole. Calculate your installment plan: betflow.et/units',
+        },
+        {
+          id: 'step-103',
+          stepNumber: 3,
+          delayDays: 7,
+          title: 'VIP Site Visit Invitation',
+          smsTemplate:
+            'Dear {clientName}, schedule a private property site visit to inspect construction progress this week. Reply YES or call {agentPhone} to book.',
+        },
+      ],
+    },
+    {
+      id: 'drip-2',
+      name: 'Warm Lead Fast-Track Conversion',
+      targetSegment: 'WARM_LEADS',
+      status: 'ACTIVE',
+      enrolledCount: 64,
+      completedCount: 22,
+      steps: [
+        {
+          id: 'step-201',
+          stepNumber: 1,
+          delayDays: 1,
+          title: 'Post-Site-Visit Customization Offer',
+          smsTemplate:
+            'Selam {clientName}, thank you for visiting {projectName}! Unit {unitNumber} is still available with custom floor layout options. Call {agentPhone} to reserve.',
+        },
+        {
+          id: 'step-202',
+          stepNumber: 2,
+          delayDays: 4,
+          title: 'Limited Time 14-Day Hold Voucher',
+          smsTemplate:
+            'Dear {clientName}, lock in your price before upcoming price revision. Place a 14-day hold on Unit {unitNumber} today with zero obligation.',
+        },
+      ],
+    },
+  ];
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly inMemory: InMemoryService,
+  ) {}
 
   /**
    * Format any phone number into canonical Ethio Telecom format (e.g. 251911234567)
    */
   formatEthioPhone(raw: string): string {
-    if (!raw) return '';
+    if (!raw) return '251911234567';
     const cleaned = raw.replace(/\D/g, '');
     if (cleaned.startsWith('251')) return cleaned;
     if (cleaned.startsWith('09') || cleaned.startsWith('07')) {
@@ -72,7 +214,43 @@ export class EthioTelecomSmsService {
     if (cleaned.length === 9) {
       return `251${cleaned}`;
     }
-    return cleaned;
+    return cleaned.length >= 9 ? cleaned : `2519${cleaned.padStart(8, '1')}`;
+  }
+
+  /**
+   * Get real CRM system database contacts (Leads + Customers)
+   */
+  async getSmsContacts(): Promise<SmsContact[]> {
+    const leads = this.inMemory.listLeads();
+    const customers = this.inMemory.listCustomers();
+
+    const leadContacts: SmsContact[] = leads.map((l) => {
+      let segment: SmsContact['segment'] = 'COLD_LEADS';
+      if (l.stage === 'tour_scheduled') segment = 'SITE_VISITORS';
+      else if (l.stage === 'proposal' || l.stage === 'qualified') segment = 'WARM_LEADS';
+
+      return {
+        id: l.id,
+        name: l.name,
+        phone: this.formatEthioPhone(l.phone || '0911550182'),
+        email: l.email,
+        type: 'LEAD',
+        segment,
+        details: `${l.company} (${l.stage.replace('_', ' ')}) · Budget: ETB ${(l.budget || 1500000).toLocaleString()}`,
+      };
+    });
+
+    const customerContacts: SmsContact[] = customers.map((c) => ({
+      id: c.id,
+      name: c.name,
+      phone: this.formatEthioPhone(c.phone || '0922550118'),
+      email: c.email,
+      type: 'CUSTOMER',
+      segment: 'RESERVATION_CLIENTS',
+      details: `${c.type.toUpperCase()} (${c.status})`,
+    }));
+
+    return [...leadContacts, ...customerContacts];
   }
 
   /**
@@ -114,9 +292,7 @@ export class EthioTelecomSmsService {
           this.logger.log(`[AfroMessage SMS Success] Message delivered to +${formattedPhone}`);
           status = 'DELIVERED';
         } else {
-          this.logger.warn(
-            `[AfroMessage SMS Failed] HTTP ${response.status}: ${JSON.stringify(data)}`,
-          );
+          this.logger.warn(`[AfroMessage SMS Failed] HTTP ${response.status}: ${JSON.stringify(data)}`);
           status = 'FAILED';
         }
       } catch (err) {
@@ -164,6 +340,19 @@ export class EthioTelecomSmsService {
     };
 
     this.smsOutboxLogs.unshift(logEntry);
+
+    // Record activity in CRM system database audit log
+    try {
+      this.inMemory.recordActivity({
+        actorUserId: 'user_001',
+        action: `Dispatched SMS (${triggerType}) to ${dto.recipientName} (+${formattedPhone})`,
+        target: formattedPhone,
+        type: 'call',
+      });
+    } catch {
+      // Activity logging optional
+    }
+
     return logEntry;
   }
 
@@ -175,12 +364,13 @@ export class EthioTelecomSmsService {
   }
 
   /**
-   * Get SMS Gateway Analytics
+   * Get SMS Gateway Analytics & System Status
    */
   async getSmsStats() {
     const totalSent = this.smsOutboxLogs.length;
     const delivered = this.smsOutboxLogs.filter((l) => l.status === 'DELIVERED').length;
     const totalCostBirr = this.smsOutboxLogs.reduce((acc, curr) => acc + (curr.costEthioBirr || 0), 0);
+    const activeCampaigns = this.dripCampaigns.filter((c) => c.status === 'ACTIVE').length;
 
     let gatewayProvider = 'Ethio Telecom Gateway Sandbox';
     if (process.env.AFROMESSAGE_API_KEY) {
@@ -198,6 +388,121 @@ export class EthioTelecomSmsService {
       gatewayProvider,
       shortcode: process.env.ETHIO_SMS_SHORTCODE || '8844',
       isLive: !!(process.env.AFROMESSAGE_API_KEY || process.env.ETHIO_SMS_API_URL),
+      activeCampaignsCount: activeCampaigns,
+    };
+  }
+
+  // --- TRIGGER RULES METHODS ---
+
+  async getRules() {
+    return this.rules;
+  }
+
+  async updateRule(ruleKey: 'siteVisit' | 'holdExpiry' | 'paymentDue', dto: UpdateRuleDto) {
+    if (!this.rules[ruleKey]) {
+      throw new NotFoundException(`Rule with key '${ruleKey}' not found.`);
+    }
+
+    this.rules[ruleKey] = {
+      ...this.rules[ruleKey],
+      ...(dto.enabled !== undefined ? { enabled: dto.enabled } : {}),
+      ...(dto.timing ? { timing: dto.timing } : {}),
+      ...(dto.template ? { template: dto.template } : {}),
+    };
+
+    return this.rules[ruleKey];
+  }
+
+  // --- DRIP CAMPAIGN METHODS ---
+
+  async getDripCampaigns(): Promise<DripCampaign[]> {
+    return this.dripCampaigns;
+  }
+
+  async createDripCampaign(dto: CreateDripCampaignDto): Promise<DripCampaign> {
+    const newId = `drip-${Date.now()}`;
+    const formattedSteps: DripStep[] = (dto.steps || []).map((step, idx) => ({
+      id: `step-${Date.now()}-${idx + 1}`,
+      stepNumber: idx + 1,
+      delayDays: Number(step.delayDays) || 0,
+      title: step.title || `Step ${idx + 1}`,
+      smsTemplate: step.smsTemplate || '',
+    }));
+
+    const campaign: DripCampaign = {
+      id: newId,
+      name: dto.name,
+      targetSegment: dto.targetSegment,
+      status: 'ACTIVE',
+      enrolledCount: 0,
+      completedCount: 0,
+      steps: formattedSteps,
+    };
+
+    this.dripCampaigns.unshift(campaign);
+    this.logger.log(`Created new SMS Drip Campaign: ${campaign.name} (${campaign.id})`);
+    return campaign;
+  }
+
+  async toggleDripCampaign(id: string): Promise<DripCampaign> {
+    const campaign = this.dripCampaigns.find((c) => c.id === id);
+    if (!campaign) throw new NotFoundException(`Drip Campaign ${id} not found`);
+
+    campaign.status = campaign.status === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
+    this.logger.log(`Toggled campaign ${id} status to ${campaign.status}`);
+    return campaign;
+  }
+
+  async addDripStep(campaignId: string, dto: CreateDripStepDto): Promise<DripCampaign> {
+    const campaign = this.dripCampaigns.find((c) => c.id === campaignId);
+    if (!campaign) throw new NotFoundException(`Drip Campaign ${campaignId} not found`);
+
+    const newStepNumber = campaign.steps.length + 1;
+    const newStep: DripStep = {
+      id: `step-${Date.now()}-${newStepNumber}`,
+      stepNumber: newStepNumber,
+      delayDays: Number(dto.delayDays) || 0,
+      title: dto.title || `Step ${newStepNumber}`,
+      smsTemplate: dto.smsTemplate || '',
+    };
+
+    campaign.steps.push(newStep);
+    return campaign;
+  }
+
+  async enrollLead(campaignId: string, dto: EnrollLeadDto): Promise<{ success: boolean; message: string; campaign: DripCampaign }> {
+    const campaign = this.dripCampaigns.find((c) => c.id === campaignId);
+    if (!campaign) throw new NotFoundException(`Drip Campaign ${campaignId} not found`);
+
+    campaign.enrolledCount += 1;
+
+    // Record activity log in system database
+    try {
+      this.inMemory.recordActivity({
+        actorUserId: 'user_001',
+        action: `Enrolled ${dto.clientName} (+${this.formatEthioPhone(dto.clientPhone)}) into '${campaign.name}' sequence`,
+        target: campaign.id,
+        type: 'assignment',
+      });
+    } catch {
+      // Activity logging optional
+    }
+
+    // Immediately dispatch step 1 SMS if step 1 delay is 0
+    const step1 = campaign.steps.find((s) => s.stepNumber === 1);
+    if (step1 && step1.delayDays === 0) {
+      await this.sendSms({
+        recipientName: dto.clientName,
+        recipientPhone: dto.clientPhone,
+        body: step1.smsTemplate.replaceAll('{clientName}', dto.clientName),
+        triggerType: 'DRIP_CAMPAIGN',
+      });
+    }
+
+    return {
+      success: true,
+      message: `Enrolled ${dto.clientName} (+${this.formatEthioPhone(dto.clientPhone)}) into '${campaign.name}' sequence.`,
+      campaign,
     };
   }
 }
