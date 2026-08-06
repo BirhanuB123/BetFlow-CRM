@@ -6,6 +6,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import { CreateContractInput, UpdateContractInput } from './contracts.types';
+import { PdfGeneratorService } from './pdf-generator.service';
 
 const contractInclude = {
   customer: { select: { id: true, firstName: true, lastName: true } },
@@ -16,7 +17,114 @@ const contractInclude = {
 
 @Injectable()
 export class ContractsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly pdfGenerator: PdfGeneratorService,
+  ) {}
+
+  async generatePdf(id: string): Promise<Buffer> {
+    const contract = await this.prisma.contract.findUnique({
+      where: { id },
+      include: {
+        customer: true,
+        unit: {
+          include: {
+            floor: {
+              include: { building: { include: { project: true } } },
+            },
+          },
+        },
+        signatures: {
+          orderBy: { signedAt: 'asc' },
+        },
+      },
+    });
+
+    if (!contract) {
+      throw new NotFoundException(`Contract ${id} not found`);
+    }
+
+    return this.pdfGenerator.generateContractPdf({
+      contractId: contract.id,
+      contractNumber: contract.contractNumber || undefined,
+      projectName: contract.unit.floor.building.project.name,
+      buildingName: contract.unit.floor.building.name,
+      unitNumber: contract.unit.unitNumber,
+      unitType: contract.unit.type,
+      floorName: contract.unit.floor.name || `Floor ${contract.unit.floor.floorNumber}`,
+      buyerName: `${contract.customer.firstName} ${contract.customer.lastName}`,
+      buyerEmail: contract.customer.email || undefined,
+      buyerPhone: contract.customer.phone || undefined,
+      agreedPrice: Number(contract.totalAmt),
+      currency: 'ETB',
+      status: contract.status,
+      createdAt: contract.createdAt,
+      signatures: contract.signatures,
+    });
+  }
+
+  async signContract(
+    id: string,
+    input: {
+      signerName: string;
+      signerEmail?: string;
+      signerRole: 'BUYER' | 'SELLER_REP' | 'WITNESS';
+      signatureDataUrl: string;
+    },
+    reqMeta: { ipAddress: string; userAgent: string },
+  ) {
+    const contract = await this.prisma.contract.findUnique({
+      where: { id },
+    });
+
+    if (!contract) {
+      throw new NotFoundException(`Contract ${id} not found`);
+    }
+
+    const signedAtISO = new Date().toISOString();
+    const verificationHash = this.pdfGenerator.computeSignatureHash(
+      id,
+      input.signerName,
+      signedAtISO,
+      reqMeta.ipAddress,
+      input.signatureDataUrl,
+    );
+
+    const signature = await this.prisma.signatureAudit.create({
+      data: {
+        contractId: id,
+        signerName: input.signerName,
+        signerEmail: input.signerEmail || null,
+        signerRole: input.signerRole,
+        signatureDataUrl: input.signatureDataUrl,
+        ipAddress: reqMeta.ipAddress,
+        userAgent: reqMeta.userAgent,
+        verificationHash,
+        signedAt: new Date(signedAtISO),
+      },
+    });
+
+    // Mark contract as SIGNED and unit as SOLD
+    await this.prisma.contract.update({
+      where: { id },
+      data: { status: 'SIGNED' },
+    });
+
+    await this.prisma.unit.update({
+      where: { id: contract.unitId },
+      data: { status: 'SOLD' },
+    });
+
+    return signature;
+  }
+
+  async getSignatures(id: string) {
+    return this.prisma.signatureAudit.findMany({
+      where: { contractId: id },
+      orderBy: { signedAt: 'asc' },
+    });
+  }
+
 
   list() {
     return this.prisma.contract.findMany({

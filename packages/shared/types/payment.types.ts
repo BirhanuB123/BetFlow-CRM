@@ -128,3 +128,29 @@ export type ApprovalRequestItem = {
   status: ApprovalStatus;
   createdAt: string;
 };
+
+// ─── E-Signature & Audit Trail Types ───────────────────────────────────────────
+
+export type SignerRole = 'BUYER' | 'SELLER_REP' | 'WITNESS';
+
+export type ContractSignatureInput = {
+  contractId: string;
+  signerName: string;
+  signerEmail?: string;
+  signerRole: SignerRole;
+  signatureDataUrl: string; // Base64 PNG image data
+};
+
+export type SignatureAuditItem = {
+  id: string;
+  contractId: string;
+  signerName: string;
+  signerEmail?: string | null;
+  signerRole: SignerRole;
+  signatureDataUrl: string;
+  ipAddress: string;
+  userAgent: string;
+  verificationHash: string;
+  signedAt: string;
+};
+

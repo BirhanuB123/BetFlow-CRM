@@ -370,8 +370,9 @@ model Contract {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  payments  Payment[]
-  schedules PaymentSchedule[]
+  payments   Payment[]
+  schedules  PaymentSchedule[]
+  signatures SignatureAudit[]
 }
 
 model Payment {
@@ -511,3 +512,22 @@ model AuditLog {
   newValues  Json?
   createdAt  DateTime @default(now())
 }
+
+model SignatureAudit {
+  id               String   @id @default(uuid())
+  contractId       String
+  contract         Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  signerName       String
+  signerEmail      String?
+  signerRole       String   @default("BUYER") // BUYER, SELLER_REP, WITNESS
+  signatureDataUrl String   @db.Text
+  ipAddress        String   @default("127.0.0.1")
+  userAgent        String   @default("Unknown")
+  verificationHash String
+  signedAt         DateTime @default(now())
+
+  createdAt DateTime @default(now())
+
+  @@index([contractId])
+}
+

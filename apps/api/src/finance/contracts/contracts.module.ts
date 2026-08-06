@@ -4,11 +4,12 @@ import { DatabaseModule } from '../../database/database.module';
 import { ContractsController } from './contracts.controller';
 import { ContractsService } from './contracts.service';
 import { ContractBuilderService } from './contract-builder.service';
+import { PdfGeneratorService } from './pdf-generator.service';
 
 @Module({
   imports: [DatabaseModule, AuthModule],
   controllers: [ContractsController],
-  providers: [ContractsService, ContractBuilderService],
-  exports: [ContractsService, ContractBuilderService],
+  providers: [ContractsService, ContractBuilderService, PdfGeneratorService],
+  exports: [ContractsService, ContractBuilderService, PdfGeneratorService],
 })
 export class ContractsModule {}
