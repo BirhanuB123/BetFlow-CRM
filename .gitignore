@@ -70,3 +70,5 @@ build/
 
 apps/api/dist
 apps/api/.turbo
+.git-backup
+*.tsbuildinfo

@@ -98,28 +98,28 @@ export default function SocialBroadcastsPage() {
 
   return (
     <DashboardShell
-      title="Social Leads Broadcasts (የሶሻል ሚዲያ መገናኛ)"
+      title="Social Outreach & Channel Broadcasts (የሶሻል ሚዲያ መገናኛ)"
       description="Connect real estate Telegram channels, Meta Lead Ads, and launch broadcast updates directly to property buyers."
       active="Social Outreach"
     >
       <div className="space-y-6">
-        {/* Section Header & Broadcast Button */}
-        <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
+        {/* Uniform Section Header */}
+        <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <Send className="size-5 text-[#233b66]" />
-                <h2 className="text-lg font-bold text-slate-900">Telegram & Social Outreach Engine</h2>
+                <Megaphone className="size-5 text-[#233b66]" />
+                <h2 className="text-base font-bold text-slate-900">Telegram & Social Outreach Engine</h2>
               </div>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-xs text-slate-500">
                 Broadcast construction progress, new floor plan launches, and pro-forma invoice guides to Ethiopian property buyers.
               </p>
             </div>
             <Button
               onClick={() => setShowComposer((v) => !v)}
-              className="bg-[#233b66] hover:bg-[#1d3257] text-white font-medium shadow-sm transition-all"
+              className="bg-[#233b66] hover:bg-[#1d3257] text-white font-medium text-xs h-9 px-4 shadow-xs flex items-center gap-1.5"
             >
-              {showComposer ? <X className="size-4 mr-1.5" /> : <Plus className="size-4 mr-1.5" />}
+              {showComposer ? <X className="size-3.5" /> : <Plus className="size-3.5" />}
               {showComposer ? "Cancel Broadcast" : "New Telegram Broadcast"}
             </Button>
           </div>
@@ -128,7 +128,7 @@ export default function SocialBroadcastsPage() {
           {showComposer && (
             <form
               onSubmit={handleLaunchBroadcast}
-              className="mt-6 rounded-xl border border-sky-100 bg-gradient-to-b from-sky-50/40 to-slate-50/50 p-5 shadow-inner"
+              className="mt-5 rounded-xl border border-sky-200 bg-sky-50/40 p-5 shadow-xs"
             >
               <h3 className="text-xs font-bold text-sky-950 uppercase tracking-wider mb-4 flex items-center gap-2">
                 <Sparkles className="size-4 text-sky-600" />
@@ -144,7 +144,7 @@ export default function SocialBroadcastsPage() {
                     placeholder="e.g. Bole Tower 80% Construction Milestone & New 2-Bed Unit Availability"
                     value={form.title}
                     onChange={(e) => setForm({ ...form, title: e.target.value })}
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66]"
                   />
                 </div>
 
@@ -153,7 +153,7 @@ export default function SocialBroadcastsPage() {
                   <select
                     value={form.channel}
                     onChange={(e) => setForm({ ...form, channel: e.target.value as BroadcastCampaign["channel"] })}
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66]"
                   >
                     <option value="TELEGRAM">Telegram Channel (@BetFlowRealEstate)</option>
                     <option value="SMS">SMS Direct Alerts</option>
@@ -167,7 +167,7 @@ export default function SocialBroadcastsPage() {
                   <select
                     value={form.segment}
                     onChange={(e) => setForm({ ...form, segment: e.target.value })}
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66]"
                   >
                     <option value="All Telegram Channel Subscribers">All Telegram Subscribers (2,450 Buyers)</option>
                     <option value="Qualified Diaspora Buyers">Qualified Diaspora Buyers (420 Buyers)</option>
@@ -181,126 +181,78 @@ export default function SocialBroadcastsPage() {
                   <textarea
                     required
                     rows={4}
-                    placeholder="e.g. 🏢 Bole Penthouse Units Now Open! 📍 Prime location in Bole Medhanialem. 30% Downpayment with 24 months interest-free installment plan. Click below to book a site visit."
+                    placeholder="e.g. 🏢 Bole Penthouse Units Now Open! 📍 Prime location in Bole Medhanialem. 30% Downpayment with 24 months interest-free installment plan."
                     value={form.message}
                     onChange={(e) => setForm({ ...form, message: e.target.value })}
-                    className="w-full rounded-lg border border-slate-300 bg-white p-3 text-xs text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 shadow-sm"
+                    className="w-full rounded-lg border border-slate-300 bg-white p-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] font-mono leading-relaxed"
                   />
                 </div>
               </div>
 
-              <div className="mt-5 flex justify-end gap-3 border-t border-sky-100 pt-4">
+              <div className="mt-4 flex justify-end gap-3 border-t border-sky-200/60 pt-3">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setShowComposer(false)}
-                  className="border-slate-300 text-slate-700 hover:bg-slate-100 text-xs"
+                  className="border-slate-300 text-slate-700 hover:bg-slate-100 text-xs h-9"
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={sending} className="bg-sky-600 hover:bg-sky-700 text-white font-medium text-xs shadow-sm">
-                  {sending ? "Broadcasting…" : "Send Telegram & Social Broadcast"}
+                <Button type="submit" disabled={sending} className="bg-[#233b66] hover:bg-[#1d3257] text-white font-bold text-xs h-9 px-5">
+                  {sending ? "Broadcasting…" : "Send Social Broadcast"}
                 </Button>
               </div>
             </form>
           )}
         </section>
 
-        {/* Connected Social Channel Cards */}
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-xl border border-sky-200 bg-sky-50/50 p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Send className="size-5 text-sky-600" />
-                <h3 className="font-bold text-slate-900 text-sm">Telegram Bot & Channel</h3>
-              </div>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                <CheckCircle2 className="size-3" /> CONNECTED
-              </span>
-            </div>
-            <p className="mt-2 text-xs text-slate-600">
-              Automated Telegram channel postings, lead inquiry bot, & instant site visit scheduling.
-            </p>
-          </div>
-
-          <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Share2 className="size-5 text-indigo-600" />
-                <h3 className="font-bold text-slate-900 text-sm">Meta Lead Ads Webhook</h3>
-              </div>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                <CheckCircle2 className="size-3" /> ACTIVE
-              </span>
-            </div>
-            <p className="mt-2 text-xs text-slate-600">
-              Instant sync of Facebook & Instagram Lead Ads directly into BetFlow CRM pipeline.
-            </p>
-          </div>
-
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <MessageSquare className="size-5 text-emerald-600" />
-                <h3 className="font-bold text-slate-900 text-sm">WhatsApp Inquiry Bot</h3>
-              </div>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                <CheckCircle2 className="size-3" /> ACTIVE
-              </span>
-            </div>
-            <p className="mt-2 text-xs text-slate-600">
-              Diaspora buyer outreach and automated pro-forma invoice dispatch via WhatsApp.
-            </p>
-          </div>
-        </div>
-
         {/* Broadcast History Table */}
-        <section className="rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
-          <div className="border-b border-slate-200 bg-slate-50/50 px-5 py-3 flex items-center justify-between">
-            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Broadcast Outreach Log</h3>
+        <section className="rounded-xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
+          <div className="border-b border-slate-200 bg-slate-50/80 px-4 py-3 flex items-center justify-between">
+            <h3 className="font-bold text-slate-700 text-xs uppercase tracking-wider">Broadcast Outreach Log</h3>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs whitespace-nowrap">
-              <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+              <thead className="bg-slate-50/80 text-slate-600 font-semibold border-b border-slate-200 uppercase tracking-wider">
                 <tr>
-                  <th className="px-5 py-3">Broadcast Title</th>
-                  <th className="px-5 py-3">Channel</th>
-                  <th className="px-5 py-3">Target Segment</th>
-                  <th className="px-5 py-3">Recipients</th>
-                  <th className="px-5 py-3">Date Sent</th>
-                  <th className="px-5 py-3">Clicks & Engagements</th>
-                  <th className="px-5 py-3">Status</th>
+                  <th className="px-4 py-3">Broadcast Title</th>
+                  <th className="px-4 py-3">Channel</th>
+                  <th className="px-4 py-3">Target Segment</th>
+                  <th className="px-4 py-3">Recipients</th>
+                  <th className="px-4 py-3">Date Sent</th>
+                  <th className="px-4 py-3">Clicks & Engagements</th>
+                  <th className="px-4 py-3">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {campaigns.map((c) => (
-                  <tr key={c.id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="px-5 py-3 font-semibold text-slate-800">
+                  <tr key={c.id} className="hover:bg-slate-50/70 transition-colors">
+                    <td className="px-4 py-3 font-semibold text-slate-900">
                       {c.title}
                     </td>
 
-                    <td className="px-5 py-3">
-                      <span className="inline-flex items-center gap-1.5 rounded-md bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-700 border border-sky-200">
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center gap-1.5 rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-700 border border-slate-200">
                         {c.channel === "TELEGRAM" && <Send className="size-3 text-sky-600" />}
                         {c.channel}
                       </span>
                     </td>
 
-                    <td className="px-5 py-3 text-slate-600">{c.segment}</td>
+                    <td className="px-4 py-3 text-slate-600">{c.segment}</td>
 
-                    <td className="px-5 py-3 font-bold text-slate-800">{c.recipients.toLocaleString()} buyers</td>
+                    <td className="px-4 py-3 font-bold text-slate-900">{c.recipients.toLocaleString()} buyers</td>
 
-                    <td className="px-5 py-3 font-medium text-slate-600">
+                    <td className="px-4 py-3 font-medium text-slate-600 font-mono">
                       {new Date(c.sentAt).toLocaleDateString()}
                     </td>
 
-                    <td className="px-5 py-3 font-semibold text-emerald-700">
+                    <td className="px-4 py-3 font-semibold text-emerald-700">
                       {c.clicks} clicks ({Math.round((c.clicks / Math.max(1, c.recipients)) * 100)}%)
                     </td>
 
-                    <td className="px-5 py-3">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 border border-emerald-200">
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
                         <CheckCircle2 className="size-3" /> {c.status}
                       </span>
                     </td>

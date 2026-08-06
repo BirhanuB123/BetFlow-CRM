@@ -90,27 +90,56 @@ const primaryNavItems = [
   { label: "Reports", href: "/reports", icon: BarChart3, aliases: ["Sales report"] },
 ];
 
-const moduleNavItems = [
-  { label: "Leads", href: "/leads", icon: UserRoundCheck },
-  { label: "Customers", href: "/customers", icon: UsersRound, aliases: ["Contacts", "Buyers"] },
-  { label: "Deals", href: "/deals", icon: CircleDollarSign},
-  { label: "Tasks", href: "/tasks", icon: ClipboardList },
-  { label: "Meetings", href: "/meetings", icon: CalendarDays },
-  { label: "Calls", href: "/notifications/follow-ups", icon: Phone },
-  { label: "Social Outreach", href: "/automation/email-campaigns", icon: Megaphone, aliases: ["Campaigns", "Telegram", "Social leads"] },
-  { label: "SMS & Drip Automation", href: "/automation/sms", icon: MessageSquare, aliases: ["SMS", "Ethio Telecom", "Drip"] },
-  { label: "Documents", href: "/documents", icon: FileText },
-  { label: "Visits", href: "/site-visits", icon: Route, aliases: ["Site visits"] },
-  { label: "Projects", href: "/projects", icon: Building2 },
-  { label: "Units", href: "/units", icon: SquareStack },
-  { label: "Reservations", href: "/reservations", icon: ShoppingBag },
-  { label: "Contracts", href: "/contracts", icon: ScrollText },
+const navSections = [
+  {
+    title: "Sales & Pipeline",
+    items: [
+      { label: "Leads", href: "/leads", icon: UserRoundCheck },
+      { label: "Customers", href: "/customers", icon: UsersRound, aliases: ["Contacts", "Buyers"] },
+      { label: "Deals", href: "/deals", icon: CircleDollarSign },
+    ],
+  },
+  {
+    title: "Activities & Engagement",
+    items: [
+      { label: "Tasks", href: "/tasks", icon: ClipboardList },
+      { label: "Meetings", href: "/meetings", icon: CalendarDays },
+      { label: "Calls", href: "/notifications/follow-ups", icon: Phone },
+      { label: "Visits", href: "/site-visits", icon: Route, aliases: ["Site visits"] },
+    ],
+  },
+  {
+    title: "Property Inventory",
+    items: [
+      { label: "Projects", href: "/projects", icon: Building2 },
+      { label: "Units", href: "/units", icon: SquareStack },
+    ],
+  },
+  {
+    title: "Transactions & Finance",
+    items: [
+      { label: "Reservations", href: "/reservations", icon: ShoppingBag },
+      { label: "Contracts", href: "/contracts", icon: ScrollText },
+      { label: "Payment Schedules", href: "/payments", icon: CircleDollarSign, aliases: ["Payments", "Milestones"] },
+    ],
+  },
+  {
+    title: "Marketing & Automation",
+    items: [
+      { label: "Social Outreach", href: "/automation/email-campaigns", icon: Megaphone, aliases: ["Campaigns", "Telegram", "Social leads"] },
+      { label: "SMS & Drip Automation", href: "/automation/sms", icon: MessageSquare, aliases: ["SMS", "Ethio Telecom", "Drip"] },
+    ],
+  },
+  {
+    title: "System & Assets",
+    items: [
+      { label: "Documents", href: "/documents", icon: FileText },
+      { label: "Settings", href: "/settings", icon: Settings },
+    ],
+  },
 ];
 
-const utilityNavItems = [
-  { label: "Payment Schedules", href: "/payments", icon: CircleDollarSign, aliases: ["Payments", "Milestones"] },
-  { label: "Settings", href: "/settings", icon: Settings },
-];
+const moduleNavItems = navSections.flatMap((s) => s.items);
 
 const createItems = [
   { label: "New Lead", href: "/leads", icon: UserRoundCheck },
@@ -120,7 +149,7 @@ const createItems = [
   { label: "New Meeting", href: "/meetings", icon: CalendarDays },
 ];
 
-const searchIndex = [...primaryNavItems, ...moduleNavItems, ...utilityNavItems];
+const searchIndex = [...primaryNavItems, ...moduleNavItems];
 
 type NavItem = {
   label: string;
@@ -577,26 +606,38 @@ export function DashboardShell({
               placeholder="Search"
             />
           </label>
-          <nav className="flex-1 space-y-1 overflow-y-auto pr-1">
-            {filteredModules.map((item) => (
-              <SidebarLink
-                key={`${item.href}-${item.label}`}
-                item={item}
-                active={active}
-                onNavigate={() => setNavOpen(false)}
-              />
-            ))}
+          <nav className="flex-1 space-y-3 overflow-y-auto pr-1">
             {moduleQuery.trim() === "" ? (
-              <>
-                <div className="my-2 border-t border-white/14" />
-                {utilityNavItems.map((item) => (
-                  <SidebarLink key={item.href} item={item} active={active} onNavigate={() => setNavOpen(false)} />
+              navSections.map((section) => (
+                <div key={section.title} className="space-y-0.5">
+                  <p className="px-2.5 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-[#8fa0c0] group-data-[collapsed=true]/side:lg:hidden">
+                    {section.title}
+                  </p>
+                  {section.items.map((item) => (
+                    <SidebarLink
+                      key={`${item.href}-${item.label}`}
+                      item={item}
+                      active={active}
+                      onNavigate={() => setNavOpen(false)}
+                    />
+                  ))}
+                </div>
+              ))
+            ) : (
+              <div className="space-y-1">
+                {filteredModules.map((item) => (
+                  <SidebarLink
+                    key={`${item.href}-${item.label}`}
+                    item={item}
+                    active={active}
+                    onNavigate={() => setNavOpen(false)}
+                  />
                 ))}
-              </>
-            ) : null}
-            {filteredModules.length === 0 ? (
-              <p className="px-2.5 py-2 text-sm text-[#93a3c1]">No modules found</p>
-            ) : null}
+                {filteredModules.length === 0 ? (
+                  <p className="px-2.5 py-2 text-sm text-[#93a3c1]">No modules found</p>
+                ) : null}
+              </div>
+            )}
           </nav>
         </div>
 

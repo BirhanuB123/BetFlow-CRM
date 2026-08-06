@@ -3,15 +3,15 @@
   "_comment": "TypeScript config for NestJS apps. Extends base and adds NestJS-specific options.",
   "extends": "./base.json",
   "compilerOptions": {
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "resolvePackageJsonExports": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "sourceMap": true,
     "outDir": "./dist",
+    "incremental": false,
     "ignoreDeprecations": "5.0"
   }
 }

@@ -100,7 +100,7 @@ export class UnitsService {
     if (!type) throw new BadRequestException('type is required');
 
     if (!input.floorId) throw new BadRequestException('floorId is required');
-    await this.assertFloorBelongsToTenant(input.floorId);
+    await this.assertFloorExists(input.floorId);
 
     const price = this.normalizePrice(input.price);
     const status = this.normalizeStatus(input.status ?? 'AVAILABLE');
@@ -132,7 +132,7 @@ export class UnitsService {
     }
 
     if (input.floorId) {
-      await this.assertFloorBelongsToTenant(input.floorId);
+      await this.assertFloorExists(input.floorId);
     }
 
     const data: Record<string, unknown> = {};
@@ -244,7 +244,7 @@ export class UnitsService {
     return parsed.toFixed(2);
   }
 
-  private async assertFloorBelongsToTenant(floorId: string) {
+  private async assertFloorExists(floorId: string) {
     const floor = await this.prisma.floor.findFirst({
       where: { id: floorId },
     });

@@ -80,10 +80,10 @@ export class PaymentsService {
     }
 
     if (contractId) {
-      await this.assertContractBelongsToTenant(contractId);
+      await this.assertContractExists(contractId);
     }
     if (reservationId) {
-      await this.assertReservationBelongsToTenant(reservationId);
+      await this.assertReservationExists(reservationId);
     }
 
     const payment = await this.prisma.payment.create({
@@ -147,10 +147,10 @@ export class PaymentsService {
     if (input.contractId !== undefined || input.reservationId !== undefined) {
       this.assertExactlyOneTarget(contractId, reservationId);
       if (contractId && contractId !== existing.contractId) {
-        await this.assertContractBelongsToTenant(contractId);
+        await this.assertContractExists(contractId);
       }
       if (reservationId && reservationId !== existing.reservationId) {
-        await this.assertReservationBelongsToTenant(reservationId);
+        await this.assertReservationExists(reservationId);
       }
     }
 
@@ -229,7 +229,7 @@ export class PaymentsService {
     return date;
   }
 
-  private async assertContractBelongsToTenant(contractId: string) {
+  private async assertContractExists(contractId: string) {
     const contract = await this.prisma.contract.findFirst({
       where: { id: contractId },
     });
@@ -238,7 +238,7 @@ export class PaymentsService {
     }
   }
 
-  private async assertReservationBelongsToTenant(reservationId: string) {
+  private async assertReservationExists(reservationId: string) {
     const reservation = await this.prisma.reservation.findFirst({
       where: { id: reservationId },
     });

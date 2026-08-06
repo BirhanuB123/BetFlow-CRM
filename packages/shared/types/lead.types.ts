@@ -23,6 +23,28 @@ export type CreateLeadInput = {
   status?: string;
   sourceId?: string;
   ownerId?: string;
+  interestedProjectId?: string;
+  telegramHandle?: string;
+  websiteInquiryUrl?: string;
+  budgetMinETB?: number;
+  budgetMaxETB?: number;
+  timeline?: 'IMMEDIATE' | '3_MONTHS' | '6_MONTHS' | '12_MONTHS' | '24_PLUS_MONTHS' | string;
+  preferredBedrooms?: number;
+  preferredPaymentPlan?: 'FULL_CASH' | 'CUSTOM_INSTALLMENT' | 'BANK_LOAN' | string;
+};
+
+export type PublicWebsiteLeadInput = {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email?: string;
+  interestedProjectId?: string;
+  message?: string;
+  websiteInquiryUrl?: string;
+  preferredBedrooms?: number;
+  budgetMinETB?: number;
+  budgetMaxETB?: number;
+  timeline?: string;
 };
 
 export type UpdateLeadInput = {
@@ -34,6 +56,14 @@ export type UpdateLeadInput = {
   status?: string;
   sourceId?: string | null;
   ownerId?: string | null;
+  interestedProjectId?: string | null;
+  telegramHandle?: string | null;
+  websiteInquiryUrl?: string | null;
+  budgetMinETB?: number | null;
+  budgetMaxETB?: number | null;
+  timeline?: string | null;
+  preferredBedrooms?: number | null;
+  preferredPaymentPlan?: string | null;
 };
 
 export type UpdateLeadStatusInput = {
@@ -43,6 +73,7 @@ export type UpdateLeadStatusInput = {
 export type ConvertLeadInput = {
   createAccount?: boolean;
   accountId?: string | null;
+  unitId?: string | null;
   deal?: {
     name: string;
     value: number | string;

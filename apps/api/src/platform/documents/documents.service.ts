@@ -101,7 +101,7 @@ export class DocumentsService {
     const entityType = this.normalizeEntityType(input.entityType ?? 'CUSTOMER');
     const entityId = input.entityId?.trim();
     if (!entityId) throw new BadRequestException('entityId is required');
-    await this.assertEntityBelongsToTenant(entityType, entityId);
+    await this.assertEntityExists(entityType, entityId);
     const expiresAt = this.normalizeOptionalDate(input.expiresAt, 'expiresAt');
 
     const stored = await this.storage.save(file);
@@ -142,7 +142,7 @@ export class DocumentsService {
   }
 
   async review(user: AuthenticatedUser, id: string, input: ReviewDocumentBody) {
-    const existing = await this.findForTenant(id);
+    const existing = await this.findDocument(id);
     const status = this.normalizeStatus(input.status ?? 'PENDING_REVIEW');
     if (!['VERIFIED', 'REJECTED'].includes(status)) {
       throw new BadRequestException(
@@ -172,7 +172,7 @@ export class DocumentsService {
   }
 
   async download(id: string) {
-    const document = await this.findForTenant(id);
+    const document = await this.findDocument(id);
     if (!document.storageKey)
       throw new NotFoundException('Document file is unavailable');
     await this.storage.assertExists(document.storageKey);
@@ -180,9 +180,9 @@ export class DocumentsService {
   }
 
   async remove(user: AuthenticatedUser, id: string) {
-    const document = await this.findForTenant(id);
+    const document = await this.findDocument(id);
     const canManageAll = user.roles.some(
-      (role) => role === 'Owner' || role === 'Admin',
+      (role: string) => role === 'Owner' || role === 'Admin',
     );
     if (!canManageAll && document.uploadedById !== user.id) {
       throw new ForbiddenException(
@@ -199,7 +199,7 @@ export class DocumentsService {
     return { id, deleted: true };
   }
 
-  private async findForTenant(id: string) {
+  private async findDocument(id: string) {
     const document = await this.prisma.document.findFirst({
       where: { id },
       include: documentInclude,
@@ -208,7 +208,7 @@ export class DocumentsService {
     return document;
   }
 
-  private async assertEntityBelongsToTenant(
+  private async assertEntityExists(
     entityType: EntityType,
     entityId: string,
   ) {

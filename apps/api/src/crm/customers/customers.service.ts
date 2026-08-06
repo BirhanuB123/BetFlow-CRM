@@ -66,27 +66,63 @@ export class CustomersService {
       throw new NotFoundException(`Customer ${id} was not found`);
     }
 
-    // Payments link to a contract or reservation, not the customer directly.
-    const payments = await this.prisma.payment.findMany({
-      where: {
-        OR: [
-          { contract: { customerId: id } },
-          { reservation: { customerId: id } },
-        ],
-      },
-      select: {
-        id: true,
-        amount: true,
-        method: true,
-        status: true,
-        date: true,
-        contractId: true,
-        reservationId: true,
-      },
-      orderBy: { date: 'desc' },
-    });
+    // Load historical interactions & payments linked to the customer
+    const [payments, siteVisits, meetings, callLogs, notes, documents] =
+      await Promise.all([
+        this.prisma.payment.findMany({
+          where: {
+            OR: [
+              { contract: { customerId: id } },
+              { reservation: { customerId: id } },
+            ],
+          },
+          select: {
+            id: true,
+            amount: true,
+            method: true,
+            status: true,
+            date: true,
+            contractId: true,
+            reservationId: true,
+          },
+          orderBy: { date: 'desc' },
+        }),
+        this.prisma.siteVisit.findMany({
+          where: { customerId: id },
+          orderBy: { date: 'desc' },
+        }),
+        this.prisma.meeting.findMany({
+          where: { customerId: id },
+          orderBy: { date: 'desc' },
+        }),
+        this.prisma.callLog.findMany({
+          where: { customerId: id },
+          orderBy: { dueDate: 'desc' },
+        }),
+        this.prisma.note.findMany({
+          where: { entityType: 'Customer', entityId: id },
+          include: {
+            author: {
+              select: { id: true, firstName: true, lastName: true },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        }),
+        this.prisma.document.findMany({
+          where: { entityType: 'Customer', entityId: id },
+          orderBy: { uploadedAt: 'desc' },
+        }),
+      ]);
 
-    return { ...customer, payments };
+    return {
+      ...customer,
+      siteVisits,
+      meetings,
+      callLogs,
+      notes,
+      documents,
+      payments,
+    };
   }
 
   async create(userId: string, input: CreateCustomerInput) {
@@ -98,7 +134,7 @@ export class CustomersService {
     }
 
     if (input.accountId) {
-      await this.assertAccountBelongsToTenant(input.accountId);
+      await this.assertAccountExists(input.accountId);
     }
 
     const customer = await this.prisma.customer.create({
@@ -144,7 +180,7 @@ export class CustomersService {
     if (input.title !== undefined) data.title = input.title?.trim() || null;
     if (input.accountId !== undefined) {
       if (input.accountId) {
-        await this.assertAccountBelongsToTenant(input.accountId);
+        await this.assertAccountExists(input.accountId);
       }
       data.accountId = input.accountId || null;
     }
@@ -182,7 +218,7 @@ export class CustomersService {
     return { id, deleted: true };
   }
 
-  private async assertAccountBelongsToTenant(accountId: string) {
+  private async assertAccountExists(accountId: string) {
     const account = await this.prisma.account.findFirst({
       where: { id: accountId },
       select: { id: true },

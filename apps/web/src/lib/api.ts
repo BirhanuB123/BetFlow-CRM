@@ -21,26 +21,33 @@ export function getSession(): Session | null {
   }
 }
 
+export interface ApiFetchOptions extends RequestInit {
+  suppressAuthRedirect?: boolean;
+}
+
 export async function apiFetch<T>(
   path: string,
-  options: RequestInit = {},
+  options: ApiFetchOptions = {},
 ): Promise<T> {
+  const { suppressAuthRedirect, ...fetchOptions } = options;
   const session = getSession();
-  const headers = new Headers(options.headers);
+  const headers = new Headers(fetchOptions.headers);
   headers.set("Content-Type", "application/json");
   if (session?.accessToken) {
     headers.set("Authorization", `Bearer ${session.accessToken}`);
   }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
+    ...fetchOptions,
     headers,
   });
 
   if (response.status === 401 && typeof window !== "undefined") {
-    clearSession();
-    if (!window.location.pathname.startsWith("/auth")) {
-      window.location.href = "/auth";
+    if (!suppressAuthRedirect) {
+      clearSession();
+      if (!window.location.pathname.startsWith("/auth")) {
+        window.location.href = "/auth";
+      }
     }
   }
 

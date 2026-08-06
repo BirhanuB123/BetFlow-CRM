@@ -57,7 +57,7 @@ export class PropertiesService {
     if (!name) throw new BadRequestException('name is required');
     if (!input.projectId)
       throw new BadRequestException('projectId is required');
-    await this.assertProjectBelongsToTenant(input.projectId);
+    await this.assertProjectExists(input.projectId);
 
     const building = await this.prisma.building.create({
       data: {
@@ -141,7 +141,7 @@ export class PropertiesService {
   async createFloor(userId: string, input: CreateFloorInput) {
     if (!input.buildingId)
       throw new BadRequestException('buildingId is required');
-    await this.assertBuildingBelongsToTenant(input.buildingId);
+    await this.assertBuildingExists(input.buildingId);
 
     const floor = await this.prisma.floor.create({
       data: {
@@ -219,7 +219,7 @@ export class PropertiesService {
     return n;
   }
 
-  private async assertProjectBelongsToTenant(projectId: string) {
+  private async assertProjectExists(projectId: string) {
     const project = await this.prisma.project.findFirst({
       where: { id: projectId },
       select: { id: true },
@@ -228,7 +228,7 @@ export class PropertiesService {
       throw new BadRequestException(`Project ${projectId} was not found`);
   }
 
-  private async assertBuildingBelongsToTenant(buildingId: string) {
+  private async assertBuildingExists(buildingId: string) {
     const building = await this.prisma.building.findFirst({
       where: { id: buildingId },
       select: { id: true },

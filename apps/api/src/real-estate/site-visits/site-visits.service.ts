@@ -56,8 +56,8 @@ export class SiteVisitsService {
         'A site visit must reference a lead or a customer',
       );
     }
-    if (leadId) await this.assertLeadBelongsToTenant(leadId);
-    if (customerId) await this.assertCustomerBelongsToTenant(customerId);
+    if (leadId) await this.assertLeadExists(leadId);
+    if (customerId) await this.assertCustomerExists(customerId);
 
     const visit = await this.prisma.siteVisit.create({
       data: {
@@ -93,9 +93,9 @@ export class SiteVisitsService {
       throw new NotFoundException(`Site visit ${id} was not found`);
     }
 
-    if (input.leadId) await this.assertLeadBelongsToTenant(input.leadId);
+    if (input.leadId) await this.assertLeadExists(input.leadId);
     if (input.customerId)
-      await this.assertCustomerBelongsToTenant(input.customerId);
+      await this.assertCustomerExists(input.customerId);
 
     const data: Record<string, unknown> = {};
     if (input.date !== undefined) data.date = this.normalizeDate(input.date);
@@ -217,7 +217,7 @@ export class SiteVisitsService {
     return date;
   }
 
-  private async assertLeadBelongsToTenant(leadId: string) {
+  private async assertLeadExists(leadId: string) {
     const lead = await this.prisma.lead.findFirst({
       where: { id: leadId },
     });
@@ -226,7 +226,7 @@ export class SiteVisitsService {
     }
   }
 
-  private async assertCustomerBelongsToTenant(customerId: string) {
+  private async assertCustomerExists(customerId: string) {
     const customer = await this.prisma.customer.findFirst({
       where: { id: customerId },
     });
