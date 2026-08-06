@@ -2,10 +2,10 @@
   "name": "@betflow/shared",
   "version": "1.0.0",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "index.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./index.ts",
       "default": "./dist/index.js"
     }
   },
