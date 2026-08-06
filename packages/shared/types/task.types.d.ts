@@ -1,5 +1,5 @@
-import type { Priority } from './common.types';
-import { TASK_STATUSES } from '../constants/task.constants';
+import type { Priority } from './common.types.js';
+import { TASK_STATUSES } from '../constants/task.constants.js';
 export type TaskStatus = (typeof TASK_STATUSES)[number];
 export type TaskStatusLabel = 'Open' | 'In progress' | 'Done';
 export type CreateTaskInput = {

@@ -2,7 +2,11 @@
   "extends": "../../packages/config/typescript/nextjs.json",
   "compilerOptions": {
     "plugins": [{ "name": "next" }],
-    "paths": { "@/*": ["./src/*"] }
+    "paths": {
+      "@/*": ["./src/*"],
+      "@betflow/shared": ["../../packages/shared/dist/index.d.ts"],
+      "@betflow/shared/*": ["../../packages/shared/dist/*"]
+    }
   },
   "include": [
     "next-env.d.ts",

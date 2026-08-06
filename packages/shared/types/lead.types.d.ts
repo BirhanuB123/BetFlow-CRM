@@ -1,5 +1,5 @@
-import type { Priority } from './common.types';
-import { LEAD_STATUSES } from '../constants/lead.constants';
+import type { Priority } from './common.types.js';
+import { LEAD_STATUSES } from '../constants/lead.constants.js';
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
 export type LeadStage = 'New' | 'Qualified' | 'Tour Scheduled' | 'Proposal' | 'Won' | 'Lost';
 export type CreateLeadInput = {

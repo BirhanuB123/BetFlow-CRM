@@ -1,4 +1,4 @@
-import type { LeadStage } from './lead.types';
+import type { LeadStage } from './lead.types.js';
 export type CreateDealInput = {
     name: string;
     value: number | string;
