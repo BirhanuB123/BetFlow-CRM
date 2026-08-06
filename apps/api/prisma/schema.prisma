@@ -365,7 +365,9 @@ model Contract {
   downPaymentAmt Decimal?  @db.Decimal(14, 2)
   paymentPlan    String?   // INSTALLMENTS_24M, BANK_MORTGAGE_3070, FULL_CASH, DIASPORA_USD
   status         String    @default("ACTIVE") // ACTIVE, PENDING_SIGNATURE, SIGNED, CANCELLED
-  notes          String?
+  notes              String?
+  gracePeriodDays    Int?
+  penaltyRatePercent Float?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -403,9 +405,11 @@ model PaymentSchedule {
   dueDate       DateTime
   amount        Decimal  @db.Decimal(14, 2)
   paidAmount    Decimal  @default(0) @db.Decimal(14, 2)
-  status        String   @default("PENDING") // PENDING, PAID, PARTIALLY_PAID, OVERDUE
-  notes         String?
-  createdAt     DateTime @default(now())
+  status             String   @default("PENDING") // PENDING, PAID, PARTIALLY_PAID, OVERDUE
+  notes              String?
+  isCustomMilestone  Boolean?
+  penaltyAmount      Decimal? @db.Decimal(14, 2)
+  createdAt          DateTime @default(now())
   updatedAt     DateTime @default(now()) @updatedAt
 
   payments Payment[]
