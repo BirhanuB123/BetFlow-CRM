@@ -6,14 +6,17 @@ import {
   Param,
   Patch,
   Post,
+  Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
+import type { Response, Request } from 'express';
 import { ContractsService } from './contracts.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
 import { ContractBuilderService } from './contract-builder.service';
-import type { GenerateContractInput } from '@betflow/shared';
+import type { GenerateContractInput, ContractSignatureInput } from '@betflow/shared';
 import type {
   CreateContractInput,
   UpdateContractInput,
@@ -49,6 +52,33 @@ export class ContractsController {
     return this.builderService.reviewApproval(user.id, id, body.action);
   }
 
+  @Get(':id/pdf')
+  async getPdf(@Param('id') id: string, @Res() res: Response) {
+    const buffer = await this.contracts.generatePdf(id);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `inline; filename="Contract_${id}.pdf"`,
+    );
+    res.send(buffer);
+  }
+
+  @Post(':id/signatures')
+  sign(
+    @Param('id') id: string,
+    @Body() body: ContractSignatureInput,
+    @Req() req: Request,
+  ) {
+    const ipAddress = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1';
+    const userAgent = req.headers['user-agent'] || 'Unknown Browser';
+    return this.contracts.signContract(id, body, { ipAddress, userAgent });
+  }
+
+  @Get(':id/signatures')
+  getSignatures(@Param('id') id: string) {
+    return this.contracts.getSignatures(id);
+  }
+
   @Get()
   list(@CurrentUser() user: AuthenticatedUser) {
     return this.contracts.list();
@@ -81,3 +111,4 @@ export class ContractsController {
     return this.contracts.remove(user.id, id);
   }
 }
+
