@@ -137,6 +137,9 @@ model Unit {
   deals        Deal[]
   reservations Reservation[]
   contracts    Contract[]
+
+  @@index([status, floorId])
+  @@index([status, type])
 }
 
 // --------------------------------------
@@ -170,6 +173,9 @@ model Lead {
   siteVisits SiteVisit[]
   meetings   Meeting[]
   callLogs   CallLog[]
+
+  @@index([status, ownerId])
+  @@index([convertedAt])
 }
 
 // Zoho-style company/organization accounts
@@ -284,6 +290,9 @@ model SiteVisit {
   lead       Lead?     @relation(fields: [leadId], references: [id])
   customerId String?
   customer   Customer? @relation(fields: [customerId], references: [id])
+
+  @@index([status, date])
+  @@index([leadId, customerId])
 }
 
 model Meeting {
@@ -347,6 +356,9 @@ model Reservation {
   updatedAt DateTime @default(now()) @updatedAt
 
   payments Payment[]
+
+  @@index([status, expiryDate])
+  @@index([customerId, unitId])
 }
 
 model Contract {
@@ -375,6 +387,9 @@ model Contract {
   payments   Payment[]
   schedules  PaymentSchedule[]
   signatures SignatureAudit[]
+
+  @@index([status, unitId])
+  @@index([customerId, dealId])
 }
 
 model Payment {
@@ -413,6 +428,8 @@ model PaymentSchedule {
   updatedAt     DateTime @default(now()) @updatedAt
 
   payments Payment[]
+
+  @@index([contractId, status])
 }
 
 // --------------------------------------

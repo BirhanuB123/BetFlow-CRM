@@ -10,6 +10,7 @@ import {
 import {
   ArrowDown,
   ArrowUp,
+  CheckCircle2,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -21,6 +22,7 @@ import {
   Search,
   SlidersHorizontal,
   Trash2,
+  UserRoundCheck,
   X,
   Share2,
   Webhook,
@@ -35,6 +37,8 @@ import Link from "next/link";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { StatCard, StatRow } from "@/components/ui/stat-card";
+import { useToast } from "@/components/ui/toast";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -416,12 +420,52 @@ export default function LeadsPage() {
   const rangeStart = sorted.length === 0 ? 0 : currentPage * PAGE_SIZE + 1;
   const rangeEnd = Math.min(sorted.length, (currentPage + 1) * PAGE_SIZE);
 
+  // KPI stats
+  const kpiTotal = leads.length;
+  const kpiNew = leads.filter((l) => l.status === "NEW").length;
+  const kpiQualified = leads.filter((l) => l.status === "QUALIFIED").length;
+  const kpiWon = leads.filter((l) => l.status === "WON").length;
+
   return (
     <DashboardShell
       title="Leads"
       description="Capture, qualify, and assign incoming demand."
       active="Leads"
     >
+      {/* KPI Summary Row */}
+      <div className="mb-4">
+        <StatRow>
+          <StatCard
+            label="Total Leads"
+            value={String(kpiTotal)}
+            detail="All time"
+            icon={UserRoundCheck}
+            color="navy"
+          />
+          <StatCard
+            label="New"
+            value={String(kpiNew)}
+            detail="Awaiting contact"
+            icon={Plus}
+            color="blue"
+          />
+          <StatCard
+            label="Qualified"
+            value={String(kpiQualified)}
+            detail="Ready to convert"
+            icon={Check}
+            color="emerald"
+          />
+          <StatCard
+            label="Won"
+            value={String(kpiWon)}
+            detail="Successfully converted"
+            icon={CheckCircle2}
+            color="indigo"
+          />
+        </StatRow>
+      </div>
+
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-t-lg border border-zinc-200 bg-white px-4 py-3 h-[60px]">
         <div className="flex items-center gap-1">

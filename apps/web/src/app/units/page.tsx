@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Calculator, Grid, Table as TableIcon, X } from "lucide-react";
+import { Calculator, Grid, Table as TableIcon, X, SquareStack, Home, Banknote, TrendingUp } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
 import { CardSkeleton, TableSkeleton } from "@/components/ui/skeleton-loaders";
+import { StatCard, StatRow } from "@/components/ui/stat-card";
+import { useToast } from "@/components/ui/toast";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
@@ -75,6 +77,8 @@ function formatPrice(value: string | number) {
 }
 
 export default function UnitsPage() {
+  const { success } = useToast();
+  const [selectedUnit, setSelectedUnit] = useState<ApiUnit | null>(null);
   const [units, setUnits] = useState<ApiUnit[]>([]);
   const [stackingPlan, setStackingPlan] = useState<StackingBuilding[]>([]);
   const [viewMode, setViewMode] = useState<"STACKING_PLAN" | "TABLE">(
@@ -138,12 +142,52 @@ export default function UnitsPage() {
     }
   };
 
+  const kpiAvailable = units.filter((u) => u.status === "AVAILABLE").length;
+  const kpiReserved = units.filter((u) => u.status === "RESERVED").length;
+  const kpiSold = units.filter((u) => u.status === "SOLD").length;
+  const kpiTotalValue = units
+    .filter((u) => u.status === "AVAILABLE")
+    .reduce((acc, u) => acc + (Number(u.price) || 0), 0);
+
   return (
     <DashboardShell
       title="Units & Stacking Plan"
       description="Interactive real estate unit visualizer & payment schedule calculator."
       active="Units"
     >
+      <div className="mb-6">
+        <StatRow>
+          <StatCard
+            label="Available Units"
+            value={String(kpiAvailable)}
+            detail="Ready for sale"
+            icon={Home}
+            color="emerald"
+          />
+          <StatCard
+            label="Reserved"
+            value={String(kpiReserved)}
+            detail="Pending contract"
+            icon={SquareStack}
+            color="amber"
+          />
+          <StatCard
+            label="Sold"
+            value={String(kpiSold)}
+            detail="Fully contracted"
+            icon={Banknote}
+            color="rose"
+          />
+          <StatCard
+            label="Available Inventory Value"
+            value={formatPrice(kpiTotalValue)}
+            detail="At listed prices"
+            icon={TrendingUp}
+            color="navy"
+          />
+        </StatRow>
+      </div>
+
       {/* Top Header & View Mode Selector */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
@@ -231,14 +275,18 @@ export default function UnitsPage() {
                       </div>
                       <div className="flex flex-wrap items-center gap-2.5">
                         {f.units.map((u) => (
-                          <div
+                          <button
+                            type="button"
                             key={u.id}
                             className={cn(
-                              "group relative flex cursor-pointer flex-col justify-between rounded-lg border p-2.5 shadow-2xs transition-all hover:scale-105 min-w-[120px]",
+                              "group relative flex cursor-pointer flex-col justify-between rounded-lg border p-2.5 shadow-2xs transition-all hover:scale-105 min-w-[120px] text-left",
                               statusTileBg[u.status] ??
                                 "bg-white border-zinc-200",
                             )}
-                            onClick={() => setCalcUnit(u)}
+                            onClick={() => {
+                              const fullUnit = units.find((apiU) => apiU.id === u.id);
+                              if (fullUnit) setSelectedUnit(fullUnit);
+                            }}
                           >
                             <div className="flex items-center justify-between text-xs font-bold">
                               <span>Unit {u.unitNumber}</span>
@@ -251,11 +299,17 @@ export default function UnitsPage() {
                             </div>
                             <div className="mt-1 flex items-center justify-between text-[10px] text-zinc-500">
                               <span>{u.area ? `${u.area} m²` : "—"}</span>
-                              <span className="font-semibold text-indigo-600 group-hover:underline flex items-center gap-0.5">
+                              <span 
+                                className="font-semibold text-indigo-600 group-hover:underline flex items-center gap-0.5"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setCalcUnit(u);
+                                }}
+                              >
                                 <Calculator className="size-3" /> Plan
                               </span>
                             </div>
-                          </div>
+                          </button>
                         ))}
                       </div>
                     </div>
@@ -364,6 +418,69 @@ export default function UnitsPage() {
       {calcUnit ? (
         <PaymentPlanModal unit={calcUnit} onClose={() => setCalcUnit(null)} />
       ) : null}
+
+      {selectedUnit && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setSelectedUnit(null)}
+        >
+          <div
+            className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setSelectedUnit(null)}
+              className="absolute right-4 top-4 rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+              aria-label="Close"
+            >
+              <X className="size-5" />
+            </button>
+            <div className="flex items-center gap-3 mb-5">
+              <span className={cn("flex size-10 items-center justify-center rounded-xl border text-sm font-bold", statusTileBg[selectedUnit.status] ?? "bg-slate-50 border-slate-200")}>
+                {selectedUnit.unitNumber}
+              </span>
+              <div>
+                <h2 className="text-base font-bold text-slate-900">Unit {selectedUnit.unitNumber}</h2>
+                <p className="text-xs text-slate-500">{selectedUnit.type} · Floor {selectedUnit.floor.floorNumber} · {selectedUnit.floor.building.name}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="rounded-lg bg-slate-50 p-3">
+                <p className="text-xs text-slate-400 font-medium mb-1">Status</p>
+                <span className={cn("inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-bold", statusClass[selectedUnit.status] ?? "bg-slate-100 text-slate-700")}>
+                  {selectedUnit.status}
+                </span>
+              </div>
+              <div className="rounded-lg bg-slate-50 p-3">
+                <p className="text-xs text-slate-400 font-medium mb-1">Price</p>
+                <p className="font-bold text-slate-900">{formatPrice(selectedUnit.price)}</p>
+              </div>
+              <div className="rounded-lg bg-slate-50 p-3">
+                <p className="text-xs text-slate-400 font-medium mb-1">Area</p>
+                <p className="font-semibold text-slate-700">{selectedUnit.area ? `${selectedUnit.area} m²` : "—"}</p>
+              </div>
+              <div className="rounded-lg bg-slate-50 p-3">
+                <p className="text-xs text-slate-400 font-medium mb-1">Project</p>
+                <p className="font-semibold text-slate-700 truncate">{selectedUnit.floor.building.project.name}</p>
+              </div>
+            </div>
+            <div className="mt-4 flex gap-2 pt-4 border-t border-slate-100">
+              <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                <span className="font-semibold text-slate-700">{selectedUnit._count.deals}</span> deals
+              </div>
+              <span className="text-slate-300">·</span>
+              <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                <span className="font-semibold text-slate-700">{selectedUnit._count.reservations}</span> reservations
+              </div>
+              <span className="text-slate-300">·</span>
+              <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                <span className="font-semibold text-slate-700">{selectedUnit._count.contracts}</span> contracts
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardShell>
   );
 }

@@ -1,13 +1,60 @@
 import { config } from 'dotenv';
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 
-config({ path: ['.env.local', '.env'] });
+config({ path: ['.env.local', '.env', '../../.env'] });
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
-  app.enableCors();
+
+  // Graceful shutdown process lifecycle
+  app.enableShutdownHooks();
+
+
+  // Security Headers
+  app.use(
+    helmet({
+      contentSecurityPolicy: false, // Disabled for OpenAPI Swagger UI compatibility
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
+
+  // Strict CORS Config
+  const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+    : [process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000', 'http://localhost:3001'];
+
+  app.enableCors({
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
+    credentials: true,
+  });
+
+
+  // Global DTO Validation Pipe & Payload Sanitization
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
+
   app.setGlobalPrefix('api');
 
   const swaggerConfig = new DocumentBuilder()
@@ -28,3 +75,4 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? 4000);
 }
 void bootstrap();
+

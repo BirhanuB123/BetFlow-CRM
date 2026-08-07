@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -8,7 +7,8 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import type { WebsiteLeadCaptureDto } from './website-leads.dto';
+import { Throttle } from '@nestjs/throttler';
+import { WebsiteLeadCaptureDto } from './website-leads.dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { WebsiteLeadsService } from './website-leads.service';
 
@@ -18,16 +18,13 @@ export class WebsiteLeadsController {
 
   /**
    * PUBLIC — called by external website forms.
-   * Body is typed as Record to avoid isolatedModules + emitDecoratorMetadata issues
-   * with imported interface types in decorated signatures.
+   * Rate limited to 10 submissions per minute per IP.
    */
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('capture')
   @HttpCode(HttpStatus.CREATED)
-  capture(@Body() body: Record<string, string>) {
-    if (!body?.firstName?.trim() || !body?.lastName?.trim()) {
-      throw new BadRequestException('firstName and lastName are required');
-    }
-    return this.service.capture(body as unknown as WebsiteLeadCaptureDto);
+  capture(@Body() dto: WebsiteLeadCaptureDto) {
+    return this.service.capture(dto);
   }
 
   /** PROTECTED — internal dashboard stats */
@@ -37,3 +34,4 @@ export class WebsiteLeadsController {
     return this.service.stats();
   }
 }
+

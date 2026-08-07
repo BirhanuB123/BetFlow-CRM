@@ -1,17 +1,39 @@
-/**
- * Website lead capture payload.
- * Validated manually in the service to avoid needing class-validator.
- */
-export interface WebsiteLeadCaptureDto {
-  firstName: string;
-  lastName: string;
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+
+export class WebsiteLeadCaptureDto {
+  @IsString()
+  @IsNotEmpty({ message: 'First name is required' })
+  firstName!: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Last name is required' })
+  lastName!: string;
+
+  @IsEmail({}, { message: 'Please provide a valid email address' })
+  @IsOptional()
   email?: string;
+
+  @IsString()
+  @IsOptional()
   phone?: string;
+
+  @IsString()
+  @IsOptional()
   company?: string;
-  /** Freeform notes/message from a contact form */
+
+  @IsString()
+  @IsOptional()
   message?: string;
-  /** UTM / referrer tracking */
+
+  @IsString()
+  @IsOptional()
   utmSource?: string;
+
+  @IsString()
+  @IsOptional()
   utmMedium?: string;
+
+  @IsString()
+  @IsOptional()
   utmCampaign?: string;
 }

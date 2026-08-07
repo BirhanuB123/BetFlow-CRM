@@ -27,6 +27,8 @@ import {
 } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { StatCard, StatRow } from "@/components/ui/stat-card";
+import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
@@ -109,6 +111,7 @@ function fmtDate(iso: string | null) {
 }
 
 export default function RealEstatePaymentsPage() {
+  const { success, error: toastError } = useToast();
   const [payments, setPayments] = useState<ApiPayment[]>([]);
   const [schedules, setSchedules] = useState<ApiSchedule[]>([]);
   const [contracts, setContracts] = useState<ContractOption[]>([]);
@@ -181,8 +184,10 @@ export default function RealEstatePaymentsPage() {
       });
       setSelectedScheduleId(null);
       setShowPaymentForm(false);
+      success("Payment recorded and verified");
       await load();
     } catch (err) {
+      toastError("Failed to record payment", err instanceof Error ? err.message : undefined);
       setError(err instanceof Error ? err.message : "Failed to record payment");
     } finally {
       setSaving(false);
@@ -233,6 +238,39 @@ export default function RealEstatePaymentsPage() {
       active="Payments"
     >
       <div className="space-y-6">
+        <StatRow>
+          <StatCard
+            label="Total Collected"
+            value={formatCurrency(totalCollectionsETB)}
+            detail={`${payments.length} deposit receipts`}
+            icon={Banknote}
+            color="emerald"
+          />
+          <StatCard
+            label="Total Scheduled"
+            value={formatCurrency(totalScheduledETB)}
+            detail={`${schedules.length} milestones`}
+            icon={Layers}
+            color="navy"
+          />
+          <StatCard
+            label="Pending Collection"
+            value={formatCurrency(totalPendingETB)}
+            detail="Outstanding balance"
+            icon={Clock}
+            color="amber"
+          />
+          <StatCard
+            label="Overdue Milestones"
+            value={String(overdueCount)}
+            detail="Require immediate action"
+            icon={AlertTriangle}
+            color={overdueCount > 0 ? "rose" : "emerald"}
+            trend={overdueCount > 0 ? "down" : "flat"}
+            trendLabel={overdueCount > 0 ? `${overdueCount} overdue` : "On track"}
+          />
+        </StatRow>
+
         {/* Section Header & Record Deposit Button */}
         <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

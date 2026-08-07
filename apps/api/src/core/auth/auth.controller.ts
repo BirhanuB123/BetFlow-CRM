@@ -1,43 +1,25 @@
 import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import type { AuthenticatedUser } from './auth.types';
-
-type LoginBody = {
-  email: string;
-  password: string;
-};
-
-type RegisterBody = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-};
-
-type UpdateProfileBody = {
-  firstName: string;
-  lastName: string;
-};
-
-type ChangePasswordBody = {
-  currentPassword: string;
-  newPassword: string;
-};
+import { ChangePasswordDto, LoginDto, RegisterDto, UpdateProfileDto } from './dto/auth.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('register')
-  register(@Body() body: RegisterBody) {
-    return this.auth.register(body);
+  register(@Body() dto: RegisterDto) {
+    return this.auth.register(dto);
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('login')
-  login(@Body() body: LoginBody) {
-    return this.auth.login(body);
+  login(@Body() dto: LoginDto) {
+    return this.auth.login(dto);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -50,17 +32,18 @@ export class AuthController {
   @Patch('profile')
   updateProfile(
     @CurrentUser() user: AuthenticatedUser,
-    @Body() body: UpdateProfileBody,
+    @Body() dto: UpdateProfileDto,
   ) {
-    return this.auth.updateProfile(user.id, body);
+    return this.auth.updateProfile(user.id, dto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('change-password')
   changePassword(
     @CurrentUser() user: AuthenticatedUser,
-    @Body() body: ChangePasswordBody,
+    @Body() dto: ChangePasswordDto,
   ) {
-    return this.auth.changePassword(user.id, body);
+    return this.auth.changePassword(user.id, dto);
   }
 }
+
