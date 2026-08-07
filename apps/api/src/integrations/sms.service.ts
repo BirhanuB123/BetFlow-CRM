@@ -1,43 +1,92 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { PrismaService } from '../database/prisma.service';
 import { InMemoryService } from '../database/in-memory.service';
 
 export class SmsSendDto {
+  @IsString()
+  @IsNotEmpty({ message: 'Recipient phone is required' })
   recipientPhone!: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Recipient name is required' })
   recipientName!: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Message body is required' })
   body!: string;
+
+  @IsString()
+  @IsOptional()
   triggerType?:
     | 'SITE_VISIT_REMINDER'
     | 'HOLD_EXPIRY_ALERT'
     | 'PAYMENT_DUE_ALERT'
     | 'DRIP_CAMPAIGN'
     | 'MANUAL_BROADCAST';
+
+  @IsString()
+  @IsOptional()
   leadId?: string;
+
+  @IsString()
+  @IsOptional()
   customerId?: string;
 }
 
 export class CreateDripStepDto {
+  @IsNumber()
+  @IsNotEmpty()
   delayDays!: number;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Step title is required' })
   title!: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'SMS template is required' })
   smsTemplate!: string;
 }
 
 export class CreateDripCampaignDto {
+  @IsString()
+  @IsNotEmpty({ message: 'Campaign name is required' })
   name!: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Target segment is required' })
   targetSegment!:
     'COLD_LEADS' | 'WARM_LEADS' | 'SITE_VISITORS' | 'RESERVATION_CLIENTS';
+
+  @IsOptional()
   steps?: CreateDripStepDto[];
 }
 
 export class EnrollLeadDto {
+  @IsString()
+  @IsOptional()
   leadId?: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Client name is required' })
   clientName!: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Client phone is required' })
   clientPhone!: string;
 }
 
 export class UpdateRuleDto {
+  @IsBoolean()
+  @IsOptional()
   enabled?: boolean;
+
+  @IsString()
+  @IsOptional()
   timing?: string;
+
+  @IsString()
+  @IsOptional()
   template?: string;
 }
 

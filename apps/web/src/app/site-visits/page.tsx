@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
 import {
   CalendarPlus,
@@ -13,16 +13,25 @@ import {
   Banknote,
   FileText,
   Eye,
-  Info,
   CheckCircle2,
   Clock,
   XCircle,
   AlertTriangle,
   User,
+  CalendarDays,
+  ClipboardCheck,
+  BarChart3,
+  List,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { StatCard, StatRow } from "@/components/ui/stat-card";
+import { TableSkeleton } from "@/components/ui/skeleton-loaders";
+import { useToast } from "@/components/ui/toast";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
@@ -112,6 +121,7 @@ const PAYMENT_METHODS = [
 ];
 
 export default function SiteVisitsPage() {
+  const { success, error: toastError } = useToast();
   const [visits, setVisits] = useState<ApiSiteVisit[]>([]);
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
   const [leads, setLeads] = useState<LeadOption[]>([]);
@@ -122,6 +132,21 @@ export default function SiteVisitsPage() {
   const [activeModalVisit, setActiveModalVisit] = useState<ApiSiteVisit | null>(
     null,
   );
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    message: string;
+    onConfirm: () => void | Promise<void>;
+  }>({ isOpen: false, message: "", onConfirm: () => {} });
+
+  // View mode: "list" | "calendar"
+  const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
+  // Calendar navigation — start at the current month
+  const [calendarDate, setCalendarDate] = useState<Date>(() => {
+    const d = new Date();
+    d.setDate(1);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
 
   const [form, setForm] = useState({
     withType: "customer" as "customer" | "lead",
@@ -232,18 +257,86 @@ export default function SiteVisitsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Delete this site visit record?")) return;
-    setError(null);
-    try {
-      await apiFetch(`/site-visits/${id}`, { method: "DELETE" });
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete visit");
-    }
+  const handleDelete = (id: string) => {
+    setConfirmModal({
+      isOpen: true,
+      message: "Delete this site visit record? This cannot be undone.",
+      onConfirm: async () => {
+        setError(null);
+        try {
+          await apiFetch(`/site-visits/${id}`, { method: "DELETE" });
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+          success("Visit record deleted");
+          await load();
+        } catch (err) {
+          toastError("Failed to delete visit");
+          setError(err instanceof Error ? err.message : "Failed to delete visit");
+        }
+      },
+    });
   };
 
   const withOptions = form.withType === "customer" ? customers : leads;
+
+  // KPI stats
+  const kpiScheduled = visits.filter((v) => v.status === "SCHEDULED").length;
+  const kpiCompleted = visits.filter((v) => v.status === "COMPLETED").length;
+  const kpiNoShow = visits.filter((v) => v.status === "NO_SHOW").length;
+
+  // ── Calendar helpers ────────────────────────────────────────────────────────
+  // Build the 6-row × 7-col grid for the current calendar month.
+  const calendarGrid = useMemo(() => {
+    const year = calendarDate.getFullYear();
+    const month = calendarDate.getMonth();
+    const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    // Shift so week starts on Monday (0=Mon … 6=Sun)
+    const startOffset = (firstDay + 6) % 7;
+    const cells: (number | null)[] = [];
+    for (let i = 0; i < startOffset; i++) cells.push(null);
+    for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+    // Pad to complete the last week
+    while (cells.length % 7 !== 0) cells.push(null);
+    return cells;
+  }, [calendarDate]);
+
+  // Group visits by local calendar date string "YYYY-M-D"
+  const visitsByDay = useMemo(() => {
+    const map = new Map<string, ApiSiteVisit[]>();
+    for (const v of visits) {
+      const d = new Date(v.date);
+      const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(v);
+    }
+    return map;
+  }, [visits]);
+
+  const calMonthLabel = calendarDate.toLocaleString(undefined, {
+    month: "long",
+    year: "numeric",
+  });
+
+  const goToPrevMonth = () =>
+    setCalendarDate((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
+  const goToNextMonth = () =>
+    setCalendarDate((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
+  const goToToday = () => {
+    const t = new Date();
+    t.setDate(1);
+    t.setHours(0, 0, 0, 0);
+    setCalendarDate(t);
+  };
+
+  const today = new Date();
+  const todayKey = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+
+  const statusChipClass: Record<string, string> = {
+    SCHEDULED: "bg-blue-100 text-blue-800 border-blue-200",
+    COMPLETED: "bg-emerald-100 text-emerald-800 border-emerald-200",
+    CANCELLED: "bg-rose-100 text-rose-800 border-rose-200",
+    NO_SHOW:   "bg-amber-100 text-amber-800 border-amber-200",
+  };
 
   return (
     <DashboardShell
@@ -252,6 +345,38 @@ export default function SiteVisitsPage() {
       active="Site visits"
     >
       <div className="space-y-6">
+        {/* KPI Stat Row */}
+        <StatRow>
+          <StatCard
+            label="Total Visits"
+            value={String(visits.length)}
+            detail="All recorded visits"
+            icon={CalendarDays}
+            color="navy"
+          />
+          <StatCard
+            label="Scheduled"
+            value={String(kpiScheduled)}
+            detail="Upcoming appointments"
+            icon={Clock}
+            color="blue"
+          />
+          <StatCard
+            label="Completed"
+            value={String(kpiCompleted)}
+            detail="Successfully toured"
+            icon={ClipboardCheck}
+            color="emerald"
+          />
+          <StatCard
+            label="No Shows"
+            value={String(kpiNoShow)}
+            detail="Follow-up needed"
+            icon={AlertTriangle}
+            color={kpiNoShow > 0 ? "amber" : "emerald"}
+          />
+        </StatRow>
+
         {/* Main Header & Schedule Button */}
         <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -588,19 +713,186 @@ export default function SiteVisitsPage() {
           )}
         </section>
 
-        {/* Site Visits Data Table */}
+        {/* Site Visits Data Table / Calendar */}
         <section className="rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
-          <div className="border-b border-slate-100 bg-slate-50/50 px-5 py-4 flex items-center justify-between">
+          {/* Section header with view toggle */}
+          <div className="border-b border-slate-100 bg-slate-50/50 px-5 py-3 flex flex-wrap items-center justify-between gap-3">
             <h3 className="text-sm font-bold text-slate-800">
               Scheduled Visits & Demand Records ({visits.length})
             </h3>
+            {/* List / Calendar toggle */}
+            <div className="flex items-center rounded-lg border border-slate-200 bg-white p-0.5 gap-0.5">
+              <button
+                type="button"
+                onClick={() => setViewMode("list")}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-all",
+                  viewMode === "list"
+                    ? "bg-[#233b66] text-white shadow-sm"
+                    : "text-slate-500 hover:text-slate-800 hover:bg-slate-100",
+                )}
+                aria-label="List view"
+              >
+                <List className="size-3.5" />
+                List
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("calendar")}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-all",
+                  viewMode === "calendar"
+                    ? "bg-[#233b66] text-white shadow-sm"
+                    : "text-slate-500 hover:text-slate-800 hover:bg-slate-100",
+                )}
+                aria-label="Calendar view"
+              >
+                <CalendarDays className="size-3.5" />
+                Calendar
+              </button>
+            </div>
           </div>
 
           {loading ? (
-            <div className="flex h-36 items-center justify-center">
-              <p className="text-sm text-slate-500">
-                Loading site visit records…
-              </p>
+            <div className="p-4">
+              <TableSkeleton rows={4} cols={6} />
+            </div>
+          ) : viewMode === "calendar" ? (
+            /* ── Calendar View ─────────────────────────────────────────── */
+            <div className="p-4">
+              {/* Month navigation */}
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={goToPrevMonth}
+                    className="rounded-lg border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-100 transition-colors"
+                    aria-label="Previous month"
+                  >
+                    <ChevronLeft className="size-4" />
+                  </button>
+                  <h4 className="text-sm font-bold text-slate-800 min-w-[160px] text-center">
+                    {calMonthLabel}
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={goToNextMonth}
+                    className="rounded-lg border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-100 transition-colors"
+                    aria-label="Next month"
+                  >
+                    <ChevronRight className="size-4" />
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={goToToday}
+                  className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                >
+                  Today
+                </button>
+              </div>
+
+              {/* Day-of-week headers (Mon–Sun) */}
+              <div className="grid grid-cols-7 mb-1">
+                {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
+                  <div
+                    key={d}
+                    className="py-1.5 text-center text-[11px] font-bold uppercase tracking-wider text-slate-400"
+                  >
+                    {d}
+                  </div>
+                ))}
+              </div>
+
+              {/* Calendar grid */}
+              <div className="grid grid-cols-7 gap-px bg-slate-200 rounded-xl overflow-hidden border border-slate-200">
+                {calendarGrid.map((day, idx) => {
+                  if (day === null) {
+                    return (
+                      <div
+                        key={`pad-${idx}`}
+                        className="bg-slate-50/60 min-h-[90px] p-1"
+                      />
+                    );
+                  }
+                  const cellKey = `${calendarDate.getFullYear()}-${calendarDate.getMonth()}-${day}`;
+                  const isToday = cellKey === todayKey;
+                  const dayVisits = visitsByDay.get(cellKey) ?? [];
+                  return (
+                    <div
+                      key={cellKey}
+                      className={cn(
+                        "bg-white min-h-[90px] p-1.5 flex flex-col gap-1",
+                        isToday && "bg-blue-50/60",
+                      )}
+                    >
+                      {/* Date number */}
+                      <span
+                        className={cn(
+                          "inline-flex size-6 items-center justify-center rounded-full text-[11px] font-bold self-end",
+                          isToday
+                            ? "bg-[#233b66] text-white"
+                            : "text-slate-500",
+                        )}
+                      >
+                        {day}
+                      </span>
+
+                      {/* Visit chips */}
+                      {dayVisits.slice(0, 3).map((v) => {
+                        const person = v.customer ?? v.lead;
+                        const name = person
+                          ? `${person.firstName} ${person.lastName}`
+                          : "Unknown";
+                        const t = new Date(v.date).toLocaleTimeString(
+                          undefined,
+                          { hour: "numeric", minute: "2-digit" },
+                        );
+                        return (
+                          <button
+                            key={v.id}
+                            type="button"
+                            onClick={() => setActiveModalVisit(v)}
+                            title={`${name} — ${t}`}
+                            className={cn(
+                              "w-full rounded border px-1.5 py-0.5 text-left text-[10px] font-semibold leading-tight truncate transition-all hover:brightness-95 hover:shadow-sm",
+                              statusChipClass[v.status] ??
+                                "bg-slate-100 text-slate-700 border-slate-200",
+                            )}
+                          >
+                            <span className="block truncate">{name}</span>
+                            <span className="block font-normal opacity-70">{t}</span>
+                          </button>
+                        );
+                      })}
+                      {/* +N more indicator */}
+                      {dayVisits.length > 3 && (
+                        <span className="text-[10px] font-semibold text-slate-400 px-1">
+                          +{dayVisits.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Legend */}
+              <div className="mt-4 flex flex-wrap items-center gap-3 text-[11px] font-semibold">
+                {([
+                  ["SCHEDULED",  "bg-blue-100 text-blue-800",    "Scheduled"],
+                  ["COMPLETED",  "bg-emerald-100 text-emerald-800", "Completed"],
+                  ["CANCELLED",  "bg-rose-100 text-rose-800",    "Cancelled"],
+                  ["NO_SHOW",    "bg-amber-100 text-amber-800",  "No Show"],
+                ] as const).map(([, cls, label]) => (
+                  <span
+                    key={label}
+                    className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 border border-transparent", cls)}
+                  >
+                    <span className="size-1.5 rounded-full bg-current" />
+                    {label}
+                  </span>
+                ))}
+              </div>
             </div>
           ) : visits.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center">
@@ -957,6 +1249,13 @@ export default function SiteVisitsPage() {
           </div>
         )}
       </div>
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title="Delete Site Visit"
+        message={confirmModal.message}
+        onConfirm={confirmModal.onConfirm}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+      />
     </DashboardShell>
   );
 }

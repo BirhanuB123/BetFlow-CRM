@@ -23,6 +23,10 @@ import {
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
+import { StatCard, StatRow } from "@/components/ui/stat-card";
+import { PipelineSkeleton } from "@/components/ui/skeleton-loaders";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { useToast } from "@/components/ui/toast";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
@@ -55,6 +59,18 @@ function formatValue(value: string | number) {
 }
 
 export default function DealsPage() {
+  const { success, error: toastError } = useToast();
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void | Promise<void>;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
   const [deals, setDeals] = useState<ApiDeal[]>([]);
   const [stages, setStages] = useState<Stage[]>([]);
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
@@ -181,16 +197,24 @@ export default function DealsPage() {
     }
   };
 
-  const handleDeleteDeal = async (dealId: string) => {
-    if (!confirm("Are you sure you want to delete this deal opportunity?"))
-      return;
-    try {
-      setDeals((prev) => prev.filter((d) => d.id !== dealId));
-      await apiFetch(`/deals/${dealId}`, { method: "DELETE" });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete deal");
-      await load();
-    }
+  const handleDeleteDeal = (dealId: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete Deal",
+      message: "Are you sure you want to delete this deal opportunity? This action cannot be undone.",
+      onConfirm: async () => {
+        try {
+          setDeals((prev) => prev.filter((d) => d.id !== dealId));
+          await apiFetch(`/deals/${dealId}`, { method: "DELETE" });
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+          success("Deal deleted successfully");
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to delete deal");
+          toastError("Failed to delete deal");
+          await load();
+        }
+      },
+    });
   };
 
   return (
@@ -199,7 +223,45 @@ export default function DealsPage() {
       description="Track, manage, and move opportunities across your sales funnel."
       active="Deals"
     >
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        onConfirm={confirmModal.onConfirm}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+      />
       <div className="space-y-6">
+        <StatRow>
+          <StatCard
+            label="Total Pipeline"
+            value={formatValue(totalPipelineVolume)}
+            detail={`${filteredDeals.length} opportunities`}
+            icon={BarChart3}
+            color="navy"
+          />
+          <StatCard
+            label="Weighted Forecast"
+            value={formatValue(weightedForecastVolume)}
+            detail="Probability-adjusted value"
+            icon={TrendingUp}
+            color="emerald"
+          />
+          <StatCard
+            label="Avg Deal Value"
+            value={formatValue(avgDealValue)}
+            detail="Per opportunity"
+            icon={DollarSign}
+            color="indigo"
+          />
+          <StatCard
+            label="Active Stages"
+            value={String(stages.length)}
+            detail={`${stages.filter(s => (dealsByStage.get(s.id) ?? []).length > 0).length} with deals`}
+            icon={CheckCircle}
+            color="blue"
+          />
+        </StatRow>
+
         {/* Toolbar: Search + Action */}
         <div className="flex flex-col gap-3 rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <label className="flex h-9 w-full items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-slate-500 sm:w-80">
@@ -298,9 +360,7 @@ export default function DealsPage() {
 
         {/* Interactive Kanban Board */}
         {loading ? (
-          <div className="p-12 text-center text-xs text-slate-500 font-medium">
-            Loading sales Kanban board…
-          </div>
+          <PipelineSkeleton columns={4} />
         ) : (
           <>
             <div className="grid gap-4 overflow-x-auto xl:grid-cols-4 pb-2">

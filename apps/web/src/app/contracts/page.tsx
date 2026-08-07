@@ -25,8 +25,11 @@ import {
   FileSignature,
   User,
   Sparkles,
+  Search,
 } from "lucide-react";
 
+import { StatCard, StatRow } from "@/components/ui/stat-card";
+import { useToast } from "@/components/ui/toast";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -91,6 +94,8 @@ function fmtDate(iso: string | null) {
 }
 
 export default function ContractsPage() {
+  const { success, error: toastError } = useToast();
+  const [search, setSearch] = useState("");
   const [contracts, setContracts] = useState<ApiContract[]>([]);
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
   const [units, setUnits] = useState<UnitOption[]>([]);
@@ -142,10 +147,21 @@ export default function ContractsPage() {
     });
   }, [load]);
 
+  const filteredContracts = useMemo(() => {
+    if (!search.trim()) return contracts;
+    const term = search.trim().toLowerCase();
+    return contracts.filter((c) => {
+      const buyer = `${c.customer.firstName} ${c.customer.lastName}`.toLowerCase();
+      const unit = c.unit.unitNumber.toLowerCase();
+      const num = (c.contractNumber ?? "").toLowerCase();
+      return buyer.includes(term) || unit.includes(term) || num.includes(term);
+    });
+  }, [contracts, search]);
+
   const visible = useMemo(() => {
-    if (filter === "ALL") return contracts;
-    return contracts.filter((c) => c.status === filter);
-  }, [contracts, filter]);
+    if (filter === "ALL") return filteredContracts;
+    return filteredContracts.filter((c) => c.status === filter);
+  }, [filteredContracts, filter]);
 
   const handleCreate = async (event: FormEvent) => {
     event.preventDefault();
@@ -176,8 +192,10 @@ export default function ContractsPage() {
         notes: "",
       });
       setShowForm(false);
+      success("Contract created");
       await load();
     } catch (err) {
+      toastError("Failed to create contract");
       setError(
         err instanceof Error ? err.message : "Failed to create contract",
       );
@@ -193,8 +211,10 @@ export default function ContractsPage() {
         method: "PATCH",
         body: JSON.stringify({ status: "SIGNED" }),
       });
+      success("Contract signed successfully");
       await load();
     } catch (err) {
+      toastError("Failed to sign contract");
       setError(err instanceof Error ? err.message : "Failed to sign contract");
     }
   };
@@ -204,8 +224,10 @@ export default function ContractsPage() {
     setError(null);
     try {
       await apiFetch(`/contracts/${id}`, { method: "DELETE" });
+      success("Contract deleted successfully");
       await load();
     } catch (err) {
+      toastError("Failed to delete contract");
       setError(
         err instanceof Error ? err.message : "Failed to delete contract",
       );
@@ -213,6 +235,12 @@ export default function ContractsPage() {
   };
 
   // KPI Calculations
+  const kpiTotal = contracts.length;
+  const kpiActive = contracts.filter((c) => c.status === "ACTIVE").length;
+  const kpiSigned = contracts.filter((c) => c.status === "SIGNED").length;
+  const kpiPending = contracts.filter((c) => c.status === "PENDING_SIGNATURE").length;
+  const kpiTotalValue = contracts.reduce((acc, c) => acc + (Number(c.totalAmt) || 0), 0);
+
   const totalVolumeETB = contracts.reduce(
     (acc, c) => acc + (Number(c.totalAmt) || 0),
     0,
@@ -233,6 +261,37 @@ export default function ContractsPage() {
       active="Contracts"
     >
       <div className="space-y-6">
+        <StatRow>
+          <StatCard
+            label="Total Contracts"
+            value={String(kpiTotal)}
+            detail={`ETB ${kpiTotalValue.toLocaleString()} total value`}
+            icon={ScrollText}
+            color="navy"
+          />
+          <StatCard
+            label="Active"
+            value={String(kpiActive)}
+            detail="Currently in force"
+            icon={FileCheck2}
+            color="blue"
+          />
+          <StatCard
+            label="Signed"
+            value={String(kpiSigned)}
+            detail="Fully executed"
+            icon={ShieldCheck}
+            color="emerald"
+          />
+          <StatCard
+            label="Pending Signature"
+            value={String(kpiPending)}
+            detail="Awaiting sign-off"
+            icon={Clock}
+            color="amber"
+          />
+        </StatRow>
+
         {/* Section Header & Creator Button */}
         <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -248,17 +307,28 @@ export default function ContractsPage() {
                 installment terms, and lawyer signoffs.
               </p>
             </div>
-            <Button
-              onClick={() => setShowForm((v) => !v)}
-              className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium shadow-sm transition-all"
-            >
-              {showForm ? (
-                <X className="size-4 mr-1.5" />
-              ) : (
-                <Plus className="size-4 mr-1.5" />
-              )}
-              {showForm ? "Cancel Intake" : "Create Contract"}
-            </Button>
+            <div className="flex w-full sm:w-auto items-center gap-3">
+              <label className="flex h-9 w-full sm:w-72 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-slate-400">
+                <Search className="size-4 shrink-0" />
+                <input
+                  value={search}
+                  onChange={(e) => { setSearch(e.target.value); }}
+                  placeholder="Search by buyer, unit, or contract #…"
+                  className="w-full bg-transparent text-xs text-slate-800 outline-none placeholder:text-slate-400"
+                />
+              </label>
+              <Button
+                onClick={() => setShowForm((v) => !v)}
+                className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium shadow-sm transition-all"
+              >
+                {showForm ? (
+                  <X className="size-4 mr-1.5" />
+                ) : (
+                  <Plus className="size-4 mr-1.5" />
+                )}
+                {showForm ? "Cancel Intake" : "Create Contract"}
+              </Button>
+            </div>
           </div>
 
           {/* New Contract Creator Form */}

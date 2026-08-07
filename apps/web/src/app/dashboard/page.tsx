@@ -21,6 +21,8 @@ import {
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { ActivityTimeline } from "@/components/activity/activity-timeline";
+import { StatCard, StatRow } from "@/components/ui/stat-card";
+import { CardSkeleton } from "@/components/ui/skeleton-loaders";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
@@ -483,6 +485,8 @@ export default function DashboardPage() {
 
   const primaryRole = userRoles[0] || "Agent";
   const todaysLeads = leads.filter((lead) => isToday(lead.createdAt));
+  const openTasksCount = tasks.filter((t) => t.status !== "DONE" && t.status !== "CANCELLED").length;
+  const todayVisits = visits.filter((v) => isToday(v.date)).length;
 
   const totalPipelineValue = deals.reduce(
     (acc, d) => acc + (Number(d.value) || 0),
@@ -502,13 +506,45 @@ export default function DashboardPage() {
       )}
 
       {loading ? (
-        <div className="flex h-48 items-center justify-center">
-          <p className="text-sm text-slate-500 font-medium">
-            Loading sales command center…
-          </p>
-        </div>
+        <>
+          <CardSkeleton count={4} />
+          <div className="mt-6">
+            <CardSkeleton count={4} />
+          </div>
+        </>
       ) : (
         <div className="space-y-6">
+          <StatRow>
+            <StatCard
+              label="Pipeline Value"
+              value={money(totalPipelineValue)}
+              detail={`${deals.length} active opportunities`}
+              icon={WalletCards}
+              color="navy"
+            />
+            <StatCard
+              label="Today's Leads"
+              value={String(todaysLeads.length || leads.length)}
+              detail={`${leads.filter((l) => l.status === 'QUALIFIED').length} qualified`}
+              icon={UserRoundCheck}
+              color="indigo"
+            />
+            <StatCard
+              label="Today's Site Visits"
+              value={String(todayVisits || visits.length)}
+              detail={`${visits.filter((v) => v.status === 'SCHEDULED').length} scheduled`}
+              icon={CalendarDays}
+              color="blue"
+            />
+            <StatCard
+              label="Open Tasks"
+              value={String(openTasksCount)}
+              detail="Requiring attention"
+              icon={ClipboardList}
+              color={openTasksCount > 5 ? "amber" : "emerald"}
+            />
+          </StatRow>
+
           {/* Operational Grid Cards */}
           <OperationalGrid
             tasks={tasks}
