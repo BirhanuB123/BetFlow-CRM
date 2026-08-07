@@ -15,7 +15,7 @@ import {
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { SignatureModal } from "@/components/contracts/signature-modal";
-import { apiFetch } from "@/lib/api";
+import { apiDownload, apiFetch } from "@/lib/api";
 import type {
   ContractTemplateResult,
   GenerateContractInput,
@@ -51,6 +51,7 @@ export default function ContractBuilderPage() {
 
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [generatedResult, setGeneratedResult] =
     useState<ContractTemplateResult | null>(null);
@@ -139,14 +140,29 @@ export default function ContractBuilderPage() {
     setSignatures((prev) => [...prev, newSig]);
   };
 
-  const downloadPdf = () => {
+  const downloadPdf = async () => {
     if (!generatedResult) return;
-    const apiUrl =
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
-    window.open(
-      `${apiUrl}/contracts/${generatedResult.contractId}/pdf`,
-      "_blank",
-    );
+    setDownloading(true);
+    setError(null);
+    try {
+      const blob = await apiDownload(
+        `/contracts/${generatedResult.contractId}/pdf`,
+      );
+      const url = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `Contract_${generatedResult.contractNumber || generatedResult.contractId}.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(anchor);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to download PDF contract",
+      );
+    } finally {
+      setDownloading(false);
+    }
   };
 
   const selectedCustomer = customers.find((c) => c.id === selectedCustomerId);
@@ -283,10 +299,12 @@ export default function ContractBuilderPage() {
               <div className="grid grid-cols-2 gap-2">
                 <Button
                   onClick={downloadPdf}
+                  disabled={downloading}
                   variant="outline"
                   className="h-9 text-xs gap-1.5 font-semibold text-zinc-800"
                 >
-                  <Download className="size-4 text-[#233b66]" /> Download PDF
+                  <Download className="size-4 text-[#233b66]" />{" "}
+                  {downloading ? "Downloading..." : "Download PDF"}
                 </Button>
                 <Button
                   onClick={() => setIsSignatureModalOpen(true)}
@@ -316,9 +334,11 @@ export default function ContractBuilderPage() {
                     size="sm"
                     variant="outline"
                     onClick={downloadPdf}
+                    disabled={downloading}
                     className="h-7 text-[11px] gap-1 border-zinc-300"
                   >
-                    <Download className="size-3 text-[#233b66]" /> PDF Stream
+                    <Download className="size-3 text-[#233b66]" />{" "}
+                    {downloading ? "Downloading..." : "PDF Stream"}
                   </Button>
                   <span
                     className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold uppercase ${
