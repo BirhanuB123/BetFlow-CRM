@@ -29,6 +29,9 @@ import {
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { TableSkeleton } from "@/components/ui/skeleton-loaders";
+import { StatusPill } from "@/components/ui/status-pill";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
@@ -524,23 +527,18 @@ export default function ReservationsPage() {
           </div>
 
           {loading ? (
-            <div className="flex h-36 items-center justify-center">
-              <p className="text-sm text-slate-500">
-                Loading reservation queue…
-              </p>
+            <div className="p-4">
+              <TableSkeleton rows={5} cols={6} />
             </div>
           ) : visible.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-8 text-center">
-              <div className="rounded-full bg-slate-50 p-4 border border-slate-100 mb-2">
-                <FilePlus2 className="size-6 text-slate-400" />
-              </div>
-              <p className="text-sm font-semibold text-slate-800">
-                No unit holds in this view
-              </p>
-              <p className="text-xs text-slate-500 max-w-sm mt-1">
-                Click "New Unit Reservation" to lock an available property unit
-                for a prospective buyer.
-              </p>
+            <div className="p-6">
+              <EmptyState
+                title="No unit holds in this view"
+                description="Click 'Create Reservation' to lock an available property unit and generate a deposit voucher for a prospective buyer."
+                actionText="Create Reservation"
+                onAction={() => setShowForm(true)}
+                icon={FilePlus2}
+              />
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -635,25 +633,7 @@ export default function ReservationsPage() {
                         </td>
 
                         <td className="px-5 py-3">
-                          <span
-                            className={cn(
-                              "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold border",
-                              statusClass[reservation.status] ??
-                                "bg-slate-100 text-slate-700",
-                            )}
-                          >
-                            {reservation.status === "APPROVED" && (
-                              <Lock className="size-3 text-emerald-600" />
-                            )}
-                            {reservation.status === "PENDING" && (
-                              <Clock className="size-3 text-amber-600" />
-                            )}
-                            {(reservation.status === "CANCELLED" ||
-                              reservation.status === "EXPIRED") && (
-                              <Unlock className="size-3 text-slate-500" />
-                            )}
-                            {reservation.status}
-                          </span>
+                          <StatusPill status={reservation.status} size="sm" />
                         </td>
 
                         <td className="px-5 py-3 text-right">

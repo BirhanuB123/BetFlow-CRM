@@ -29,6 +29,9 @@ import {
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { TableSkeleton } from "@/components/ui/skeleton-loaders";
+import { StatusPill } from "@/components/ui/status-pill";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
@@ -535,21 +538,18 @@ export default function ContractsPage() {
           </div>
 
           {loading ? (
-            <div className="flex h-36 items-center justify-center">
-              <p className="text-sm text-slate-500">Loading sales contracts…</p>
+            <div className="p-4">
+              <TableSkeleton rows={5} cols={6} />
             </div>
           ) : visible.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-8 text-center">
-              <div className="rounded-full bg-slate-50 p-4 border border-slate-100 mb-2">
-                <ScrollText className="size-6 text-slate-400" />
-              </div>
-              <p className="text-sm font-semibold text-slate-800">
-                No contracts in this view
-              </p>
-              <p className="text-xs text-slate-500 max-w-sm mt-1">
-                Click "New Contract Agreement" to log a new real estate sales
-                contract or reservation agreement.
-              </p>
+            <div className="p-6">
+              <EmptyState
+                title="No contracts in this view"
+                description="Click 'Create Contract' to generate a legal property sales contract or reservation agreement."
+                actionText="Create Contract"
+                onAction={() => setShowForm(true)}
+                icon={ScrollText}
+              />
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -623,24 +623,7 @@ export default function ContractsPage() {
                       </td>
 
                       <td className="px-5 py-3">
-                        <span
-                          className={cn(
-                            "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold border",
-                            statusClass[contract.status] ??
-                              "bg-slate-100 text-slate-700 border-slate-200",
-                          )}
-                        >
-                          {contract.status === "SIGNED" && (
-                            <CheckCircle2 className="size-3 text-emerald-600" />
-                          )}
-                          {contract.status === "PENDING_SIGNATURE" && (
-                            <Clock className="size-3 text-amber-600" />
-                          )}
-                          {contract.status === "CANCELLED" && (
-                            <XCircle className="size-3 text-rose-600" />
-                          )}
-                          {contract.status}
-                        </span>
+                        <StatusPill status={contract.status} size="sm" />
                       </td>
 
                       <td className="px-5 py-3 text-right">

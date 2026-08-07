@@ -6,6 +6,7 @@ import { Calculator, Grid, Table as TableIcon, X } from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
+import { CardSkeleton, TableSkeleton } from "@/components/ui/skeleton-loaders";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
@@ -191,9 +192,9 @@ export default function UnitsPage() {
       {viewMode === "STACKING_PLAN" ? (
         <section className="space-y-6">
           {loading ? (
-            <p className="p-6 text-sm text-zinc-500">
-              Loading building matrix…
-            </p>
+            <div className="p-4">
+              <CardSkeleton count={3} />
+            </div>
           ) : stackingPlan.length === 0 ? (
             <p className="p-6 text-sm text-zinc-500">
               No building stacking data available.
