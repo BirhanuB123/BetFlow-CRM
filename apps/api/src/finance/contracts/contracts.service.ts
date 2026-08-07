@@ -8,6 +8,8 @@ import { PrismaService } from '../../database/prisma.service';
 import { CreateContractInput, UpdateContractInput } from './contracts.types';
 import { PdfGeneratorService } from './pdf-generator.service';
 
+import { DocumentStorageService } from '../../platform/documents/document-storage.service';
+
 const contractInclude = {
   customer: { select: { id: true, firstName: true, lastName: true } },
   unit: { select: { id: true, unitNumber: true, type: true, status: true } },
@@ -20,6 +22,7 @@ export class ContractsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly pdfGenerator: PdfGeneratorService,
+    private readonly storage: DocumentStorageService,
   ) {}
 
   async generatePdf(id: string): Promise<Buffer> {
@@ -44,7 +47,7 @@ export class ContractsService {
       throw new NotFoundException(`Contract ${id} not found`);
     }
 
-    return this.pdfGenerator.generateContractPdf({
+    const pdfBuffer = await this.pdfGenerator.generateContractPdf({
       contractId: contract.id,
       contractNumber: contract.contractNumber || undefined,
       projectName: contract.unit.floor.building.project.name,
@@ -62,6 +65,60 @@ export class ContractsService {
       createdAt: contract.createdAt,
       signatures: contract.signatures,
     });
+
+    // Save PDF file to storage and register Document in PostgreSQL database via Prisma
+    try {
+      const fileName = `Contract_${contract.contractNumber || contract.id}.pdf`;
+      const stored = await this.storage.save({
+        originalname: fileName,
+        mimetype: 'application/pdf',
+        size: pdfBuffer.length,
+        buffer: pdfBuffer,
+      });
+
+      const existingDoc = await this.prisma.document.findFirst({
+        where: { entityType: 'CONTRACT', entityId: id },
+      });
+
+      if (existingDoc) {
+        await this.prisma.document.update({
+          where: { id: existingDoc.id },
+          data: {
+            name: fileName,
+            fileUrl: `/api/documents/${existingDoc.id}/download`,
+            storageKey: stored.storageKey,
+            sizeBytes: pdfBuffer.length,
+            checksum: stored.checksum,
+            status:
+              contract.status === 'SIGNED' ? 'VERIFIED' : 'PENDING_REVIEW',
+          },
+        });
+      } else {
+        const newDoc = await this.prisma.document.create({
+          data: {
+            name: fileName,
+            fileUrl: '',
+            storageKey: stored.storageKey,
+            mimeType: 'application/pdf',
+            sizeBytes: pdfBuffer.length,
+            checksum: stored.checksum,
+            category: 'CONTRACT',
+            status:
+              contract.status === 'SIGNED' ? 'VERIFIED' : 'PENDING_REVIEW',
+            entityType: 'CONTRACT',
+            entityId: id,
+          },
+        });
+        await this.prisma.document.update({
+          where: { id: newDoc.id },
+          data: { fileUrl: `/api/documents/${newDoc.id}/download` },
+        });
+      }
+    } catch {
+      // Storage logging optional fallback
+    }
+
+    return pdfBuffer;
   }
 
   async signContract(

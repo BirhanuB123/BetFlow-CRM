@@ -256,10 +256,32 @@ export class PortalService {
   }
 
   /**
-   * Returns buyer's documents.
+   * Returns buyer's documents from Prisma database.
    */
   async getDocuments(email?: string, customerId?: string) {
-    return [];
+    const me = await this.getPortalMe(email, customerId);
+    const documents = await this.prisma.document.findMany({
+      where: {
+        OR: [
+          { entityType: 'CUSTOMER', entityId: me.customer.id },
+          {
+            entityType: 'CONTRACT',
+            entityId: { in: me.signedContracts.map((c) => c.id) },
+          },
+        ],
+      },
+      orderBy: { uploadedAt: 'desc' },
+    });
+
+    return documents.map((doc) => ({
+      id: doc.id,
+      name: doc.name,
+      fileUrl: doc.fileUrl,
+      category: doc.category,
+      status: doc.status,
+      uploadedAt: doc.uploadedAt.toISOString(),
+      sizeBytes: doc.sizeBytes,
+    }));
   }
 
   /**
@@ -284,7 +306,7 @@ export class PortalService {
   }
 
   /**
-   * Records a bank slip submission.
+   * Records a bank slip submission in Prisma database.
    */
   async uploadBankSlip(
     customerId: string,
@@ -311,6 +333,20 @@ export class PortalService {
 
     this.bankSlipStore.set(id, submission);
 
+    // Save Bank Slip record in Prisma Document table
+    const docName = `Bank_Slip_${bankName}_${referenceNumber}.pdf`;
+    const document = await this.prisma.document.create({
+      data: {
+        name: docName,
+        fileUrl: slipUrl || `/api/documents/${id}/download`,
+        storageKey: `slips/${referenceNumber}`,
+        category: 'RECEIPT',
+        status: 'PENDING_REVIEW',
+        entityType: 'PAYMENT',
+        entityId: scheduleId,
+      },
+    });
+
     await this.prisma.auditLog.create({
       data: {
         userId: customerId,
@@ -318,10 +354,11 @@ export class PortalService {
         entityType: 'PaymentSchedule',
         entityId: scheduleId,
         newValues: {
+          documentId: document.id,
           bankName,
           referenceNumber,
           amount,
-          slipUrl: slipUrl || undefined,
+          slipUrl: slipUrl || document.fileUrl,
           notes: notes || undefined,
         },
       },
