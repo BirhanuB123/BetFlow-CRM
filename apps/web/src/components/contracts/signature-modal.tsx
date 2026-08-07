@@ -78,7 +78,7 @@ export function SignatureModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="size-5 text-[#334cff]" />
+            <ShieldCheck className="size-5 text-[#233b66]" />
             <h2 className="text-base font-bold text-zinc-900">E-Signature Verification</h2>
           </div>
           <button
@@ -99,7 +99,7 @@ export function SignatureModal({
                 value={signerName}
                 onChange={(e) => setSignerName(e.target.value)}
                 placeholder="e.g. Abebe Bikila"
-                className="mt-1 h-9 w-full rounded-md border border-zinc-200 px-3 text-xs font-medium focus:border-[#334cff] focus:outline-hidden"
+                className="mt-1 h-9 w-full rounded-md border border-zinc-200 px-3 text-xs font-medium focus:border-[#233b66] focus:outline-hidden"
               />
             </div>
 
@@ -124,7 +124,7 @@ export function SignatureModal({
               value={signerEmail}
               onChange={(e) => setSignerEmail(e.target.value)}
               placeholder="signer@example.com"
-              className="mt-1 h-9 w-full rounded-md border border-zinc-200 px-3 text-xs font-medium focus:border-[#334cff] focus:outline-hidden"
+              className="mt-1 h-9 w-full rounded-md border border-zinc-200 px-3 text-xs font-medium focus:border-[#233b66] focus:outline-hidden"
             />
           </div>
 
@@ -143,7 +143,7 @@ export function SignatureModal({
               id="agreeTerms"
               checked={agreeTerms}
               onChange={(e) => setAgreeTerms(e.target.checked)}
-              className="mt-0.5 size-4 rounded border-zinc-300 accent-[#334cff]"
+              className="mt-0.5 size-4 rounded border-zinc-300 accent-[#233b66]"
             />
             <label htmlFor="agreeTerms" className="text-[11px] text-zinc-600 font-medium leading-snug">
               I acknowledge that this digital signature constitutes a legally binding intent to sign this property agreement. The timestamp, IP address, and SHA-256 hash will be recorded.
@@ -159,7 +159,7 @@ export function SignatureModal({
             <Button
               type="submit"
               disabled={submitting || !signatureDataUrl || !agreeTerms}
-              className="h-9 bg-[#334cff] hover:bg-[#2539cc] text-white text-xs gap-1.5 font-semibold"
+              className="h-9 bg-[#233b66] hover:bg-[#233b66]/90 text-white text-xs gap-1.5 font-semibold"
             >
               <CheckCircle2 className="size-4" />
               {submitting ? "Signing Contract..." : "Confirm & Sign Contract"}

@@ -357,7 +357,7 @@ export default function ReservationsPage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={saving} className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs shadow-sm">
+                <Button type="submit" disabled={saving} className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium text-xs shadow-sm">
                   {saving ? "Reserving…" : "Reserve & Lock Unit Inventory"}
                 </Button>
               </div>
@@ -380,7 +380,7 @@ export default function ReservationsPage() {
                 onClick={() => setFilter("ACTIVE")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "ACTIVE" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "ACTIVE" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
                 Active Holds ({activeCount})
@@ -390,7 +390,7 @@ export default function ReservationsPage() {
                 onClick={() => setFilter("APPROVED")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "APPROVED" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "APPROVED" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
                 Approved ({reservations.filter((r) => r.status === "APPROVED").length})
@@ -400,7 +400,7 @@ export default function ReservationsPage() {
                 onClick={() => setFilter("EXPIRED")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "EXPIRED" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "EXPIRED" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
                 Expired / Released ({reservations.filter((r) => r.status === "EXPIRED").length})
@@ -410,7 +410,7 @@ export default function ReservationsPage() {
                 onClick={() => setFilter("ALL")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "ALL" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "ALL" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
                 All Holds ({reservations.length})
@@ -457,7 +457,7 @@ export default function ReservationsPage() {
                           <p className="font-semibold text-slate-800">
                             {reservation.reservationNumber ?? `BF-RES-${reservation.id.slice(0, 8).toUpperCase()}`}
                           </p>
-                          <span className="inline-flex items-center gap-1 mt-0.5 text-[11px] font-bold text-indigo-600">
+                          <span className="inline-flex items-center gap-1 mt-0.5 text-[11px] font-bold text-[#233b66]">
                             <Building className="size-3" />
                             Unit {reservation.unit.unitNumber} ({reservation.unit.type})
                           </span>
@@ -466,9 +466,9 @@ export default function ReservationsPage() {
                         <td className="px-5 py-3 font-medium">
                           <Link
                             href={`/customers/${reservation.customer.id}`}
-                            className="font-semibold text-indigo-600 hover:underline inline-flex items-center gap-1.5"
+                            className="font-semibold text-[#233b66] hover:underline inline-flex items-center gap-1.5"
                           >
-                            <User className="size-3.5 text-indigo-500" />
+                            <User className="size-3.5 text-[#233b66]" />
                             {reservation.customer.firstName} {reservation.customer.lastName}
                           </Link>
                         </td>
@@ -529,7 +529,7 @@ export default function ReservationsPage() {
                             <button
                               type="button"
                               onClick={() => setActiveVoucher(reservation)}
-                              className="rounded bg-indigo-50 p-1.5 text-indigo-600 hover:bg-indigo-100 transition-colors"
+                              className="rounded bg-[#233b66]/10 p-1.5 text-[#233b66] hover:bg-[#233b66]/20 transition-colors"
                               title="View Hold Voucher"
                             >
                               <Eye className="size-3.5" />
@@ -572,7 +572,7 @@ export default function ReservationsPage() {
             <div className="w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-xl">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
-                  <Receipt className="size-5 text-indigo-600" />
+                  <Receipt className="size-5 text-[#233b66]" />
                   <h3 className="text-base font-bold text-slate-900">Unit Reservation Voucher</h3>
                 </div>
                 <button
@@ -584,10 +584,10 @@ export default function ReservationsPage() {
               </div>
 
               <div className="mt-4 space-y-4 text-xs">
-                <div className="flex items-center justify-between rounded-lg bg-indigo-50/60 p-3">
+                <div className="flex items-center justify-between rounded-lg bg-[#233b66]/10 p-3">
                   <div>
                     <p className="text-[11px] font-medium text-slate-500">Reservation Reference</p>
-                    <p className="text-sm font-bold text-indigo-950">
+                    <p className="text-sm font-bold text-[#233b66]">
                       {activeVoucher.reservationNumber ?? `BF-RES-${activeVoucher.id.slice(0, 8).toUpperCase()}`}
                     </p>
                   </div>
@@ -651,7 +651,7 @@ export default function ReservationsPage() {
               <div className="mt-6 flex justify-end">
                 <Button
                   onClick={() => setActiveVoucher(null)}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-4"
+                  className="bg-[#233b66] hover:bg-[#1a2d50] text-white text-xs px-4"
                 >
                   Close Voucher
                 </Button>
