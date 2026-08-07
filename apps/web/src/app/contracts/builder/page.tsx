@@ -64,7 +64,7 @@ export default function ContractBuilderPage() {
     try {
       const [cRes, uRes] = await Promise.all([
         apiFetch<CustomerOption[]>("/customers").catch(() => []),
-        apiFetch<UnitOption[]>("/units").catch(() => []),
+        apiFetch<UnitOption[]>("/units?status=AVAILABLE").catch(() => []),
       ]);
       setCustomers(cRes);
       setUnits(uRes);

@@ -183,12 +183,43 @@ export class ContractsService {
     });
   }
 
-  list() {
+  async list() {
+    await this.deduplicateUnitContracts();
     return this.prisma.contract.findMany({
       where: {},
       include: contractInclude,
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  private async deduplicateUnitContracts() {
+    // Find all active or signed contracts grouped by unitId
+    const activeContracts = await this.prisma.contract.findMany({
+      where: {
+        status: {
+          in: ['ACTIVE', 'SIGNED', 'PENDING_SIGNATURE', 'PENDING_APPROVAL'],
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const seenUnits = new Set<string>();
+    const duplicateIdsToCancel: string[] = [];
+
+    for (const contract of activeContracts) {
+      if (seenUnits.has(contract.unitId)) {
+        duplicateIdsToCancel.push(contract.id);
+      } else {
+        seenUnits.add(contract.unitId);
+      }
+    }
+
+    if (duplicateIdsToCancel.length > 0) {
+      await this.prisma.contract.updateMany({
+        where: { id: { in: duplicateIdsToCancel } },
+        data: { status: 'CANCELLED' },
+      });
+    }
   }
 
   async get(id: string) {
@@ -208,6 +239,22 @@ export class ContractsService {
     if (!input.customerId)
       throw new BadRequestException('customerId is required');
     if (!input.unitId) throw new BadRequestException('unitId is required');
+
+    // Prevent duplicate active/signed contracts for the same unit
+    const existingActiveContract = await this.prisma.contract.findFirst({
+      where: {
+        unitId: input.unitId,
+        status: {
+          in: ['ACTIVE', 'SIGNED', 'PENDING_SIGNATURE', 'PENDING_APPROVAL'],
+        },
+      },
+    });
+
+    if (existingActiveContract) {
+      throw new BadRequestException(
+        `Unit already has an active contract (${existingActiveContract.contractNumber || existingActiveContract.id}). Duplicate contracts for the same unit are not allowed.`,
+      );
+    }
 
     const startDate = this.normalizeDate(input.startDate, 'startDate');
     const endDate =
@@ -234,6 +281,8 @@ export class ContractsService {
       await this.assertDealExists(input.dealId);
     }
 
+    const initialStatus = input.status?.trim() || 'ACTIVE';
+
     const contract = await this.prisma.contract.create({
       data: {
         contractNumber,
@@ -247,9 +296,15 @@ export class ContractsService {
         downPaymentAmt,
         paymentPlan: input.paymentPlan || 'INSTALLMENTS_24M',
         notes: input.notes?.trim() || null,
-        status: input.status?.trim() || 'ACTIVE',
+        status: initialStatus,
       },
       include: contractInclude,
+    });
+
+    // Update unit status to RESERVED or SOLD
+    await this.prisma.unit.update({
+      where: { id: input.unitId },
+      data: { status: initialStatus === 'SIGNED' ? 'SOLD' : 'RESERVED' },
     });
 
     await this.recordAudit(userId, 'contract.created', contract.id);
