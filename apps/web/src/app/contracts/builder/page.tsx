@@ -151,7 +151,7 @@ export default function ContractBuilderPage() {
       const url = window.URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = `Contract_${generatedResult.contractNumber || generatedResult.contractId}.pdf`;
+      anchor.download = `Contract_${generatedResult.contractId}.pdf`;
       document.body.appendChild(anchor);
       anchor.click();
       window.URL.revokeObjectURL(url);
