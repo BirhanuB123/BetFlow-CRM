@@ -82,7 +82,11 @@ export default function SubscriptionPage() {
       const result = await apiFetch<SubscriptionData>("/saas/subscription");
       setData(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load subscription details");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to load subscription details",
+      );
     } finally {
       setLoading(false);
     }
@@ -94,15 +98,25 @@ export default function SubscriptionPage() {
 
   if (loading) {
     return (
-      <DashboardShell title="Subscription plans" description="Plan selection and feature usage for this tenant." active="Plans">
-        <p className="p-6 text-sm text-zinc-500">Loading subscription details…</p>
+      <DashboardShell
+        title="Subscription plans"
+        description="Plan selection and feature usage for this tenant."
+        active="Plans"
+      >
+        <p className="p-6 text-sm text-zinc-500">
+          Loading subscription details…
+        </p>
       </DashboardShell>
     );
   }
 
   if (error || !data) {
     return (
-      <DashboardShell title="Subscription plans" description="Plan selection and feature usage for this tenant." active="Plans">
+      <DashboardShell
+        title="Subscription plans"
+        description="Plan selection and feature usage for this tenant."
+        active="Plans"
+      >
         <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
           {error || "Failed to load subscription details"}
         </div>
@@ -115,10 +129,28 @@ export default function SubscriptionPage() {
   const userLimit = limits.find((l) => l.feature === "Users");
 
   const saasMetrics = [
-    { label: "Current plan", value: currentPlan?.name || "None", detail: currentPlan?.price ? `$${currentPlan.price} monthly` : "Custom" },
-    { label: "Seat usage", value: userLimit ? `${userLimit.used}/${userLimit.limit}` : "N/A", detail: userLimit ? `${userLimit.limit - userLimit.used} seats remaining` : "" },
-    { label: "Trial", value: `${trialPeriod.daysRemaining} days`, detail: `Ends ${new Date(trialPeriod.endsAt).toLocaleDateString()}` },
-    { label: "Billing Method", value: billingAccount.paymentMethod, detail: billingAccount.collectionMode },
+    {
+      label: "Current plan",
+      value: currentPlan?.name || "None",
+      detail: currentPlan?.price ? `$${currentPlan.price} monthly` : "Custom",
+    },
+    {
+      label: "Seat usage",
+      value: userLimit ? `${userLimit.used}/${userLimit.limit}` : "N/A",
+      detail: userLimit
+        ? `${userLimit.limit - userLimit.used} seats remaining`
+        : "",
+    },
+    {
+      label: "Trial",
+      value: `${trialPeriod.daysRemaining} days`,
+      detail: `Ends ${new Date(trialPeriod.endsAt).toLocaleDateString()}`,
+    },
+    {
+      label: "Billing Method",
+      value: billingAccount.paymentMethod,
+      detail: billingAccount.collectionMode,
+    },
   ];
 
   return (
@@ -145,10 +177,14 @@ export default function SubscriptionPage() {
           <div>
             <h2 className="text-base font-semibold">Trial period</h2>
             <p className="mt-1 text-sm text-zinc-500">
-              Started {new Date(trialPeriod.startedAt).toLocaleDateString()}, ends {new Date(trialPeriod.endsAt).toLocaleDateString()}, owned by {trialPeriod.conversionOwner}.
+              Started {new Date(trialPeriod.startedAt).toLocaleDateString()},
+              ends {new Date(trialPeriod.endsAt).toLocaleDateString()}, owned by{" "}
+              {trialPeriod.conversionOwner}.
             </p>
           </div>
-          <span className={`w-fit rounded-md px-2 py-1 text-xs font-medium uppercase border ${statusClass[trialPeriod.status]}`}>
+          <span
+            className={`w-fit rounded-md px-2 py-1 text-xs font-medium uppercase border ${statusClass[trialPeriod.status]}`}
+          >
             {trialPeriod.daysRemaining} days remaining
           </span>
         </div>
@@ -157,16 +193,23 @@ export default function SubscriptionPage() {
       <section className="mt-6 rounded-lg border border-zinc-200 bg-white">
         <div className="border-b border-zinc-200 p-4">
           <h2 className="text-base font-semibold">Plans</h2>
-          <p className="text-sm text-zinc-500">Subscription tiers and included capabilities.</p>
+          <p className="text-sm text-zinc-500">
+            Subscription tiers and included capabilities.
+          </p>
         </div>
         <CrmTable
           columns={["Plan", "Price", "Cycle", "Includes", "Status"]}
           rows={plans.map((plan) => [
-            <span key="plan" className="font-medium">{plan.name}</span>,
+            <span key="plan" className="font-medium">
+              {plan.name}
+            </span>,
             plan.price ? `$${plan.price}` : "Custom",
             plan.billingCycle,
             plan.includes.join(", "),
-            <span key="status" className={`rounded-md border px-2 py-1 text-xs font-medium uppercase ${statusClass[plan.status]}`}>
+            <span
+              key="status"
+              className={`rounded-md border px-2 py-1 text-xs font-medium uppercase ${statusClass[plan.status]}`}
+            >
               {plan.status}
             </span>,
           ])}
@@ -176,12 +219,16 @@ export default function SubscriptionPage() {
       <section className="mt-6 rounded-lg border border-zinc-200 bg-white">
         <div className="border-b border-zinc-200 p-4">
           <h2 className="text-base font-semibold">Feature limits</h2>
-          <p className="text-sm text-zinc-500">Usage compared with plan limits.</p>
+          <p className="text-sm text-zinc-500">
+            Usage compared with plan limits.
+          </p>
         </div>
         <CrmTable
           columns={["Feature", "Used", "Limit", "Unit", "Usage"]}
           rows={limits.map((limit) => [
-            <span key="feature" className="font-medium">{limit.feature}</span>,
+            <span key="feature" className="font-medium">
+              {limit.feature}
+            </span>,
             limit.used.toLocaleString(),
             limit.limit.toLocaleString(),
             limit.unit,
@@ -192,17 +239,32 @@ export default function SubscriptionPage() {
 
       <section className="mt-6 rounded-lg border border-zinc-200 bg-white">
         <div className="border-b border-zinc-200 p-4">
-          <h2 className="text-base font-semibold">Invoices & Billing History</h2>
-          <p className="text-sm text-zinc-500">View and track past payments and outstanding invoices.</p>
+          <h2 className="text-base font-semibold">
+            Invoices & Billing History
+          </h2>
+          <p className="text-sm text-zinc-500">
+            View and track past payments and outstanding invoices.
+          </p>
         </div>
         <CrmTable
-          columns={["Invoice ID", "Billing Period", "Amount", "Due Date", "Status"]}
+          columns={[
+            "Invoice ID",
+            "Billing Period",
+            "Amount",
+            "Due Date",
+            "Status",
+          ]}
           rows={billingItems.map((invoice) => [
-            <span key="invoice" className="font-medium">{invoice.invoice}</span>,
+            <span key="invoice" className="font-medium">
+              {invoice.invoice}
+            </span>,
             invoice.period,
             `$${invoice.amount}`,
             new Date(invoice.dueDate).toLocaleDateString(),
-            <span key="status" className={`rounded-md border px-2 py-1 text-xs font-medium uppercase ${statusClass[invoice.status]}`}>
+            <span
+              key="status"
+              className={`rounded-md border px-2 py-1 text-xs font-medium uppercase ${statusClass[invoice.status]}`}
+            >
               {invoice.status}
             </span>,
           ])}

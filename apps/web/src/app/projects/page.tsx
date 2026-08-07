@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+} from "react";
 import Link from "next/link";
 import {
   Building2,
@@ -31,7 +37,13 @@ import { apiFetch, apiUpload, API_BASE_URL } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
-const PROJECT_STATUSES = ["PLANNING", "ACTIVE", "SELLING", "COMPLETED", "ON_HOLD"] as const;
+const PROJECT_STATUSES = [
+  "PLANNING",
+  "ACTIVE",
+  "SELLING",
+  "COMPLETED",
+  "ON_HOLD",
+] as const;
 
 type ApiProject = {
   id: string;
@@ -101,10 +113,22 @@ const DEFAULT_AMENITIES = [
 ];
 
 const PRESET_RENDERS = [
-  { name: "Bole Luxury High-Rise Render", url: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80" },
-  { name: "Kazanchis Glass Tower Render", url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80" },
-  { name: "CMC Villa Compound Render", url: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80" },
-  { name: "Mixed-Use Commercial Plaza", url: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=800&q=80" },
+  {
+    name: "Bole Luxury High-Rise Render",
+    url: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    name: "Kazanchis Glass Tower Render",
+    url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    name: "CMC Villa Compound Render",
+    url: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    name: "Mixed-Use Commercial Plaza",
+    url: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=800&q=80",
+  },
 ];
 
 export default function ProjectsPage() {
@@ -113,7 +137,7 @@ export default function ProjectsPage() {
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState<string>("ALL");
-  
+
   const [showForm, setShowForm] = useState(false);
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -130,7 +154,11 @@ export default function ProjectsPage() {
     videoUrl: "",
     description: "",
     status: "SELLING",
-    selectedAmenities: [DEFAULT_AMENITIES[0], DEFAULT_AMENITIES[1], DEFAULT_AMENITIES[2]],
+    selectedAmenities: [
+      DEFAULT_AMENITIES[0],
+      DEFAULT_AMENITIES[1],
+      DEFAULT_AMENITIES[2],
+    ],
     galleryUrls: [] as string[],
     newGalleryUrl: "",
   });
@@ -168,7 +196,11 @@ export default function ProjectsPage() {
       videoUrl: "",
       description: "",
       status: "SELLING",
-      selectedAmenities: [DEFAULT_AMENITIES[0], DEFAULT_AMENITIES[1], DEFAULT_AMENITIES[2]],
+      selectedAmenities: [
+        DEFAULT_AMENITIES[0],
+        DEFAULT_AMENITIES[1],
+        DEFAULT_AMENITIES[2],
+      ],
       galleryUrls: [],
       newGalleryUrl: "",
     });
@@ -189,7 +221,10 @@ export default function ProjectsPage() {
       videoUrl: p.videoUrl ?? "",
       description: p.description ?? "",
       status: p.status,
-      selectedAmenities: p.amenities ?? [DEFAULT_AMENITIES[0], DEFAULT_AMENITIES[1]],
+      selectedAmenities: p.amenities ?? [
+        DEFAULT_AMENITIES[0],
+        DEFAULT_AMENITIES[1],
+      ],
       galleryUrls: p.gallery ?? [],
       newGalleryUrl: "",
     });
@@ -240,7 +275,11 @@ export default function ProjectsPage() {
   };
 
   const handleDelete = async (p: ApiProject) => {
-    if (!window.confirm(`Are you sure you want to delete project "${p.name}"? This will delete all associated building blocks and units.`)) {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete project "${p.name}"? This will delete all associated building blocks and units.`,
+      )
+    ) {
       return;
     }
     setError(null);
@@ -288,7 +327,7 @@ export default function ProjectsPage() {
       formData.append("file", file);
       const res = await apiUpload<{ url: string }>("/uploads/image", formData);
       const fullUrl = `${API_BASE_URL.replace("/api", "")}${res.url}`;
-      
+
       if (type === "cover") {
         setForm({ ...form, coverImage: fullUrl });
       } else {
@@ -312,16 +351,28 @@ export default function ProjectsPage() {
         (p.location ?? "").toLowerCase().includes(query.toLowerCase()) ||
         (p.description ?? "").toLowerCase().includes(query.toLowerCase());
 
-      const matchCat = filterCategory === "ALL" || p.category === filterCategory;
+      const matchCat =
+        filterCategory === "ALL" || p.category === filterCategory;
       return matchQuery && matchCat;
     });
   }, [projects, query, filterCategory]);
 
   // KPI summary
-  const totalPortfolioValueETB = projects.reduce((acc, p) => acc + (p.totalValueETB || 0), 0);
-  const totalAvailableUnits = projects.reduce((acc, p) => acc + (p.availableUnitsCount || 0), 0);
-  const totalSoldUnits = projects.reduce((acc, p) => acc + (p.soldUnitsCount || 0), 0);
-  const activeDevsCount = projects.filter((p) => p.status === "ACTIVE" || p.status === "SELLING").length;
+  const totalPortfolioValueETB = projects.reduce(
+    (acc, p) => acc + (p.totalValueETB || 0),
+    0,
+  );
+  const totalAvailableUnits = projects.reduce(
+    (acc, p) => acc + (p.availableUnitsCount || 0),
+    0,
+  );
+  const totalSoldUnits = projects.reduce(
+    (acc, p) => acc + (p.soldUnitsCount || 0),
+    0,
+  );
+  const activeDevsCount = projects.filter(
+    (p) => p.status === "ACTIVE" || p.status === "SELLING",
+  ).length;
 
   return (
     <DashboardShell
@@ -336,10 +387,13 @@ export default function ProjectsPage() {
             <div>
               <div className="flex items-center gap-2">
                 <Building2 className="size-5 text-[#233b66]" />
-                <h2 className="text-lg font-bold text-slate-900">Addis Ababa Real Estate Projects</h2>
+                <h2 className="text-lg font-bold text-slate-900">
+                  Addis Ababa Real Estate Projects
+                </h2>
               </div>
               <p className="mt-1 text-sm text-slate-500">
-                Organize architectural renderings, sub-city locations, construction progress, & floor plan inventory.
+                Organize architectural renderings, sub-city locations,
+                construction progress, & floor plan inventory.
               </p>
             </div>
             <Button
@@ -349,7 +403,11 @@ export default function ProjectsPage() {
               }}
               className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium shadow-sm transition-all"
             >
-              {showForm ? <X className="size-4 mr-1.5" /> : <Plus className="size-4 mr-1.5" />}
+              {showForm ? (
+                <X className="size-4 mr-1.5" />
+              ) : (
+                <Plus className="size-4 mr-1.5" />
+              )}
               {showForm ? "Cancel Intake" : "New Real Estate Project"}
             </Button>
           </div>
@@ -362,12 +420,16 @@ export default function ProjectsPage() {
             >
               <h3 className="text-xs font-bold text-[#233b66] uppercase tracking-wider mb-4 flex items-center gap-2">
                 <Sparkles className="size-4 text-[#233b66]" />
-                {editingProjectId ? "Edit Real Estate Project Details & Renderings" : "Project Specification & Architectural Details"}
+                {editingProjectId
+                  ? "Edit Real Estate Project Details & Renderings"
+                  : "Project Specification & Architectural Details"}
               </h3>
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Project Name *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Project Name *
+                  </label>
                   <input
                     required
                     type="text"
@@ -379,25 +441,43 @@ export default function ProjectsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Project Category</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Project Category
+                  </label>
                   <select
                     value={form.category}
-                    onChange={(e) => setForm({ ...form, category: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, category: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
-                    <option value="RESIDENTIAL_TOWER">G+12/G+20 Residential Tower (አፓርታማ)</option>
-                    <option value="LUXURY_VILLA_COMPOUND">Luxury Villa Compound (ቪላዎች)</option>
-                    <option value="COMMERCIAL_PLAZA">Commercial Plaza / Mall (ንግድ ማዕከል)</option>
-                    <option value="MIXED_USE_DEVELOPMENT">Mixed-Use Tower (የተደባለቀ አግልግሎት)</option>
-                    <option value="TOWN_HOUSES">Modern Townhouses (ታውን ሀውስ)</option>
+                    <option value="RESIDENTIAL_TOWER">
+                      G+12/G+20 Residential Tower (አፓርታማ)
+                    </option>
+                    <option value="LUXURY_VILLA_COMPOUND">
+                      Luxury Villa Compound (ቪላዎች)
+                    </option>
+                    <option value="COMMERCIAL_PLAZA">
+                      Commercial Plaza / Mall (ንግድ ማዕከል)
+                    </option>
+                    <option value="MIXED_USE_DEVELOPMENT">
+                      Mixed-Use Tower (የተደባለቀ አግልግሎት)
+                    </option>
+                    <option value="TOWN_HOUSES">
+                      Modern Townhouses (ታውን ሀውስ)
+                    </option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Addis Ababa Sub-City</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Addis Ababa Sub-City
+                  </label>
                   <select
                     value={form.subCity}
-                    onChange={(e) => setForm({ ...form, subCity: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, subCity: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
                     {Object.entries(subCityLabels).map(([key, val]) => (
@@ -409,21 +489,29 @@ export default function ProjectsPage() {
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Specific Location / Landmark</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Specific Location / Landmark
+                  </label>
                   <input
                     type="text"
                     placeholder="e.g. Bole Atlas, 200m from Medhanialem Church"
                     value={form.location}
-                    onChange={(e) => setForm({ ...form, location: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, location: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Construction Progress Stage</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Construction Progress Stage
+                  </label>
                   <select
                     value={form.constructionStage}
-                    onChange={(e) => setForm({ ...form, constructionStage: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, constructionStage: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
                     {Object.entries(stageLabels).map(([key, val]) => (
@@ -435,37 +523,49 @@ export default function ProjectsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Progress Percentage (0 - 100%)</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Progress Percentage (0 - 100%)
+                  </label>
                   <input
                     type="number"
                     min="0"
                     max="100"
                     value={form.progressPercentage}
-                    onChange={(e) => setForm({ ...form, progressPercentage: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, progressPercentage: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Estimated Delivery Target</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Estimated Delivery Target
+                  </label>
                   <input
                     type="text"
                     placeholder="e.g. Q4 2027"
                     value={form.estimatedDelivery}
-                    onChange={(e) => setForm({ ...form, estimatedDelivery: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, estimatedDelivery: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
 
                 {/* Cover Image & Presets Selector */}
                 <div className="sm:col-span-3 space-y-2">
-                  <label className="block text-xs font-semibold text-slate-700">3D Architectural Cover Image</label>
+                  <label className="block text-xs font-semibold text-slate-700">
+                    3D Architectural Cover Image
+                  </label>
                   <div className="flex gap-2">
                     <input
                       type="url"
                       placeholder="https://... or upload file"
                       value={form.coverImage}
-                      onChange={(e) => setForm({ ...form, coverImage: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, coverImage: e.target.value })
+                      }
                       className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                     />
                     <input
@@ -488,12 +588,16 @@ export default function ProjectsPage() {
 
                   {/* Preset Selector Buttons */}
                   <div className="flex flex-wrap items-center gap-2 pt-1">
-                    <span className="text-[11px] font-semibold text-slate-500">Quick Presets:</span>
+                    <span className="text-[11px] font-semibold text-slate-500">
+                      Quick Presets:
+                    </span>
                     {PRESET_RENDERS.map((preset) => (
                       <button
                         key={preset.name}
                         type="button"
-                        onClick={() => setForm({ ...form, coverImage: preset.url })}
+                        onClick={() =>
+                          setForm({ ...form, coverImage: preset.url })
+                        }
                         className="rounded bg-white px-2.5 py-1 text-[10px] font-semibold text-indigo-700 border border-indigo-200 hover:bg-indigo-50 transition-colors"
                       >
                         {preset.name}
@@ -504,16 +608,25 @@ export default function ProjectsPage() {
 
                 {/* Gallery Photos Uploader */}
                 <div className="sm:col-span-3 space-y-2">
-                  <label className="block text-xs font-semibold text-slate-700">Media & Gallery Photos</label>
+                  <label className="block text-xs font-semibold text-slate-700">
+                    Media & Gallery Photos
+                  </label>
                   <div className="flex gap-2">
                     <input
                       type="url"
                       placeholder="Paste image rendering URL (e.g. site progress photo)..."
                       value={form.newGalleryUrl}
-                      onChange={(e) => setForm({ ...form, newGalleryUrl: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, newGalleryUrl: e.target.value })
+                      }
                       className="flex-1 h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                     />
-                    <Button type="button" onClick={addGalleryPhoto} variant="outline" className="text-xs h-9 border-slate-300">
+                    <Button
+                      type="button"
+                      onClick={addGalleryPhoto}
+                      variant="outline"
+                      className="text-xs h-9 border-slate-300"
+                    >
                       <Plus className="size-3.5 mr-1" /> Add URL
                     </Button>
                     <input
@@ -537,8 +650,15 @@ export default function ProjectsPage() {
                   {form.galleryUrls.length > 0 && (
                     <div className="flex flex-wrap gap-2 pt-2">
                       {form.galleryUrls.map((url, index) => (
-                        <div key={url + index} className="relative size-16 rounded-md border border-slate-300 overflow-hidden group">
-                          <img src={url} alt="Gallery" className="h-full w-full object-cover" />
+                        <div
+                          key={url + index}
+                          className="relative size-16 rounded-md border border-slate-300 overflow-hidden group"
+                        >
+                          <img
+                            src={url}
+                            alt="Gallery"
+                            className="h-full w-full object-cover"
+                          />
                           <button
                             type="button"
                             onClick={() => removeGalleryPhoto(index)}
@@ -553,10 +673,14 @@ export default function ProjectsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Project Status</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Project Status
+                  </label>
                   <select
                     value={form.status}
-                    onChange={(e) => setForm({ ...form, status: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, status: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
                     {PROJECT_STATUSES.map((s) => (
@@ -568,21 +692,28 @@ export default function ProjectsPage() {
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Virtual Video Walkthrough URL</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Virtual Video Walkthrough URL
+                  </label>
                   <input
                     type="text"
                     placeholder="e.g. https://t.me/BetFlowRealEstate/104"
                     value={form.videoUrl}
-                    onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, videoUrl: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
 
                 <div className="sm:col-span-3">
-                  <label className="block text-xs font-semibold text-slate-700 mb-2">Infrastructure & Amenities</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-2">
+                    Infrastructure & Amenities
+                  </label>
                   <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                     {DEFAULT_AMENITIES.map((amenity) => {
-                      const isChecked = form.selectedAmenities.includes(amenity);
+                      const isChecked =
+                        form.selectedAmenities.includes(amenity);
                       return (
                         <label
                           key={amenity}
@@ -591,13 +722,15 @@ export default function ProjectsPage() {
                             "flex items-center gap-2 rounded-lg border p-2 text-xs font-medium cursor-pointer transition-all select-none",
                             isChecked
                               ? "border-indigo-500 bg-indigo-50/80 text-indigo-900"
-                              : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                              : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
                           )}
                         >
                           <div
                             className={cn(
                               "size-4 rounded border flex items-center justify-center transition-colors",
-                              isChecked ? "border-indigo-600 bg-indigo-600 text-white" : "border-slate-300 bg-white"
+                              isChecked
+                                ? "border-indigo-600 bg-indigo-600 text-white"
+                                : "border-slate-300 bg-white",
                             )}
                           >
                             {isChecked && <CheckCircle2 className="size-3" />}
@@ -610,12 +743,16 @@ export default function ProjectsPage() {
                 </div>
 
                 <div className="sm:col-span-3">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Project Overview & Description</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Project Overview & Description
+                  </label>
                   <textarea
                     rows={2}
                     placeholder="Overview of the development, architectural specs, payment plans..."
                     value={form.description}
-                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, description: e.target.value })
+                    }
                     className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
@@ -630,8 +767,16 @@ export default function ProjectsPage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={saving} className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs shadow-sm">
-                  {saving ? "Saving…" : editingProjectId ? "Save Changes" : "Create Real Estate Project"}
+                <Button
+                  type="submit"
+                  disabled={saving}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs shadow-sm"
+                >
+                  {saving
+                    ? "Saving…"
+                    : editingProjectId
+                      ? "Save Changes"
+                      : "Create Real Estate Project"}
                 </Button>
               </div>
             </form>
@@ -651,7 +796,9 @@ export default function ProjectsPage() {
               onClick={() => setFilterCategory("ALL")}
               className={cn(
                 "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap",
-                filterCategory === "ALL" ? "bg-[#233b66] text-white shadow-sm" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                filterCategory === "ALL"
+                  ? "bg-[#233b66] text-white shadow-sm"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
               )}
             >
               All Projects ({projects.length})
@@ -660,28 +807,46 @@ export default function ProjectsPage() {
               onClick={() => setFilterCategory("RESIDENTIAL_TOWER")}
               className={cn(
                 "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap",
-                filterCategory === "RESIDENTIAL_TOWER" ? "bg-[#233b66] text-white shadow-sm" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                filterCategory === "RESIDENTIAL_TOWER"
+                  ? "bg-[#233b66] text-white shadow-sm"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
               )}
             >
-              Residential Towers ({projects.filter((p) => p.category === "RESIDENTIAL_TOWER").length})
+              Residential Towers (
+              {
+                projects.filter((p) => p.category === "RESIDENTIAL_TOWER")
+                  .length
+              }
+              )
             </button>
             <button
               onClick={() => setFilterCategory("LUXURY_VILLA_COMPOUND")}
               className={cn(
                 "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap",
-                filterCategory === "LUXURY_VILLA_COMPOUND" ? "bg-[#233b66] text-white shadow-sm" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                filterCategory === "LUXURY_VILLA_COMPOUND"
+                  ? "bg-[#233b66] text-white shadow-sm"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
               )}
             >
-              Villa Compounds ({projects.filter((p) => p.category === "LUXURY_VILLA_COMPOUND").length})
+              Villa Compounds (
+              {
+                projects.filter((p) => p.category === "LUXURY_VILLA_COMPOUND")
+                  .length
+              }
+              )
             </button>
             <button
               onClick={() => setFilterCategory("COMMERCIAL_PLAZA")}
               className={cn(
                 "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap",
-                filterCategory === "COMMERCIAL_PLAZA" ? "bg-[#233b66] text-white shadow-sm" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                filterCategory === "COMMERCIAL_PLAZA"
+                  ? "bg-[#233b66] text-white shadow-sm"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
               )}
             >
-              Commercial Plazas ({projects.filter((p) => p.category === "COMMERCIAL_PLAZA").length})
+              Commercial Plazas (
+              {projects.filter((p) => p.category === "COMMERCIAL_PLAZA").length}
+              )
             </button>
           </div>
 
@@ -699,14 +864,19 @@ export default function ProjectsPage() {
         {/* Projects Cards Grid */}
         {loading ? (
           <div className="flex h-48 items-center justify-center rounded-xl border border-slate-200 bg-white">
-            <p className="text-sm text-slate-500">Loading real estate developments…</p>
+            <p className="text-sm text-slate-500">
+              Loading real estate developments…
+            </p>
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 text-center rounded-xl border border-slate-200 bg-white">
             <Building2 className="size-8 text-slate-400 mb-2" />
-            <p className="text-sm font-semibold text-slate-800">No real estate projects found</p>
+            <p className="text-sm font-semibold text-slate-800">
+              No real estate projects found
+            </p>
             <p className="text-xs text-slate-500 mt-1 max-w-sm">
-              Click "New Real Estate Project" above to create your first development project.
+              Click "New Real Estate Project" above to create your first
+              development project.
             </p>
           </div>
         ) : (
@@ -731,19 +901,23 @@ export default function ProjectsPage() {
                       <div className="flex h-full w-full flex-col items-center justify-center p-4 text-center">
                         <Building2 className="size-10 text-indigo-400/60 mb-2" />
                         <span className="text-xs font-semibold text-slate-300">
-                          {categoryLabels[project.category ?? "RESIDENTIAL_TOWER"] ?? "Real Estate Project"}
+                          {categoryLabels[
+                            project.category ?? "RESIDENTIAL_TOWER"
+                          ] ?? "Real Estate Project"}
                         </span>
                       </div>
                     )}
 
                     <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
                       <span className="rounded-full bg-slate-900/80 px-2.5 py-0.5 text-[10px] font-bold text-white backdrop-blur-md border border-white/20">
-                        {subCityLabels[project.subCity ?? "BOLE"] ?? "Addis Ababa"}
+                        {subCityLabels[project.subCity ?? "BOLE"] ??
+                          "Addis Ababa"}
                       </span>
                       <span
                         className={cn(
                           "rounded-full px-2 py-0.5 text-[10px] font-semibold border backdrop-blur-md shadow-2xs",
-                          statusClass[project.status] ?? "bg-slate-100 text-slate-700"
+                          statusClass[project.status] ??
+                            "bg-slate-100 text-slate-700",
                         )}
                       >
                         {project.status}
@@ -786,7 +960,8 @@ export default function ProjectsPage() {
 
                       <p className="text-xs text-slate-500 flex items-center gap-1 mt-1">
                         <MapPin className="size-3.5 text-indigo-500 shrink-0" />
-                        {project.location ?? `${subCityLabels[project.subCity ?? "BOLE"] ?? "Addis Ababa"}`}
+                        {project.location ??
+                          `${subCityLabels[project.subCity ?? "BOLE"] ?? "Addis Ababa"}`}
                       </p>
 
                       {project.description && (
@@ -799,9 +974,14 @@ export default function ProjectsPage() {
                       <div className="mt-4 space-y-1.5 rounded-lg bg-slate-50 p-2.5 border border-slate-100">
                         <div className="flex justify-between text-[11px]">
                           <span className="font-semibold text-slate-700 truncate max-w-[170px]">
-                            {stageLabels[project.constructionStage ?? "STRUCTURE_CONCRETE_SLAB"]?.split("(")[0] ?? "Construction"}
+                            {stageLabels[
+                              project.constructionStage ??
+                                "STRUCTURE_CONCRETE_SLAB"
+                            ]?.split("(")[0] ?? "Construction"}
                           </span>
-                          <span className="font-bold text-indigo-600">{progress}%</span>
+                          <span className="font-bold text-indigo-600">
+                            {progress}%
+                          </span>
                         </div>
                         <div className="h-1.5 w-full rounded-full bg-slate-200 overflow-hidden">
                           <div

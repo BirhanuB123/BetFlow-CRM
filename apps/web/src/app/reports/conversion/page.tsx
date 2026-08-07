@@ -23,7 +23,11 @@ export default function ConversionReportPage() {
         const data = await apiFetch<FunnelRow[]>("/reports/conversion");
         setRows(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load conversion funnel");
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to load conversion funnel",
+        );
       } finally {
         setLoading(false);
       }
@@ -46,17 +50,23 @@ export default function ConversionReportPage() {
       <section className="rounded-lg border border-zinc-200 bg-white">
         <div className="border-b border-zinc-200 p-4">
           <h2 className="text-base font-semibold">Conversion funnel</h2>
-          <p className="text-sm text-zinc-500">Stage progression and drop-off rates.</p>
+          <p className="text-sm text-zinc-500">
+            Stage progression and drop-off rates.
+          </p>
         </div>
         {loading ? (
           <p className="p-6 text-sm text-zinc-500">Loading funnel data…</p>
         ) : rows.length === 0 ? (
-          <p className="p-6 text-center text-sm text-zinc-500">No funnel data available yet.</p>
+          <p className="p-6 text-center text-sm text-zinc-500">
+            No funnel data available yet.
+          </p>
         ) : (
           <CrmTable
             columns={["Stage", "Count", "Rate", "Drop-off"]}
             rows={rows.map((row) => [
-              <span key="stage" className="font-medium">{row.stage}</span>,
+              <span key="stage" className="font-medium">
+                {row.stage}
+              </span>,
               row.count,
               row.rate,
               row.dropOff,

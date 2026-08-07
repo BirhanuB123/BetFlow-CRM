@@ -80,10 +80,10 @@ export class IntegrationsService {
     const text = message.text || '';
     const from = message.from;
 
-    let firstName = from?.first_name || 'Telegram';
-    let lastName = from?.last_name || 'User';
-    let email = '';
-    let phone = '';
+    const firstName = from?.first_name || 'Telegram';
+    const lastName = from?.last_name || 'User';
+    const email = '';
+    const phone = '';
 
     await this.createLeadFromSource(
       'Telegram',

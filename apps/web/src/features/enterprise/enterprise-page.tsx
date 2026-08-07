@@ -32,7 +32,9 @@ export function EnterprisePage({ capability }: EnterprisePageProps) {
           <div className="flex items-center justify-between gap-4 border-b border-zinc-200 p-4">
             <div>
               <h2 className="text-base font-semibold">Workflow readiness</h2>
-              <p className="text-sm text-zinc-500">Operational steps, owners, status, and SLA coverage.</p>
+              <p className="text-sm text-zinc-500">
+                Operational steps, owners, status, and SLA coverage.
+              </p>
             </div>
             <Button>
               <PlugZap className="size-4" />
@@ -42,9 +44,14 @@ export function EnterprisePage({ capability }: EnterprisePageProps) {
           <CrmTable
             columns={["Step", "Owner", "Status", "SLA"]}
             rows={capability.workflow.map((step) => [
-              <span key="step" className="font-medium">{step.step}</span>,
+              <span key="step" className="font-medium">
+                {step.step}
+              </span>,
               step.owner,
-              <span key="status" className={`rounded-md px-2 py-1 text-xs font-medium ${enterpriseStatusClass[step.status]}`}>
+              <span
+                key="status"
+                className={`rounded-md px-2 py-1 text-xs font-medium ${enterpriseStatusClass[step.status]}`}
+              >
                 {step.status}
               </span>,
               step.sla,
@@ -55,7 +62,9 @@ export function EnterprisePage({ capability }: EnterprisePageProps) {
         <section className="rounded-lg border border-zinc-200 bg-white">
           <div className="border-b border-zinc-200 p-4">
             <h2 className="text-base font-semibold">Integration surface</h2>
-            <p className="text-sm text-zinc-500">External channels, internal engines, and operational health.</p>
+            <p className="text-sm text-zinc-500">
+              External channels, internal engines, and operational health.
+            </p>
           </div>
           <div className="divide-y divide-zinc-200">
             {capability.integrations.map((integration) => (
@@ -63,13 +72,19 @@ export function EnterprisePage({ capability }: EnterprisePageProps) {
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm font-semibold">{integration.name}</p>
-                    <p className="mt-1 text-sm text-zinc-500">{integration.type}</p>
+                    <p className="mt-1 text-sm text-zinc-500">
+                      {integration.type}
+                    </p>
                   </div>
-                  <span className={`rounded-md px-2 py-1 text-xs font-medium ${integrationHealthClass[integration.health]}`}>
+                  <span
+                    className={`rounded-md px-2 py-1 text-xs font-medium ${integrationHealthClass[integration.health]}`}
+                  >
                     {integration.health}
                   </span>
                 </div>
-                <p className="mt-3 text-sm text-zinc-500">{integration.volume}</p>
+                <p className="mt-3 text-sm text-zinc-500">
+                  {integration.volume}
+                </p>
               </div>
             ))}
           </div>

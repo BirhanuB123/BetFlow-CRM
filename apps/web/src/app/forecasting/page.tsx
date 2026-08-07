@@ -1,7 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ArrowUpRight, BarChart3, Calculator, TrendingUp, Wallet } from "lucide-react";
+import {
+  ArrowUpRight,
+  BarChart3,
+  Calculator,
+  TrendingUp,
+  Wallet,
+} from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
@@ -25,7 +31,11 @@ export default function ForecastingPage() {
       const res = await apiFetch<RevenueForecastReport>("/reports/forecasting");
       setData(res);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load forecasting report");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to load forecasting report",
+      );
     } finally {
       setLoading(false);
     }
@@ -53,7 +63,9 @@ export default function ForecastingPage() {
       )}
 
       {loading ? (
-        <p className="p-6 text-sm text-zinc-500">Loading pipeline forecast data…</p>
+        <p className="p-6 text-sm text-zinc-500">
+          Loading pipeline forecast data…
+        </p>
       ) : data ? (
         <div className="space-y-6">
           {/* Summary Metric Cards */}
@@ -68,7 +80,9 @@ export default function ForecastingPage() {
               <p className="mt-2 text-2xl font-bold text-zinc-900">
                 {fmt(data.totalRawPipeline)}
               </p>
-              <p className="mt-1 text-xs text-zinc-400">Sum of gross value of all active deals</p>
+              <p className="mt-1 text-xs text-zinc-400">
+                Sum of gross value of all active deals
+              </p>
             </div>
 
             <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-5 shadow-2xs">
@@ -96,7 +110,9 @@ export default function ForecastingPage() {
               <p className="mt-2 text-2xl font-bold text-emerald-700">
                 {efficiency}%
               </p>
-              <p className="mt-1 text-xs text-zinc-400">Probability-weighted yield percentage</p>
+              <p className="mt-1 text-xs text-zinc-400">
+                Probability-weighted yield percentage
+              </p>
             </div>
           </div>
 
@@ -104,9 +120,12 @@ export default function ForecastingPage() {
           <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-2xs">
             <div className="mb-4 flex items-center justify-between border-b border-zinc-100 pb-3">
               <div>
-                <h2 className="text-base font-bold text-zinc-900">Stage-by-Stage Probability Forecast</h2>
+                <h2 className="text-base font-bold text-zinc-900">
+                  Stage-by-Stage Probability Forecast
+                </h2>
                 <p className="text-xs text-zinc-500">
-                  Expected revenue contribution broken down by deal stage probability weights.
+                  Expected revenue contribution broken down by deal stage
+                  probability weights.
                 </p>
               </div>
             </div>
@@ -123,7 +142,10 @@ export default function ForecastingPage() {
               rows={data.stages.map((stage) => {
                 const percentShare =
                   data.totalWeightedPipeline > 0
-                    ? Math.round((stage.weightedVolume / data.totalWeightedPipeline) * 100)
+                    ? Math.round(
+                        (stage.weightedVolume / data.totalWeightedPipeline) *
+                          100,
+                      )
                     : 0;
 
                 return [
@@ -138,7 +160,10 @@ export default function ForecastingPage() {
                   </span>,
                   stage.dealCount,
                   fmt(stage.rawVolume),
-                  <span key="weighted" className="font-extrabold text-purple-900">
+                  <span
+                    key="weighted"
+                    className="font-extrabold text-purple-900"
+                  >
                     {fmt(stage.weightedVolume)}
                   </span>,
                   <div key="bar" className="flex items-center gap-2">
@@ -148,7 +173,9 @@ export default function ForecastingPage() {
                         style={{ width: `${percentShare}%` }}
                       />
                     </div>
-                    <span className="text-xs font-semibold text-zinc-600">{percentShare}%</span>
+                    <span className="text-xs font-semibold text-zinc-600">
+                      {percentShare}%
+                    </span>
                   </div>,
                 ];
               })}

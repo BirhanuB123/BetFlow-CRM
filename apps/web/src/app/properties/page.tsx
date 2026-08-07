@@ -1,7 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Hammer, HardHat, Layers, Send, X, CheckCircle2, AlertCircle } from "lucide-react";
+import {
+  Hammer,
+  HardHat,
+  Layers,
+  Send,
+  X,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
@@ -32,18 +40,24 @@ const STAGE_LABELS: Record<ConstructionStageKey, { en: string; am: string }> = {
 
 export default function PropertiesPage() {
   const [buildings, setBuildings] = useState<ApiBuilding[]>([]);
-  const [selectedBuildingId, setSelectedBuildingId] = useState<string | null>(null);
+  const [selectedBuildingId, setSelectedBuildingId] = useState<string | null>(
+    null,
+  );
   const [milestones, setMilestones] = useState<ConstructionMilestone[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Milestone Update Modal State
-  const [editingMilestone, setEditingMilestone] = useState<ConstructionMilestone | null>(null);
+  const [editingMilestone, setEditingMilestone] =
+    useState<ConstructionMilestone | null>(null);
   const [percent, setPercent] = useState<number>(0);
-  const [status, setStatus] = useState<"NOT_STARTED" | "IN_PROGRESS" | "COMPLETED">("IN_PROGRESS");
+  const [status, setStatus] = useState<
+    "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED"
+  >("IN_PROGRESS");
   const [photoUrl, setPhotoUrl] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
-  const [triggerResult, setTriggerResult] = useState<MilestoneTriggerResult | null>(null);
+  const [triggerResult, setTriggerResult] =
+    useState<MilestoneTriggerResult | null>(null);
 
   const loadBuildings = useCallback(async () => {
     setLoading(true);
@@ -112,7 +126,11 @@ export default function PropertiesPage() {
       setTriggerResult(res);
       await loadMilestones(selectedBuildingId);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update construction progress");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to update construction progress",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -131,8 +149,12 @@ export default function PropertiesPage() {
         <div className="flex items-center gap-2">
           <HardHat className="size-5 text-amber-600" />
           <div>
-            <h2 className="text-sm font-bold text-zinc-900">Active Building Site</h2>
-            <p className="text-xs text-zinc-500">Select project building to view & update construction stages.</p>
+            <h2 className="text-sm font-bold text-zinc-900">
+              Active Building Site
+            </h2>
+            <p className="text-xs text-zinc-500">
+              Select project building to view & update construction stages.
+            </p>
           </div>
         </div>
         <select
@@ -167,19 +189,27 @@ export default function PropertiesPage() {
               )}
             </h2>
             <p className="text-xs text-zinc-500">
-              Updating a stage to 100% / COMPLETED automatically triggers milestone payment invoices for all buyer contracts.
+              Updating a stage to 100% / COMPLETED automatically triggers
+              milestone payment invoices for all buyer contracts.
             </p>
           </div>
         </div>
 
         {loading ? (
-          <p className="p-6 text-sm text-zinc-500">Loading construction progress…</p>
+          <p className="p-6 text-sm text-zinc-500">
+            Loading construction progress…
+          </p>
         ) : milestones.length === 0 ? (
-          <p className="p-6 text-sm text-zinc-500">No milestone data for this building.</p>
+          <p className="p-6 text-sm text-zinc-500">
+            No milestone data for this building.
+          </p>
         ) : (
           <div className="grid gap-4 md:grid-cols-5">
             {milestones.map((m, idx) => {
-              const label = STAGE_LABELS[m.stageKey] ?? { en: m.stageNameEnglish, am: m.stageNameAmharic };
+              const label = STAGE_LABELS[m.stageKey] ?? {
+                en: m.stageNameEnglish,
+                am: m.stageNameAmharic,
+              };
 
               return (
                 <div
@@ -195,21 +225,30 @@ export default function PropertiesPage() {
                 >
                   <div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-zinc-400">STAGE {idx + 1}</span>
+                      <span className="text-[10px] font-bold text-zinc-400">
+                        STAGE {idx + 1}
+                      </span>
                       <span
                         className={cn(
                           "rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase",
-                          m.status === "COMPLETED" && "bg-emerald-100 text-emerald-800",
-                          m.status === "IN_PROGRESS" && "bg-amber-100 text-amber-800",
-                          m.status === "NOT_STARTED" && "bg-zinc-100 text-zinc-600",
+                          m.status === "COMPLETED" &&
+                            "bg-emerald-100 text-emerald-800",
+                          m.status === "IN_PROGRESS" &&
+                            "bg-amber-100 text-amber-800",
+                          m.status === "NOT_STARTED" &&
+                            "bg-zinc-100 text-zinc-600",
                         )}
                       >
                         {m.status.replace("_", " ")}
                       </span>
                     </div>
 
-                    <h3 className="mt-2 text-sm font-bold text-zinc-900">{label.en}</h3>
-                    <p className="text-xs font-semibold text-amber-800">{label.am}</p>
+                    <h3 className="mt-2 text-sm font-bold text-zinc-900">
+                      {label.en}
+                    </h3>
+                    <p className="text-xs font-semibold text-amber-800">
+                      {label.am}
+                    </p>
 
                     {/* Progress Bar */}
                     <div className="mt-3">
@@ -221,7 +260,9 @@ export default function PropertiesPage() {
                         <div
                           className={cn(
                             "h-full rounded-full transition-all duration-500",
-                            m.status === "COMPLETED" ? "bg-emerald-600" : "bg-amber-500",
+                            m.status === "COMPLETED"
+                              ? "bg-emerald-600"
+                              : "bg-amber-500",
                           )}
                           style={{ width: `${m.completionPercent}%` }}
                         />
@@ -253,9 +294,12 @@ export default function PropertiesPage() {
                 <HardHat className="size-5 text-amber-600" />
                 <div>
                   <h2 className="text-base font-bold text-zinc-900">
-                    Update {editingMilestone.stageNameEnglish} ({editingMilestone.stageNameAmharic})
+                    Update {editingMilestone.stageNameEnglish} (
+                    {editingMilestone.stageNameAmharic})
                   </h2>
-                  <p className="text-xs text-zinc-500">Site Engineer Construction Entry</p>
+                  <p className="text-xs text-zinc-500">
+                    Site Engineer Construction Entry
+                  </p>
                 </div>
               </div>
               <button
@@ -269,10 +313,17 @@ export default function PropertiesPage() {
 
             <div className="my-4 space-y-4">
               <div>
-                <label className="text-xs font-semibold text-zinc-700">Milestone Status</label>
+                <label className="text-xs font-semibold text-zinc-700">
+                  Milestone Status
+                </label>
                 <select
                   value={status}
-                  onChange={(e) => setStatus(e.target.value as "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED")}
+                  onChange={(e) =>
+                    setStatus(
+                      e.target.value as
+                        "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED",
+                    )
+                  }
                   className="mt-1 h-9 w-full rounded-md border border-zinc-200 bg-white px-3 text-xs font-semibold"
                 >
                   <option value="NOT_STARTED">Not Started (ያልተጀመረ)</option>
@@ -297,7 +348,9 @@ export default function PropertiesPage() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-zinc-700">Site Progress Photo URL (Optional)</label>
+                <label className="text-xs font-semibold text-zinc-700">
+                  Site Progress Photo URL (Optional)
+                </label>
                 <input
                   type="text"
                   placeholder="https://example.com/site-photos/foundation-july.jpg"
@@ -313,7 +366,9 @@ export default function PropertiesPage() {
                   <span>⚡ Auto-Invoice Demand Trigger</span>
                 </p>
                 <p className="mt-0.5">
-                  Updating stage to <strong>100% / COMPLETED</strong> will issue milestone payment demand notices to all buyers in {activeBuilding?.name}.
+                  Updating stage to <strong>100% / COMPLETED</strong> will issue
+                  milestone payment demand notices to all buyers in{" "}
+                  {activeBuilding?.name}.
                 </p>
               </div>
 
@@ -321,17 +376,27 @@ export default function PropertiesPage() {
               {triggerResult ? (
                 <div className="rounded-lg bg-emerald-50 p-3.5 border border-emerald-200 text-xs text-emerald-900 space-y-1">
                   <p className="font-bold flex items-center gap-1 text-emerald-800">
-                    <CheckCircle2 className="size-4" /> Milestone Payment Demand Issued!
+                    <CheckCircle2 className="size-4" /> Milestone Payment Demand
+                    Issued!
                   </p>
-                  <p>✓ Contracts Triggered: {triggerResult.contractsTriggered}</p>
-                  <p>✓ Payment Demands Generated: {triggerResult.invoicesGenerated}</p>
+                  <p>
+                    ✓ Contracts Triggered: {triggerResult.contractsTriggered}
+                  </p>
+                  <p>
+                    ✓ Payment Demands Generated:{" "}
+                    {triggerResult.invoicesGenerated}
+                  </p>
                   <p>✓ Buyer Alerts Sent: {triggerResult.notificationsSent}</p>
                 </div>
               ) : null}
             </div>
 
             <div className="mt-5 flex justify-end gap-2 border-t border-zinc-100 pt-3">
-              <Button variant="outline" onClick={() => setEditingMilestone(null)} className="h-9">
+              <Button
+                variant="outline"
+                onClick={() => setEditingMilestone(null)}
+                className="h-9"
+              >
                 Close
               </Button>
               <Button

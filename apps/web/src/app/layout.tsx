@@ -25,7 +25,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`h-full antialiased ${plusJakartaSans.variable} ${notoSansEthiopic.variable}`}>
+    <html
+      lang="en"
+      className={`h-full antialiased ${plusJakartaSans.variable} ${notoSansEthiopic.variable}`}
+    >
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );

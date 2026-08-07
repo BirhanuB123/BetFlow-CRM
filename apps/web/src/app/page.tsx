@@ -130,15 +130,27 @@ function fmtDate(iso: string | null) {
 function StatusBadge({ status }: { status: string }) {
   const upper = status?.toUpperCase() || "NEW";
   let color = "bg-slate-800 text-slate-300 border-slate-700";
-  if (upper === "AVAILABLE" || upper === "QUALIFIED" || upper === "COMPLETED" || upper === "PAID") {
+  if (
+    upper === "AVAILABLE" ||
+    upper === "QUALIFIED" ||
+    upper === "COMPLETED" ||
+    upper === "PAID"
+  ) {
     color = "bg-emerald-950/80 border-emerald-700 text-emerald-300";
-  } else if (upper === "RESERVED" || upper === "PENDING" || upper === "SCHEDULED" || upper === "FOLLOW_UP") {
+  } else if (
+    upper === "RESERVED" ||
+    upper === "PENDING" ||
+    upper === "SCHEDULED" ||
+    upper === "FOLLOW_UP"
+  ) {
     color = "bg-amber-950/80 border-amber-700 text-amber-300";
   } else if (upper === "SOLD" || upper === "CLOSED_WON" || upper === "ACTIVE") {
     color = "bg-indigo-950/80 border-indigo-700 text-indigo-300";
   }
   return (
-    <span className={`inline-block rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${color}`}>
+    <span
+      className={`inline-block rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${color}`}
+    >
       {status.replace(/_/g, " ")}
     </span>
   );
@@ -146,7 +158,9 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function Home() {
   const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState<"leads" | "units" | "pipeline" | "visits" | "payments">("leads");
+  const [activeTab, setActiveTab] = useState<
+    "leads" | "units" | "pipeline" | "visits" | "payments"
+  >("leads");
 
   // Live Database States
   const [loadingDb, setLoadingDb] = useState(true);
@@ -157,13 +171,19 @@ export default function Home() {
   const [realUnits, setRealUnits] = useState<UnitItem[]>([]);
   const [realStacking, setRealStacking] = useState<StackingBuilding[]>([]);
   const [realDeals, setRealDeals] = useState<DealItem[]>([]);
-  const [realForecast, setRealForecast] = useState<{ totalRawPipeline: number; totalWeightedPipeline: number; stages: ForecastStage[] } | null>(null);
+  const [realForecast, setRealForecast] = useState<{
+    totalRawPipeline: number;
+    totalWeightedPipeline: number;
+    stages: ForecastStage[];
+  } | null>(null);
   const [realVisits, setRealVisits] = useState<SiteVisitItem[]>([]);
   const [realSchedules, setRealSchedules] = useState<PaymentScheduleItem[]>([]);
   const [realSalesReport, setRealSalesReport] = useState<any>(null);
 
   // Workflow selectable tags state
-  const [selectedWorkflows, setSelectedWorkflows] = useState<Record<string, boolean>>({
+  const [selectedWorkflows, setSelectedWorkflows] = useState<
+    Record<string, boolean>
+  >({
     leads: true,
     units: true,
     pipeline: true,
@@ -180,7 +200,9 @@ export default function Home() {
   };
 
   const copyCreds = () => {
-    void navigator.clipboard.writeText(`${demoCredentials.email} / ${demoCredentials.password}`);
+    void navigator.clipboard.writeText(
+      `${demoCredentials.email} / ${demoCredentials.password}`,
+    );
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -190,7 +212,7 @@ export default function Home() {
     setLoadingDb(true);
     try {
       // Ensure we have a valid session token (auto-authenticate demo user if not logged in)
-      let session = getSession();
+      const session = getSession();
       if (!session?.accessToken) {
         try {
           const loginRes = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -204,7 +226,10 @@ export default function Home() {
           if (loginRes.ok) {
             const authData = await loginRes.json();
             if (typeof window !== "undefined" && authData.accessToken) {
-              window.localStorage.setItem("betflow-auth", JSON.stringify(authData));
+              window.localStorage.setItem(
+                "betflow-auth",
+                JSON.stringify(authData),
+              );
             }
           }
         } catch {
@@ -222,14 +247,30 @@ export default function Home() {
         schedulesRes,
         salesRes,
       ] = await Promise.all([
-        apiFetch<LeadItem[]>("/leads", { suppressAuthRedirect: true }).catch(() => []),
-        apiFetch<UnitItem[]>("/units", { suppressAuthRedirect: true }).catch(() => []),
-        apiFetch<StackingBuilding[]>("/units/stacking-plan", { suppressAuthRedirect: true }).catch(() => []),
-        apiFetch<DealItem[]>("/deals", { suppressAuthRedirect: true }).catch(() => []),
-        apiFetch<any>("/reports/forecasting", { suppressAuthRedirect: true }).catch(() => null),
-        apiFetch<SiteVisitItem[]>("/site-visits", { suppressAuthRedirect: true }).catch(() => []),
-        apiFetch<PaymentScheduleItem[]>("/payments/schedules", { suppressAuthRedirect: true }).catch(() => []),
-        apiFetch<any>("/reports/sales", { suppressAuthRedirect: true }).catch(() => null),
+        apiFetch<LeadItem[]>("/leads", { suppressAuthRedirect: true }).catch(
+          () => [],
+        ),
+        apiFetch<UnitItem[]>("/units", { suppressAuthRedirect: true }).catch(
+          () => [],
+        ),
+        apiFetch<StackingBuilding[]>("/units/stacking-plan", {
+          suppressAuthRedirect: true,
+        }).catch(() => []),
+        apiFetch<DealItem[]>("/deals", { suppressAuthRedirect: true }).catch(
+          () => [],
+        ),
+        apiFetch<any>("/reports/forecasting", {
+          suppressAuthRedirect: true,
+        }).catch(() => null),
+        apiFetch<SiteVisitItem[]>("/site-visits", {
+          suppressAuthRedirect: true,
+        }).catch(() => []),
+        apiFetch<PaymentScheduleItem[]>("/payments/schedules", {
+          suppressAuthRedirect: true,
+        }).catch(() => []),
+        apiFetch<any>("/reports/sales", { suppressAuthRedirect: true }).catch(
+          () => null,
+        ),
       ]);
 
       if (leadsRes?.length) setRealLeads(leadsRes);
@@ -270,7 +311,9 @@ export default function Home() {
               priority
             />
             <div className="flex items-center gap-2">
-              <span className="text-lg font-extrabold text-slate-900 tracking-tight">betflow</span>
+              <span className="text-lg font-extrabold text-slate-900 tracking-tight">
+                betflow
+              </span>
               <span className="rounded-md bg-indigo-600 px-2 py-0.5 text-[10px] font-bold text-white uppercase tracking-wide">
                 Sales CRM
               </span>
@@ -279,11 +322,36 @@ export default function Home() {
 
           {/* Navigation Links */}
           <nav className="hidden items-center gap-8 text-xs font-semibold text-slate-600 md:flex">
-            <Link href="/dashboard" className="hover:text-indigo-600 transition-colors">Dashboard</Link>
-            <Link href="/leads" className="hover:text-indigo-600 transition-colors">Lead Intake</Link>
-            <Link href="/units" className="hover:text-indigo-600 transition-colors">Unit Stacking Plan</Link>
-            <Link href="/deals" className="hover:text-indigo-600 transition-colors">Sales Kanban</Link>
-            <Link href="/reports" className="hover:text-indigo-600 transition-colors">Print Engine</Link>
+            <Link
+              href="/dashboard"
+              className="hover:text-indigo-600 transition-colors"
+            >
+              Dashboard
+            </Link>
+            <Link
+              href="/leads"
+              className="hover:text-indigo-600 transition-colors"
+            >
+              Lead Intake
+            </Link>
+            <Link
+              href="/units"
+              className="hover:text-indigo-600 transition-colors"
+            >
+              Unit Stacking Plan
+            </Link>
+            <Link
+              href="/deals"
+              className="hover:text-indigo-600 transition-colors"
+            >
+              Sales Kanban
+            </Link>
+            <Link
+              href="/reports"
+              className="hover:text-indigo-600 transition-colors"
+            >
+              Print Engine
+            </Link>
           </nav>
 
           {/* Right Action Buttons */}
@@ -293,7 +361,11 @@ export default function Home() {
               onClick={copyCreds}
               className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors"
             >
-              {copied ? <Check className="size-3.5 text-emerald-600" /> : <Copy className="size-3.5 text-slate-400" />}
+              {copied ? (
+                <Check className="size-3.5 text-emerald-600" />
+              ) : (
+                <Copy className="size-3.5 text-slate-400" />
+              )}
               {copied ? "Copied!" : "Demo Login"}
             </button>
 
@@ -314,16 +386,23 @@ export default function Home() {
           {/* Eyebrow Pill */}
           <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-3.5 py-1 text-xs font-bold text-indigo-700 mb-6">
             <Sparkles className="size-3.5 text-indigo-600" />
-            <span>The #1 Real Estate Sales CRM for Ethiopia Developers & Agencies</span>
+            <span>
+              The #1 Real Estate Sales CRM for Ethiopia Developers & Agencies
+            </span>
           </div>
 
           {/* Main Headline */}
           <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl max-w-4xl mx-auto leading-[1.12]">
-            Real estate sales grow faster with <span className="text-indigo-600 underline decoration-indigo-300 decoration-wavy underline-offset-8">BetFlow CRM</span>
+            Real estate sales grow faster with{" "}
+            <span className="text-indigo-600 underline decoration-indigo-300 decoration-wavy underline-offset-8">
+              BetFlow CRM
+            </span>
           </h1>
 
           <p className="mt-5 max-w-2xl mx-auto text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
-            Manage buyer leads, property floor plans, unit hold reservations, payment schedules, and automated sales contracts — all in one visual workspace.
+            Manage buyer leads, property floor plans, unit hold reservations,
+            payment schedules, and automated sales contracts — all in one visual
+            workspace.
           </p>
 
           {/* Interactive Workflow Selector Tags */}
@@ -333,12 +412,28 @@ export default function Home() {
             </p>
             <div className="flex flex-wrap items-center justify-center gap-2.5">
               {[
-                { key: "leads", label: "Contact & Lead Intake", icon: UserRoundCheck },
+                {
+                  key: "leads",
+                  label: "Contact & Lead Intake",
+                  icon: UserRoundCheck,
+                },
                 { key: "units", label: "Unit Elevation Matrix", icon: Grid },
-                { key: "pipeline", label: "Deals & Sales Pipelines", icon: CircleDollarSign },
-                { key: "visits", label: "Site Visits & Meetings", icon: CalendarDays },
+                {
+                  key: "pipeline",
+                  label: "Deals & Sales Pipelines",
+                  icon: CircleDollarSign,
+                },
+                {
+                  key: "visits",
+                  label: "Site Visits & Meetings",
+                  icon: CalendarDays,
+                },
                 { key: "payments", label: "Payment Schedules", icon: Coins },
-                { key: "contracts", label: "Automated Contracts", icon: FileText },
+                {
+                  key: "contracts",
+                  label: "Automated Contracts",
+                  icon: FileText,
+                },
               ].map((tag) => {
                 const Icon = tag.icon;
                 const active = selectedWorkflows[tag.key];
@@ -353,7 +448,9 @@ export default function Home() {
                         : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                     }`}
                   >
-                    <span className={`flex size-4 items-center justify-center rounded ${active ? "bg-white/20" : "bg-slate-100"}`}>
+                    <span
+                      className={`flex size-4 items-center justify-center rounded ${active ? "bg-white/20" : "bg-slate-100"}`}
+                    >
                       {active && <Check className="size-3 text-white" />}
                     </span>
                     <Icon className="size-3.5 shrink-0" />
@@ -390,7 +487,14 @@ export default function Home() {
           <div className="mt-6 inline-flex items-center gap-3 rounded-xl border border-indigo-100 bg-indigo-50/70 px-4 py-2.5 text-xs text-indigo-950 shadow-xs max-w-xl mx-auto">
             <KeyRound className="size-4 text-indigo-600 shrink-0" />
             <span className="text-slate-700">
-              <strong>Quick Login:</strong> <span className="font-mono text-indigo-700 font-bold">{demoCredentials.email}</span> / <span className="font-mono text-indigo-700 font-bold">{demoCredentials.password}</span>
+              <strong>Quick Login:</strong>{" "}
+              <span className="font-mono text-indigo-700 font-bold">
+                {demoCredentials.email}
+              </span>{" "}
+              /{" "}
+              <span className="font-mono text-indigo-700 font-bold">
+                {demoCredentials.password}
+              </span>
             </span>
           </div>
         </div>
@@ -398,7 +502,6 @@ export default function Home() {
         {/* 3. Product Feature Showcase Container with REAL DATABASE DATA */}
         <div className="mt-14 mx-auto max-w-6xl px-4 sm:px-6">
           <div className="rounded-2xl border border-slate-200 bg-white shadow-2xl p-4 sm:p-6 overflow-hidden">
-            
             {/* Live Database Sync Header Banner */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4 text-xs">
               <div className="flex items-center gap-2">
@@ -420,7 +523,9 @@ export default function Home() {
                 disabled={loadingDb}
                 className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-50"
               >
-                <RefreshCw className={`size-3 text-indigo-600 ${loadingDb ? "animate-spin" : ""}`} />
+                <RefreshCw
+                  className={`size-3 text-indigo-600 ${loadingDb ? "animate-spin" : ""}`}
+                />
                 <span>{loadingDb ? "Syncing..." : "Sync Database"}</span>
               </button>
             </div>
@@ -428,11 +533,36 @@ export default function Home() {
             {/* Interactive Tabs Header */}
             <div className="flex flex-wrap items-center justify-center gap-2 border-b border-slate-100 pb-4 mb-6">
               {[
-                { id: "leads", label: "Lead Intake Engine", icon: UserRoundCheck, count: realLeads.length },
-                { id: "units", label: "Unit Elevation Matrix", icon: Grid, count: realUnits.length },
-                { id: "pipeline", label: "Sales Kanban Pipeline", icon: CircleDollarSign, count: realDeals.length },
-                { id: "visits", label: "Site Visit Scheduler", icon: CalendarDays, count: realVisits.length },
-                { id: "payments", label: "Payment Milestone Tracking", icon: Coins, count: realSchedules.length },
+                {
+                  id: "leads",
+                  label: "Lead Intake Engine",
+                  icon: UserRoundCheck,
+                  count: realLeads.length,
+                },
+                {
+                  id: "units",
+                  label: "Unit Elevation Matrix",
+                  icon: Grid,
+                  count: realUnits.length,
+                },
+                {
+                  id: "pipeline",
+                  label: "Sales Kanban Pipeline",
+                  icon: CircleDollarSign,
+                  count: realDeals.length,
+                },
+                {
+                  id: "visits",
+                  label: "Site Visit Scheduler",
+                  icon: CalendarDays,
+                  count: realVisits.length,
+                },
+                {
+                  id: "payments",
+                  label: "Payment Milestone Tracking",
+                  icon: Coins,
+                  count: realSchedules.length,
+                },
               ].map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -447,10 +577,14 @@ export default function Home() {
                         : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                     }`}
                   >
-                    <Icon className={`size-4 ${isActive ? "text-indigo-600" : "text-slate-400"}`} />
+                    <Icon
+                      className={`size-4 ${isActive ? "text-indigo-600" : "text-slate-400"}`}
+                    />
                     <span>{tab.label}</span>
                     {tab.count > 0 && (
-                      <span className={`rounded-full px-2 py-0.2 text-[10px] font-extrabold ${isActive ? "bg-indigo-600 text-white" : "bg-slate-200 text-slate-700"}`}>
+                      <span
+                        className={`rounded-full px-2 py-0.2 text-[10px] font-extrabold ${isActive ? "bg-indigo-600 text-white" : "bg-slate-200 text-slate-700"}`}
+                      >
                         {tab.count}
                       </span>
                     )}
@@ -461,7 +595,6 @@ export default function Home() {
 
             {/* Active Tab Preview Display - REAL DATA */}
             <div className="rounded-xl border border-slate-800 bg-slate-900 text-white p-5 sm:p-6 min-h-[360px]">
-              
               {/* TAB 1: REAL LEADS FROM DATABASE */}
               {activeTab === "leads" && (
                 <div className="space-y-4">
@@ -472,7 +605,8 @@ export default function Home() {
                         Buyer Lead Intake & Conversion (Live Database)
                       </h3>
                       <p className="text-xs text-slate-400 mt-0.5">
-                        Real-time buyer leads fetched directly from database schema.
+                        Real-time buyer leads fetched directly from database
+                        schema.
                       </p>
                     </div>
                     <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
@@ -484,15 +618,23 @@ export default function Home() {
                   {realLeads.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400">
                       <UserRoundCheck className="size-8 text-slate-600 mb-2" />
-                      <p className="text-sm font-semibold">No buyer leads recorded in database yet.</p>
-                      <Link href="/leads" className="mt-2 text-xs font-bold text-indigo-400 hover:underline">
+                      <p className="text-sm font-semibold">
+                        No buyer leads recorded in database yet.
+                      </p>
+                      <Link
+                        href="/leads"
+                        className="mt-2 text-xs font-bold text-indigo-400 hover:underline"
+                      >
                         + Add First Buyer Lead in CRM →
                       </Link>
                     </div>
                   ) : (
                     <div className="grid gap-3 sm:grid-cols-3">
                       {realLeads.slice(0, 6).map((lead) => (
-                        <div key={lead.id} className="rounded-lg border border-slate-800 bg-slate-950 p-3.5 hover:border-slate-700 transition-colors flex flex-col justify-between">
+                        <div
+                          key={lead.id}
+                          className="rounded-lg border border-slate-800 bg-slate-950 p-3.5 hover:border-slate-700 transition-colors flex flex-col justify-between"
+                        >
                           <div>
                             <div className="flex items-center justify-between gap-1">
                               <p className="text-xs font-extrabold text-white truncate">
@@ -501,7 +643,9 @@ export default function Home() {
                               <StatusBadge status={lead.status} />
                             </div>
                             <p className="text-[11px] text-slate-400 mt-1 truncate">
-                              {lead.company || lead.source?.name || "Direct Inquiry"}
+                              {lead.company ||
+                                lead.source?.name ||
+                                "Direct Inquiry"}
                             </p>
                             {(lead.phone || lead.email) && (
                               <p className="text-[10px] text-slate-500 font-mono mt-0.5 truncate">
@@ -511,7 +655,12 @@ export default function Home() {
                           </div>
                           <div className="mt-3 pt-2 border-t border-slate-900 flex items-center justify-between text-[10px] text-slate-400">
                             <span>Added: {fmtDate(lead.createdAt)}</span>
-                            <Link href="/leads" className="text-indigo-400 hover:underline font-bold">View →</Link>
+                            <Link
+                              href="/leads"
+                              className="text-indigo-400 hover:underline font-bold"
+                            >
+                              View →
+                            </Link>
                           </div>
                         </div>
                       ))}
@@ -530,7 +679,8 @@ export default function Home() {
                         Property Inventory Matrix (Live Stacking Plan)
                       </h3>
                       <p className="text-xs text-slate-400 mt-0.5">
-                        Real-time building units and status toggles synced with inventory.
+                        Real-time building units and status toggles synced with
+                        inventory.
                       </p>
                     </div>
                     <span className="rounded-full bg-purple-500/20 px-2.5 py-1 text-[10px] font-bold text-purple-300 border border-purple-500/30">
@@ -541,8 +691,13 @@ export default function Home() {
                   {realUnits.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400">
                       <Grid className="size-8 text-slate-600 mb-2" />
-                      <p className="text-sm font-semibold">No property units found in database.</p>
-                      <Link href="/units" className="mt-2 text-xs font-bold text-purple-400 hover:underline">
+                      <p className="text-sm font-semibold">
+                        No property units found in database.
+                      </p>
+                      <Link
+                        href="/units"
+                        className="mt-2 text-xs font-bold text-purple-400 hover:underline"
+                      >
                         + Add Units to Stacking Plan →
                       </Link>
                     </div>
@@ -566,11 +721,13 @@ export default function Home() {
                                       u.status === "SOLD"
                                         ? "bg-rose-950/80 border-rose-800 text-rose-300"
                                         : u.status === "RESERVED"
-                                        ? "bg-amber-950/80 border-amber-800 text-amber-300"
-                                        : "bg-emerald-950/80 border-emerald-800 text-emerald-300"
+                                          ? "bg-amber-950/80 border-amber-800 text-amber-300"
+                                          : "bg-emerald-950/80 border-emerald-800 text-emerald-300"
                                     }`}
                                   >
-                                    <div>Unit {u.unitNumber} ({u.type})</div>
+                                    <div>
+                                      Unit {u.unitNumber} ({u.type})
+                                    </div>
                                     <div className="text-[10px] font-semibold mt-0.5">
                                       {formatCurrency(u.price)} · {u.status}
                                     </div>
@@ -591,13 +748,19 @@ export default function Home() {
                             u.status === "SOLD"
                               ? "bg-rose-950/80 border-rose-800 text-rose-300"
                               : u.status === "RESERVED"
-                              ? "bg-amber-950/80 border-amber-800 text-amber-300"
-                              : "bg-emerald-950/80 border-emerald-800 text-emerald-300"
+                                ? "bg-amber-950/80 border-amber-800 text-amber-300"
+                                : "bg-emerald-950/80 border-emerald-800 text-emerald-300"
                           }`}
                         >
-                          <div>Unit {u.unitNumber} ({u.type})</div>
-                          <div className="text-[11px] font-extrabold mt-1">{formatCurrency(u.price)}</div>
-                          <div className="text-[9px] uppercase tracking-wider mt-1">{u.status}</div>
+                          <div>
+                            Unit {u.unitNumber} ({u.type})
+                          </div>
+                          <div className="text-[11px] font-extrabold mt-1">
+                            {formatCurrency(u.price)}
+                          </div>
+                          <div className="text-[9px] uppercase tracking-wider mt-1">
+                            {u.status}
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -615,18 +778,30 @@ export default function Home() {
                         Opportunity Kanban & Revenue Forecast (Live DB)
                       </h3>
                       <p className="text-xs text-slate-400 mt-0.5">
-                        Weighted pipeline value calculated directly from stored sales deals.
+                        Weighted pipeline value calculated directly from stored
+                        sales deals.
                       </p>
                     </div>
                     <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold text-emerald-400 border border-emerald-500/30">
-                      PIPELINE VALUATION ({formatCurrency(realForecast?.totalRawPipeline || realDeals.reduce((acc, d) => acc + Number(d.value || 0), 0))})
+                      PIPELINE VALUATION (
+                      {formatCurrency(
+                        realForecast?.totalRawPipeline ||
+                          realDeals.reduce(
+                            (acc, d) => acc + Number(d.value || 0),
+                            0,
+                          ),
+                      )}
+                      )
                     </span>
                   </div>
 
                   {realForecast?.stages && realForecast.stages.length > 0 ? (
                     <div className="grid gap-3 sm:grid-cols-4 text-xs">
                       {realForecast.stages.map((stage) => (
-                        <div key={stage.stageId} className="rounded-lg border border-slate-800 bg-slate-950 p-3 flex flex-col justify-between">
+                        <div
+                          key={stage.stageId}
+                          className="rounded-lg border border-slate-800 bg-slate-950 p-3 flex flex-col justify-between"
+                        >
                           <div>
                             <p className="font-bold text-indigo-400 uppercase text-[10px]">
                               {stage.stageName} ({stage.probability}%)
@@ -647,11 +822,20 @@ export default function Home() {
                   ) : realDeals.length > 0 ? (
                     <div className="grid gap-3 sm:grid-cols-3 text-xs">
                       {realDeals.slice(0, 6).map((deal) => (
-                        <div key={deal.id} className="rounded-lg border border-slate-800 bg-slate-950 p-3">
-                          <p className="font-bold text-white text-xs truncate">{deal.name}</p>
-                          <p className="font-extrabold text-indigo-400 mt-1">{formatCurrency(deal.value)}</p>
+                        <div
+                          key={deal.id}
+                          className="rounded-lg border border-slate-800 bg-slate-950 p-3"
+                        >
+                          <p className="font-bold text-white text-xs truncate">
+                            {deal.name}
+                          </p>
+                          <p className="font-extrabold text-indigo-400 mt-1">
+                            {formatCurrency(deal.value)}
+                          </p>
                           <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-900 text-[10px]">
-                            <span className="text-slate-400">{deal.stage?.name || "Pipeline"}</span>
+                            <span className="text-slate-400">
+                              {deal.stage?.name || "Pipeline"}
+                            </span>
                             <StatusBadge status="ACTIVE" />
                           </div>
                         </div>
@@ -660,8 +844,13 @@ export default function Home() {
                   ) : (
                     <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400">
                       <CircleDollarSign className="size-8 text-slate-600 mb-2" />
-                      <p className="text-sm font-semibold">No sales pipeline deals recorded in database.</p>
-                      <Link href="/deals" className="mt-2 text-xs font-bold text-emerald-400 hover:underline">
+                      <p className="text-sm font-semibold">
+                        No sales pipeline deals recorded in database.
+                      </p>
+                      <Link
+                        href="/deals"
+                        className="mt-2 text-xs font-bold text-emerald-400 hover:underline"
+                      >
                         + Create First Sales Deal →
                       </Link>
                     </div>
@@ -679,7 +868,8 @@ export default function Home() {
                         Site Visit Bookings & Property Intake (Live DB)
                       </h3>
                       <p className="text-xs text-slate-400 mt-0.5">
-                        Scheduled buyer appointments and site inspections from database.
+                        Scheduled buyer appointments and site inspections from
+                        database.
                       </p>
                     </div>
                     <span className="rounded-full bg-sky-500/20 px-2.5 py-1 text-[10px] font-bold text-sky-400 border border-sky-500/30">
@@ -690,8 +880,13 @@ export default function Home() {
                   {realVisits.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400">
                       <CalendarDays className="size-8 text-slate-600 mb-2" />
-                      <p className="text-sm font-semibold">No site visits scheduled in database.</p>
-                      <Link href="/site-visits" className="mt-2 text-xs font-bold text-sky-400 hover:underline">
+                      <p className="text-sm font-semibold">
+                        No site visits scheduled in database.
+                      </p>
+                      <Link
+                        href="/site-visits"
+                        className="mt-2 text-xs font-bold text-sky-400 hover:underline"
+                      >
                         + Schedule Property Site Visit →
                       </Link>
                     </div>
@@ -701,10 +896,13 @@ export default function Home() {
                         const clientName = v.customer
                           ? `${v.customer.firstName} ${v.customer.lastName}`
                           : v.lead
-                          ? `${v.lead.firstName} ${v.lead.lastName}`
-                          : "Property Prospect";
+                            ? `${v.lead.firstName} ${v.lead.lastName}`
+                            : "Property Prospect";
                         return (
-                          <div key={v.id} className="rounded-lg border border-slate-800 bg-slate-950 p-3.5 text-xs space-y-1.5">
+                          <div
+                            key={v.id}
+                            className="rounded-lg border border-slate-800 bg-slate-950 p-3.5 text-xs space-y-1.5"
+                          >
                             <div className="flex items-center justify-between border-b border-slate-900 pb-2">
                               <span className="font-bold text-white flex items-center gap-2">
                                 📍 Site Visit Appointment · {fmtDate(v.date)}
@@ -712,8 +910,15 @@ export default function Home() {
                               <StatusBadge status={v.status} />
                             </div>
                             <p className="text-slate-300">
-                              Client: <strong className="text-white font-bold">{clientName}</strong>
-                              {v.notes && <span className="text-slate-400 ml-2">— "{v.notes}"</span>}
+                              Client:{" "}
+                              <strong className="text-white font-bold">
+                                {clientName}
+                              </strong>
+                              {v.notes && (
+                                <span className="text-slate-400 ml-2">
+                                  — "{v.notes}"
+                                </span>
+                              )}
                             </p>
                           </div>
                         );
@@ -733,7 +938,8 @@ export default function Home() {
                         Milestone Payment Schedule Engine (Live DB)
                       </h3>
                       <p className="text-xs text-slate-400 mt-0.5">
-                        Real payment schedules and milestone collections stored in database.
+                        Real payment schedules and milestone collections stored
+                        in database.
                       </p>
                     </div>
                     <span className="rounded-full bg-rose-500/20 px-2.5 py-1 text-[10px] font-bold text-rose-400 border border-rose-500/30">
@@ -744,18 +950,28 @@ export default function Home() {
                   {realSchedules.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400">
                       <Coins className="size-8 text-slate-600 mb-2" />
-                      <p className="text-sm font-semibold">No payment schedules generated in database yet.</p>
-                      <Link href="/payments" className="mt-2 text-xs font-bold text-rose-400 hover:underline">
+                      <p className="text-sm font-semibold">
+                        No payment schedules generated in database yet.
+                      </p>
+                      <Link
+                        href="/payments"
+                        className="mt-2 text-xs font-bold text-rose-400 hover:underline"
+                      >
                         + Generate Milestone Schedules →
                       </Link>
                     </div>
                   ) : (
                     <div className="grid gap-2.5 sm:grid-cols-3 text-xs">
                       {realSchedules.slice(0, 6).map((sched) => (
-                        <div key={sched.id} className="rounded-lg border border-slate-800 bg-slate-950 p-3 flex flex-col justify-between">
+                        <div
+                          key={sched.id}
+                          className="rounded-lg border border-slate-800 bg-slate-950 p-3 flex flex-col justify-between"
+                        >
                           <div>
                             <div className="flex items-center justify-between">
-                              <span className="font-extrabold text-indigo-400">{sched.percentage}%</span>
+                              <span className="font-extrabold text-indigo-400">
+                                {sched.percentage}%
+                              </span>
                               <StatusBadge status={sched.status} />
                             </div>
                             <div className="font-bold text-white text-xs mt-1.5">
@@ -767,7 +983,8 @@ export default function Home() {
                           </div>
                           {sched.contract?.customer && (
                             <p className="text-[10px] text-slate-400 mt-2 pt-2 border-t border-slate-900 truncate">
-                              Client: {sched.contract.customer.firstName} {sched.contract.customer.lastName}
+                              Client: {sched.contract.customer.firstName}{" "}
+                              {sched.contract.customer.lastName}
                             </p>
                           )}
                         </div>
@@ -776,7 +993,6 @@ export default function Home() {
                   )}
                 </div>
               )}
-
             </div>
           </div>
         </div>
@@ -792,7 +1008,10 @@ export default function Home() {
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 items-center justify-center">
             {[
               {
-                label: realLeads.length || realDeals.length ? `${realLeads.length + realDeals.length}` : "250K+",
+                label:
+                  realLeads.length || realDeals.length
+                    ? `${realLeads.length + realDeals.length}`
+                    : "250K+",
                 text: "Active Database Records",
               },
               {
@@ -800,17 +1019,28 @@ export default function Home() {
                 text: "Units in Inventory Stacking Plan",
               },
               {
-                label: realSalesReport?.bookedRevenue ? formatCurrency(realSalesReport.bookedRevenue) : "42s",
+                label: realSalesReport?.bookedRevenue
+                  ? formatCurrency(realSalesReport.bookedRevenue)
+                  : "42s",
                 text: "Booked Revenue in Database",
               },
               {
-                label: realSalesReport?.collectedPayments ? formatCurrency(realSalesReport.collectedPayments) : "4.8 / 5",
+                label: realSalesReport?.collectedPayments
+                  ? formatCurrency(realSalesReport.collectedPayments)
+                  : "4.8 / 5",
                 text: "Collected Payments to Date",
               },
             ].map((stat) => (
-              <div key={stat.text} className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
-                <p className="text-2xl font-extrabold text-indigo-600">{stat.label}</p>
-                <p className="text-xs font-medium text-slate-600 mt-1">{stat.text}</p>
+              <div
+                key={stat.text}
+                className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs"
+              >
+                <p className="text-2xl font-extrabold text-indigo-600">
+                  {stat.label}
+                </p>
+                <p className="text-xs font-medium text-slate-600 mt-1">
+                  {stat.text}
+                </p>
               </div>
             ))}
           </div>
@@ -825,7 +1055,8 @@ export default function Home() {
               Frequently Asked Questions
             </h2>
             <p className="mt-2 text-xs sm:text-sm text-slate-600">
-              Everything you need to know about setting up and running BetFlow CRM.
+              Everything you need to know about setting up and running BetFlow
+              CRM.
             </p>
           </div>
 
@@ -880,7 +1111,8 @@ export default function Home() {
             Transform your real estate sales operations today
           </h2>
           <p className="mt-4 text-sm text-indigo-200 max-w-xl mx-auto font-normal">
-            Join top property developers, brokers, and sales teams managing leads and inventory with BetFlow CRM.
+            Join top property developers, brokers, and sales teams managing
+            leads and inventory with BetFlow CRM.
           </p>
 
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -899,7 +1131,12 @@ export default function Home() {
       <footer className="border-t border-slate-800 bg-slate-950 py-8 text-slate-500 text-xs">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 sm:flex-row sm:px-6">
           <div className="flex items-center gap-2">
-            <Image src="/betflow-mark.svg" alt="BetFlow" width={20} height={20} />
+            <Image
+              src="/betflow-mark.svg"
+              alt="BetFlow"
+              width={20}
+              height={20}
+            />
             <span className="font-bold text-slate-300">BetFlow CRM</span>
             <span>· Enterprise Real Estate Sales Engine</span>
           </div>

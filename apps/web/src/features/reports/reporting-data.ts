@@ -45,7 +45,11 @@ export type PaymentAgingRow = {
 };
 
 export const salesDashboardMetrics: SalesMetric[] = [
-  { label: "Booked revenue", value: "$4.2M", detail: "Across active reservations" },
+  {
+    label: "Booked revenue",
+    value: "$4.2M",
+    detail: "Across active reservations",
+  },
   { label: "Collected", value: "$1.1M", detail: "26% of booked revenue" },
   { label: "Open pipeline", value: "$7.8M", detail: "Weighted at $3.9M" },
   { label: "Conversion", value: "18.4%", detail: "Lead to reservation" },
@@ -79,15 +83,54 @@ export const agentPerformance: AgentPerformance[] = [
 ];
 
 export const revenueReport: RevenueRow[] = [
-  { period: "June 2026", booked: "$1.9M", collected: "$720K", outstanding: "$1.18M", forecast: "$2.3M" },
-  { period: "July 2026", booked: "$1.4M", collected: "$280K", outstanding: "$1.12M", forecast: "$2.7M" },
-  { period: "August 2026", booked: "$900K", collected: "$100K", outstanding: "$800K", forecast: "$2.1M" },
+  {
+    period: "June 2026",
+    booked: "$1.9M",
+    collected: "$720K",
+    outstanding: "$1.18M",
+    forecast: "$2.3M",
+  },
+  {
+    period: "July 2026",
+    booked: "$1.4M",
+    collected: "$280K",
+    outstanding: "$1.12M",
+    forecast: "$2.7M",
+  },
+  {
+    period: "August 2026",
+    booked: "$900K",
+    collected: "$100K",
+    outstanding: "$800K",
+    forecast: "$2.1M",
+  },
 ];
 
 export const inventoryReport: InventoryRow[] = [
-  { project: "Harbor Point", totalUnits: 184, available: 47, reserved: 18, sold: 104, blocked: 15 },
-  { project: "Meridian Residences", totalUnits: 96, available: 22, reserved: 9, sold: 58, blocked: 7 },
-  { project: "District 7 Offices", totalUnits: 58, available: 58, reserved: 0, sold: 0, blocked: 0 },
+  {
+    project: "Harbor Point",
+    totalUnits: 184,
+    available: 47,
+    reserved: 18,
+    sold: 104,
+    blocked: 15,
+  },
+  {
+    project: "Meridian Residences",
+    totalUnits: 96,
+    available: 22,
+    reserved: 9,
+    sold: 58,
+    blocked: 7,
+  },
+  {
+    project: "District 7 Offices",
+    totalUnits: 58,
+    available: 58,
+    reserved: 0,
+    sold: 0,
+    blocked: 0,
+  },
 ];
 
 export const conversionReport: ConversionRow[] = [

@@ -24,7 +24,7 @@ export type Timestamps = {
 };
 
 /** Sortable field direction */
-export type SortOrder = 'asc' | 'desc';
+export type SortOrder = "asc" | "desc";
 
 /** Priority levels used across leads, tasks, etc. */
-export type Priority = 'High' | 'Medium' | 'Low';
+export type Priority = "High" | "Medium" | "Low";

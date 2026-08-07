@@ -87,7 +87,12 @@ function useStoredSession(): StoredSession | null {
 
 const primaryNavItems = [
   { label: "Home", href: "/dashboard", icon: Home, aliases: ["Dashboard"] },
-  { label: "Reports", href: "/reports", icon: BarChart3, aliases: ["Sales report"] },
+  {
+    label: "Reports",
+    href: "/reports",
+    icon: BarChart3,
+    aliases: ["Sales report"],
+  },
 ];
 
 const navSections = [
@@ -95,7 +100,12 @@ const navSections = [
     title: "Sales & Pipeline",
     items: [
       { label: "Leads", href: "/leads", icon: UserRoundCheck },
-      { label: "Customers", href: "/customers", icon: UsersRound, aliases: ["Contacts", "Buyers"] },
+      {
+        label: "Customers",
+        href: "/customers",
+        icon: UsersRound,
+        aliases: ["Contacts", "Buyers"],
+      },
       { label: "Deals", href: "/deals", icon: CircleDollarSign },
     ],
   },
@@ -105,7 +115,12 @@ const navSections = [
       { label: "Tasks", href: "/tasks", icon: ClipboardList },
       { label: "Meetings", href: "/meetings", icon: CalendarDays },
       { label: "Calls", href: "/notifications/follow-ups", icon: Phone },
-      { label: "Visits", href: "/site-visits", icon: Route, aliases: ["Site visits"] },
+      {
+        label: "Visits",
+        href: "/site-visits",
+        icon: Route,
+        aliases: ["Site visits"],
+      },
     ],
   },
   {
@@ -120,14 +135,29 @@ const navSections = [
     items: [
       { label: "Reservations", href: "/reservations", icon: ShoppingBag },
       { label: "Contracts", href: "/contracts", icon: ScrollText },
-      { label: "Payment Schedules", href: "/payments", icon: CircleDollarSign, aliases: ["Payments", "Milestones"] },
+      {
+        label: "Payment Schedules",
+        href: "/payments",
+        icon: CircleDollarSign,
+        aliases: ["Payments", "Milestones"],
+      },
     ],
   },
   {
     title: "Marketing & Automation",
     items: [
-      { label: "Social Outreach", href: "/automation/email-campaigns", icon: Megaphone, aliases: ["Campaigns", "Telegram", "Social leads"] },
-      { label: "SMS & Drip Automation", href: "/automation/sms", icon: MessageSquare, aliases: ["SMS", "Ethio Telecom", "Drip"] },
+      {
+        label: "Social Outreach",
+        href: "/automation/email-campaigns",
+        icon: Megaphone,
+        aliases: ["Campaigns", "Telegram", "Social leads"],
+      },
+      {
+        label: "SMS & Drip Automation",
+        href: "/automation/sms",
+        icon: MessageSquare,
+        aliases: ["SMS", "Ethio Telecom", "Drip"],
+      },
     ],
   },
   {
@@ -192,8 +222,15 @@ function SidebarLink({
         isActive && "bg-white/10 text-white",
       )}
     >
-      <Icon className={cn("size-4 shrink-0 text-[#91a1bd]", isActive && "text-[#70a0ff]")} />
-      <span className="truncate group-data-[collapsed=true]/side:lg:hidden">{item.label}</span>
+      <Icon
+        className={cn(
+          "size-4 shrink-0 text-[#91a1bd]",
+          isActive && "text-[#70a0ff]",
+        )}
+      />
+      <span className="truncate group-data-[collapsed=true]/side:lg:hidden">
+        {item.label}
+      </span>
     </Link>
   );
 }
@@ -239,9 +276,9 @@ function Dropdown({
   const triggerNode = isValidElement<Record<string, unknown>>(trigger)
     ? cloneElement(trigger, {
         onClick: (event: ReactMouseEvent) => {
-          (trigger.props.onClick as ((e: ReactMouseEvent) => void) | undefined)?.(
-            event,
-          );
+          (
+            trigger.props.onClick as ((e: ReactMouseEvent) => void) | undefined
+          )?.(event);
           setOpen((value) => !value);
         },
         "aria-haspopup": "menu",
@@ -269,7 +306,15 @@ function Dropdown({
   );
 }
 
-function MenuLink({ href, icon: Icon, children }: { href: string; icon: ElementType; children: ReactNode }) {
+function MenuLink({
+  href,
+  icon: Icon,
+  children,
+}: {
+  href: string;
+  icon: ElementType;
+  children: ReactNode;
+}) {
   const close = useContext(DropdownCloseContext);
   return (
     <Link
@@ -307,7 +352,9 @@ function MenuButton({
         danger ? "text-[#c02a4a] hover:bg-[#fdeef1]" : "text-[#243350]",
       )}
     >
-      <Icon className={cn("size-4", danger ? "text-[#c02a4a]" : "text-[#6a789a]")} />
+      <Icon
+        className={cn("size-4", danger ? "text-[#c02a4a]" : "text-[#6a789a]")}
+      />
       {children}
     </button>
   );
@@ -337,13 +384,16 @@ function SearchRecords() {
   const results = useMemo(() => {
     const term = query.trim().toLowerCase();
     if (!term) return [];
-    return searchIndex.filter((item) => item.label.toLowerCase().includes(term)).slice(0, 6);
+    return searchIndex
+      .filter((item) => item.label.toLowerCase().includes(term))
+      .slice(0, 6);
   }, [query]);
 
   useEffect(() => {
     if (!open) return;
     const onDoc = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(event.target as Node))
+        setOpen(false);
     };
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
@@ -435,10 +485,12 @@ export function DashboardShell({
         rawBinary
           .split("")
           .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join("")
+          .join(""),
       );
       const payload = JSON.parse(jsonPayload) as { roles?: string[] };
-      return payload.roles && payload.roles.length > 0 ? payload.roles.join(", ") : null;
+      return payload.roles && payload.roles.length > 0
+        ? payload.roles.join(", ")
+        : null;
     } catch {
       return null;
     }
@@ -471,11 +523,16 @@ export function DashboardShell({
   const filteredModules = useMemo(() => {
     const term = moduleQuery.trim().toLowerCase();
     if (!term) return moduleNavItems;
-    return moduleNavItems.filter((item) => item.label.toLowerCase().includes(term));
+    return moduleNavItems.filter((item) =>
+      item.label.toLowerCase().includes(term),
+    );
   }, [moduleQuery]);
 
   const toggleSidebar = () => {
-    if (typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches) {
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(min-width: 1024px)").matches
+    ) {
       setCollapsed((value) => !value);
     } else {
       setNavOpen((value) => !value);
@@ -520,7 +577,10 @@ export function DashboardShell({
       setResizing(false);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
-      window.localStorage.setItem("betflow-sidebar-w", String(clampWidth(e.clientX)));
+      window.localStorage.setItem(
+        "betflow-sidebar-w",
+        String(clampWidth(e.clientX)),
+      );
     };
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
@@ -582,7 +642,12 @@ export function DashboardShell({
 
         <nav className="space-y-1 px-2 pb-3">
           {primaryNavItems.map((item) => (
-            <SidebarLink key={item.href} item={item} active={active} onNavigate={() => setNavOpen(false)} />
+            <SidebarLink
+              key={item.href}
+              item={item}
+              active={active}
+              onNavigate={() => setNavOpen(false)}
+            />
           ))}
         </nav>
 
@@ -594,7 +659,9 @@ export function DashboardShell({
               <span className="rounded-sm bg-white/70" />
               <span className="rounded-sm bg-white/70" />
             </div>
-            <span className="group-data-[collapsed=true]/side:lg:hidden">Modules</span>
+            <span className="group-data-[collapsed=true]/side:lg:hidden">
+              Modules
+            </span>
           </div>
           <label className="mb-3 flex h-8 items-center gap-2 rounded-md border border-white/18 px-2 text-[#b7c5dd] group-data-[collapsed=true]/side:lg:hidden">
             <Search className="size-4" />
@@ -634,7 +701,9 @@ export function DashboardShell({
                   />
                 ))}
                 {filteredModules.length === 0 ? (
-                  <p className="px-2.5 py-2 text-sm text-[#93a3c1]">No modules found</p>
+                  <p className="px-2.5 py-2 text-sm text-[#93a3c1]">
+                    No modules found
+                  </p>
                 ) : null}
               </div>
             )}
@@ -648,7 +717,9 @@ export function DashboardShell({
               {initials}
             </span>
             <div className="min-w-0 group-data-[collapsed=true]/side:lg:hidden">
-              <p className="truncate text-sm font-medium text-white">{displayName}</p>
+              <p className="truncate text-sm font-medium text-white">
+                {displayName}
+              </p>
               {roleText ? (
                 <p className="truncate text-xs text-[#9fb0cd]">{roleText}</p>
               ) : user.email ? (
@@ -663,7 +734,9 @@ export function DashboardShell({
             className="mt-1 flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-[#f3adba] transition hover:bg-white/10 hover:text-white group-data-[collapsed=true]/side:lg:justify-center group-data-[collapsed=true]/side:lg:px-0"
           >
             <LogOut className="size-4 shrink-0" />
-            <span className="group-data-[collapsed=true]/side:lg:hidden">Sign out</span>
+            <span className="group-data-[collapsed=true]/side:lg:hidden">
+              Sign out
+            </span>
           </button>
         </div>
 
@@ -709,9 +782,13 @@ export function DashboardShell({
                 <Menu className="size-4" />
               </Button>
               <div className="min-w-0">
-                <h1 className="truncate text-xl font-medium tracking-normal text-[#071426]">{displayTitle}</h1>
+                <h1 className="truncate text-xl font-medium tracking-normal text-[#071426]">
+                  {displayTitle}
+                </h1>
                 {title !== "Dashboard" ? (
-                  <p className="hidden truncate text-xs text-[#71809a] sm:block">{description}</p>
+                  <p className="hidden truncate text-xs text-[#71809a] sm:block">
+                    {description}
+                  </p>
                 ) : null}
               </div>
             </div>
@@ -784,11 +861,17 @@ export function DashboardShell({
                 }
               >
                 <div className="border-b border-[#eef1f7] px-2.5 pb-2 pt-1">
-                  <p className="truncate text-sm font-semibold text-[#1f2d45]">{displayName}</p>
+                  <p className="truncate text-sm font-semibold text-[#1f2d45]">
+                    {displayName}
+                  </p>
                   {roleText ? (
-                    <p className="truncate text-xs text-[#8b98b1]">{roleText}</p>
+                    <p className="truncate text-xs text-[#8b98b1]">
+                      {roleText}
+                    </p>
                   ) : user.email ? (
-                    <p className="truncate text-xs text-[#8b98b1]">{user.email}</p>
+                    <p className="truncate text-xs text-[#8b98b1]">
+                      {user.email}
+                    </p>
                   ) : null}
                 </div>
                 <div className="pt-1">
@@ -819,7 +902,10 @@ export function DashboardShell({
                 </p>
                 <div className="grid grid-cols-3 gap-1">
                   {moduleNavItems.map((item) => (
-                    <ModuleGridLink key={`${item.href}-${item.label}`} item={item} />
+                    <ModuleGridLink
+                      key={`${item.href}-${item.label}`}
+                      item={item}
+                    />
                   ))}
                 </div>
               </Dropdown>
@@ -828,71 +914,73 @@ export function DashboardShell({
         </header>
 
         {active === "Dashboard" ? (
-        <div className="flex h-[72px] items-center justify-between gap-3 border-b border-[#d9e1ee] bg-gradient-to-r from-[#eef2f8] to-[#f5f8fc] px-5">
-          <div className="flex min-w-0 items-center gap-4">
-            <div className="min-w-0">
-              <p className="truncate text-[19px] font-bold tracking-tight text-slate-800">
-                {greeting}, {displayName.split(" ")[0]}!
-              </p>
-              <p className="truncate text-[13px] font-medium text-slate-500">
-                Here's what's happening with your pipeline today.
-              </p>
+          <div className="flex h-[72px] items-center justify-between gap-3 border-b border-[#d9e1ee] bg-gradient-to-r from-[#eef2f8] to-[#f5f8fc] px-5">
+            <div className="flex min-w-0 items-center gap-4">
+              <div className="min-w-0">
+                <p className="truncate text-[19px] font-bold tracking-tight text-slate-800">
+                  {greeting}, {displayName.split(" ")[0]}!
+                </p>
+                <p className="truncate text-[13px] font-medium text-slate-500">
+                  Here's what's happening with your pipeline today.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-[#25354d] hover:bg-white"
+                aria-label="Refresh"
+                onClick={refresh}
+              >
+                <RotateCw
+                  className={cn("size-4", spinning && "animate-spin")}
+                />
+              </Button>
+              <Dropdown
+                align="end"
+                trigger={
+                  <button
+                    type="button"
+                    className="hidden h-9 items-center gap-3 rounded-md border border-[#c2cad8] bg-white px-4 text-sm text-[#071426] lg:flex"
+                  >
+                    {displayName}&apos;s Home
+                    <ChevronDown className="size-4 text-[#67758d]" />
+                  </button>
+                }
+              >
+                <MenuLink href="/dashboard" icon={Home}>
+                  Home
+                </MenuLink>
+                <MenuLink href="/reports/sales" icon={BarChart3}>
+                  Sales reports
+                </MenuLink>
+                <MenuLink href="/leads" icon={UserRoundCheck}>
+                  Leads pipeline
+                </MenuLink>
+              </Dropdown>
+              <Dropdown
+                align="end"
+                trigger={
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="size-9 border-[#cbd4e2] bg-[#f7f9fd]"
+                    aria-label="More actions"
+                  >
+                    <MoreHorizontal className="size-5" />
+                  </Button>
+                }
+              >
+                <MenuButton icon={RotateCw} onClick={refresh}>
+                  Refresh
+                </MenuButton>
+                <MenuLink href="/settings" icon={Settings}>
+                  Settings
+                </MenuLink>
+              </Dropdown>
             </div>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-[#25354d] hover:bg-white"
-              aria-label="Refresh"
-              onClick={refresh}
-            >
-              <RotateCw className={cn("size-4", spinning && "animate-spin")} />
-            </Button>
-            <Dropdown
-              align="end"
-              trigger={
-                <button
-                  type="button"
-                  className="hidden h-9 items-center gap-3 rounded-md border border-[#c2cad8] bg-white px-4 text-sm text-[#071426] lg:flex"
-                >
-                  {displayName}&apos;s Home
-                  <ChevronDown className="size-4 text-[#67758d]" />
-                </button>
-              }
-            >
-              <MenuLink href="/dashboard" icon={Home}>
-                Home
-              </MenuLink>
-              <MenuLink href="/reports/sales" icon={BarChart3}>
-                Sales reports
-              </MenuLink>
-              <MenuLink href="/leads" icon={UserRoundCheck}>
-                Leads pipeline
-              </MenuLink>
-            </Dropdown>
-            <Dropdown
-              align="end"
-              trigger={
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="size-9 border-[#cbd4e2] bg-[#f7f9fd]"
-                  aria-label="More actions"
-                >
-                  <MoreHorizontal className="size-5" />
-                </Button>
-              }
-            >
-              <MenuButton icon={RotateCw} onClick={refresh}>
-                Refresh
-              </MenuButton>
-              <MenuLink href="/settings" icon={Settings}>
-                Settings
-              </MenuLink>
-            </Dropdown>
-          </div>
-        </div>
         ) : null}
 
         <main className="px-3 py-3 sm:px-4">{children}</main>

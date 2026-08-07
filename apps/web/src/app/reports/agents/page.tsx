@@ -26,7 +26,9 @@ export default function AgentPerformancePage() {
         const data = await apiFetch<AgentRow[]>("/reports/agents");
         setAgents(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load agent report");
+        setError(
+          err instanceof Error ? err.message : "Failed to load agent report",
+        );
       } finally {
         setLoading(false);
       }
@@ -49,17 +51,30 @@ export default function AgentPerformancePage() {
       <section className="rounded-lg border border-zinc-200 bg-white">
         <div className="border-b border-zinc-200 p-4">
           <h2 className="text-base font-semibold">Performance leaderboard</h2>
-          <p className="text-sm text-zinc-500">Operational sales metrics for current period.</p>
+          <p className="text-sm text-zinc-500">
+            Operational sales metrics for current period.
+          </p>
         </div>
         {loading ? (
           <p className="p-6 text-sm text-zinc-500">Loading performance data…</p>
         ) : agents.length === 0 ? (
-          <p className="p-6 text-center text-sm text-zinc-500">No agent data available yet.</p>
+          <p className="p-6 text-center text-sm text-zinc-500">
+            No agent data available yet.
+          </p>
         ) : (
           <CrmTable
-            columns={["Agent", "Leads", "Site visits", "Reservations", "Revenue", "Conversion"]}
+            columns={[
+              "Agent",
+              "Leads",
+              "Site visits",
+              "Reservations",
+              "Revenue",
+              "Conversion",
+            ]}
             rows={agents.map((agent) => [
-              <span key="agent" className="font-medium">{agent.agent}</span>,
+              <span key="agent" className="font-medium">
+                {agent.agent}
+              </span>,
               agent.leads,
               agent.visits,
               agent.reservations,

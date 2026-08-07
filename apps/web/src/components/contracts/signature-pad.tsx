@@ -39,10 +39,15 @@ export function SignaturePad({
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    strokeHistoryRef.current.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+    strokeHistoryRef.current.push(
+      ctx.getImageData(0, 0, canvas.width, canvas.height),
+    );
   };
 
-  const getCoordinates = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const getCoordinates = (
+    e:
+      React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>,
+  ) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
@@ -63,7 +68,10 @@ export function SignaturePad({
     };
   };
 
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const startDrawing = (
+    e:
+      React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>,
+  ) => {
     e.preventDefault();
     saveStrokeState();
     const canvas = canvasRef.current;
@@ -78,7 +86,10 @@ export function SignaturePad({
     setHasSignature(true);
   };
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const draw = (
+    e:
+      React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>,
+  ) => {
     if (!isDrawing) return;
     e.preventDefault();
     const canvas = canvasRef.current;
@@ -166,7 +177,7 @@ export function SignaturePad({
             variant="outline"
             size="sm"
             onClick={undoStroke}
-            disabled={strokeHistoryRef.current.length === 0}
+            disabled={!hasSignature}
             className="h-7 text-[11px] gap-1 text-zinc-700"
           >
             <RotateCcw className="size-3" /> Undo

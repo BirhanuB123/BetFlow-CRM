@@ -2,7 +2,17 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronDown, FolderOpen, Library, Search, Star, Download, Printer, ArrowUpRight, BarChart3 } from "lucide-react";
+import {
+  ChevronDown,
+  FolderOpen,
+  Library,
+  Search,
+  Star,
+  Download,
+  Printer,
+  ArrowUpRight,
+  BarChart3,
+} from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
@@ -84,7 +94,11 @@ export default function ReportsCatalogPage() {
     return reports
       .filter((report) => {
         if (folder === "Favorites" && !favorites.has(report.id)) return false;
-        if (folder !== ALL && folder !== "Favorites" && report.folder !== folder)
+        if (
+          folder !== ALL &&
+          folder !== "Favorites" &&
+          report.folder !== folder
+        )
           return false;
         if (!term) return true;
         return (
@@ -100,7 +114,8 @@ export default function ReportsCatalogPage() {
       );
   }, [reports, query, folder, favorites]);
 
-  const allSelected = filtered.length > 0 && filtered.every((r) => selected.has(r.id));
+  const allSelected =
+    filtered.length > 0 && filtered.every((r) => selected.has(r.id));
   const toggleSelectAll = () => {
     setSelected(allSelected ? new Set() : new Set(filtered.map((r) => r.id)));
   };
@@ -114,7 +129,13 @@ export default function ReportsCatalogPage() {
   };
 
   const handleExportCSV = () => {
-    const headers = ["Report Name", "Folder", "Description", "Last Accessed", "Created By"];
+    const headers = [
+      "Report Name",
+      "Folder",
+      "Description",
+      "Last Accessed",
+      "Created By",
+    ];
     const rows = filtered.map((r) => [
       `"${r.name}"`,
       `"${r.folder}"`,
@@ -122,7 +143,9 @@ export default function ReportsCatalogPage() {
       `"${formatDate(r.lastAccessedAt)}"`,
       `"${r.createdBy ?? "System"}"`,
     ]);
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -200,7 +223,9 @@ export default function ReportsCatalogPage() {
 
         {selected.size > 0 && (
           <div className="flex items-center gap-3 border-b border-indigo-100 bg-indigo-50/70 px-5 py-2.5 text-xs text-slate-700">
-            <span className="font-semibold text-indigo-900">{selected.size} selected</span>
+            <span className="font-semibold text-indigo-900">
+              {selected.size} selected
+            </span>
             <button
               type="button"
               onClick={() => setSelected(new Set())}
@@ -244,13 +269,19 @@ export default function ReportsCatalogPage() {
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-slate-500 font-medium">
+                  <td
+                    colSpan={7}
+                    className="px-4 py-12 text-center text-slate-500 font-medium"
+                  >
                     No reports match your filters.
                   </td>
                 </tr>
               ) : (
                 filtered.map((report) => (
-                  <tr key={report.id} className="group hover:bg-slate-50/80 transition-colors cursor-pointer">
+                  <tr
+                    key={report.id}
+                    className="group hover:bg-slate-50/80 transition-colors cursor-pointer"
+                  >
                     <td className="px-4 py-3 text-center">
                       <input
                         type="checkbox"
@@ -348,10 +379,15 @@ export default function ReportsCatalogPage() {
                     {report.folder}
                   </span>
                 </div>
-                <p className="mt-1.5 text-xs text-slate-600">{report.description}</p>
+                <p className="mt-1.5 text-xs text-slate-600">
+                  {report.description}
+                </p>
                 <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
                   <span>Last accessed {formatDate(report.lastAccessedAt)}</span>
-                  <Link href={report.href} className="font-semibold text-indigo-600 hover:underline">
+                  <Link
+                    href={report.href}
+                    className="font-semibold text-indigo-600 hover:underline"
+                  >
                     View Report &rarr;
                   </Link>
                 </div>
@@ -361,7 +397,9 @@ export default function ReportsCatalogPage() {
         </div>
 
         <div className="border-t border-slate-200 px-5 py-3 text-xs text-slate-500 font-medium">
-          {loading ? "Loading reports…" : `Total Reports: ${filtered.length} ${filtered.length !== reports.length ? `(Filtered from ${reports.length})` : ""}`}
+          {loading
+            ? "Loading reports…"
+            : `Total Reports: ${filtered.length} ${filtered.length !== reports.length ? `(Filtered from ${reports.length})` : ""}`}
         </div>
       </div>
     </DashboardShell>

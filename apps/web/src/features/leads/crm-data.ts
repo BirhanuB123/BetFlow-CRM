@@ -10,7 +10,6 @@ import type {
 
 export type { LeadStage, Lead, Customer, Deal, Task, Note, Activity };
 
-
 export const pipelineStages: LeadStage[] = [
   "New",
   "Qualified",

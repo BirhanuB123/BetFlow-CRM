@@ -103,7 +103,9 @@ export function NotesPanel({
   };
 
   return (
-    <section className={cn("rounded-lg border border-zinc-200 bg-white", className)}>
+    <section
+      className={cn("rounded-lg border border-zinc-200 bg-white", className)}
+    >
       <div className="flex items-center gap-2 border-b border-zinc-200 p-4">
         <StickyNote className="size-4 text-zinc-500" />
         <h2 className="text-base font-semibold">{title}</h2>

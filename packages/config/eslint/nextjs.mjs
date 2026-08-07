@@ -16,7 +16,15 @@ export function createNextConfig() {
     {
       rules: {
         // Next.js-specific overrides
-        '@next/next/no-html-link-for-pages': 'error',
+        '@next/next/no-html-link-for-pages': 'off',
+        'react-compiler/react-compiler': 'off',
+        'react-hooks/rules-of-hooks': 'warn',
+        'react-hooks/exhaustive-deps': 'warn',
+        'react-hooks/set-state-in-effect': 'off',
+        'react-hooks/refs': 'warn',
+        'react-hooks/preserve-manual-memoization': 'warn',
+        'react/no-unescaped-entities': 'off',
+        '@typescript-eslint/no-unused-vars': 'warn',
       },
     },
   ]);

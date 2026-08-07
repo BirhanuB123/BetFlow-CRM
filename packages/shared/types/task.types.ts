@@ -4,13 +4,13 @@
  *   - apps/api/src/tasks/tasks.types.ts
  *   - apps/web/src/features/leads/crm-data.ts
  */
-import type { Priority } from './common.types.js';
-import { TASK_STATUSES } from '../constants/task.constants.js';
+import type { Priority } from "./common.types.js";
+import { TASK_STATUSES } from "../constants/task.constants.js";
 
 export type TaskStatus = (typeof TASK_STATUSES)[number];
 
 /** UI-friendly task status labels */
-export type TaskStatusLabel = 'Open' | 'In progress' | 'Done';
+export type TaskStatusLabel = "Open" | "In progress" | "Done";
 
 // ─── Input Types (API) ─────────────────────────────────────────────────────────
 

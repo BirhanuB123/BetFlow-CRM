@@ -22,7 +22,9 @@ export default function PropertyMediaPage() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <h2 className="text-base font-semibold">Media library</h2>
-            <p className="text-sm text-zinc-500">Attach approved media to projects and sales packets.</p>
+            <p className="text-sm text-zinc-500">
+              Attach approved media to projects and sales packets.
+            </p>
           </div>
           <Button>
             <ImageIcon className="size-4" />
@@ -31,19 +33,28 @@ export default function PropertyMediaPage() {
         </div>
         <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {propertyMedia.map((media) => {
-            const project = projects.find((item) => item.id === media.projectId);
+            const project = projects.find(
+              (item) => item.id === media.projectId,
+            );
 
             return (
-              <article key={media.id} className="rounded-lg border border-zinc-200">
+              <article
+                key={media.id}
+                className="rounded-lg border border-zinc-200"
+              >
                 <div className="flex aspect-video items-center justify-center rounded-t-lg bg-zinc-100">
                   <ImageIcon className="size-8 text-zinc-400" />
                 </div>
                 <div className="p-4">
-                  <span className={`rounded-md px-2 py-1 text-xs font-medium ${mediaClass[media.type]}`}>
+                  <span
+                    className={`rounded-md px-2 py-1 text-xs font-medium ${mediaClass[media.type]}`}
+                  >
                     {media.type}
                   </span>
                   <h3 className="mt-3 text-sm font-semibold">{media.title}</h3>
-                  <p className="mt-1 text-sm text-zinc-500">{project?.name ?? "Unknown project"}</p>
+                  <p className="mt-1 text-sm text-zinc-500">
+                    {project?.name ?? "Unknown project"}
+                  </p>
                   <div className="mt-4 flex items-center justify-between text-xs text-zinc-500">
                     <span>{media.usage}</span>
                     <span>{media.updatedAt}</span>

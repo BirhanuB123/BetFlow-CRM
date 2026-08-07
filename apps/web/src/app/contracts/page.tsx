@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+} from "react";
 import Link from "next/link";
 import {
   ScrollText,
@@ -45,7 +51,12 @@ type ApiContract = {
 };
 
 type CustomerOption = { id: string; firstName: string; lastName: string };
-type UnitOption = { id: string; unitNumber: string; type: string; price: number };
+type UnitOption = {
+  id: string;
+  unitNumber: string;
+  type: string;
+  price: number;
+};
 
 const statusClass: Record<string, string> = {
   ACTIVE: "bg-blue-50 text-blue-700 border-blue-200",
@@ -82,10 +93,13 @@ export default function ContractsPage() {
   const [units, setUnits] = useState<UnitOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"ALL" | "SIGNED" | "PENDING_SIGNATURE" | "ACTIVE" | "CANCELLED">("ALL");
+  const [filter, setFilter] = useState<
+    "ALL" | "SIGNED" | "PENDING_SIGNATURE" | "ACTIVE" | "CANCELLED"
+  >("ALL");
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [activeModalContract, setActiveModalContract] = useState<ApiContract | null>(null);
+  const [activeModalContract, setActiveModalContract] =
+    useState<ApiContract | null>(null);
 
   const [form, setForm] = useState({
     contractNumber: "",
@@ -140,7 +154,9 @@ export default function ContractsPage() {
         body: JSON.stringify({
           ...form,
           totalAmt: Number(form.totalAmt),
-          downPaymentAmt: form.downPaymentAmt ? Number(form.downPaymentAmt) : undefined,
+          downPaymentAmt: form.downPaymentAmt
+            ? Number(form.downPaymentAmt)
+            : undefined,
           status: "PENDING_SIGNATURE",
         }),
       });
@@ -159,7 +175,9 @@ export default function ContractsPage() {
       setShowForm(false);
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create contract");
+      setError(
+        err instanceof Error ? err.message : "Failed to create contract",
+      );
     } finally {
       setSaving(false);
     }
@@ -185,15 +203,25 @@ export default function ContractsPage() {
       await apiFetch(`/contracts/${id}`, { method: "DELETE" });
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete contract");
+      setError(
+        err instanceof Error ? err.message : "Failed to delete contract",
+      );
     }
   };
 
   // KPI Calculations
-  const totalVolumeETB = contracts.reduce((acc, c) => acc + (Number(c.totalAmt) || 0), 0);
-  const totalDownpaymentsETB = contracts.reduce((acc, c) => acc + (Number(c.downPaymentAmt) || 0), 0);
+  const totalVolumeETB = contracts.reduce(
+    (acc, c) => acc + (Number(c.totalAmt) || 0),
+    0,
+  );
+  const totalDownpaymentsETB = contracts.reduce(
+    (acc, c) => acc + (Number(c.downPaymentAmt) || 0),
+    0,
+  );
   const signedCount = contracts.filter((c) => c.status === "SIGNED").length;
-  const pendingCount = contracts.filter((c) => c.status === "PENDING_SIGNATURE").length;
+  const pendingCount = contracts.filter(
+    (c) => c.status === "PENDING_SIGNATURE",
+  ).length;
 
   return (
     <DashboardShell
@@ -208,17 +236,24 @@ export default function ContractsPage() {
             <div>
               <div className="flex items-center gap-2">
                 <ScrollText className="size-5 text-[#233b66]" />
-                <h2 className="text-lg font-bold text-slate-900">Legal Sales Contracts & Agreements</h2>
+                <h2 className="text-lg font-bold text-slate-900">
+                  Legal Sales Contracts & Agreements
+                </h2>
               </div>
               <p className="mt-1 text-sm text-slate-500">
-                Generate, track, and execute official sales contracts, payment installment terms, and lawyer signoffs.
+                Generate, track, and execute official sales contracts, payment
+                installment terms, and lawyer signoffs.
               </p>
             </div>
             <Button
               onClick={() => setShowForm((v) => !v)}
               className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium shadow-sm transition-all"
             >
-              {showForm ? <X className="size-4 mr-1.5" /> : <Plus className="size-4 mr-1.5" />}
+              {showForm ? (
+                <X className="size-4 mr-1.5" />
+              ) : (
+                <Plus className="size-4 mr-1.5" />
+              )}
               {showForm ? "Cancel Intake" : "Create Contract"}
             </Button>
           </div>
@@ -236,35 +271,53 @@ export default function ContractsPage() {
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Contract Ref Number (Optional)</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Contract Ref Number (Optional)
+                  </label>
                   <input
                     type="text"
                     placeholder="e.g. ET-CNT-2026-004 (Auto-generated if empty)"
                     value={form.contractNumber}
-                    onChange={(e) => setForm({ ...form, contractNumber: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, contractNumber: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Contract Type</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Contract Type
+                  </label>
                   <select
                     value={form.contractType}
-                    onChange={(e) => setForm({ ...form, contractType: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, contractType: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
-                    <option value="SALES_AGREEMENT">Property Sales Agreement (የሽያጭ ውል)</option>
-                    <option value="RESERVATION_AGREEMENT">Reservation Agreement (የይዞታ ውል)</option>
-                    <option value="COMMERCIAL_LEASE">Commercial Lease (የኪራይ ውል)</option>
+                    <option value="SALES_AGREEMENT">
+                      Property Sales Agreement (የሽያጭ ውል)
+                    </option>
+                    <option value="RESERVATION_AGREEMENT">
+                      Reservation Agreement (የይዞታ ውል)
+                    </option>
+                    <option value="COMMERCIAL_LEASE">
+                      Commercial Lease (የኪራይ ውል)
+                    </option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Select Customer / Contact *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Select Customer / Contact *
+                  </label>
                   <select
                     required
                     value={form.customerId}
-                    onChange={(e) => setForm({ ...form, customerId: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, customerId: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
                     <option value="">Select customer…</option>
@@ -277,16 +330,23 @@ export default function ContractsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Select Property Unit *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Select Property Unit *
+                  </label>
                   <select
                     required
                     value={form.unitId}
                     onChange={(e) => {
-                      const selUnit = units.find((u) => u.id === e.target.value);
+                      const selUnit = units.find(
+                        (u) => u.id === e.target.value,
+                      );
                       setForm({
                         ...form,
                         unitId: e.target.value,
-                        totalAmt: selUnit && selUnit.price ? String(selUnit.price) : form.totalAmt,
+                        totalAmt:
+                          selUnit && selUnit.price
+                            ? String(selUnit.price)
+                            : form.totalAmt,
                       });
                     }}
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
@@ -301,72 +361,104 @@ export default function ContractsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Total Agreement Amount (ETB) *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Total Agreement Amount (ETB) *
+                  </label>
                   <input
                     required
                     type="number"
                     min="0"
                     placeholder="e.g. 8500000"
                     value={form.totalAmt}
-                    onChange={(e) => setForm({ ...form, totalAmt: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, totalAmt: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Initial Downpayment Deposit (ETB)</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Initial Downpayment Deposit (ETB)
+                  </label>
                   <input
                     type="number"
                     min="0"
                     placeholder="e.g. 2500000 (30% Downpayment)"
                     value={form.downPaymentAmt}
-                    onChange={(e) => setForm({ ...form, downPaymentAmt: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, downPaymentAmt: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Plan Structure</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Payment Plan Structure
+                  </label>
                   <select
                     value={form.paymentPlan}
-                    onChange={(e) => setForm({ ...form, paymentPlan: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, paymentPlan: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
-                    <option value="INSTALLMENTS_24M">Installment Plan (በክፍያ - 24 Months)</option>
-                    <option value="BANK_MORTGAGE_3070">Bank Mortgage 30/70 (በባንክ)</option>
-                    <option value="FULL_CASH">Full Cash Discount (በጥሬ ገንዘብ)</option>
-                    <option value="DIASPORA_USD">Diaspora USD Foreign Currency</option>
+                    <option value="INSTALLMENTS_24M">
+                      Installment Plan (በክፍያ - 24 Months)
+                    </option>
+                    <option value="BANK_MORTGAGE_3070">
+                      Bank Mortgage 30/70 (በባንክ)
+                    </option>
+                    <option value="FULL_CASH">
+                      Full Cash Discount (በጥሬ ገንዘብ)
+                    </option>
+                    <option value="DIASPORA_USD">
+                      Diaspora USD Foreign Currency
+                    </option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Start / Execution Date *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Start / Execution Date *
+                  </label>
                   <input
                     required
                     type="date"
                     value={form.startDate}
-                    onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, startDate: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">End / Expiry Date (Optional)</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    End / Expiry Date (Optional)
+                  </label>
                   <input
                     type="date"
                     value={form.endDate}
-                    onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, endDate: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
 
                 <div className="sm:col-span-3">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Contract Notes & Special Clauses</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Contract Notes & Special Clauses
+                  </label>
                   <textarea
                     rows={2}
                     placeholder="Special terms, payment milestone conditions, penalty clauses..."
                     value={form.notes}
-                    onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, notes: e.target.value })
+                    }
                     className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
@@ -381,7 +473,11 @@ export default function ContractsPage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={saving} className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium text-xs shadow-sm">
+                <Button
+                  type="submit"
+                  disabled={saving}
+                  className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium text-xs shadow-sm"
+                >
                   {saving ? "Creating…" : "Save & Generate Contract Agreement"}
                 </Button>
               </div>
@@ -404,7 +500,9 @@ export default function ContractsPage() {
                 onClick={() => setFilter("ALL")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "ALL" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "ALL"
+                    ? "bg-[#233b66] text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-200/60",
                 )}
               >
                 All Contracts ({contracts.length})
@@ -414,7 +512,9 @@ export default function ContractsPage() {
                 onClick={() => setFilter("SIGNED")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "SIGNED" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "SIGNED"
+                    ? "bg-[#233b66] text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-200/60",
                 )}
               >
                 Signed & Executed ({signedCount})
@@ -424,7 +524,9 @@ export default function ContractsPage() {
                 onClick={() => setFilter("PENDING_SIGNATURE")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "PENDING_SIGNATURE" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "PENDING_SIGNATURE"
+                    ? "bg-[#233b66] text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-200/60",
                 )}
               >
                 Pending Signature ({pendingCount})
@@ -441,9 +543,12 @@ export default function ContractsPage() {
               <div className="rounded-full bg-slate-50 p-4 border border-slate-100 mb-2">
                 <ScrollText className="size-6 text-slate-400" />
               </div>
-              <p className="text-sm font-semibold text-slate-800">No contracts in this view</p>
+              <p className="text-sm font-semibold text-slate-800">
+                No contracts in this view
+              </p>
               <p className="text-xs text-slate-500 max-w-sm mt-1">
-                Click "New Contract Agreement" to log a new real estate sales contract or reservation agreement.
+                Click "New Contract Agreement" to log a new real estate sales
+                contract or reservation agreement.
               </p>
             </div>
           ) : (
@@ -462,13 +567,18 @@ export default function ContractsPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {visible.map((contract) => (
-                    <tr key={contract.id} className="hover:bg-slate-50/60 transition-colors">
+                    <tr
+                      key={contract.id}
+                      className="hover:bg-slate-50/60 transition-colors"
+                    >
                       <td className="px-5 py-3">
                         <p className="font-semibold text-slate-800">
-                          {contract.contractNumber ?? `ET-CNT-${contract.id.slice(0, 8).toUpperCase()}`}
+                          {contract.contractNumber ??
+                            `ET-CNT-${contract.id.slice(0, 8).toUpperCase()}`}
                         </p>
                         <span className="inline-block mt-0.5 rounded bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600 border border-slate-200">
-                          {contractTypeLabels[contract.contractType] ?? contract.contractType}
+                          {contractTypeLabels[contract.contractType] ??
+                            contract.contractType}
                         </span>
                       </td>
 
@@ -478,7 +588,8 @@ export default function ContractsPage() {
                           className="font-semibold text-indigo-600 hover:underline inline-flex items-center gap-1.5"
                         >
                           <User className="size-3.5 text-indigo-500" />
-                          {contract.customer.firstName} {contract.customer.lastName}
+                          {contract.customer.firstName}{" "}
+                          {contract.customer.lastName}
                         </Link>
                       </td>
 
@@ -500,10 +611,13 @@ export default function ContractsPage() {
                               {formatCurrency(contract.downPaymentAmt)}
                             </span>
                           ) : (
-                            <span className="text-slate-400 italic">No deposit</span>
+                            <span className="text-slate-400 italic">
+                              No deposit
+                            </span>
                           )}
                           <span className="text-[10px] text-slate-500 truncate max-w-[150px]">
-                            {paymentPlanLabels[contract.paymentPlan ?? ""] ?? "Standard Plan"}
+                            {paymentPlanLabels[contract.paymentPlan ?? ""] ??
+                              "Standard Plan"}
                           </span>
                         </div>
                       </td>
@@ -512,12 +626,19 @@ export default function ContractsPage() {
                         <span
                           className={cn(
                             "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold border",
-                            statusClass[contract.status] ?? "bg-slate-100 text-slate-700 border-slate-200"
+                            statusClass[contract.status] ??
+                              "bg-slate-100 text-slate-700 border-slate-200",
                           )}
                         >
-                          {contract.status === "SIGNED" && <CheckCircle2 className="size-3 text-emerald-600" />}
-                          {contract.status === "PENDING_SIGNATURE" && <Clock className="size-3 text-amber-600" />}
-                          {contract.status === "CANCELLED" && <XCircle className="size-3 text-rose-600" />}
+                          {contract.status === "SIGNED" && (
+                            <CheckCircle2 className="size-3 text-emerald-600" />
+                          )}
+                          {contract.status === "PENDING_SIGNATURE" && (
+                            <Clock className="size-3 text-amber-600" />
+                          )}
+                          {contract.status === "CANCELLED" && (
+                            <XCircle className="size-3 text-rose-600" />
+                          )}
                           {contract.status}
                         </span>
                       </td>
@@ -574,7 +695,9 @@ export default function ContractsPage() {
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
                   <ScrollText className="size-5 text-indigo-600" />
-                  <h3 className="text-base font-bold text-slate-900">Contract Agreement Specifications</h3>
+                  <h3 className="text-base font-bold text-slate-900">
+                    Contract Agreement Specifications
+                  </h3>
                 </div>
                 <button
                   onClick={() => setActiveModalContract(null)}
@@ -587,54 +710,80 @@ export default function ContractsPage() {
               <div className="mt-4 space-y-4 text-xs">
                 <div className="flex items-center justify-between rounded-lg bg-indigo-50/60 p-3">
                   <div>
-                    <p className="text-[11px] font-medium text-slate-500">Contract Reference</p>
+                    <p className="text-[11px] font-medium text-slate-500">
+                      Contract Reference
+                    </p>
                     <p className="text-sm font-bold text-indigo-950">
-                      {activeModalContract.contractNumber ?? `ET-CNT-${activeModalContract.id.slice(0, 8).toUpperCase()}`}
+                      {activeModalContract.contractNumber ??
+                        `ET-CNT-${activeModalContract.id.slice(0, 8).toUpperCase()}`}
                     </p>
                   </div>
-                  <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-semibold border", statusClass[activeModalContract.status])}>
+                  <span
+                    className={cn(
+                      "px-2.5 py-1 rounded-full text-[11px] font-semibold border",
+                      statusClass[activeModalContract.status],
+                    )}
+                  >
                     {activeModalContract.status}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-lg border border-slate-100 p-3 bg-slate-50/50">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Buyer / Customer</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      Buyer / Customer
+                    </p>
                     <p className="mt-1 text-xs font-bold text-slate-800">
-                      {activeModalContract.customer.firstName} {activeModalContract.customer.lastName}
+                      {activeModalContract.customer.firstName}{" "}
+                      {activeModalContract.customer.lastName}
                     </p>
                   </div>
 
                   <div className="rounded-lg border border-slate-100 p-3 bg-slate-50/50">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Property Unit</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      Property Unit
+                    </p>
                     <p className="mt-1 text-xs font-bold text-slate-800">
-                      Unit {activeModalContract.unit.unitNumber} ({activeModalContract.unit.type})
+                      Unit {activeModalContract.unit.unitNumber} (
+                      {activeModalContract.unit.type})
                     </p>
                   </div>
 
                   <div className="rounded-lg border border-slate-100 p-3 bg-slate-50/50">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Agreement Value</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      Agreement Value
+                    </p>
                     <p className="mt-1 text-sm font-bold text-slate-900">
                       {formatCurrency(activeModalContract.totalAmt)}
                     </p>
                   </div>
 
                   <div className="rounded-lg border border-slate-100 p-3 bg-slate-50/50">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Initial Downpayment</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      Initial Downpayment
+                    </p>
                     <p className="mt-1 text-sm font-bold text-emerald-700">
-                      {activeModalContract.downPaymentAmt ? formatCurrency(activeModalContract.downPaymentAmt) : "None"}
+                      {activeModalContract.downPaymentAmt
+                        ? formatCurrency(activeModalContract.downPaymentAmt)
+                        : "None"}
                     </p>
                   </div>
 
                   <div className="rounded-lg border border-slate-100 p-3 bg-slate-50/50">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Payment Plan</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      Payment Plan
+                    </p>
                     <p className="mt-1 text-xs font-semibold text-slate-800">
-                      {paymentPlanLabels[activeModalContract.paymentPlan ?? ""] ?? "Standard Plan"}
+                      {paymentPlanLabels[
+                        activeModalContract.paymentPlan ?? ""
+                      ] ?? "Standard Plan"}
                     </p>
                   </div>
 
                   <div className="rounded-lg border border-slate-100 p-3 bg-slate-50/50">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Execution Date</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      Execution Date
+                    </p>
                     <p className="mt-1 text-xs font-semibold text-slate-800">
                       {fmtDate(activeModalContract.startDate)}
                     </p>
@@ -643,8 +792,12 @@ export default function ContractsPage() {
 
                 {activeModalContract.notes && (
                   <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                    <p className="text-[11px] font-bold text-slate-700 mb-1">Contract Notes & Clauses</p>
-                    <p className="text-xs text-slate-600 leading-relaxed">{activeModalContract.notes}</p>
+                    <p className="text-[11px] font-bold text-slate-700 mb-1">
+                      Contract Notes & Clauses
+                    </p>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      {activeModalContract.notes}
+                    </p>
                   </div>
                 )}
               </div>

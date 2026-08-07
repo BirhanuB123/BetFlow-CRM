@@ -51,7 +51,10 @@ export function PipelineBoard() {
         const stageDeals = deals.filter((deal) => deal.stageId === stage.id);
 
         return (
-          <section key={stage.id} className="min-w-64 rounded-lg border border-zinc-200 bg-white">
+          <section
+            key={stage.id}
+            className="min-w-64 rounded-lg border border-zinc-200 bg-white"
+          >
             <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
               <h2 className="text-sm font-semibold">{stage.name}</h2>
               <span className="rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium">
@@ -61,16 +64,24 @@ export function PipelineBoard() {
             <div className="grid gap-3 p-3">
               {stageDeals.length > 0 ? (
                 stageDeals.map((deal) => (
-                  <article key={deal.id} className="rounded-md border border-zinc-200 p-3">
+                  <article
+                    key={deal.id}
+                    className="rounded-md border border-zinc-200 p-3"
+                  >
                     <p className="text-sm font-semibold">
-                      {deal.customer ? `${deal.customer.firstName} ${deal.customer.lastName}` : "Unknown Customer"}
+                      {deal.customer
+                        ? `${deal.customer.firstName} ${deal.customer.lastName}`
+                        : "Unknown Customer"}
                     </p>
                     <p className="mt-1 text-sm text-zinc-500">
                       {deal.property?.title || "No property"}
                     </p>
                     <div className="mt-3 flex items-center justify-between text-sm">
                       <span className="font-medium">
-                        {Number(deal.value).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                        {Number(deal.value).toLocaleString("en-US", {
+                          style: "currency",
+                          currency: "USD",
+                        })}
                       </span>
                       <span className="text-zinc-500">{deal.probability}%</span>
                     </div>
@@ -81,7 +92,10 @@ export function PipelineBoard() {
                       />
                     </div>
                     <p className="mt-3 text-xs text-zinc-500">
-                      {deal.assignedTo ? `${deal.assignedTo.firstName} ${deal.assignedTo.lastName}` : "Unassigned"} · {new Date(deal.createdAt).toLocaleDateString()}
+                      {deal.assignedTo
+                        ? `${deal.assignedTo.firstName} ${deal.assignedTo.lastName}`
+                        : "Unassigned"}{" "}
+                      · {new Date(deal.createdAt).toLocaleDateString()}
                     </p>
                   </article>
                 ))

@@ -63,7 +63,8 @@ const statusClass: Record<string, string> = {
 };
 
 const statusTileBg: Record<string, string> = {
-  AVAILABLE: "bg-emerald-50 text-emerald-900 border-emerald-300 hover:bg-emerald-100",
+  AVAILABLE:
+    "bg-emerald-50 text-emerald-900 border-emerald-300 hover:bg-emerald-100",
   RESERVED: "bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100",
   SOLD: "bg-rose-50 text-rose-900 border-rose-300 hover:bg-rose-100",
 };
@@ -75,7 +76,9 @@ function formatPrice(value: string | number) {
 export default function UnitsPage() {
   const [units, setUnits] = useState<ApiUnit[]>([]);
   const [stackingPlan, setStackingPlan] = useState<StackingBuilding[]>([]);
-  const [viewMode, setViewMode] = useState<"STACKING_PLAN" | "TABLE">("STACKING_PLAN");
+  const [viewMode, setViewMode] = useState<"STACKING_PLAN" | "TABLE">(
+    "STACKING_PLAN",
+  );
   const [filter, setFilter] = useState<UnitStatus | "ALL">("ALL");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -188,16 +191,27 @@ export default function UnitsPage() {
       {viewMode === "STACKING_PLAN" ? (
         <section className="space-y-6">
           {loading ? (
-            <p className="p-6 text-sm text-zinc-500">Loading building matrix…</p>
+            <p className="p-6 text-sm text-zinc-500">
+              Loading building matrix…
+            </p>
           ) : stackingPlan.length === 0 ? (
-            <p className="p-6 text-sm text-zinc-500">No building stacking data available.</p>
+            <p className="p-6 text-sm text-zinc-500">
+              No building stacking data available.
+            </p>
           ) : (
             stackingPlan.map((b) => (
-              <div key={b.id} className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs">
+              <div
+                key={b.id}
+                className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs"
+              >
                 <div className="mb-4 flex items-center justify-between border-b border-zinc-100 pb-3">
                   <div>
-                    <h2 className="text-lg font-bold text-zinc-900">{b.name}</h2>
-                    <p className="text-xs text-zinc-500">Floor-by-Floor Unit Elevation Matrix</p>
+                    <h2 className="text-lg font-bold text-zinc-900">
+                      {b.name}
+                    </h2>
+                    <p className="text-xs text-zinc-500">
+                      Floor-by-Floor Unit Elevation Matrix
+                    </p>
                   </div>
                   <span className="rounded-md bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-700">
                     {b.floors.length} Floors
@@ -220,13 +234,16 @@ export default function UnitsPage() {
                             key={u.id}
                             className={cn(
                               "group relative flex cursor-pointer flex-col justify-between rounded-lg border p-2.5 shadow-2xs transition-all hover:scale-105 min-w-[120px]",
-                              statusTileBg[u.status] ?? "bg-white border-zinc-200",
+                              statusTileBg[u.status] ??
+                                "bg-white border-zinc-200",
                             )}
                             onClick={() => setCalcUnit(u)}
                           >
                             <div className="flex items-center justify-between text-xs font-bold">
                               <span>Unit {u.unitNumber}</span>
-                              <span className="text-[10px] opacity-75">{u.type}</span>
+                              <span className="text-[10px] opacity-75">
+                                {u.type}
+                              </span>
                             </div>
                             <div className="mt-2 text-xs font-extrabold">
                               {formatPrice(u.price)}
@@ -260,7 +277,9 @@ export default function UnitsPage() {
             <div className="flex items-center gap-2">
               <select
                 value={filter}
-                onChange={(e) => setFilter(e.target.value as UnitStatus | "ALL")}
+                onChange={(e) =>
+                  setFilter(e.target.value as UnitStatus | "ALL")
+                }
                 className="h-8 rounded-md border border-zinc-200 bg-white px-2 text-xs font-medium"
               >
                 <option value="ALL">All Statuses</option>
@@ -276,7 +295,9 @@ export default function UnitsPage() {
           {loading ? (
             <p className="p-6 text-sm text-zinc-500">Loading units…</p>
           ) : visible.length === 0 ? (
-            <p className="p-6 text-sm text-zinc-500">No units match this filter.</p>
+            <p className="p-6 text-sm text-zinc-500">
+              No units match this filter.
+            </p>
           ) : (
             <CrmTable
               columns={[
@@ -356,21 +377,26 @@ function PaymentPlanModal({
   const [downPercent, setDownPercent] = useState(15);
   const [handoverPercent, setHandoverPercent] = useState(35);
   const [installments, setInstallments] = useState(4);
-  const [calculation, setCalculation] = useState<PaymentPlanCalculation | null>(null);
+  const [calculation, setCalculation] = useState<PaymentPlanCalculation | null>(
+    null,
+  );
   const [calculating, setCalculating] = useState(false);
 
   const calculate = useCallback(async () => {
     setCalculating(true);
     try {
-      const res = await apiFetch<PaymentPlanCalculation>("/payments/calculate-plan", {
-        method: "POST",
-        body: JSON.stringify({
-          unitPrice: Number(unit.price),
-          downPaymentPercent: downPercent,
-          handoverPercent: handoverPercent,
-          installmentsCount: installments,
-        }),
-      });
+      const res = await apiFetch<PaymentPlanCalculation>(
+        "/payments/calculate-plan",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            unitPrice: Number(unit.price),
+            downPaymentPercent: downPercent,
+            handoverPercent: handoverPercent,
+            installmentsCount: installments,
+          }),
+        },
+      );
       setCalculation(res);
     } catch (err) {
       console.error("Failed to calculate plan", err);
@@ -410,7 +436,9 @@ function PaymentPlanModal({
         {/* Inputs Controls */}
         <div className="my-4 grid gap-3 sm:grid-cols-3 bg-zinc-50 p-3.5 rounded-lg border border-zinc-200">
           <div>
-            <label className="text-xs font-semibold text-zinc-600">Booking / Down %</label>
+            <label className="text-xs font-semibold text-zinc-600">
+              Booking / Down %
+            </label>
             <input
               type="number"
               min="5"
@@ -421,7 +449,9 @@ function PaymentPlanModal({
             />
           </div>
           <div>
-            <label className="text-xs font-semibold text-zinc-600">Installment Count</label>
+            <label className="text-xs font-semibold text-zinc-600">
+              Installment Count
+            </label>
             <select
               value={installments}
               onChange={(e) => setInstallments(Number(e.target.value))}
@@ -434,7 +464,9 @@ function PaymentPlanModal({
             </select>
           </div>
           <div>
-            <label className="text-xs font-semibold text-zinc-600">Handover %</label>
+            <label className="text-xs font-semibold text-zinc-600">
+              Handover %
+            </label>
             <input
               type="number"
               min="10"
@@ -448,24 +480,32 @@ function PaymentPlanModal({
 
         {/* Calculation Summary */}
         {calculating ? (
-          <p className="p-4 text-center text-xs text-zinc-500">Calculating schedule...</p>
+          <p className="p-4 text-center text-xs text-zinc-500">
+            Calculating schedule...
+          </p>
         ) : calculation ? (
           <div className="space-y-4">
             <div className="grid grid-cols-3 gap-2 rounded-lg bg-[#233b66]/5 p-3 border border-[#233b66]/20 text-center">
               <div>
-                <p className="text-[10px] font-semibold text-zinc-500 uppercase">Down Payment</p>
+                <p className="text-[10px] font-semibold text-zinc-500 uppercase">
+                  Down Payment
+                </p>
                 <p className="text-sm font-bold text-[#233b66]">
                   {formatPrice(calculation.downPaymentAmount)}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] font-semibold text-zinc-500 uppercase">Milestone Payment</p>
+                <p className="text-[10px] font-semibold text-zinc-500 uppercase">
+                  Milestone Payment
+                </p>
                 <p className="text-sm font-bold text-zinc-900">
                   {formatPrice(calculation.installmentAmount)} / step
                 </p>
               </div>
               <div>
-                <p className="text-[10px] font-semibold text-zinc-500 uppercase">Handover Payment</p>
+                <p className="text-[10px] font-semibold text-zinc-500 uppercase">
+                  Handover Payment
+                </p>
                 <p className="text-sm font-bold text-emerald-700">
                   {formatPrice(calculation.handoverAmount)}
                 </p>
@@ -485,9 +525,16 @@ function PaymentPlanModal({
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
                   {calculation.schedule.map((item) => (
-                    <tr key={item.installmentNumber} className="hover:bg-zinc-50">
-                      <td className="px-3 py-2 font-bold text-zinc-400">{item.installmentNumber}</td>
-                      <td className="px-3 py-2 font-medium text-zinc-800">{item.label}</td>
+                    <tr
+                      key={item.installmentNumber}
+                      className="hover:bg-zinc-50"
+                    >
+                      <td className="px-3 py-2 font-bold text-zinc-400">
+                        {item.installmentNumber}
+                      </td>
+                      <td className="px-3 py-2 font-medium text-zinc-800">
+                        {item.label}
+                      </td>
                       <td className="px-3 py-2 text-zinc-500">
                         {new Date(item.dueDate).toLocaleDateString()}
                       </td>

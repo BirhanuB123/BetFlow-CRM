@@ -98,10 +98,12 @@ function StatusBadge({ status }: { status: string }) {
     <span
       className={cn(
         "inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-bold shadow-2xs uppercase tracking-wider",
-        statusTone[status] ?? "bg-slate-100 text-slate-700 border-slate-200"
+        statusTone[status] ?? "bg-slate-100 text-slate-700 border-slate-200",
       )}
     >
-      {status === "SIGNED" || status === "APPROVED" || status === "COMPLETED" ? (
+      {status === "SIGNED" ||
+      status === "APPROVED" ||
+      status === "COMPLETED" ? (
         <CheckCircle2 className="size-3 text-emerald-600" />
       ) : null}
       {status.replace(/_/g, " ")}
@@ -128,7 +130,9 @@ export default function CustomerDetailPage() {
       const data = await apiFetch<CustomerDetail>(`/customers/${id}`);
       setCustomer(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load customer details");
+      setError(
+        err instanceof Error ? err.message : "Failed to load customer details",
+      );
     } finally {
       setLoading(false);
     }
@@ -144,7 +148,7 @@ export default function CustomerDetailPage() {
     if (!customer) return;
     if (
       !window.confirm(
-        `Are you sure you want to delete ${customer.firstName} ${customer.lastName}?`
+        `Are you sure you want to delete ${customer.firstName} ${customer.lastName}?`,
       )
     )
       return;
@@ -154,7 +158,9 @@ export default function CustomerDetailPage() {
       await apiFetch(`/customers/${id}`, { method: "DELETE" });
       router.push("/customers");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete customer");
+      setError(
+        err instanceof Error ? err.message : "Failed to delete customer",
+      );
       setDeleting(false);
     }
   };
@@ -179,29 +185,75 @@ export default function CustomerDetailPage() {
       title: `Customer Record: ${customer.firstName} ${customer.lastName}`,
       subtitle: `Email: ${customer.email || "N/A"} | Phone: ${customer.phone || "N/A"} | Company: ${customer.account?.name || "Independent"}`,
       metrics: [
-        { label: "Pipeline Value", value: money(totals.pipeline), detail: `${customer.deals.length} active deals` },
-        { label: "Collected Payments", value: money(totals.paid), detail: `${customer.payments.length} transactions` },
-        { label: "Sale Contracts", value: String(customer.contracts.length), detail: "Active agreements" },
-        { label: "Unit Reservations", value: String(customer.reservations.length), detail: "Reserved units" },
+        {
+          label: "Pipeline Value",
+          value: money(totals.pipeline),
+          detail: `${customer.deals.length} active deals`,
+        },
+        {
+          label: "Collected Payments",
+          value: money(totals.paid),
+          detail: `${customer.payments.length} transactions`,
+        },
+        {
+          label: "Sale Contracts",
+          value: String(customer.contracts.length),
+          detail: "Active agreements",
+        },
+        {
+          label: "Unit Reservations",
+          value: String(customer.reservations.length),
+          detail: "Reserved units",
+        },
       ],
       columns: ["Section", "Summary Count", "Total Value", "Key Status"],
       rows: [
-        ["Deals Pipeline", `${customer.deals.length} Deals`, money(totals.pipeline), "Active Commercial Interest"],
-        ["Contracts", `${customer.contracts.length} Agreements`, money(totals.contractTotal), "Active Legal Bindings"],
-        ["Reservations", `${customer.reservations.length} Holds`, money(totals.reservationTotal), "Unit Reserves"],
-        ["Payments", `${customer.payments.length} Records`, money(totals.paid), "Verified Receipts"],
+        [
+          "Deals Pipeline",
+          `${customer.deals.length} Deals`,
+          money(totals.pipeline),
+          "Active Commercial Interest",
+        ],
+        [
+          "Contracts",
+          `${customer.contracts.length} Agreements`,
+          money(totals.contractTotal),
+          "Active Legal Bindings",
+        ],
+        [
+          "Reservations",
+          `${customer.reservations.length} Holds`,
+          money(totals.reservationTotal),
+          "Unit Reserves",
+        ],
+        [
+          "Payments",
+          `${customer.payments.length} Records`,
+          money(totals.paid),
+          "Verified Receipts",
+        ],
       ],
     });
   };
 
   const totals = useMemo(() => {
-    if (!customer) return { pipeline: 0, paid: 0, contractTotal: 0, reservationTotal: 0 };
-    const pipeline = customer.deals.reduce((s, d) => s + Number(d.value || 0), 0);
+    if (!customer)
+      return { pipeline: 0, paid: 0, contractTotal: 0, reservationTotal: 0 };
+    const pipeline = customer.deals.reduce(
+      (s, d) => s + Number(d.value || 0),
+      0,
+    );
     const paid = customer.payments
       .filter((p) => p.status === "COMPLETED" || p.status === "PAID")
       .reduce((s, p) => s + Number(p.amount || 0), 0);
-    const contractTotal = customer.contracts.reduce((s, c) => s + Number(c.totalAmt || 0), 0);
-    const reservationTotal = customer.reservations.reduce((s, r) => s + Number(r.amount || 0), 0);
+    const contractTotal = customer.contracts.reduce(
+      (s, c) => s + Number(c.totalAmt || 0),
+      0,
+    );
+    const reservationTotal = customer.reservations.reduce(
+      (s, r) => s + Number(r.amount || 0),
+      0,
+    );
     return { pipeline, paid, contractTotal, reservationTotal };
   }, [customer]);
 
@@ -212,7 +264,11 @@ export default function CustomerDetailPage() {
 
   return (
     <DashboardShell
-      title={customer ? `${customer.firstName} ${customer.lastName}` : "Customer Details"}
+      title={
+        customer
+          ? `${customer.firstName} ${customer.lastName}`
+          : "Customer Details"
+      }
       description="Full relationship history across deals, contracts, reservations, and payments."
       active="Contacts"
     >
@@ -260,17 +316,20 @@ export default function CustomerDetailPage() {
 
         {loading ? (
           <div className="flex h-64 items-center justify-center rounded-xl border border-slate-200/80 bg-white shadow-2xs">
-            <p className="text-xs font-semibold text-slate-500">Loading customer profile…</p>
+            <p className="text-xs font-semibold text-slate-500">
+              Loading customer profile…
+            </p>
           </div>
         ) : !customer ? (
           <div className="flex h-64 items-center justify-center rounded-xl border border-slate-200/80 bg-white shadow-2xs">
-            <p className="text-xs font-semibold text-slate-500">Customer record not found.</p>
+            <p className="text-xs font-semibold text-slate-500">
+              Customer record not found.
+            </p>
           </div>
         ) : (
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Main Left Content Panel */}
             <div className="space-y-6 lg:col-span-2">
-              
               {/* Header Profile Card */}
               <section className="relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-6 shadow-xs">
                 <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
@@ -307,7 +366,11 @@ export default function CustomerDetailPage() {
                               className="ml-1 text-slate-400 hover:text-slate-600"
                               title="Copy Email"
                             >
-                              {copiedEmail ? <Check className="size-3 text-emerald-600" /> : <Copy className="size-3" />}
+                              {copiedEmail ? (
+                                <Check className="size-3 text-emerald-600" />
+                              ) : (
+                                <Copy className="size-3" />
+                              )}
                             </button>
                           </div>
                         )}
@@ -326,7 +389,11 @@ export default function CustomerDetailPage() {
                               className="ml-1 text-slate-400 hover:text-slate-600"
                               title="Copy Phone"
                             >
-                              {copiedPhone ? <Check className="size-3 text-emerald-600" /> : <Copy className="size-3" />}
+                              {copiedPhone ? (
+                                <Check className="size-3 text-emerald-600" />
+                              ) : (
+                                <Copy className="size-3" />
+                              )}
                             </button>
                           </div>
                         )}
@@ -334,7 +401,10 @@ export default function CustomerDetailPage() {
                         {customer.account && (
                           <div className="flex items-center gap-1.5 rounded-lg border border-indigo-200/80 bg-indigo-50/60 px-2.5 py-1 text-indigo-700 font-bold">
                             <Building2 className="size-3.5 text-indigo-500" />
-                            <Link href={`/accounts/${customer.account.id}`} className="hover:underline">
+                            <Link
+                              href={`/accounts/${customer.account.id}`}
+                              className="hover:underline"
+                            >
                               {customer.account.name}
                             </Link>
                           </div>
@@ -342,7 +412,11 @@ export default function CustomerDetailPage() {
                       </div>
 
                       <p className="mt-2 text-[11px] text-slate-400">
-                        Customer relationship established on {new Date(customer.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                        Customer relationship established on{" "}
+                        {new Date(customer.createdAt).toLocaleDateString(
+                          undefined,
+                          { month: "short", day: "numeric", year: "numeric" },
+                        )}
                       </p>
                     </div>
                   </div>
@@ -354,49 +428,73 @@ export default function CustomerDetailPage() {
                 {/* Pipeline */}
                 <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-2xs transition hover:shadow-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Pipeline</span>
+                    <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+                      Pipeline
+                    </span>
                     <div className="flex size-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100">
                       <Briefcase className="size-3.5" />
                     </div>
                   </div>
-                  <h3 className="mt-1.5 text-lg font-extrabold text-slate-900">{money(totals.pipeline)}</h3>
-                  <p className="mt-1 text-[11px] font-semibold text-slate-500">{customer.deals.length} active deals</p>
+                  <h3 className="mt-1.5 text-lg font-extrabold text-slate-900">
+                    {money(totals.pipeline)}
+                  </h3>
+                  <p className="mt-1 text-[11px] font-semibold text-slate-500">
+                    {customer.deals.length} active deals
+                  </p>
                 </div>
 
                 {/* Collected */}
                 <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-2xs transition hover:shadow-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Collected</span>
+                    <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+                      Collected
+                    </span>
                     <div className="flex size-7 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100">
                       <CheckCircle2 className="size-3.5" />
                     </div>
                   </div>
-                  <h3 className="mt-1.5 text-lg font-extrabold text-emerald-600">{money(totals.paid)}</h3>
-                  <p className="mt-1 text-[11px] font-semibold text-slate-500">{customer.payments.length} payments</p>
+                  <h3 className="mt-1.5 text-lg font-extrabold text-emerald-600">
+                    {money(totals.paid)}
+                  </h3>
+                  <p className="mt-1 text-[11px] font-semibold text-slate-500">
+                    {customer.payments.length} payments
+                  </p>
                 </div>
 
                 {/* Contracts */}
                 <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-2xs transition hover:shadow-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Contracts</span>
+                    <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+                      Contracts
+                    </span>
                     <div className="flex size-7 items-center justify-center rounded-lg bg-purple-50 text-purple-600 border border-purple-100">
                       <FileText className="size-3.5" />
                     </div>
                   </div>
-                  <h3 className="mt-1.5 text-lg font-extrabold text-slate-900">{customer.contracts.length}</h3>
-                  <p className="mt-1 text-[11px] font-semibold text-slate-500">Sale agreements</p>
+                  <h3 className="mt-1.5 text-lg font-extrabold text-slate-900">
+                    {customer.contracts.length}
+                  </h3>
+                  <p className="mt-1 text-[11px] font-semibold text-slate-500">
+                    Sale agreements
+                  </p>
                 </div>
 
                 {/* Reservations */}
                 <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-2xs transition hover:shadow-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Reservations</span>
+                    <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+                      Reservations
+                    </span>
                     <div className="flex size-7 items-center justify-center rounded-lg bg-amber-50 text-amber-600 border border-amber-100">
                       <BookmarkCheck className="size-3.5" />
                     </div>
                   </div>
-                  <h3 className="mt-1.5 text-lg font-extrabold text-slate-900">{customer.reservations.length}</h3>
-                  <p className="mt-1 text-[11px] font-semibold text-slate-500">Unit holds</p>
+                  <h3 className="mt-1.5 text-lg font-extrabold text-slate-900">
+                    {customer.reservations.length}
+                  </h3>
+                  <p className="mt-1 text-[11px] font-semibold text-slate-500">
+                    Unit holds
+                  </p>
                 </div>
               </div>
 
@@ -405,35 +503,63 @@ export default function CustomerDetailPage() {
                 <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/70 p-4">
                   <div className="flex items-center gap-2">
                     <WalletCards className="size-4 text-indigo-600" />
-                    <h3 className="text-sm font-bold text-slate-900">Deals ({customer.deals.length})</h3>
+                    <h3 className="text-sm font-bold text-slate-900">
+                      Deals ({customer.deals.length})
+                    </h3>
                   </div>
-                  <Link href="/deals" className="text-xs font-semibold text-indigo-600 hover:underline">
+                  <Link
+                    href="/deals"
+                    className="text-xs font-semibold text-indigo-600 hover:underline"
+                  >
                     Manage Deals →
                   </Link>
                 </div>
                 {customer.deals.length === 0 ? (
-                  <p className="p-6 text-center text-xs font-medium text-slate-500">No active deals associated with this customer.</p>
+                  <p className="p-6 text-center text-xs font-medium text-slate-500">
+                    No active deals associated with this customer.
+                  </p>
                 ) : (
                   <CrmTable
-                    columns={["Deal Name", "Unit", "Value", "Stage", "Probability"]}
+                    columns={[
+                      "Deal Name",
+                      "Unit",
+                      "Value",
+                      "Stage",
+                      "Probability",
+                    ]}
                     rows={customer.deals.map((deal) => [
-                      <span key="n" className="font-bold text-slate-900">{deal.name}</span>,
+                      <span key="n" className="font-bold text-slate-900">
+                        {deal.name}
+                      </span>,
                       deal.unit ? (
-                        <span key="u" className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700">
+                        <span
+                          key="u"
+                          className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700"
+                        >
                           Unit {deal.unit.unitNumber}
                         </span>
                       ) : (
                         "—"
                       ),
-                      <span key="v" className="font-extrabold text-indigo-600">{money(deal.value)}</span>,
-                      <span key="s" className="inline-flex items-center rounded-md bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-xs font-bold text-indigo-700">
+                      <span key="v" className="font-extrabold text-indigo-600">
+                        {money(deal.value)}
+                      </span>,
+                      <span
+                        key="s"
+                        className="inline-flex items-center rounded-md bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-xs font-bold text-indigo-700"
+                      >
                         {deal.stage.name}
                       </span>,
                       <div key="p" className="flex items-center gap-2">
                         <div className="w-12 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                          <div className="h-full rounded-full bg-indigo-600" style={{ width: `${deal.stage.probability}%` }} />
+                          <div
+                            className="h-full rounded-full bg-indigo-600"
+                            style={{ width: `${deal.stage.probability}%` }}
+                          />
                         </div>
-                        <span className="font-bold text-slate-700 text-xs">{deal.stage.probability}%</span>
+                        <span className="font-bold text-slate-700 text-xs">
+                          {deal.stage.probability}%
+                        </span>
                       </div>,
                     ])}
                   />
@@ -445,26 +571,38 @@ export default function CustomerDetailPage() {
                 <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/70 p-4">
                   <div className="flex items-center gap-2">
                     <FileText className="size-4 text-purple-600" />
-                    <h3 className="text-sm font-bold text-slate-900">Contracts ({customer.contracts.length})</h3>
+                    <h3 className="text-sm font-bold text-slate-900">
+                      Contracts ({customer.contracts.length})
+                    </h3>
                   </div>
-                  <Link href="/contracts" className="text-xs font-semibold text-indigo-600 hover:underline">
+                  <Link
+                    href="/contracts"
+                    className="text-xs font-semibold text-indigo-600 hover:underline"
+                  >
                     View Contracts →
                   </Link>
                 </div>
                 {customer.contracts.length === 0 ? (
-                  <p className="p-6 text-center text-xs font-medium text-slate-500">No active contracts for this customer.</p>
+                  <p className="p-6 text-center text-xs font-medium text-slate-500">
+                    No active contracts for this customer.
+                  </p>
                 ) : (
                   <CrmTable
                     columns={["Unit", "Total Amount", "Start Date", "Status"]}
                     rows={customer.contracts.map((contract) => [
                       contract.unit ? (
-                        <span key="u" className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700">
+                        <span
+                          key="u"
+                          className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700"
+                        >
                           Unit {contract.unit.unitNumber}
                         </span>
                       ) : (
                         "—"
                       ),
-                      <span key="t" className="font-extrabold text-slate-900">{money(contract.totalAmt)}</span>,
+                      <span key="t" className="font-extrabold text-slate-900">
+                        {money(contract.totalAmt)}
+                      </span>,
                       new Date(contract.startDate).toLocaleDateString(),
                       <StatusBadge key="s" status={contract.status} />,
                     ])}
@@ -477,26 +615,38 @@ export default function CustomerDetailPage() {
                 <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/70 p-4">
                   <div className="flex items-center gap-2">
                     <BookmarkCheck className="size-4 text-amber-600" />
-                    <h3 className="text-sm font-bold text-slate-900">Reservations ({customer.reservations.length})</h3>
+                    <h3 className="text-sm font-bold text-slate-900">
+                      Reservations ({customer.reservations.length})
+                    </h3>
                   </div>
-                  <Link href="/reservations" className="text-xs font-semibold text-indigo-600 hover:underline">
+                  <Link
+                    href="/reservations"
+                    className="text-xs font-semibold text-indigo-600 hover:underline"
+                  >
                     View Reservations →
                   </Link>
                 </div>
                 {customer.reservations.length === 0 ? (
-                  <p className="p-6 text-center text-xs font-medium text-slate-500">No unit reservations found.</p>
+                  <p className="p-6 text-center text-xs font-medium text-slate-500">
+                    No unit reservations found.
+                  </p>
                 ) : (
                   <CrmTable
                     columns={["Unit", "Deposit Amount", "Date", "Status"]}
                     rows={customer.reservations.map((reservation) => [
                       reservation.unit ? (
-                        <span key="u" className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700">
+                        <span
+                          key="u"
+                          className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700"
+                        >
                           Unit {reservation.unit.unitNumber}
                         </span>
                       ) : (
                         "—"
                       ),
-                      <span key="a" className="font-bold text-slate-900">{money(reservation.amount)}</span>,
+                      <span key="a" className="font-bold text-slate-900">
+                        {money(reservation.amount)}
+                      </span>,
                       new Date(reservation.date).toLocaleDateString(),
                       <StatusBadge key="s" status={reservation.status} />,
                     ])}
@@ -509,36 +659,61 @@ export default function CustomerDetailPage() {
                 <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/70 p-4">
                   <div className="flex items-center gap-2">
                     <DollarSign className="size-4 text-emerald-600" />
-                    <h3 className="text-sm font-bold text-slate-900">Payments ({customer.payments.length})</h3>
+                    <h3 className="text-sm font-bold text-slate-900">
+                      Payments ({customer.payments.length})
+                    </h3>
                   </div>
-                  <Link href="/payments" className="text-xs font-semibold text-indigo-600 hover:underline">
+                  <Link
+                    href="/payments"
+                    className="text-xs font-semibold text-indigo-600 hover:underline"
+                  >
                     Payment Ledger →
                   </Link>
                 </div>
                 {customer.payments.length === 0 ? (
-                  <p className="p-6 text-center text-xs font-medium text-slate-500">No payment transactions recorded.</p>
+                  <p className="p-6 text-center text-xs font-medium text-slate-500">
+                    No payment transactions recorded.
+                  </p>
                 ) : (
                   <CrmTable
-                    columns={["Amount", "Method", "Applied Against", "Date", "Status"]}
+                    columns={[
+                      "Amount",
+                      "Method",
+                      "Applied Against",
+                      "Date",
+                      "Status",
+                    ]}
                     rows={customer.payments.map((payment) => [
-                      <span key="a" className="font-extrabold text-emerald-600">{money(payment.amount)}</span>,
-                      <span key="m" className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-700 uppercase">
+                      <span key="a" className="font-extrabold text-emerald-600">
+                        {money(payment.amount)}
+                      </span>,
+                      <span
+                        key="m"
+                        className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-700 uppercase"
+                      >
                         {payment.method}
                       </span>,
-                      payment.contractId ? "Contract" : payment.reservationId ? "Reservation" : "—",
+                      payment.contractId
+                        ? "Contract"
+                        : payment.reservationId
+                          ? "Reservation"
+                          : "—",
                       new Date(payment.date).toLocaleDateString(),
                       <StatusBadge key="s" status={payment.status} />,
                     ])}
                   />
                 )}
               </section>
-
             </div>
 
             {/* Right Side Panel: Documents, Notes, Activity */}
             <div className="space-y-6 lg:col-span-1">
               <div className="rounded-xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
-                <DocumentsPanel entityType="CUSTOMER" entityId={customer.id} title="Customer Documents" />
+                <DocumentsPanel
+                  entityType="CUSTOMER"
+                  entityId={customer.id}
+                  title="Customer Documents"
+                />
               </div>
               <div className="rounded-xl border border-slate-200/80 bg-white shadow-xs overflow-hidden p-4">
                 <NotesPanel
@@ -556,7 +731,6 @@ export default function CustomerDetailPage() {
                 />
               </div>
             </div>
-
           </div>
         )}
       </div>

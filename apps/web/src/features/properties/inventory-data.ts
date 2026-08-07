@@ -123,10 +123,38 @@ export const buildings: Building[] = [
 ];
 
 export const floors: Floor[] = [
-  { id: "floor_001", buildingId: "building_001", label: "Floor 18", units: 6, availableUnits: 2, releaseStatus: "Released" },
-  { id: "floor_002", buildingId: "building_001", label: "Floor 19", units: 6, availableUnits: 3, releaseStatus: "Released" },
-  { id: "floor_003", buildingId: "building_002", label: "Floor 12", units: 4, availableUnits: 1, releaseStatus: "Hold" },
-  { id: "floor_004", buildingId: "building_003", label: "Floor 9", units: 8, availableUnits: 4, releaseStatus: "Released" },
+  {
+    id: "floor_001",
+    buildingId: "building_001",
+    label: "Floor 18",
+    units: 6,
+    availableUnits: 2,
+    releaseStatus: "Released",
+  },
+  {
+    id: "floor_002",
+    buildingId: "building_001",
+    label: "Floor 19",
+    units: 6,
+    availableUnits: 3,
+    releaseStatus: "Released",
+  },
+  {
+    id: "floor_003",
+    buildingId: "building_002",
+    label: "Floor 12",
+    units: 4,
+    availableUnits: 1,
+    releaseStatus: "Hold",
+  },
+  {
+    id: "floor_004",
+    buildingId: "building_003",
+    label: "Floor 9",
+    units: 8,
+    availableUnits: 4,
+    releaseStatus: "Released",
+  },
 ];
 
 export const units: Unit[] = [

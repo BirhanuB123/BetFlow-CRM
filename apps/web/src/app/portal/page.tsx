@@ -21,7 +21,10 @@ import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
 import { apiFetch } from "@/lib/api";
-import type { BankSlipSubmissionResult, BankSlipUploadInput } from "@betflow/shared";
+import type {
+  BankSlipSubmissionResult,
+  BankSlipUploadInput,
+} from "@betflow/shared";
 
 type PortalCustomer = {
   id: string;
@@ -47,7 +50,12 @@ type DealItem = {
   value: number;
   stage: string;
   probability: number;
-  unit?: { unitNumber: string; type: string; price: number; projectName: string } | null;
+  unit?: {
+    unitNumber: string;
+    type: string;
+    price: number;
+    projectName: string;
+  } | null;
 };
 
 type ReservationItem = {
@@ -55,7 +63,13 @@ type ReservationItem = {
   amount: number;
   status: string;
   date: string;
-  unit: { unitNumber: string; type: string; price: number; projectName: string; buildingName?: string };
+  unit: {
+    unitNumber: string;
+    type: string;
+    price: number;
+    projectName: string;
+    buildingName?: string;
+  };
   paidAmount: number;
 };
 
@@ -65,7 +79,13 @@ type ContractItem = {
   endDate?: string;
   totalAmt: number;
   status: string;
-  unit: { unitNumber: string; type: string; price: number; projectName: string; buildingName?: string };
+  unit: {
+    unitNumber: string;
+    type: string;
+    price: number;
+    projectName: string;
+    buildingName?: string;
+  };
   paidAmount: number;
   pendingSchedulesCount: number;
 };
@@ -110,20 +130,26 @@ type InvoiceItem = {
 
 export default function CustomerPortalPage() {
   const [meData, setMeData] = useState<PortalMeData | null>(null);
-  const [schedulesData, setSchedulesData] = useState<PaymentSchedulesData | null>(null);
+  const [schedulesData, setSchedulesData] =
+    useState<PaymentSchedulesData | null>(null);
   const [invoices, setInvoices] = useState<InvoiceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"overview" | "schedules" | "contracts" | "invoices" | "api">("overview");
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "schedules" | "contracts" | "invoices" | "api"
+  >("overview");
 
   // Bank Slip Upload Modal State
-  const [uploadSchedule, setUploadSchedule] = useState<PaymentScheduleItem | null>(null);
+  const [uploadSchedule, setUploadSchedule] =
+    useState<PaymentScheduleItem | null>(null);
   const [bankName, setBankName] = useState("Commercial Bank of Ethiopia (CBE)");
   const [refNo, setRefNo] = useState("");
   const [slipAmount, setSlipAmount] = useState<number>(0);
   const [slipUrl, setSlipUrl] = useState("");
   const [submittingSlip, setSubmittingSlip] = useState(false);
-  const [slipResult, setSlipResult] = useState<BankSlipSubmissionResult | null>(null);
+  const [slipResult, setSlipResult] = useState<BankSlipSubmissionResult | null>(
+    null,
+  );
 
   const loadPortalData = async () => {
     try {
@@ -132,7 +158,9 @@ export default function CustomerPortalPage() {
 
       const [meRes, schedRes, invRes] = await Promise.all([
         apiFetch<PortalMeData>("/portal/me").catch(() => null),
-        apiFetch<PaymentSchedulesData>("/portal/payment-schedules").catch(() => null),
+        apiFetch<PaymentSchedulesData>("/portal/payment-schedules").catch(
+          () => null,
+        ),
         apiFetch<InvoiceItem[]>("/portal/invoices").catch(() => []),
       ]);
 
@@ -140,7 +168,9 @@ export default function CustomerPortalPage() {
       if (schedRes) setSchedulesData(schedRes);
       if (invRes) setInvoices(invRes);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load portal data");
+      setError(
+        err instanceof Error ? err.message : "Failed to load portal data",
+      );
     } finally {
       setLoading(false);
     }
@@ -151,12 +181,22 @@ export default function CustomerPortalPage() {
   }, []);
 
   const formatCurrency = (val: number) =>
-    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(val);
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }).format(val);
 
   const formatDate = (val?: string) => {
     if (!val) return "-";
     const d = new Date(val);
-    return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    return Number.isNaN(d.getTime())
+      ? "-"
+      : d.toLocaleDateString(undefined, {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
   };
 
   const statusBadge = (status: string) => {
@@ -165,15 +205,31 @@ export default function CustomerPortalPage() {
       case "COMPLETED":
       case "ACTIVE":
       case "SIGNED":
-        return <span className="rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">{status}</span>;
+        return (
+          <span className="rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">
+            {status}
+          </span>
+        );
       case "PENDING":
       case "RESERVED":
-        return <span className="rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-800">{status}</span>;
+        return (
+          <span className="rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-800">
+            {status}
+          </span>
+        );
       case "LATE":
       case "OVERDUE":
-        return <span className="rounded-md bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700">{status}</span>;
+        return (
+          <span className="rounded-md bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700">
+            {status}
+          </span>
+        );
       default:
-        return <span className="rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700">{status}</span>;
+        return (
+          <span className="rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700">
+            {status}
+          </span>
+        );
     }
   };
 
@@ -190,20 +246,27 @@ export default function CustomerPortalPage() {
     setSubmittingSlip(true);
     setError(null);
     try {
-      const res = await apiFetch<BankSlipSubmissionResult>("/portal/upload-bank-slip", {
-        method: "POST",
-        body: JSON.stringify({
-          scheduleId: uploadSchedule.id,
-          bankName,
-          referenceNumber: refNo,
-          amount: Number(slipAmount),
-          slipUrl: slipUrl || undefined,
-        } satisfies BankSlipUploadInput),
-      });
+      const res = await apiFetch<BankSlipSubmissionResult>(
+        "/portal/upload-bank-slip",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            scheduleId: uploadSchedule.id,
+            bankName,
+            referenceNumber: refNo,
+            amount: Number(slipAmount),
+            slipUrl: slipUrl || undefined,
+          } satisfies BankSlipUploadInput),
+        },
+      );
       setSlipResult(res);
       await loadPortalData();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to upload bank transfer slip");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to upload bank transfer slip",
+      );
     } finally {
       setSubmittingSlip(false);
     }
@@ -229,7 +292,9 @@ export default function CustomerPortalPage() {
             </h2>
             <p className="text-sm text-zinc-500">
               {meData?.customer?.email ?? "buyer@betflowrealty.com"}{" "}
-              {meData?.customer?.account ? `• ${meData.customer.account.name}` : ""}
+              {meData?.customer?.account
+                ? `• ${meData.customer.account.name}`
+                : ""}
             </p>
           </div>
         </div>
@@ -317,22 +382,31 @@ export default function CustomerPortalPage() {
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <StatCard
               label="Total booked value"
-              value={formatCurrency(meData?.summary?.totalBookedRevenue ?? 450000)}
+              value={formatCurrency(
+                meData?.summary?.totalBookedRevenue ?? 450000,
+              )}
               detail="Active unit contracts"
             />
             <StatCard
               label="Payments collected"
-              value={formatCurrency(meData?.summary?.totalCollectedPayments ?? 180000)}
+              value={formatCurrency(
+                meData?.summary?.totalCollectedPayments ?? 180000,
+              )}
               detail="Completed transactions"
             />
             <StatCard
               label="Outstanding balance"
-              value={formatCurrency(meData?.summary?.totalOutstandingBalance ?? 270000)}
+              value={formatCurrency(
+                meData?.summary?.totalOutstandingBalance ?? 270000,
+              )}
               detail="Remaining schedules"
             />
             <StatCard
               label="Reserved & active units"
-              value={String((meData?.summary?.reservedUnitsCount ?? 0) + (meData?.summary?.signedContractsCount ?? 1))}
+              value={String(
+                (meData?.summary?.reservedUnitsCount ?? 0) +
+                  (meData?.summary?.signedContractsCount ?? 1),
+              )}
               detail="Units under buyer management"
             />
           </div>
@@ -341,15 +415,25 @@ export default function CustomerPortalPage() {
           <section className="rounded-lg border border-zinc-200 bg-white">
             <div className="border-b border-zinc-200 p-4">
               <h2 className="text-base font-semibold">Reserved Units</h2>
-              <p className="text-sm text-zinc-500">Active reservations and unit deposits.</p>
+              <p className="text-sm text-zinc-500">
+                Active reservations and unit deposits.
+              </p>
             </div>
             {loading ? (
               <p className="p-6 text-sm text-zinc-500">Loading units…</p>
             ) : meData?.reservedUnits && meData.reservedUnits.length > 0 ? (
               <CrmTable
-                columns={["Unit", "Project", "Deposit", "Status", "Reservation Date"]}
+                columns={[
+                  "Unit",
+                  "Project",
+                  "Deposit",
+                  "Status",
+                  "Reservation Date",
+                ]}
                 rows={meData.reservedUnits.map((r) => [
-                  <span key="unit" className="font-medium text-zinc-900">{r.unit.unitNumber} ({r.unit.type})</span>,
+                  <span key="unit" className="font-medium text-zinc-900">
+                    {r.unit.unitNumber} ({r.unit.type})
+                  </span>,
                   r.unit.projectName,
                   formatCurrency(r.amount),
                   statusBadge(r.status),
@@ -367,7 +451,9 @@ export default function CustomerPortalPage() {
           <section className="rounded-lg border border-zinc-200 bg-white">
             <div className="border-b border-zinc-200 p-4">
               <h2 className="text-base font-semibold">Commercial Deals</h2>
-              <p className="text-sm text-zinc-500">In-flight acquisitions and negotiation status.</p>
+              <p className="text-sm text-zinc-500">
+                In-flight acquisitions and negotiation status.
+              </p>
             </div>
             {loading ? (
               <p className="p-6 text-sm text-zinc-500">Loading deals…</p>
@@ -375,8 +461,12 @@ export default function CustomerPortalPage() {
               <CrmTable
                 columns={["Deal Name", "Unit", "Stage", "Value", "Probability"]}
                 rows={meData.deals.map((d) => [
-                  <span key="name" className="font-medium text-zinc-900">{d.name}</span>,
-                  d.unit ? `${d.unit.unitNumber} (${d.unit.projectName})` : "General",
+                  <span key="name" className="font-medium text-zinc-900">
+                    {d.name}
+                  </span>,
+                  d.unit
+                    ? `${d.unit.unitNumber} (${d.unit.projectName})`
+                    : "General",
                   statusBadge(d.stage),
                   formatCurrency(d.value),
                   `${d.probability}%`,
@@ -418,17 +508,33 @@ export default function CustomerPortalPage() {
           <section className="rounded-lg border border-zinc-200 bg-white">
             <div className="border-b border-zinc-200 p-4 flex items-center justify-between">
               <div>
-                <h2 className="text-base font-semibold">Installment & Payment Schedules</h2>
-                <p className="text-sm text-zinc-500">Contractual payment milestones and due dates.</p>
+                <h2 className="text-base font-semibold">
+                  Installment & Payment Schedules
+                </h2>
+                <p className="text-sm text-zinc-500">
+                  Contractual payment milestones and due dates.
+                </p>
               </div>
             </div>
             {loading ? (
-              <p className="p-6 text-sm text-zinc-500">Loading payment schedules…</p>
-            ) : schedulesData?.schedules && schedulesData.schedules.length > 0 ? (
+              <p className="p-6 text-sm text-zinc-500">
+                Loading payment schedules…
+              </p>
+            ) : schedulesData?.schedules &&
+              schedulesData.schedules.length > 0 ? (
               <CrmTable
-                columns={["Unit", "Project", "Due Date", "Scheduled Amount", "Status", "Bank Slip Verification"]}
+                columns={[
+                  "Unit",
+                  "Project",
+                  "Due Date",
+                  "Scheduled Amount",
+                  "Status",
+                  "Bank Slip Verification",
+                ]}
                 rows={schedulesData.schedules.map((s) => [
-                  <span key="unit" className="font-medium text-zinc-900">{s.unitNumber}</span>,
+                  <span key="unit" className="font-medium text-zinc-900">
+                    {s.unitNumber}
+                  </span>,
                   s.projectName,
                   formatDate(s.dueDate),
                   formatCurrency(s.amount),
@@ -458,16 +564,30 @@ export default function CustomerPortalPage() {
         <section className="rounded-lg border border-zinc-200 bg-white">
           <div className="border-b border-zinc-200 p-4">
             <h2 className="text-base font-semibold">Signed Unit Contracts</h2>
-            <p className="text-sm text-zinc-500">Legal property contracts and commercial commitments.</p>
+            <p className="text-sm text-zinc-500">
+              Legal property contracts and commercial commitments.
+            </p>
           </div>
           {loading ? (
             <p className="p-6 text-sm text-zinc-500">Loading contracts…</p>
           ) : meData?.signedContracts && meData.signedContracts.length > 0 ? (
             <CrmTable
-              columns={["Contract ID", "Unit", "Project", "Start Date", "Contract Total", "Paid Amount", "Status"]}
+              columns={[
+                "Contract ID",
+                "Unit",
+                "Project",
+                "Start Date",
+                "Contract Total",
+                "Paid Amount",
+                "Status",
+              ]}
               rows={meData.signedContracts.map((c) => [
-                <span key="id" className="font-mono text-xs text-zinc-600">#{c.id.slice(0, 8)}</span>,
-                <span key="unit" className="font-medium text-zinc-900">{c.unit.unitNumber} ({c.unit.type})</span>,
+                <span key="id" className="font-mono text-xs text-zinc-600">
+                  #{c.id.slice(0, 8)}
+                </span>,
+                <span key="unit" className="font-medium text-zinc-900">
+                  {c.unit.unitNumber} ({c.unit.type})
+                </span>,
                 c.unit.projectName,
                 formatDate(c.startDate),
                 formatCurrency(c.totalAmt),
@@ -487,16 +607,29 @@ export default function CustomerPortalPage() {
       {activeTab === "invoices" && (
         <section className="rounded-lg border border-zinc-200 bg-white">
           <div className="border-b border-zinc-200 p-4">
-            <h2 className="text-base font-semibold">Billing Statements & Payment Receipts</h2>
-            <p className="text-sm text-zinc-500">Transaction history and verified payment receipts.</p>
+            <h2 className="text-base font-semibold">
+              Billing Statements & Payment Receipts
+            </h2>
+            <p className="text-sm text-zinc-500">
+              Transaction history and verified payment receipts.
+            </p>
           </div>
           {loading ? (
             <p className="p-6 text-sm text-zinc-500">Loading invoices…</p>
           ) : invoices.length > 0 ? (
             <CrmTable
-              columns={["Reference", "Unit", "Payment Date", "Payment Method", "Amount", "Status"]}
+              columns={[
+                "Reference",
+                "Unit",
+                "Payment Date",
+                "Payment Method",
+                "Amount",
+                "Status",
+              ]}
               rows={invoices.map((inv) => [
-                <span key="ref" className="font-medium text-zinc-900">{inv.reference}</span>,
+                <span key="ref" className="font-medium text-zinc-900">
+                  {inv.reference}
+                </span>,
                 inv.unitNumber,
                 formatDate(inv.date),
                 inv.method,
@@ -516,25 +649,61 @@ export default function CustomerPortalPage() {
       {activeTab === "api" && (
         <section className="rounded-lg border border-zinc-200 bg-white p-5 space-y-4">
           <div>
-            <h2 className="text-base font-semibold text-zinc-900">Customer Portal Backend API Surface</h2>
-            <p className="text-sm text-zinc-500">Configured REST endpoints available for external buyer mobile apps and web portals.</p>
+            <h2 className="text-base font-semibold text-zinc-900">
+              Customer Portal Backend API Surface
+            </h2>
+            <p className="text-sm text-zinc-500">
+              Configured REST endpoints available for external buyer mobile apps
+              and web portals.
+            </p>
           </div>
 
           <div className="divide-y divide-zinc-100 rounded-lg border border-zinc-200 bg-zinc-50">
             {[
-              { method: "POST", path: "/api/portal/auth/login", desc: "Public customer login endpoint returning JWT token" },
-              { method: "POST", path: "/api/portal/upload-bank-slip", desc: "Upload Diaspora / CBE bank transfer receipt for verification" },
-              { method: "GET", path: "/api/portal/me", desc: "JWT-protected endpoint returning active deals, reserved units, and signed contracts" },
-              { method: "GET", path: "/api/portal/payment-schedules", desc: "JWT-protected endpoint returning unit installment schedules and overdue status" },
-              { method: "GET", path: "/api/portal/contracts", desc: "JWT-protected endpoint returning detailed unit contracts and schedules" },
-              { method: "GET", path: "/api/portal/invoices", desc: "JWT-protected endpoint returning billing statements & payment receipts" },
+              {
+                method: "POST",
+                path: "/api/portal/auth/login",
+                desc: "Public customer login endpoint returning JWT token",
+              },
+              {
+                method: "POST",
+                path: "/api/portal/upload-bank-slip",
+                desc: "Upload Diaspora / CBE bank transfer receipt for verification",
+              },
+              {
+                method: "GET",
+                path: "/api/portal/me",
+                desc: "JWT-protected endpoint returning active deals, reserved units, and signed contracts",
+              },
+              {
+                method: "GET",
+                path: "/api/portal/payment-schedules",
+                desc: "JWT-protected endpoint returning unit installment schedules and overdue status",
+              },
+              {
+                method: "GET",
+                path: "/api/portal/contracts",
+                desc: "JWT-protected endpoint returning detailed unit contracts and schedules",
+              },
+              {
+                method: "GET",
+                path: "/api/portal/invoices",
+                desc: "JWT-protected endpoint returning billing statements & payment receipts",
+              },
             ].map((ep) => (
-              <div key={ep.path} className="flex flex-col gap-1 p-3.5 sm:flex-row sm:items-center sm:justify-between">
+              <div
+                key={ep.path}
+                className="flex flex-col gap-1 p-3.5 sm:flex-row sm:items-center sm:justify-between"
+              >
                 <div className="flex items-center gap-3">
-                  <span className={`rounded px-2 py-0.5 font-mono text-xs font-bold ${ep.method === "POST" ? "bg-emerald-100 text-emerald-800" : "bg-blue-100 text-blue-800"}`}>
+                  <span
+                    className={`rounded px-2 py-0.5 font-mono text-xs font-bold ${ep.method === "POST" ? "bg-emerald-100 text-emerald-800" : "bg-blue-100 text-blue-800"}`}
+                  >
                     {ep.method}
                   </span>
-                  <code className="font-mono text-sm font-semibold text-zinc-800">{ep.path}</code>
+                  <code className="font-mono text-sm font-semibold text-zinc-800">
+                    {ep.path}
+                  </code>
                 </div>
                 <span className="text-xs text-zinc-500">{ep.desc}</span>
               </div>
@@ -554,7 +723,10 @@ export default function CustomerPortalPage() {
                   <h2 className="text-base font-bold text-zinc-900">
                     Bank Transfer Slip Upload
                   </h2>
-                  <p className="text-xs text-zinc-500">Unit {uploadSchedule.unitNumber} ({uploadSchedule.projectName})</p>
+                  <p className="text-xs text-zinc-500">
+                    Unit {uploadSchedule.unitNumber} (
+                    {uploadSchedule.projectName})
+                  </p>
                 </div>
               </div>
               <button
@@ -568,23 +740,33 @@ export default function CustomerPortalPage() {
 
             <div className="my-4 space-y-3.5">
               <div>
-                <label className="text-xs font-semibold text-zinc-700">Bank / Channel Name</label>
+                <label className="text-xs font-semibold text-zinc-700">
+                  Bank / Channel Name
+                </label>
                 <select
                   value={bankName}
                   onChange={(e) => setBankName(e.target.value)}
                   className="mt-1 h-9 w-full rounded-md border border-zinc-200 bg-white px-3 text-xs font-medium"
                 >
-                  <option value="Commercial Bank of Ethiopia (CBE)">Commercial Bank of Ethiopia (CBE / CBE Birr)</option>
-                  <option value="Bank of Abyssinia (BOA)">Bank of Abyssinia (BOA / Apollo)</option>
+                  <option value="Commercial Bank of Ethiopia (CBE)">
+                    Commercial Bank of Ethiopia (CBE / CBE Birr)
+                  </option>
+                  <option value="Bank of Abyssinia (BOA)">
+                    Bank of Abyssinia (BOA / Apollo)
+                  </option>
                   <option value="Awash Bank">Awash International Bank</option>
                   <option value="Dashen Bank">Dashen Bank / Amole</option>
                   <option value="Zemen Bank">Zemen Bank</option>
-                  <option value="SWIFT Wire Transfer (Diaspora)">SWIFT International Wire Transfer (Diaspora)</option>
+                  <option value="SWIFT Wire Transfer (Diaspora)">
+                    SWIFT International Wire Transfer (Diaspora)
+                  </option>
                 </select>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-zinc-700">Transaction Reference Number</label>
+                <label className="text-xs font-semibold text-zinc-700">
+                  Transaction Reference Number
+                </label>
                 <input
                   type="text"
                   required
@@ -596,7 +778,9 @@ export default function CustomerPortalPage() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-zinc-700">Amount Paid</label>
+                <label className="text-xs font-semibold text-zinc-700">
+                  Amount Paid
+                </label>
                 <input
                   type="number"
                   required
@@ -607,7 +791,9 @@ export default function CustomerPortalPage() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-zinc-700">Receipt Image / Slip URL (Optional)</label>
+                <label className="text-xs font-semibold text-zinc-700">
+                  Receipt Image / Slip URL (Optional)
+                </label>
                 <input
                   type="text"
                   placeholder="https://example.com/slips/cbe-receipt-2026.jpg"
@@ -623,15 +809,28 @@ export default function CustomerPortalPage() {
                   <p className="font-bold flex items-center gap-1 text-emerald-800">
                     <CheckCircle2 className="size-4" /> Bank Slip Submitted!
                   </p>
-                  <p>Status: <strong>PENDING_VERIFICATION</strong></p>
-                  <p>Reference: <code className="font-mono">{slipResult.referenceNumber}</code></p>
-                  <p className="text-[11px] text-emerald-700">Finance team has been notified to verify your payment.</p>
+                  <p>
+                    Status: <strong>PENDING_VERIFICATION</strong>
+                  </p>
+                  <p>
+                    Reference:{" "}
+                    <code className="font-mono">
+                      {slipResult.referenceNumber}
+                    </code>
+                  </p>
+                  <p className="text-[11px] text-emerald-700">
+                    Finance team has been notified to verify your payment.
+                  </p>
                 </div>
               ) : null}
             </div>
 
             <div className="mt-5 flex justify-end gap-2 border-t border-zinc-100 pt-3">
-              <Button variant="outline" onClick={() => setUploadSchedule(null)} className="h-9">
+              <Button
+                variant="outline"
+                onClick={() => setUploadSchedule(null)}
+                className="h-9"
+              >
                 Close
               </Button>
               <Button

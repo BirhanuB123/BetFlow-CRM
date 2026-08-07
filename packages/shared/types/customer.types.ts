@@ -27,8 +27,8 @@ export type UpdateCustomerInput = {
 
 // ─── Display Types (UI) ───────────────────────────────────────────────────────
 
-export type CustomerType = 'Buyer' | 'Investor' | 'Tenant';
-export type CustomerStatus = 'Active' | 'Onboarding' | 'Dormant';
+export type CustomerType = "Buyer" | "Investor" | "Tenant";
+export type CustomerStatus = "Active" | "Onboarding" | "Dormant";
 
 /** Customer shape used on the frontend to display in tables */
 export type Customer = {

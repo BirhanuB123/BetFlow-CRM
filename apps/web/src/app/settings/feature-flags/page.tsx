@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Check, RotateCw, ToggleLeft, ToggleRight } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  RotateCw,
+  ToggleLeft,
+  ToggleRight,
+} from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
@@ -32,7 +38,9 @@ export default function FeatureFlagsPage() {
       const data = await apiFetch<FeatureFlag[]>("/saas/feature-flags");
       setFlags(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load feature flags");
+      setError(
+        err instanceof Error ? err.message : "Failed to load feature flags",
+      );
     } finally {
       setLoading(false);
     }
@@ -46,14 +54,21 @@ export default function FeatureFlagsPage() {
     setTogglingKey(key);
     setError(null);
     try {
-      const updated = await apiFetch<FeatureFlag>(`/saas/feature-flags/${key}`, {
-        method: "PATCH",
-        body: JSON.stringify({ enabled: !currentEnabled }),
-      });
+      const updated = await apiFetch<FeatureFlag>(
+        `/saas/feature-flags/${key}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ enabled: !currentEnabled }),
+        },
+      );
       setFlags((prev) => prev.map((f) => (f.key === key ? updated : f)));
-      showSuccess(`Feature flag '${updated.label}' ${updated.enabled ? "enabled" : "disabled"}`);
+      showSuccess(
+        `Feature flag '${updated.label}' ${updated.enabled ? "enabled" : "disabled"}`,
+      );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to toggle feature flag");
+      setError(
+        err instanceof Error ? err.message : "Failed to toggle feature flag",
+      );
     } finally {
       setTogglingKey(null);
     }
@@ -82,9 +97,21 @@ export default function FeatureFlagsPage() {
         Back to Settings
       </Link>
       <div className="grid gap-4 md:grid-cols-3 mb-6">
-        <StatCard label="Enabled flags" value={`${enabledCount}/${flags.length}`} detail="Tenant-visible capabilities" />
-        <StatCard label="Beta controls" value={String(betaCount)} detail="Limited cohort rollout" />
-        <StatCard label="Plan-gated" value={String(planGatedCount)} detail="Managed by subscription tier" />
+        <StatCard
+          label="Enabled flags"
+          value={`${enabledCount}/${flags.length}`}
+          detail="Tenant-visible capabilities"
+        />
+        <StatCard
+          label="Beta controls"
+          value={String(betaCount)}
+          detail="Limited cohort rollout"
+        />
+        <StatCard
+          label="Plan-gated"
+          value={String(planGatedCount)}
+          detail="Managed by subscription tier"
+        />
       </div>
 
       {error && (
@@ -104,7 +131,9 @@ export default function FeatureFlagsPage() {
         <div className="flex items-center justify-between gap-4 border-b border-zinc-200 p-4">
           <div>
             <h2 className="text-base font-semibold">Flags</h2>
-            <p className="text-sm text-zinc-500">Enable, disable, and stage tenant-level product modules.</p>
+            <p className="text-sm text-zinc-500">
+              Enable, disable, and stage tenant-level product modules.
+            </p>
           </div>
         </div>
 
@@ -114,7 +143,9 @@ export default function FeatureFlagsPage() {
           <CrmTable
             columns={["Feature", "Description", "Scope", "Rollout", "State"]}
             rows={flags.map((flag) => [
-              <span key="label" className="font-medium">{flag.label}</span>,
+              <span key="label" className="font-medium">
+                {flag.label}
+              </span>,
               flag.description,
               flag.scope,
               flag.rollout,
@@ -132,7 +163,9 @@ export default function FeatureFlagsPage() {
                 ) : (
                   <ToggleLeft className="size-7 text-zinc-400" />
                 )}
-                <span className={`text-xs font-semibold uppercase ${flag.enabled ? "text-emerald-700" : "text-zinc-600"}`}>
+                <span
+                  className={`text-xs font-semibold uppercase ${flag.enabled ? "text-emerald-700" : "text-zinc-600"}`}
+                >
                   {flag.enabled ? "Enabled" : "Disabled"}
                 </span>
               </button>,

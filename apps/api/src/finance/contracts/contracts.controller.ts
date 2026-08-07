@@ -16,7 +16,10 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
 import { ContractBuilderService } from './contract-builder.service';
-import type { GenerateContractInput, ContractSignatureInput } from '@betflow/shared';
+import type {
+  GenerateContractInput,
+  ContractSignatureInput,
+} from '@betflow/shared';
 import type {
   CreateContractInput,
   UpdateContractInput,
@@ -69,7 +72,10 @@ export class ContractsController {
     @Body() body: ContractSignatureInput,
     @Req() req: Request,
   ) {
-    const ipAddress = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1';
+    const ipAddress =
+      (req.headers['x-forwarded-for'] as string) ||
+      req.socket.remoteAddress ||
+      '127.0.0.1';
     const userAgent = req.headers['user-agent'] || 'Unknown Browser';
     return this.contracts.signContract(id, body, { ipAddress, userAgent });
   }
@@ -111,4 +117,3 @@ export class ContractsController {
     return this.contracts.remove(user.id, id);
   }
 }
-

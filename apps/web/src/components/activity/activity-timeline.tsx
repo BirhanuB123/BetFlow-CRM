@@ -31,7 +31,11 @@ function dotClass(action: string): string {
   if (action.endsWith(".created") || action.endsWith(".registered"))
     return "bg-emerald-500";
   if (action.endsWith(".deleted")) return "bg-rose-500";
-  if (action.includes("signed") || action.includes("status") || action.includes("stage"))
+  if (
+    action.includes("signed") ||
+    action.includes("status") ||
+    action.includes("stage")
+  )
     return "bg-amber-500";
   return "bg-sky-500";
 }
@@ -68,7 +72,9 @@ export function ActivityTimeline({
       if (entityType) params.set("entityType", entityType);
       if (entityId) params.set("entityId", entityId);
       params.set("limit", String(limit));
-      const data = await apiFetch<TimelineEntry[]>(`/activities?${params.toString()}`);
+      const data = await apiFetch<TimelineEntry[]>(
+        `/activities?${params.toString()}`,
+      );
       setEntries(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load activity");
@@ -82,7 +88,9 @@ export function ActivityTimeline({
   }, [load]);
 
   return (
-    <section className={cn("rounded-lg border border-zinc-200 bg-white", className)}>
+    <section
+      className={cn("rounded-lg border border-zinc-200 bg-white", className)}
+    >
       <div className="flex items-center justify-between border-b border-zinc-200 p-4">
         <div className="flex items-center gap-2">
           <ActivityIcon className="size-4 text-zinc-500" />
@@ -119,7 +127,9 @@ export function ActivityTimeline({
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
-                  <p className="text-sm font-medium text-zinc-900">{entry.label}</p>
+                  <p className="text-sm font-medium text-zinc-900">
+                    {entry.label}
+                  </p>
                   <time className="shrink-0 text-xs text-zinc-400">
                     {timeAgo(entry.createdAt)}
                   </time>

@@ -4,7 +4,7 @@
  *   - apps/api/src/deals/deals.types.ts
  *   - apps/web/src/features/leads/crm-data.ts
  */
-import type { LeadStage } from './lead.types.js';
+import type { LeadStage } from "./lead.types.js";
 
 // ─── Input Types (API) ─────────────────────────────────────────────────────────
 

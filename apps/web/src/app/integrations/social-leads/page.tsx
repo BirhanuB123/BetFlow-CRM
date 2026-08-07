@@ -23,7 +23,13 @@ type Stats = {
   signatureValidation: boolean;
 };
 
-function StatBadge({ label, value }: { label: string; value: number | string }) {
+function StatBadge({
+  label,
+  value,
+}: {
+  label: string;
+  value: number | string;
+}) {
   return (
     <div className="rounded-xl border border-zinc-200 bg-white p-4">
       <p className="text-2xl font-bold text-zinc-900">{value}</p>
@@ -34,8 +40,14 @@ function StatBadge({ label, value }: { label: string; value: number | string }) 
 
 function StatusPill({ ok, label }: { ok: boolean; label: string }) {
   return (
-    <div className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${ok ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}>
-      {ok ? <CheckCircle2 className="size-4" /> : <AlertTriangle className="size-4" />}
+    <div
+      className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${ok ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}
+    >
+      {ok ? (
+        <CheckCircle2 className="size-4" />
+      ) : (
+        <AlertTriangle className="size-4" />
+      )}
       {label}
     </div>
   );
@@ -82,7 +94,10 @@ export default function SocialLeadsPage() {
       <div className="mb-6 grid gap-4 sm:grid-cols-4">
         {loading ? (
           Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-xl border border-zinc-100 bg-zinc-50" />
+            <div
+              key={i}
+              className="h-20 animate-pulse rounded-xl border border-zinc-100 bg-zinc-50"
+            />
           ))
         ) : (
           <>
@@ -98,11 +113,19 @@ export default function SocialLeadsPage() {
       <div className="mb-6 flex flex-wrap gap-3">
         <StatusPill
           ok={stats?.webhookConfigured ?? false}
-          label={stats?.webhookConfigured ? "Verify token configured" : "META_VERIFY_TOKEN not set"}
+          label={
+            stats?.webhookConfigured
+              ? "Verify token configured"
+              : "META_VERIFY_TOKEN not set"
+          }
         />
         <StatusPill
           ok={stats?.signatureValidation ?? false}
-          label={stats?.signatureValidation ? "Signature validation active" : "META_APP_SECRET not set — validation skipped"}
+          label={
+            stats?.signatureValidation
+              ? "Signature validation active"
+              : "META_APP_SECRET not set — validation skipped"
+          }
         />
       </div>
 
@@ -150,10 +173,15 @@ export default function SocialLeadsPage() {
                 mono: false,
               },
             ].map((row) => (
-              <div key={row.key} className="flex items-center justify-between gap-3 px-5 py-3">
+              <div
+                key={row.key}
+                className="flex items-center justify-between gap-3 px-5 py-3"
+              >
                 <div className="min-w-0">
                   <p className="text-xs text-zinc-400">{row.label}</p>
-                  <p className={`mt-0.5 truncate text-sm ${row.mono ? "font-mono text-zinc-800" : "text-zinc-700"}`}>
+                  <p
+                    className={`mt-0.5 truncate text-sm ${row.mono ? "font-mono text-zinc-800" : "text-zinc-700"}`}
+                  >
                     {row.value}
                   </p>
                 </div>
@@ -180,7 +208,11 @@ export default function SocialLeadsPage() {
           </div>
           <div className="p-5 space-y-3">
             <p className="text-sm text-zinc-500">
-              Add these to your <code className="rounded bg-zinc-100 px-1 font-mono text-xs">.env.local</code> file on the API server.
+              Add these to your{" "}
+              <code className="rounded bg-zinc-100 px-1 font-mono text-xs">
+                .env.local
+              </code>{" "}
+              file on the API server.
             </p>
             <pre className="overflow-auto rounded-lg bg-zinc-950 p-4 text-xs leading-relaxed text-emerald-300">
               {`# Meta webhook verification token
@@ -194,7 +226,9 @@ META_APP_SECRET=your_meta_app_secret`}
           </div>
 
           <div className="border-t border-zinc-200 px-5 py-4">
-            <p className="mb-2 text-sm font-medium text-zinc-700">Webhook payload structure</p>
+            <p className="mb-2 text-sm font-medium text-zinc-700">
+              Webhook payload structure
+            </p>
             <pre className="rounded-lg bg-zinc-50 p-3 text-xs text-zinc-700 overflow-auto">
               {`{
   "object": "page",
@@ -225,7 +259,9 @@ META_APP_SECRET=your_meta_app_secret`}
         <div className="border-b border-zinc-200 px-5 py-4">
           <div className="flex items-center gap-2">
             <Share2 className="size-4 text-blue-600" />
-            <h2 className="font-semibold">Setup Guide — Meta Developer Portal</h2>
+            <h2 className="font-semibold">
+              Setup Guide — Meta Developer Portal
+            </h2>
           </div>
         </div>
         <ol className="divide-y divide-zinc-100">
@@ -261,7 +297,9 @@ META_APP_SECRET=your_meta_app_secret`}
                 {item.step}
               </span>
               <div>
-                <p className="text-sm font-medium text-zinc-800">{item.title}</p>
+                <p className="text-sm font-medium text-zinc-800">
+                  {item.title}
+                </p>
                 <p className="mt-0.5 text-sm text-zinc-500">{item.desc}</p>
               </div>
             </li>

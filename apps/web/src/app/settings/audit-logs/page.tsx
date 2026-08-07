@@ -58,7 +58,9 @@ export default function AuditLogsPage() {
         const data = await apiFetch<AuditLogItem[]>("/audit-logs");
         setLogs(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load audit logs");
+        setError(
+          err instanceof Error ? err.message : "Failed to load audit logs",
+        );
       } finally {
         setLoading(false);
       }
@@ -82,7 +84,9 @@ export default function AuditLogsPage() {
       <section className="rounded-lg border border-zinc-200 bg-white">
         <div className="border-b border-zinc-200 p-4">
           <h2 className="text-base font-semibold">Event timeline</h2>
-          <p className="text-sm text-zinc-500">Immutable activity history for compliance review.</p>
+          <p className="text-sm text-zinc-500">
+            Immutable activity history for compliance review.
+          </p>
         </div>
 
         {error && (
@@ -94,7 +98,9 @@ export default function AuditLogsPage() {
         {loading ? (
           <p className="p-6 text-sm text-zinc-500">Loading audit logs…</p>
         ) : logs.length === 0 ? (
-          <p className="p-6 text-sm text-zinc-500 text-center">No audit log records found.</p>
+          <p className="p-6 text-sm text-zinc-500 text-center">
+            No audit log records found.
+          </p>
         ) : (
           <div className="divide-y divide-zinc-200">
             {logs.map((log) => {
@@ -103,11 +109,16 @@ export default function AuditLogsPage() {
                 ? `${log.user.firstName} ${log.user.lastName}`.trim()
                 : "System";
               return (
-                <article key={log.id} className="grid gap-3 p-4 md:grid-cols-[1fr_auto]">
+                <article
+                  key={log.id}
+                  className="grid gap-3 p-4 md:grid-cols-[1fr_auto]"
+                >
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="text-sm font-semibold">{log.action}</h3>
-                      <span className={`rounded-md px-2 py-1 text-xs font-medium ${severityClass[severity]}`}>
+                      <span
+                        className={`rounded-md px-2 py-1 text-xs font-medium ${severityClass[severity]}`}
+                      >
                         {severity}
                       </span>
                     </div>

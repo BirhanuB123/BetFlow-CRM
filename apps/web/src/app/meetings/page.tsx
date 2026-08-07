@@ -158,7 +158,9 @@ export default function MeetingsPage() {
       setShowForm(false);
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to schedule meeting");
+      setError(
+        err instanceof Error ? err.message : "Failed to schedule meeting",
+      );
     } finally {
       setSaving(false);
     }
@@ -190,9 +192,15 @@ export default function MeetingsPage() {
 
   const withOptions = form.withType === "customer" ? customers : leads;
 
-  const scheduledCount = meetings.filter((m) => m.status === "SCHEDULED").length;
-  const completedCount = meetings.filter((m) => m.status === "COMPLETED").length;
-  const virtualCount = meetings.filter((m) => m.meetingType === "VIRTUAL_ZOOM").length;
+  const scheduledCount = meetings.filter(
+    (m) => m.status === "SCHEDULED",
+  ).length;
+  const completedCount = meetings.filter(
+    (m) => m.status === "COMPLETED",
+  ).length;
+  const virtualCount = meetings.filter(
+    (m) => m.meetingType === "VIRTUAL_ZOOM",
+  ).length;
 
   return (
     <DashboardShell
@@ -207,18 +215,27 @@ export default function MeetingsPage() {
             <div>
               <div className="flex items-center gap-2">
                 <CalendarDays className="size-5 text-[#233b66]" />
-                <h2 className="text-lg font-bold text-slate-900">Meeting Calendar & Appointments</h2>
+                <h2 className="text-lg font-bold text-slate-900">
+                  Meeting Calendar & Appointments
+                </h2>
               </div>
               <p className="mt-1 text-sm text-slate-500">
-                Book client consultations, deal negotiations, or virtual Zoom meetings with prospects.
+                Book client consultations, deal negotiations, or virtual Zoom
+                meetings with prospects.
               </p>
             </div>
             <Button
               onClick={() => setShowForm((v) => !v)}
-              disabled={!showForm && customers.length === 0 && leads.length === 0}
+              disabled={
+                !showForm && customers.length === 0 && leads.length === 0
+              }
               className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium shadow-sm transition-all"
             >
-              {showForm ? <X className="size-4 mr-1.5" /> : <Plus className="size-4 mr-1.5" />}
+              {showForm ? (
+                <X className="size-4 mr-1.5" />
+              ) : (
+                <Plus className="size-4 mr-1.5" />
+              )}
               {showForm ? "Cancel Schedule" : "Schedule Meeting"}
             </Button>
           </div>
@@ -235,36 +252,54 @@ export default function MeetingsPage() {
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Meeting Title / Subject *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Meeting Title / Subject *
+                  </label>
                   <input
                     required
                     type="text"
                     placeholder="e.g., Payment Schedule & Bank Mortgage Review"
                     value={form.title}
-                    onChange={(e) => setForm({ ...form, title: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, title: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Meeting Format</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Meeting Format
+                  </label>
                   <select
                     value={form.meetingType}
-                    onChange={(e) => setForm({ ...form, meetingType: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, meetingType: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   >
-                    <option value="IN_PERSON_OFFICE">In-Person Office Meeting</option>
-                    <option value="VIRTUAL_ZOOM">Virtual Zoom / Google Meet Call</option>
+                    <option value="IN_PERSON_OFFICE">
+                      In-Person Office Meeting
+                    </option>
+                    <option value="VIRTUAL_ZOOM">
+                      Virtual Zoom / Google Meet Call
+                    </option>
                     <option value="PHONE_CALL">Phone Consultation Call</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Participant Type</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Participant Type
+                  </label>
                   <select
                     value={form.withType}
                     onChange={(e) =>
-                      setForm({ ...form, withType: e.target.value as "customer" | "lead", withId: "" })
+                      setForm({
+                        ...form,
+                        withType: e.target.value as "customer" | "lead",
+                        withId: "",
+                      })
                     }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   >
@@ -274,11 +309,15 @@ export default function MeetingsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Select Person *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Select Person *
+                  </label>
                   <select
                     required
                     value={form.withId}
-                    onChange={(e) => setForm({ ...form, withId: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, withId: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   >
                     <option value="">Select {form.withType}…</option>
@@ -291,7 +330,9 @@ export default function MeetingsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Date & Time *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Date & Time *
+                  </label>
                   <input
                     required
                     type="datetime-local"
@@ -302,10 +343,14 @@ export default function MeetingsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Duration (Minutes)</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Duration (Minutes)
+                  </label>
                   <select
                     value={form.durationMinutes}
-                    onChange={(e) => setForm({ ...form, durationMinutes: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, durationMinutes: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   >
                     <option value="15">15 Minutes</option>
@@ -317,23 +362,31 @@ export default function MeetingsPage() {
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Location / Video Link</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Location / Video Link
+                  </label>
                   <input
                     type="text"
                     placeholder="e.g. Sales Office Conference Room B or https://zoom.us/j/123456"
                     value={form.location}
-                    onChange={(e) => setForm({ ...form, location: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, location: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   />
                 </div>
 
                 <div className="sm:col-span-3">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Agenda & Meeting Notes</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Agenda & Meeting Notes
+                  </label>
                   <textarea
                     rows={2}
                     placeholder="Discussion points, contract terms to cover, client questions..."
                     value={form.agenda}
-                    onChange={(e) => setForm({ ...form, agenda: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, agenda: e.target.value })
+                    }
                     className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   />
                 </div>
@@ -348,7 +401,11 @@ export default function MeetingsPage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={saving} className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium text-xs shadow-sm">
+                <Button
+                  type="submit"
+                  disabled={saving}
+                  className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium text-xs shadow-sm"
+                >
                   {saving ? "Scheduling…" : "Save & Book Meeting"}
                 </Button>
               </div>
@@ -365,21 +422,28 @@ export default function MeetingsPage() {
         {/* Meetings List Table */}
         <section className="rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
           <div className="border-b border-slate-100 bg-slate-50/50 px-5 py-4 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-800">Scheduled Meetings & Consultations ({meetings.length})</h3>
+            <h3 className="text-sm font-bold text-slate-800">
+              Scheduled Meetings & Consultations ({meetings.length})
+            </h3>
           </div>
 
           {loading ? (
             <div className="flex h-36 items-center justify-center">
-              <p className="text-sm text-slate-500">Loading scheduled meetings…</p>
+              <p className="text-sm text-slate-500">
+                Loading scheduled meetings…
+              </p>
             </div>
           ) : meetings.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center">
               <div className="rounded-full bg-slate-50 p-4 border border-slate-100 mb-2">
                 <CalendarDays className="size-6 text-slate-400" />
               </div>
-              <p className="text-sm font-semibold text-slate-800">No meetings scheduled yet</p>
+              <p className="text-sm font-semibold text-slate-800">
+                No meetings scheduled yet
+              </p>
               <p className="text-xs text-slate-500 max-w-sm mt-1">
-                Click "Schedule Meeting" to book your first client consultation, office negotiation, or Zoom call.
+                Click "Schedule Meeting" to book your first client consultation,
+                office negotiation, or Zoom call.
               </p>
             </div>
           ) : (
@@ -400,10 +464,14 @@ export default function MeetingsPage() {
                   {meetings.map((meeting) => {
                     const person = meeting.customer ?? meeting.lead;
                     const isCustomer = Boolean(meeting.customer);
-                    const TypeIcon = meetingTypeIcons[meeting.meetingType] ?? Building;
+                    const TypeIcon =
+                      meetingTypeIcons[meeting.meetingType] ?? Building;
 
                     return (
-                      <tr key={meeting.id} className="hover:bg-slate-50/60 transition-colors">
+                      <tr
+                        key={meeting.id}
+                        className="hover:bg-slate-50/60 transition-colors"
+                      >
                         <td className="px-5 py-3 font-semibold text-slate-800">
                           {meeting.title}
                         </td>
@@ -435,14 +503,17 @@ export default function MeetingsPage() {
                         <td className="px-5 py-3">
                           <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-700 border border-slate-200">
                             <TypeIcon className="size-3 text-[#233b66]" />
-                            {meetingTypeLabels[meeting.meetingType] ?? meeting.meetingType}
+                            {meetingTypeLabels[meeting.meetingType] ??
+                              meeting.meetingType}
                           </span>
                         </td>
 
                         <td className="px-5 py-3 text-slate-600 font-medium">
                           <div>
                             <p>{fmtDateTime(meeting.date)}</p>
-                            <p className="text-[10px] text-slate-400 font-normal">{meeting.durationMinutes} mins duration</p>
+                            <p className="text-[10px] text-slate-400 font-normal">
+                              {meeting.durationMinutes} mins duration
+                            </p>
                           </div>
                         </td>
 
@@ -453,7 +524,9 @@ export default function MeetingsPage() {
                               {meeting.location}
                             </span>
                           ) : (
-                            <span className="text-slate-400 italic">Office / TBD</span>
+                            <span className="text-slate-400 italic">
+                              Office / TBD
+                            </span>
                           )}
                         </td>
 
@@ -461,13 +534,22 @@ export default function MeetingsPage() {
                           <span
                             className={cn(
                               "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold border",
-                              statusClass[meeting.status] ?? "bg-slate-100 text-slate-700 border-slate-200"
+                              statusClass[meeting.status] ??
+                                "bg-slate-100 text-slate-700 border-slate-200",
                             )}
                           >
-                            {meeting.status === "COMPLETED" && <CheckCircle2 className="size-3" />}
-                            {meeting.status === "SCHEDULED" && <Clock className="size-3" />}
-                            {meeting.status === "CANCELLED" && <XCircle className="size-3" />}
-                            {meeting.status === "NO_SHOW" && <AlertTriangle className="size-3" />}
+                            {meeting.status === "COMPLETED" && (
+                              <CheckCircle2 className="size-3" />
+                            )}
+                            {meeting.status === "SCHEDULED" && (
+                              <Clock className="size-3" />
+                            )}
+                            {meeting.status === "CANCELLED" && (
+                              <XCircle className="size-3" />
+                            )}
+                            {meeting.status === "NO_SHOW" && (
+                              <AlertTriangle className="size-3" />
+                            )}
                             {meeting.status.replace(/_/g, " ")}
                           </span>
                         </td>
@@ -478,7 +560,9 @@ export default function MeetingsPage() {
                               <>
                                 <Button
                                   size="xs"
-                                  onClick={() => changeStatus(meeting.id, "COMPLETED")}
+                                  onClick={() =>
+                                    changeStatus(meeting.id, "COMPLETED")
+                                  }
                                   className="bg-emerald-600 hover:bg-emerald-700 text-white h-7 text-[11px] px-2"
                                 >
                                   Complete
@@ -486,7 +570,9 @@ export default function MeetingsPage() {
                                 <Button
                                   size="xs"
                                   variant="outline"
-                                  onClick={() => changeStatus(meeting.id, "NO_SHOW")}
+                                  onClick={() =>
+                                    changeStatus(meeting.id, "NO_SHOW")
+                                  }
                                   className="border-amber-300 text-amber-800 hover:bg-amber-50 h-7 text-[11px] px-2"
                                 >
                                   No-show

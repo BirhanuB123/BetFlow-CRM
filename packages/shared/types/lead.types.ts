@@ -4,13 +4,14 @@
  *   - apps/api/src/leads/leads.types.ts
  *   - apps/web/src/features/leads/crm-data.ts
  */
-import type { Priority } from './common.types.js';
-import { LEAD_STATUSES } from '../constants/lead.constants.js';
+import type { Priority } from "./common.types.js";
+import { LEAD_STATUSES } from "../constants/lead.constants.js";
 
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
 
 /** UI pipeline stage labels */
-export type LeadStage = 'New' | 'Qualified' | 'Tour Scheduled' | 'Proposal' | 'Won' | 'Lost';
+export type LeadStage =
+  "New" | "Qualified" | "Tour Scheduled" | "Proposal" | "Won" | "Lost";
 
 // ─── Input Types (API) ─────────────────────────────────────────────────────────
 
@@ -28,9 +29,16 @@ export type CreateLeadInput = {
   websiteInquiryUrl?: string;
   budgetMinETB?: number;
   budgetMaxETB?: number;
-  timeline?: 'IMMEDIATE' | '3_MONTHS' | '6_MONTHS' | '12_MONTHS' | '24_PLUS_MONTHS' | string;
+  timeline?:
+    | "IMMEDIATE"
+    | "3_MONTHS"
+    | "6_MONTHS"
+    | "12_MONTHS"
+    | "24_PLUS_MONTHS"
+    | string;
   preferredBedrooms?: number;
-  preferredPaymentPlan?: 'FULL_CASH' | 'CUSTOM_INSTALLMENT' | 'BANK_LOAN' | string;
+  preferredPaymentPlan?:
+    "FULL_CASH" | "CUSTOM_INSTALLMENT" | "BANK_LOAN" | string;
 };
 
 export type PublicWebsiteLeadInput = {
@@ -83,7 +91,7 @@ export type ConvertLeadInput = {
 
 export type AiLeadScore = {
   score: number;
-  intent: 'HOT' | 'WARM' | 'COLD';
+  intent: "HOT" | "WARM" | "COLD";
   factors: string[];
   suggestedNextAction: string;
   recommendedPriority: Priority;

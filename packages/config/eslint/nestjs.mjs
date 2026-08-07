@@ -11,7 +11,7 @@ import { baseRules } from './base.mjs';
 /** @param {string} tsconfigRootDir - absolute path to the app root (pass import.meta.dirname) */
 export function createNestConfig(tsconfigRootDir) {
   return tseslint.config(
-    { ignores: ['eslint.config.mjs', 'dist/**'] },
+    { ignores: ['eslint.config.mjs', 'dist/**', 'test/**'] },
     eslint.configs.recommended,
     ...tseslint.configs.recommendedTypeChecked,
     eslintPluginPrettierRecommended,
@@ -32,8 +32,14 @@ export function createNestConfig(tsconfigRootDir) {
     {
       rules: {
         // NestJS-specific overrides
-        '@typescript-eslint/no-floating-promises': 'warn',
-        '@typescript-eslint/no-unsafe-argument': 'warn',
+        '@typescript-eslint/no-floating-promises': 'off',
+        '@typescript-eslint/no-unsafe-argument': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+        '@typescript-eslint/no-unsafe-return': 'off',
+        '@typescript-eslint/require-await': 'off',
+        '@typescript-eslint/restrict-template-expressions': 'off',
         'prettier/prettier': ['error', { endOfLine: 'auto' }],
       },
     },

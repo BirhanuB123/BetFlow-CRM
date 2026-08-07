@@ -26,7 +26,12 @@ import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
-type PersonRef = { id: string; firstName: string; lastName: string; phone?: string | null } | null;
+type PersonRef = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  phone?: string | null;
+} | null;
 
 type ApiCallLog = {
   id: string;
@@ -43,8 +48,18 @@ type ApiCallLog = {
   customer: PersonRef;
 };
 
-type CustomerOption = { id: string; firstName: string; lastName: string; phone?: string | null };
-type LeadOption = { id: string; firstName: string; lastName: string; phone?: string | null };
+type CustomerOption = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  phone?: string | null;
+};
+type LeadOption = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  phone?: string | null;
+};
 
 const statusClass: Record<string, string> = {
   PENDING: "bg-blue-50 text-blue-700 border-blue-200",
@@ -77,8 +92,14 @@ const purposeLabels: Record<string, string> = {
 
 const CALL_RESULTS = [
   { value: "INTERESTED", label: "Interested / Negotiating (ስምምነት ላይ የደረሰ)" },
-  { value: "REQUESTED_PROFORMA", label: "Requested Pro-forma Invoice (ፕሮፎርማ የጠየቀ)" },
-  { value: "SCHEDULED_SITE_VISIT", label: "Scheduled Site Visit (ቦታ ለመጎብኘት የቀጠረ)" },
+  {
+    value: "REQUESTED_PROFORMA",
+    label: "Requested Pro-forma Invoice (ፕሮፎርማ የጠየቀ)",
+  },
+  {
+    value: "SCHEDULED_SITE_VISIT",
+    label: "Scheduled Site Visit (ቦታ ለመጎብኘት የቀጠረ)",
+  },
   { value: "BUSY_CALL_BACK", label: "Busy - Call Back Later (ስራ ላይ - በሌላ ጊዜ)" },
   { value: "NO_ANSWER", label: "No Answer / Unreachable (ስልክ አልነሳም)" },
   { value: "NOT_INTERESTED", label: "Not Interested (ፍላጎት የለውም)" },
@@ -107,7 +128,9 @@ export default function FollowUpsPage() {
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<"ALL" | "DUE_TODAY" | "OVERDUE" | "COMPLETED">("ALL");
+  const [activeFilter, setActiveFilter] = useState<
+    "ALL" | "DUE_TODAY" | "OVERDUE" | "COMPLETED"
+  >("ALL");
 
   // Outcome logging modal state
   const [loggingCall, setLoggingCall] = useState<ApiCallLog | null>(null);
@@ -140,7 +163,11 @@ export default function FollowUpsPage() {
       setCustomers(customersData);
       setLeads(leadsData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load follow-up reminders");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to load follow-up reminders",
+      );
     } finally {
       setLoading(false);
     }
@@ -183,7 +210,9 @@ export default function FollowUpsPage() {
       setShowForm(false);
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to schedule follow-up");
+      setError(
+        err instanceof Error ? err.message : "Failed to schedule follow-up",
+      );
     } finally {
       setSaving(false);
     }
@@ -206,7 +235,9 @@ export default function FollowUpsPage() {
       setOutcomeForm({ callResult: "INTERESTED", notes: "" });
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to log call outcome");
+      setError(
+        err instanceof Error ? err.message : "Failed to log call outcome",
+      );
     } finally {
       setSaving(false);
     }
@@ -219,7 +250,9 @@ export default function FollowUpsPage() {
       await apiFetch(`/calls/${id}`, { method: "DELETE" });
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete reminder");
+      setError(
+        err instanceof Error ? err.message : "Failed to delete reminder",
+      );
     }
   };
 
@@ -228,16 +261,36 @@ export default function FollowUpsPage() {
   // Derived filter calculations
   const now = new Date();
   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+  const endOfDay = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    23,
+    59,
+    59,
+  );
 
-  const overdueCalls = calls.filter((c) => c.status === "PENDING" && new Date(c.dueDate) < startOfDay);
-  const dueTodayCalls = calls.filter((c) => c.status === "PENDING" && new Date(c.dueDate) >= startOfDay && new Date(c.dueDate) <= endOfDay);
-  const diasporaCalls = calls.filter((c) => c.callPurpose === "DIASPORA_OUTREACH" && c.status !== "COMPLETED");
+  const overdueCalls = calls.filter(
+    (c) => c.status === "PENDING" && new Date(c.dueDate) < startOfDay,
+  );
+  const dueTodayCalls = calls.filter(
+    (c) =>
+      c.status === "PENDING" &&
+      new Date(c.dueDate) >= startOfDay &&
+      new Date(c.dueDate) <= endOfDay,
+  );
+  const diasporaCalls = calls.filter(
+    (c) => c.callPurpose === "DIASPORA_OUTREACH" && c.status !== "COMPLETED",
+  );
   const pendingCalls = calls.filter((c) => c.status !== "COMPLETED");
 
   const filteredCalls = calls.filter((c) => {
     if (activeFilter === "DUE_TODAY") {
-      return c.status === "PENDING" && new Date(c.dueDate) >= startOfDay && new Date(c.dueDate) <= endOfDay;
+      return (
+        c.status === "PENDING" &&
+        new Date(c.dueDate) >= startOfDay &&
+        new Date(c.dueDate) <= endOfDay
+      );
     }
     if (activeFilter === "OVERDUE") {
       return c.status === "PENDING" && new Date(c.dueDate) < startOfDay;
@@ -261,17 +314,24 @@ export default function FollowUpsPage() {
             <div>
               <div className="flex items-center gap-2">
                 <PhoneCall className="size-5 text-[#233b66]" />
-                <h2 className="text-lg font-bold text-slate-900">Real Estate Follow-up Queue</h2>
+                <h2 className="text-lg font-bold text-slate-900">
+                  Real Estate Follow-up Queue
+                </h2>
               </div>
               <p className="mt-1 text-sm text-slate-500">
-                Log call outcomes, schedule post-site-visit follow-ups, and track Ethiopian property buyers.
+                Log call outcomes, schedule post-site-visit follow-ups, and
+                track Ethiopian property buyers.
               </p>
             </div>
             <Button
               onClick={() => setShowForm((v) => !v)}
               className="bg-[#233b66] hover:bg-[#1d3257] text-white font-medium shadow-sm transition-all"
             >
-              {showForm ? <X className="size-4 mr-1.5" /> : <Plus className="size-4 mr-1.5" />}
+              {showForm ? (
+                <X className="size-4 mr-1.5" />
+              ) : (
+                <Plus className="size-4 mr-1.5" />
+              )}
               {showForm ? "Cancel Intake" : "Schedule Follow-up Call"}
             </Button>
           </div>
@@ -289,22 +349,30 @@ export default function FollowUpsPage() {
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Subject / Call Purpose *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Subject / Call Purpose *
+                  </label>
                   <input
                     required
                     type="text"
                     placeholder="e.g. Post Site-Visit Check-in (Unit 702) & Send Pro-Forma Invoice"
                     value={form.subject}
-                    onChange={(e) => setForm({ ...form, subject: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, subject: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Call Channel</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Call Channel
+                  </label>
                   <select
                     value={form.callType}
-                    onChange={(e) => setForm({ ...form, callType: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, callType: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
                     <option value="OUTBOUND">Outbound Phone Call</option>
@@ -315,26 +383,46 @@ export default function FollowUpsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Purpose Category</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Purpose Category
+                  </label>
                   <select
                     value={form.callPurpose}
-                    onChange={(e) => setForm({ ...form, callPurpose: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, callPurpose: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
-                    <option value="POST_VISIT_FOLLOWUP">Post-Site-Visit Follow-Up</option>
-                    <option value="PAYMENT_REMINDER">Installment Payment Reminder</option>
-                    <option value="DIASPORA_OUTREACH">Diaspora Buyer Outreach</option>
-                    <option value="PROPOSAL_REVIEW">Proposal / Pro-forma Review</option>
-                    <option value="GENERAL_INQUIRY">General Buyer Inquiry</option>
+                    <option value="POST_VISIT_FOLLOWUP">
+                      Post-Site-Visit Follow-Up
+                    </option>
+                    <option value="PAYMENT_REMINDER">
+                      Installment Payment Reminder
+                    </option>
+                    <option value="DIASPORA_OUTREACH">
+                      Diaspora Buyer Outreach
+                    </option>
+                    <option value="PROPOSAL_REVIEW">
+                      Proposal / Pro-forma Review
+                    </option>
+                    <option value="GENERAL_INQUIRY">
+                      General Buyer Inquiry
+                    </option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Call With</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Call With
+                  </label>
                   <select
                     value={form.withType}
                     onChange={(e) =>
-                      setForm({ ...form, withType: e.target.value as "customer" | "lead", withId: "" })
+                      setForm({
+                        ...form,
+                        withType: e.target.value as "customer" | "lead",
+                        withId: "",
+                      })
                     }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
@@ -344,11 +432,15 @@ export default function FollowUpsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Select Client *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Select Client *
+                  </label>
                   <select
                     required
                     value={form.withId}
-                    onChange={(e) => setForm({ ...form, withId: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, withId: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
                     <option value="">Select {form.withType}…</option>
@@ -361,23 +453,31 @@ export default function FollowUpsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Due Date & Time *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Due Date & Time *
+                  </label>
                   <input
                     required
                     type="datetime-local"
                     value={form.dueDate}
-                    onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, dueDate: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
 
                 <div className="sm:col-span-3">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Call Notes / Objectives</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Call Notes / Objectives
+                  </label>
                   <textarea
                     rows={2}
                     placeholder="Provide context (e.g. Buyer interested in 120 sqm 2-Bed unit on 5th floor, schedule afternoon follow-up call)"
                     value={form.notes}
-                    onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, notes: e.target.value })
+                    }
                     className="w-full rounded-lg border border-slate-300 bg-white p-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   />
                 </div>
@@ -413,7 +513,9 @@ export default function FollowUpsPage() {
         {/* Reminders Queue Table */}
         <section className="rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
           <div className="border-b border-slate-200 bg-slate-50/50 px-5 py-3.5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Follow-up Calls Queue</h3>
+            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">
+              Follow-up Calls Queue
+            </h3>
 
             {/* Filter Tabs */}
             <div className="flex items-center gap-1.5 overflow-x-auto bg-slate-200/50 p-1 rounded-lg">
@@ -421,7 +523,9 @@ export default function FollowUpsPage() {
                 onClick={() => setActiveFilter("ALL")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  activeFilter === "ALL" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  activeFilter === "ALL"
+                    ? "bg-[#233b66] text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-200/60",
                 )}
               >
                 All ({calls.length})
@@ -430,7 +534,9 @@ export default function FollowUpsPage() {
                 onClick={() => setActiveFilter("DUE_TODAY")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  activeFilter === "DUE_TODAY" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  activeFilter === "DUE_TODAY"
+                    ? "bg-[#233b66] text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-200/60",
                 )}
               >
                 Due Today ({dueTodayCalls.length})
@@ -439,7 +545,9 @@ export default function FollowUpsPage() {
                 onClick={() => setActiveFilter("OVERDUE")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  activeFilter === "OVERDUE" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  activeFilter === "OVERDUE"
+                    ? "bg-[#233b66] text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-200/60",
                 )}
               >
                 Overdue ({overdueCalls.length})
@@ -448,7 +556,9 @@ export default function FollowUpsPage() {
                 onClick={() => setActiveFilter("COMPLETED")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  activeFilter === "COMPLETED" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  activeFilter === "COMPLETED"
+                    ? "bg-[#233b66] text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-200/60",
                 )}
               >
                 Completed
@@ -465,9 +575,12 @@ export default function FollowUpsPage() {
               <div className="rounded-full bg-[#233b66]/10 p-4 border border-[#233b66]/20 mb-2">
                 <CalendarClock className="size-6 text-[#233b66]" />
               </div>
-              <p className="text-sm font-bold text-slate-900">No follow-up calls in this queue</p>
+              <p className="text-sm font-bold text-slate-900">
+                No follow-up calls in this queue
+              </p>
               <p className="text-xs text-slate-500 max-w-sm mt-1">
-                You're all caught up! Click "Schedule Follow-up Call" to queue a new reminder for your leads or contacts.
+                You're all caught up! Click "Schedule Follow-up Call" to queue a
+                new reminder for your leads or contacts.
               </p>
               <Button
                 onClick={() => setShowForm(true)}
@@ -496,14 +609,23 @@ export default function FollowUpsPage() {
                     const person = call.customer ?? call.lead;
                     const isCustomer = Boolean(call.customer);
                     const ChannelIcon = channelIcons[call.callType] ?? Phone;
-                    const isOverdue = call.status === "PENDING" && new Date(call.dueDate) < startOfDay;
+                    const isOverdue =
+                      call.status === "PENDING" &&
+                      new Date(call.dueDate) < startOfDay;
 
                     return (
-                      <tr key={call.id} className="hover:bg-slate-50/60 transition-colors">
+                      <tr
+                        key={call.id}
+                        className="hover:bg-slate-50/60 transition-colors"
+                      >
                         <td className="px-5 py-3">
-                          <p className="font-semibold text-slate-800">{call.subject}</p>
+                          <p className="font-semibold text-slate-800">
+                            {call.subject}
+                          </p>
                           {call.notes && (
-                            <p className="text-[11px] text-slate-500 truncate max-w-[200px] mt-0.5">{call.notes}</p>
+                            <p className="text-[11px] text-slate-500 truncate max-w-[200px] mt-0.5">
+                              {call.notes}
+                            </p>
                           )}
                         </td>
 
@@ -517,7 +639,9 @@ export default function FollowUpsPage() {
                                 <User className="size-3.5 text-indigo-500" />
                                 {person.firstName} {person.lastName}
                                 {person.phone && (
-                                  <span className="text-[11px] font-normal text-slate-500">({person.phone})</span>
+                                  <span className="text-[11px] font-normal text-slate-500">
+                                    ({person.phone})
+                                  </span>
                                 )}
                               </Link>
                             ) : (
@@ -528,7 +652,9 @@ export default function FollowUpsPage() {
                                   Lead
                                 </span>
                                 {person.phone && (
-                                  <span className="text-[11px] font-normal text-slate-500">({person.phone})</span>
+                                  <span className="text-[11px] font-normal text-slate-500">
+                                    ({person.phone})
+                                  </span>
                                 )}
                               </span>
                             )
@@ -546,12 +672,17 @@ export default function FollowUpsPage() {
 
                         <td className="px-5 py-3">
                           <span className="rounded-md bg-indigo-50/70 text-indigo-800 px-2 py-0.5 text-[11px] font-medium border border-indigo-100">
-                            {purposeLabels[call.callPurpose] ?? call.callPurpose}
+                            {purposeLabels[call.callPurpose] ??
+                              call.callPurpose}
                           </span>
                         </td>
 
                         <td className="px-5 py-3 text-slate-600 font-medium">
-                          <span className={cn(isOverdue && "text-rose-600 font-bold")}>
+                          <span
+                            className={cn(
+                              isOverdue && "text-rose-600 font-bold",
+                            )}
+                          >
                             {fmtDateTime(call.dueDate)}
                           </span>
                         </td>
@@ -563,11 +694,16 @@ export default function FollowUpsPage() {
                                 "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold border w-fit",
                                 isOverdue
                                   ? statusClass.OVERDUE
-                                  : statusClass[call.status] ?? "bg-slate-100 text-slate-700 border-slate-200"
+                                  : (statusClass[call.status] ??
+                                      "bg-slate-100 text-slate-700 border-slate-200"),
                               )}
                             >
-                              {call.status === "COMPLETED" && <CheckCircle2 className="size-3" />}
-                              {call.status === "PENDING" && !isOverdue && <Clock className="size-3" />}
+                              {call.status === "COMPLETED" && (
+                                <CheckCircle2 className="size-3" />
+                              )}
+                              {call.status === "PENDING" && !isOverdue && (
+                                <Clock className="size-3" />
+                              )}
                               {isOverdue && <AlertCircle className="size-3" />}
                               {isOverdue ? "OVERDUE" : call.status}
                             </span>
@@ -617,7 +753,9 @@ export default function FollowUpsPage() {
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
                   <PhoneCall className="size-5 text-indigo-600" />
-                  <h3 className="text-base font-bold text-slate-900">Log Call Outcome & Complete</h3>
+                  <h3 className="text-base font-bold text-slate-900">
+                    Log Call Outcome & Complete
+                  </h3>
                 </div>
                 <button
                   onClick={() => setLoggingCall(null)}
@@ -629,24 +767,33 @@ export default function FollowUpsPage() {
 
               <form onSubmit={handleCompleteOutcome} className="mt-4 space-y-4">
                 <div className="rounded-lg bg-indigo-50/60 p-3 text-xs">
-                  <p className="font-bold text-indigo-950">{loggingCall.subject}</p>
+                  <p className="font-bold text-indigo-950">
+                    {loggingCall.subject}
+                  </p>
                   <p className="mt-0.5 text-slate-600">
                     Client:{" "}
                     <span className="font-semibold text-slate-800">
                       {loggingCall.customer
                         ? `${loggingCall.customer.firstName} ${loggingCall.customer.lastName}`
                         : loggingCall.lead
-                        ? `${loggingCall.lead.firstName} ${loggingCall.lead.lastName}`
-                        : "—"}
+                          ? `${loggingCall.lead.firstName} ${loggingCall.lead.lastName}`
+                          : "—"}
                     </span>
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Call Outcome Result *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Call Outcome Result *
+                  </label>
                   <select
                     value={outcomeForm.callResult}
-                    onChange={(e) => setOutcomeForm({ ...outcomeForm, callResult: e.target.value })}
+                    onChange={(e) =>
+                      setOutcomeForm({
+                        ...outcomeForm,
+                        callResult: e.target.value,
+                      })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
                     {CALL_RESULTS.map((res) => (
@@ -658,12 +805,16 @@ export default function FollowUpsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Call Outcome Notes / Next Steps</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Call Outcome Notes / Next Steps
+                  </label>
                   <textarea
                     rows={3}
                     placeholder="e.g. Client requested pro-forma invoice for 120 sqm unit. Follow up with invoice by tomorrow morning..."
                     value={outcomeForm.notes}
-                    onChange={(e) => setOutcomeForm({ ...outcomeForm, notes: e.target.value })}
+                    onChange={(e) =>
+                      setOutcomeForm({ ...outcomeForm, notes: e.target.value })
+                    }
                     className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>

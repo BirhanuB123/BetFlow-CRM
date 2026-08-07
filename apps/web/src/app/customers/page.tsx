@@ -1,8 +1,23 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+} from "react";
 import Link from "next/link";
-import { Plus, Trash2, X, Search, ChevronDown, ChevronRight, Filter, RotateCcw } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  X,
+  Search,
+  ChevronDown,
+  ChevronRight,
+  Filter,
+  RotateCcw,
+} from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
@@ -54,7 +69,7 @@ function FilterAccordion({
   const filteredItems = useMemo(() => {
     if (!filterSearch.trim()) return items;
     return items.filter((item) =>
-      item.toLowerCase().includes(filterSearch.trim().toLowerCase())
+      item.toLowerCase().includes(filterSearch.trim().toLowerCase()),
     );
   }, [items, filterSearch]);
 
@@ -68,7 +83,9 @@ function FilterAccordion({
     return null;
   }
 
-  const selectedCount = items.filter((item) => selectedFilters.has(item)).length;
+  const selectedCount = items.filter((item) =>
+    selectedFilters.has(item),
+  ).length;
 
   return (
     <div className="border-b border-zinc-100 last:border-0">
@@ -77,7 +94,11 @@ function FilterAccordion({
         className="flex w-full items-center justify-between px-4 py-2.5 text-sm font-semibold text-zinc-800 hover:bg-zinc-100 transition-colors"
       >
         <div className="flex items-center gap-2">
-          {open ? <ChevronDown className="size-4 text-zinc-500" /> : <ChevronRight className="size-4 text-zinc-500" />}
+          {open ? (
+            <ChevronDown className="size-4 text-zinc-500" />
+          ) : (
+            <ChevronRight className="size-4 text-zinc-500" />
+          )}
           <span>{title}</span>
         </div>
         {selectedCount > 0 && (
@@ -95,7 +116,7 @@ function FilterAccordion({
                 key={item}
                 className={cn(
                   "flex items-center gap-2.5 cursor-pointer group rounded px-2 py-1.5 transition-colors select-none",
-                  isChecked ? "bg-indigo-50/80" : "hover:bg-zinc-100/70"
+                  isChecked ? "bg-indigo-50/80" : "hover:bg-zinc-100/70",
                 )}
               >
                 <input
@@ -107,7 +128,9 @@ function FilterAccordion({
                 <span
                   className={cn(
                     "text-[13px] transition-colors",
-                    isChecked ? "text-indigo-950 font-medium" : "text-zinc-600 group-hover:text-zinc-900"
+                    isChecked
+                      ? "text-indigo-950 font-medium"
+                      : "text-zinc-600 group-hover:text-zinc-900",
                   )}
                 >
                   {item}
@@ -130,7 +153,9 @@ export default function ContactsPage() {
   const [saving, setSaving] = useState(false);
 
   // Filter state
-  const [selectedFilters, setSelectedFilters] = useState<Set<string>>(new Set());
+  const [selectedFilters, setSelectedFilters] = useState<Set<string>>(
+    new Set(),
+  );
   const [filterSearch, setFilterSearch] = useState("");
   const [showSidebar, setShowSidebar] = useState(true);
 
@@ -178,7 +203,8 @@ export default function ContactsPage() {
       e.preventDefault();
       e.stopPropagation();
     }
-    if (!window.confirm("Are you sure you want to delete this contact?")) return;
+    if (!window.confirm("Are you sure you want to delete this contact?"))
+      return;
     setError(null);
     try {
       await apiFetch(`/customers/${id}`, { method: "DELETE" });
@@ -225,16 +251,46 @@ export default function ContactsPage() {
 
         // Check if search matches any filter item name
         const filterItemNames = [
-          "Activities", "Campaigns", "Latest Email Status", "Record Action",
-          "Related Records Action", "Touched Records", "Untouched Records",
-          "Account Name", "Assistant", "Asst Phone", "Contact Owner", "Created By",
-          "Created Time", "Date of Birth", "Department", "Email", "Email Opt Out",
-          "Fax", "First Name", "Home Phone", "Last Activity Time", "Last Name",
-          "Lead Source", "Mobile", "Modified By", "Modified Time", "Phone", "Title",
-          "Calls", "Cases", "Deals", "Emails", "Invoices", "Leads", "Meetings", "Notes", "Tasks"
+          "Activities",
+          "Campaigns",
+          "Latest Email Status",
+          "Record Action",
+          "Related Records Action",
+          "Touched Records",
+          "Untouched Records",
+          "Account Name",
+          "Assistant",
+          "Asst Phone",
+          "Contact Owner",
+          "Created By",
+          "Created Time",
+          "Date of Birth",
+          "Department",
+          "Email",
+          "Email Opt Out",
+          "Fax",
+          "First Name",
+          "Home Phone",
+          "Last Activity Time",
+          "Last Name",
+          "Lead Source",
+          "Mobile",
+          "Modified By",
+          "Modified Time",
+          "Phone",
+          "Title",
+          "Calls",
+          "Cases",
+          "Deals",
+          "Emails",
+          "Invoices",
+          "Leads",
+          "Meetings",
+          "Notes",
+          "Tasks",
         ];
         const matchesFilterName = filterItemNames.some((name) =>
-          name.toLowerCase().includes(searchLower)
+          name.toLowerCase().includes(searchLower),
         );
 
         if (!matchesFilterName && !matchesContact) {
@@ -247,7 +303,12 @@ export default function ContactsPage() {
         for (const filter of selectedFilters) {
           switch (filter) {
             case "Activities":
-              if (customer._count.deals === 0 && customer._count.contracts === 0 && customer._count.reservations === 0) return false;
+              if (
+                customer._count.deals === 0 &&
+                customer._count.contracts === 0 &&
+                customer._count.reservations === 0
+              )
+                return false;
               break;
             case "Campaigns":
             case "Touched Records":
@@ -322,7 +383,12 @@ export default function ContactsPage() {
   const handleBulkDelete = async () => {
     if (selectedRowIds.size === 0) return;
     const count = selectedRowIds.size;
-    if (!window.confirm(`Are you sure you want to delete ${count} selected contact(s)?`)) return;
+    if (
+      !window.confirm(
+        `Are you sure you want to delete ${count} selected contact(s)?`,
+      )
+    )
+      return;
     setError(null);
     const ids = Array.from(selectedRowIds);
     try {
@@ -331,13 +397,17 @@ export default function ContactsPage() {
           apiFetch(`/customers/${id}`, { method: "DELETE" }).catch((err) => {
             console.error(`Failed to delete customer ${id}:`, err);
             return null;
-          })
-        )
+          }),
+        ),
       );
       setCustomers((prev) => prev.filter((c) => !selectedRowIds.has(c.id)));
       setSelectedRowIds(new Set());
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete selected contacts");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to delete selected contacts",
+      );
       await load();
     }
   };
@@ -349,7 +419,6 @@ export default function ContactsPage() {
       active="Customers"
     >
       <div className="flex h-[calc(100vh-160px)] gap-0 overflow-hidden rounded-md border border-zinc-200 bg-white shadow-sm">
-        
         {/* Left Pane: Filters Sidebar */}
         {showSidebar && (
           <div className="w-[280px] flex-shrink-0 border-r border-zinc-200 bg-[#f8f9fa] flex flex-col hidden md:flex">
@@ -376,11 +445,11 @@ export default function ContactsPage() {
               </div>
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 size-4 text-zinc-400" />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={filterSearch}
                   onChange={(e) => setFilterSearch(e.target.value)}
-                  placeholder="Search filters or contacts" 
+                  placeholder="Search filters or contacts"
                   className="w-full rounded border border-zinc-300 bg-white py-2 pl-9 pr-8 text-[13px] text-zinc-900 placeholder:text-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
                 {filterSearch && (
@@ -394,8 +463,8 @@ export default function ContactsPage() {
               </div>
             </div>
             <div className="flex-1 overflow-y-auto custom-scrollbar">
-              <FilterAccordion 
-                title="System Defined Filters" 
+              <FilterAccordion
+                title="System Defined Filters"
                 defaultOpen={true}
                 selectedFilters={selectedFilters}
                 onToggleFilter={handleToggleFilter}
@@ -407,11 +476,11 @@ export default function ContactsPage() {
                   "Record Action",
                   "Related Records Action",
                   "Touched Records",
-                  "Untouched Records"
-                ]} 
+                  "Untouched Records",
+                ]}
               />
-              <FilterAccordion 
-                title="Filter By Fields" 
+              <FilterAccordion
+                title="Filter By Fields"
                 selectedFilters={selectedFilters}
                 onToggleFilter={handleToggleFilter}
                 filterSearch={filterSearch}
@@ -458,11 +527,11 @@ export default function ContactsPage() {
                   "Title",
                   "Twitter",
                   "Unsubscribed Mode",
-                  "Unsubscribed Time"
-                ]} 
+                  "Unsubscribed Time",
+                ]}
               />
-              <FilterAccordion 
-                title="Filter By Related Modules" 
+              <FilterAccordion
+                title="Filter By Related Modules"
                 defaultOpen={true}
                 selectedFilters={selectedFilters}
                 onToggleFilter={handleToggleFilter}
@@ -482,8 +551,8 @@ export default function ContactsPage() {
                   "Purchase Orders",
                   "Quotes",
                   "Sales Orders",
-                  "Tasks"
-                ]} 
+                  "Tasks",
+                ]}
               />
             </div>
           </div>
@@ -491,7 +560,6 @@ export default function ContactsPage() {
 
         {/* Right Pane: Main Content */}
         <div className="flex-1 flex flex-col min-w-0 bg-white">
-          
           {/* Top Header Row */}
           <div className="flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3 h-[60px]">
             <div className="flex items-center gap-4">
@@ -511,7 +579,11 @@ export default function ContactsPage() {
                   )}
                 </Button>
                 <div className="h-4 w-px bg-zinc-300 mx-1"></div>
-                <Button variant="ghost" size="sm" className="h-8 text-[13px] font-medium text-zinc-700">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 text-[13px] font-medium text-zinc-700"
+                >
                   All Customers <ChevronDown className="size-3.5 ml-1" />
                 </Button>
               </div>
@@ -531,9 +603,11 @@ export default function ContactsPage() {
                 </div>
               )}
             </div>
-            <Button 
-              onClick={() => setShowForm((value) => !value)} 
-              size="sm" className="h-8 bg-[#233b66] hover:bg-[#1d3257] text-white rounded shadow-sm text-[13px] px-4 font-medium">
+            <Button
+              onClick={() => setShowForm((value) => !value)}
+              size="sm"
+              className="h-8 bg-[#233b66] hover:bg-[#1d3257] text-white rounded shadow-sm text-[13px] px-4 font-medium"
+            >
               <Plus className="size-3.5 mr-1" />
               {showForm ? "Cancel" : "Create Customer"}
             </Button>
@@ -542,7 +616,9 @@ export default function ContactsPage() {
           {/* Active Filter Chips */}
           {selectedFilters.size > 0 && (
             <div className="flex items-center flex-wrap gap-2 px-4 py-2 bg-indigo-50/40 border-b border-zinc-200 text-xs">
-              <span className="font-semibold text-zinc-600">Active Filters:</span>
+              <span className="font-semibold text-zinc-600">
+                Active Filters:
+              </span>
               {Array.from(selectedFilters).map((item) => (
                 <span
                   key={item}
@@ -575,7 +651,9 @@ export default function ContactsPage() {
               <input
                 required
                 value={form.firstName}
-                onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, firstName: e.target.value })
+                }
                 placeholder="First name"
                 className="h-9 rounded border border-zinc-300 bg-white px-3 text-[13px] shadow-sm"
               />
@@ -600,7 +678,12 @@ export default function ContactsPage() {
                 className="h-9 rounded border border-zinc-300 bg-white px-3 text-[13px] shadow-sm"
               />
               <div className="sm:col-span-4 flex justify-end">
-                <Button type="submit" disabled={saving} size="sm" className="bg-indigo-600 hover:bg-indigo-700">
+                <Button
+                  type="submit"
+                  disabled={saving}
+                  size="sm"
+                  className="bg-indigo-600 hover:bg-indigo-700"
+                >
                   {saving ? "Saving..." : "Save Customer"}
                 </Button>
               </div>
@@ -625,7 +708,9 @@ export default function ContactsPage() {
                   <Search className="size-6 text-zinc-300" />
                 </div>
                 <h3 className="text-[15px] font-semibold text-zinc-900">
-                  {selectedFilters.size > 0 || filterSearch ? "No matching contacts found" : "No contacts found"}
+                  {selectedFilters.size > 0 || filterSearch
+                    ? "No matching contacts found"
+                    : "No contacts found"}
                 </h3>
                 <p className="text-[13px] text-zinc-500 mt-1 max-w-sm">
                   {selectedFilters.size > 0 || filterSearch
@@ -657,7 +742,10 @@ export default function ContactsPage() {
                     </th>
                     <th className="px-4 py-2.5">
                       <div className="flex items-center group cursor-pointer hover:text-indigo-600">
-                        Contact Name <span className="text-zinc-300 ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity">↓</span>
+                        Contact Name{" "}
+                        <span className="text-zinc-300 ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          ↓
+                        </span>
                       </div>
                     </th>
                     <th className="px-4 py-2.5">Account Name</th>
@@ -675,7 +763,7 @@ export default function ContactsPage() {
                         key={customer.id}
                         className={cn(
                           "transition-colors group cursor-pointer",
-                          isSelected ? "bg-indigo-50/40" : "hover:bg-[#f8f9fa]"
+                          isSelected ? "bg-indigo-50/40" : "hover:bg-[#f8f9fa]",
                         )}
                       >
                         <td className="px-4 py-2.5 text-center">
@@ -685,7 +773,9 @@ export default function ContactsPage() {
                             onChange={() => toggleSelectRow(customer.id)}
                             className={cn(
                               "rounded border-zinc-300 text-indigo-600 focus:ring-indigo-600 size-3.5 cursor-pointer accent-indigo-600 transition-opacity",
-                              isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                              isSelected
+                                ? "opacity-100"
+                                : "opacity-0 group-hover:opacity-100",
                             )}
                           />
                         </td>
@@ -695,14 +785,21 @@ export default function ContactsPage() {
                             className="font-medium text-indigo-600 hover:text-indigo-800 hover:underline inline-flex items-center gap-1.5"
                           >
                             <div className="size-6 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 text-[10px] font-bold">
-                              {customer.firstName[0]}{customer.lastName[0]}
+                              {customer.firstName[0]}
+                              {customer.lastName[0]}
                             </div>
                             {customer.firstName} {customer.lastName}
                           </Link>
                         </td>
-                        <td className="px-4 py-2.5 text-zinc-700">BetFlow Deals</td>
-                        <td className="px-4 py-2.5 text-zinc-600">{customer.email ?? "—"}</td>
-                        <td className="px-4 py-2.5 text-zinc-600">{customer.phone ?? "—"}</td>
+                        <td className="px-4 py-2.5 text-zinc-700">
+                          BetFlow Deals
+                        </td>
+                        <td className="px-4 py-2.5 text-zinc-600">
+                          {customer.email ?? "—"}
+                        </td>
+                        <td className="px-4 py-2.5 text-zinc-600">
+                          {customer.phone ?? "—"}
+                        </td>
                         <td className="px-4 py-2.5 text-zinc-700 flex items-center gap-1.5">
                           <div className="size-5 rounded-full bg-zinc-200 flex items-center justify-center text-zinc-600 text-[9px] font-bold overflow-hidden">
                             BB
@@ -726,24 +823,28 @@ export default function ContactsPage() {
               </table>
             )}
           </div>
-          
+
           {/* Pagination Footer */}
           {filteredCustomers.length > 0 && (
             <div className="flex items-center justify-between border-t border-zinc-200 bg-white px-4 py-2.5 text-xs text-zinc-500">
               <div className="flex items-center gap-4">
-                <span>Total Records: {filteredCustomers.length} {filteredCustomers.length !== customers.length && `(Filtered from ${customers.length})`}</span>
+                <span>
+                  Total Records: {filteredCustomers.length}{" "}
+                  {filteredCustomers.length !== customers.length &&
+                    `(Filtered from ${customers.length})`}
+                </span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="cursor-not-allowed text-zinc-300">{'<'}</span>
-                <span className="font-medium text-zinc-700">1 to {filteredCustomers.length}</span>
-                <span className="cursor-not-allowed text-zinc-300">{'>'}</span>
+                <span className="cursor-not-allowed text-zinc-300">{"<"}</span>
+                <span className="font-medium text-zinc-700">
+                  1 to {filteredCustomers.length}
+                </span>
+                <span className="cursor-not-allowed text-zinc-300">{">"}</span>
               </div>
             </div>
           )}
-
         </div>
       </div>
     </DashboardShell>
   );
 }
-

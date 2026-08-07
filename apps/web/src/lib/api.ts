@@ -57,7 +57,9 @@ export async function apiFetch<T>(
     try {
       const json = JSON.parse(rawText);
       if (json.message) {
-        parsedMessage = Array.isArray(json.message) ? json.message.join(", ") : String(json.message);
+        parsedMessage = Array.isArray(json.message)
+          ? json.message.join(", ")
+          : String(json.message);
       }
     } catch {}
     throw new Error(parsedMessage || `Request failed (${response.status})`);
@@ -69,12 +71,18 @@ export async function apiFetch<T>(
 export async function apiUpload<T>(path: string, body: FormData): Promise<T> {
   const session = getSession();
   const headers = new Headers();
-  if (session?.accessToken) headers.set("Authorization", `Bearer ${session.accessToken}`);
+  if (session?.accessToken)
+    headers.set("Authorization", `Bearer ${session.accessToken}`);
 
-  const response = await fetch(`${API_BASE_URL}${path}`, { method: "POST", headers, body });
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "POST",
+    headers,
+    body,
+  });
   if (response.status === 401 && typeof window !== "undefined") {
     clearSession();
-    if (!window.location.pathname.startsWith("/auth")) window.location.href = "/auth";
+    if (!window.location.pathname.startsWith("/auth"))
+      window.location.href = "/auth";
   }
   if (!response.ok) {
     const message = await response.text().catch(() => "");
@@ -86,7 +94,8 @@ export async function apiUpload<T>(path: string, body: FormData): Promise<T> {
 export async function apiDownload(path: string): Promise<Blob> {
   const session = getSession();
   const headers = new Headers();
-  if (session?.accessToken) headers.set("Authorization", `Bearer ${session.accessToken}`);
+  if (session?.accessToken)
+    headers.set("Authorization", `Bearer ${session.accessToken}`);
   const response = await fetch(`${API_BASE_URL}${path}`, { headers });
   if (!response.ok) {
     const message = await response.text().catch(() => "");
@@ -110,10 +119,13 @@ export function updateSessionCurrency(currency: string) {
   if (!raw) return;
   try {
     const session = JSON.parse(raw) as Session;
-    storage.setItem("betflow-auth", JSON.stringify({
-      ...session,
-      tenant: { ...session.tenant, currency },
-    }));
+    storage.setItem(
+      "betflow-auth",
+      JSON.stringify({
+        ...session,
+        tenant: { ...session.tenant, currency },
+      }),
+    );
   } catch {
     // A malformed session is handled by getSession on the next API request.
   }

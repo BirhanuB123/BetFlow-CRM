@@ -62,7 +62,9 @@ export default function NotificationsPage() {
       });
       await loadInbox();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update notification");
+      setError(
+        err instanceof Error ? err.message : "Failed to update notification",
+      );
     }
   };
 
@@ -73,14 +75,20 @@ export default function NotificationsPage() {
       });
       await loadInbox();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete notification");
+      setError(
+        err instanceof Error ? err.message : "Failed to delete notification",
+      );
     }
   };
 
   // Derived metrics
   const unreadCount = inbox.filter((n) => !n.isRead).length;
   const metrics = [
-    { label: "Unread alerts", value: String(unreadCount), detail: "Awaiting review" },
+    {
+      label: "Unread alerts",
+      value: String(unreadCount),
+      detail: "Awaiting review",
+    },
     ...notificationMetrics.slice(0, 3),
   ];
 
@@ -104,7 +112,7 @@ export default function NotificationsPage() {
             "flex items-center gap-2 border-b-2 px-4 py-2.5 transition",
             activeTab === "inbox"
               ? "border-[#0E6E63] text-[#0E6E63]"
-              : "border-transparent text-zinc-500 hover:text-zinc-700"
+              : "border-transparent text-zinc-500 hover:text-zinc-700",
           )}
           onClick={() => setActiveTab("inbox")}
         >
@@ -117,7 +125,7 @@ export default function NotificationsPage() {
             "flex items-center gap-2 border-b-2 px-4 py-2.5 transition",
             activeTab === "logs"
               ? "border-[#0E6E63] text-[#0E6E63]"
-              : "border-transparent text-zinc-500 hover:text-zinc-700"
+              : "border-transparent text-zinc-500 hover:text-zinc-700",
           )}
           onClick={() => setActiveTab("logs")}
         >
@@ -137,12 +145,16 @@ export default function NotificationsPage() {
         <section className="mt-4 rounded-lg border border-zinc-200 bg-white">
           <div className="border-b border-zinc-200 p-4">
             <h2 className="text-base font-semibold">Notifications Inbox</h2>
-            <p className="text-sm text-zinc-500">Real-time alerts triggered by system actions.</p>
+            <p className="text-sm text-zinc-500">
+              Real-time alerts triggered by system actions.
+            </p>
           </div>
           {loading ? (
             <p className="p-6 text-sm text-zinc-500">Loading alerts…</p>
           ) : inbox.length === 0 ? (
-            <p className="p-6 text-sm text-zinc-500 text-center">No notifications found.</p>
+            <p className="p-6 text-sm text-zinc-500 text-center">
+              No notifications found.
+            </p>
           ) : (
             <CrmTable
               columns={["Status", "Title", "Message", "Received At", "Actions"]}
@@ -151,21 +163,36 @@ export default function NotificationsPage() {
                   key="status"
                   className={cn(
                     "rounded-md px-2 py-1 text-xs font-medium",
-                    item.isRead ? "bg-zinc-100 text-zinc-600" : "bg-teal-50 text-teal-700 font-semibold"
+                    item.isRead
+                      ? "bg-zinc-100 text-zinc-600"
+                      : "bg-teal-50 text-teal-700 font-semibold",
                   )}
                 >
                   {item.isRead ? "Read" : "Unread"}
                 </span>,
-                <span key="title" className="font-semibold text-zinc-900">{item.title}</span>,
+                <span key="title" className="font-semibold text-zinc-900">
+                  {item.title}
+                </span>,
                 item.message,
                 new Date(item.createdAt).toLocaleString(),
                 <div key="actions" className="flex items-center gap-1.5">
                   {!item.isRead && (
-                    <Button size="icon-sm" variant="outline" title="Mark as read" onClick={() => markAsRead(item.id)}>
+                    <Button
+                      size="icon-sm"
+                      variant="outline"
+                      title="Mark as read"
+                      onClick={() => markAsRead(item.id)}
+                    >
                       <Check className="size-3.5" />
                     </Button>
                   )}
-                  <Button size="icon-sm" variant="ghost" className="text-red-500 hover:text-red-700 hover:bg-red-50" title="Delete" onClick={() => deleteNotification(item.id)}>
+                  <Button
+                    size="icon-sm"
+                    variant="ghost"
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    title="Delete"
+                    onClick={() => deleteNotification(item.id)}
+                  >
                     <Trash2 className="size-3.5" />
                   </Button>
                 </div>,
@@ -181,7 +208,9 @@ export default function NotificationsPage() {
           <div className="flex items-center justify-between gap-4 border-b border-zinc-200 p-4">
             <div>
               <h2 className="text-base font-semibold">Message queue</h2>
-              <p className="text-sm text-zinc-500">Customer and internal notifications by channel.</p>
+              <p className="text-sm text-zinc-500">
+                Customer and internal notifications by channel.
+              </p>
             </div>
             <Button>
               <Send className="size-4" />
@@ -189,16 +218,31 @@ export default function NotificationsPage() {
             </Button>
           </div>
           <CrmTable
-            columns={["Channel", "Recipient", "Subject", "Related to", "Schedule", "Status"]}
+            columns={[
+              "Channel",
+              "Recipient",
+              "Subject",
+              "Related to",
+              "Schedule",
+              "Status",
+            ]}
             rows={notificationMessages.map((message) => [
-              <span key="channel" className={`rounded-md px-2 py-1 text-xs font-medium ${channelClass[message.channel]}`}>
+              <span
+                key="channel"
+                className={`rounded-md px-2 py-1 text-xs font-medium ${channelClass[message.channel]}`}
+              >
                 {message.channel}
               </span>,
-              <span key="recipient" className="font-medium">{message.recipient}</span>,
+              <span key="recipient" className="font-medium">
+                {message.recipient}
+              </span>,
               message.subject,
               message.relatedTo,
               message.scheduledFor,
-              <span key="status" className={`rounded-md px-2 py-1 text-xs font-medium ${notificationStatusClass[message.status]}`}>
+              <span
+                key="status"
+                className={`rounded-md px-2 py-1 text-xs font-medium ${notificationStatusClass[message.status]}`}
+              >
                 {message.status}
               </span>,
             ])}

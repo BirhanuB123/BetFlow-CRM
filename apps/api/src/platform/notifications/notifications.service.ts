@@ -82,7 +82,8 @@ export class NotificationsService {
         id: s.id,
         contractId: s.contractId,
         contractNumber: s.contract.contractNumber,
-        customerName: `${s.contract.customer.firstName} ${s.contract.customer.lastName}`.trim(),
+        customerName:
+          `${s.contract.customer.firstName} ${s.contract.customer.lastName}`.trim(),
         amount: remainingAmount,
         dueDate: s.dueDate.toISOString().split('T')[0],
         overdueByDays: overdueDays,

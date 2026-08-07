@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+} from "react";
 import Link from "next/link";
 import {
   ClipboardList,
@@ -60,7 +66,8 @@ type UserOption = { id: string; firstName: string; lastName: string } | null;
 
 const statusClass: Record<string, string> = {
   TODO: "bg-slate-100 text-slate-700 border-slate-200",
-  IN_PROGRESS: "bg-[#233b66]/10 text-[#233b66] border-[#233b66]/20 font-semibold",
+  IN_PROGRESS:
+    "bg-[#233b66]/10 text-[#233b66] border-[#233b66]/20 font-semibold",
   DONE: "bg-emerald-50 text-emerald-700 border-emerald-200",
 };
 
@@ -89,7 +96,10 @@ const categoryIcons: Record<string, typeof FileText> = {
 };
 
 function label(status: string) {
-  return status.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
+  return status
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/^\w/, (c) => c.toUpperCase());
 }
 
 function fmtDate(iso: string | null) {
@@ -108,13 +118,17 @@ export default function TasksPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Filters & search
-  const [filter, setFilter] = useState<"OPEN" | "ALL" | "HIGH_PRIORITY" | "DUE_TODAY" | "DONE">("OPEN");
+  const [filter, setFilter] = useState<
+    "OPEN" | "ALL" | "HIGH_PRIORITY" | "DUE_TODAY" | "DONE"
+  >("OPEN");
   const [priorityFilter, setPriorityFilter] = useState<string>("ALL");
   const [assigneeFilter, setAssigneeFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
   // Selections state
-  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(
+    new Set(),
+  );
 
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -156,7 +170,14 @@ export default function TasksPage() {
 
   const now = new Date();
   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+  const endOfDay = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    23,
+    59,
+    59,
+  );
 
   const visible = useMemo(() => {
     return tasks.filter((t) => {
@@ -164,23 +185,38 @@ export default function TasksPage() {
       if (filter === "OPEN" && t.status === "DONE") return false;
       if (filter === "HIGH_PRIORITY" && t.priority !== "HIGH") return false;
       if (filter === "DUE_TODAY") {
-        if (!t.dueDate || new Date(t.dueDate) < startOfDay || new Date(t.dueDate) > endOfDay) return false;
+        if (
+          !t.dueDate ||
+          new Date(t.dueDate) < startOfDay ||
+          new Date(t.dueDate) > endOfDay
+        )
+          return false;
       }
       if (filter === "DONE" && t.status !== "DONE") return false;
 
       // 2. Priority filter dropdown
-      if (priorityFilter !== "ALL" && (t.priority ?? "MEDIUM") !== priorityFilter) return false;
+      if (
+        priorityFilter !== "ALL" &&
+        (t.priority ?? "MEDIUM") !== priorityFilter
+      )
+        return false;
 
       // 3. Assignee filter dropdown
       if (assigneeFilter !== "ALL") {
         if (assigneeFilter === "UNASSIGNED" && t.assignee) return false;
-        if (assigneeFilter !== "UNASSIGNED" && t.assignee?.id !== assigneeFilter) return false;
+        if (
+          assigneeFilter !== "UNASSIGNED" &&
+          t.assignee?.id !== assigneeFilter
+        )
+          return false;
       }
 
       // 4. Text search
       const q = searchQuery.trim().toLowerCase();
       if (q) {
-        const assigneeName = t.assignee ? `${t.assignee.firstName} ${t.assignee.lastName}` : "";
+        const assigneeName = t.assignee
+          ? `${t.assignee.firstName} ${t.assignee.lastName}`
+          : "";
         const matches =
           t.title.toLowerCase().includes(q) ||
           (t.description ?? "").toLowerCase().includes(q) ||
@@ -191,7 +227,15 @@ export default function TasksPage() {
 
       return true;
     });
-  }, [tasks, filter, priorityFilter, assigneeFilter, searchQuery, startOfDay, endOfDay]);
+  }, [
+    tasks,
+    filter,
+    priorityFilter,
+    assigneeFilter,
+    searchQuery,
+    startOfDay,
+    endOfDay,
+  ]);
 
   const allRowsSelected =
     visible.length > 0 && visible.every((t) => selectedTaskIds.has(t.id));
@@ -250,9 +294,7 @@ export default function TasksPage() {
 
   const changeStatus = async (id: string, status: string) => {
     // Optimistic state update
-    setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, status } : t))
-    );
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t)));
     setError(null);
     try {
       await apiFetch(`/tasks/${id}/status`, {
@@ -260,7 +302,9 @@ export default function TasksPage() {
         body: JSON.stringify({ status }),
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update task status");
+      setError(
+        err instanceof Error ? err.message : "Failed to update task status",
+      );
       await load();
     }
   };
@@ -275,7 +319,10 @@ export default function TasksPage() {
       e.preventDefault();
       e.stopPropagation();
     }
-    if (typeof window !== "undefined" && !window.confirm("Are you sure you want to delete this task?")) {
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm("Are you sure you want to delete this task?")
+    ) {
       return;
     }
     setError(null);
@@ -296,7 +343,12 @@ export default function TasksPage() {
   const handleBulkDelete = async () => {
     if (selectedTaskIds.size === 0) return;
     const count = selectedTaskIds.size;
-    if (typeof window !== "undefined" && !window.confirm(`Are you sure you want to delete ${count} selected task(s)?`)) {
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(
+        `Are you sure you want to delete ${count} selected task(s)?`,
+      )
+    ) {
       return;
     }
     setError(null);
@@ -307,13 +359,15 @@ export default function TasksPage() {
           apiFetch(`/tasks/${id}`, { method: "DELETE" }).catch((err) => {
             console.error(`Failed to delete task ${id}:`, err);
             return null;
-          })
-        )
+          }),
+        ),
       );
       setTasks((prev) => prev.filter((t) => !selectedTaskIds.has(t.id)));
       setSelectedTaskIds(new Set());
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete selected tasks");
+      setError(
+        err instanceof Error ? err.message : "Failed to delete selected tasks",
+      );
       await load();
     }
   };
@@ -322,7 +376,9 @@ export default function TasksPage() {
     if (selectedTaskIds.size === 0) return;
     const ids = Array.from(selectedTaskIds);
     setTasks((prev) =>
-      prev.map((t) => (selectedTaskIds.has(t.id) ? { ...t, status: "DONE" } : t))
+      prev.map((t) =>
+        selectedTaskIds.has(t.id) ? { ...t, status: "DONE" } : t,
+      ),
     );
     setError(null);
     try {
@@ -331,12 +387,14 @@ export default function TasksPage() {
           apiFetch(`/tasks/${id}/status`, {
             method: "PATCH",
             body: JSON.stringify({ status: "DONE" }),
-          }).catch(() => null)
-        )
+          }).catch(() => null),
+        ),
       );
       setSelectedTaskIds(new Set());
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update selected tasks");
+      setError(
+        err instanceof Error ? err.message : "Failed to update selected tasks",
+      );
       await load();
     }
   };
@@ -345,7 +403,10 @@ export default function TasksPage() {
     if (!task.entityType) return "—";
     if (task.entityType === "Customer" && task.entityId) {
       return (
-        <Link href={`/customers/${task.entityId}`} className="font-semibold text-indigo-600 hover:underline">
+        <Link
+          href={`/customers/${task.entityId}`}
+          className="font-semibold text-indigo-600 hover:underline"
+        >
           Customer
         </Link>
       );
@@ -354,12 +415,17 @@ export default function TasksPage() {
   };
 
   const overdueCount = tasks.filter(
-    (t) => t.status !== "DONE" && t.dueDate && new Date(t.dueDate) < startOfDay
+    (t) => t.status !== "DONE" && t.dueDate && new Date(t.dueDate) < startOfDay,
   ).length;
   const dueTodayCount = tasks.filter(
-    (t) => t.dueDate && new Date(t.dueDate) >= startOfDay && new Date(t.dueDate) <= endOfDay
+    (t) =>
+      t.dueDate &&
+      new Date(t.dueDate) >= startOfDay &&
+      new Date(t.dueDate) <= endOfDay,
   ).length;
-  const highPriorityCount = tasks.filter((t) => t.priority === "HIGH" && t.status !== "DONE").length;
+  const highPriorityCount = tasks.filter(
+    (t) => t.priority === "HIGH" && t.status !== "DONE",
+  ).length;
   const completedCount = tasks.filter((t) => t.status === "DONE").length;
 
   return (
@@ -375,17 +441,24 @@ export default function TasksPage() {
             <div>
               <div className="flex items-center gap-2">
                 <ClipboardList className="size-5 text-[#233b66]" />
-                <h2 className="text-lg font-bold text-slate-900">Ethiopian Real Estate Sales Tasks</h2>
+                <h2 className="text-lg font-bold text-slate-900">
+                  Ethiopian Real Estate Sales Tasks
+                </h2>
               </div>
               <p className="mt-1 text-sm text-slate-500">
-                Organize pro-forma invoices, site visit arrangements, bank mortgage documents, & sales contracts.
+                Organize pro-forma invoices, site visit arrangements, bank
+                mortgage documents, & sales contracts.
               </p>
             </div>
             <Button
               onClick={() => setShowForm((v) => !v)}
               className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium shadow-sm transition-all"
             >
-              {showForm ? <X className="size-4 mr-1.5" /> : <Plus className="size-4 mr-1.5" />}
+              {showForm ? (
+                <X className="size-4 mr-1.5" />
+              ) : (
+                <Plus className="size-4 mr-1.5" />
+              )}
               {showForm ? "Cancel Intake" : "Create New Task"}
             </Button>
           </div>
@@ -403,22 +476,33 @@ export default function TasksPage() {
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Task Title / Objective *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Task Title / Objective *
+                  </label>
                   <input
                     required
                     type="text"
                     placeholder="e.g. Prepare Pro-Forma Invoice for Bole 3-Bed Unit 14B"
                     value={form.title}
-                    onChange={(e) => setForm({ ...form, title: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, title: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Real Estate Category</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Real Estate Category
+                  </label>
                   <select
                     value={form.category}
-                    onChange={(e) => setForm({ ...form, category: e.target.value as TaskCategory })}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        category: e.target.value as TaskCategory,
+                      })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   >
                     {TASK_CATEGORIES.map((cat) => (
@@ -430,10 +514,17 @@ export default function TasksPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Priority Level</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Priority Level
+                  </label>
                   <select
                     value={form.priority}
-                    onChange={(e) => setForm({ ...form, priority: e.target.value as TaskPriority })}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        priority: e.target.value as TaskPriority,
+                      })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   >
                     <option value="HIGH">High Priority (Urgent Action)</option>
@@ -443,20 +534,28 @@ export default function TasksPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Due Date</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Due Date
+                  </label>
                   <input
                     type="date"
                     value={form.dueDate}
-                    onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, dueDate: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Assignee Agent</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Assignee Agent
+                  </label>
                   <select
                     value={form.assigneeId}
-                    onChange={(e) => setForm({ ...form, assigneeId: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, assigneeId: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   >
                     <option value="">Unassigned (Open Team Task)</option>
@@ -469,12 +568,16 @@ export default function TasksPage() {
                 </div>
 
                 <div className="sm:col-span-3">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Detailed Instructions & Notes</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Detailed Instructions & Notes
+                  </label>
                   <textarea
                     rows={2}
                     placeholder="e.g. Client requested 30% downpayment breakdown over 24 months with 30/70 bank mortgage calculation..."
                     value={form.description}
-                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, description: e.target.value })
+                    }
                     className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-sm"
                   />
                 </div>
@@ -489,7 +592,11 @@ export default function TasksPage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={saving} className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium text-xs shadow-sm">
+                <Button
+                  type="submit"
+                  disabled={saving}
+                  className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium text-xs shadow-sm"
+                >
                   {saving ? "Saving…" : "Create Real Estate Task"}
                 </Button>
               </div>
@@ -512,7 +619,9 @@ export default function TasksPage() {
                 onClick={() => setFilter("OPEN")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "OPEN" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "OPEN"
+                    ? "bg-[#233b66] text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-200/60",
                 )}
               >
                 Open Tasks ({tasks.filter((t) => t.status !== "DONE").length})
@@ -522,7 +631,9 @@ export default function TasksPage() {
                 onClick={() => setFilter("HIGH_PRIORITY")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "HIGH_PRIORITY" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "HIGH_PRIORITY"
+                    ? "bg-[#233b66] text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-200/60",
                 )}
               >
                 High Priority ({highPriorityCount})
@@ -532,7 +643,9 @@ export default function TasksPage() {
                 onClick={() => setFilter("DUE_TODAY")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "DUE_TODAY" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "DUE_TODAY"
+                    ? "bg-[#233b66] text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-200/60",
                 )}
               >
                 Due Today ({dueTodayCount})
@@ -542,7 +655,9 @@ export default function TasksPage() {
                 onClick={() => setFilter("DONE")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "DONE" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "DONE"
+                    ? "bg-[#233b66] text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-200/60",
                 )}
               >
                 Completed ({completedCount})
@@ -552,7 +667,9 @@ export default function TasksPage() {
                 onClick={() => setFilter("ALL")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "ALL" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "ALL"
+                    ? "bg-[#233b66] text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-200/60",
                 )}
               >
                 All ({tasks.length})
@@ -631,9 +748,12 @@ export default function TasksPage() {
               <div className="rounded-full bg-slate-50 p-4 border border-slate-100 mb-2">
                 <ClipboardList className="size-6 text-slate-400" />
               </div>
-              <p className="text-sm font-semibold text-slate-800">No tasks in this view</p>
+              <p className="text-sm font-semibold text-slate-800">
+                No tasks in this view
+              </p>
               <p className="text-xs text-slate-500 max-w-sm mt-1">
-                You're all caught up! Click "Create New Task" to log a new real estate action item.
+                You're all caught up! Click "Create New Task" to log a new real
+                estate action item.
               </p>
             </div>
           ) : (
@@ -660,7 +780,9 @@ export default function TasksPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {visible.map((task) => {
-                    const CategoryIcon = categoryIcons[task.category ?? "CLIENT_FOLLOWUP"] ?? FileText;
+                    const CategoryIcon =
+                      categoryIcons[task.category ?? "CLIENT_FOLLOWUP"] ??
+                      FileText;
                     const isSelected = selectedTaskIds.has(task.id);
                     const isCompleted = task.status === "DONE";
 
@@ -669,7 +791,9 @@ export default function TasksPage() {
                         key={task.id}
                         className={cn(
                           "transition-colors group cursor-pointer",
-                          isSelected ? "bg-indigo-50/40" : "hover:bg-slate-50/60"
+                          isSelected
+                            ? "bg-indigo-50/40"
+                            : "hover:bg-slate-50/60",
                         )}
                       >
                         <td className="px-4 py-3 text-center">
@@ -687,21 +811,38 @@ export default function TasksPage() {
                               onClick={() => toggleTaskDone(task)}
                               className={cn(
                                 "size-5 mt-0.5 rounded-full flex items-center justify-center border transition-colors cursor-pointer",
-                                isCompleted ? "bg-emerald-500 border-emerald-600 text-white" : "border-slate-300 hover:border-indigo-500 bg-white"
+                                isCompleted
+                                  ? "bg-emerald-500 border-emerald-600 text-white"
+                                  : "border-slate-300 hover:border-indigo-500 bg-white",
                               )}
-                              title={isCompleted ? "Mark incomplete" : "Mark completed"}
+                              title={
+                                isCompleted
+                                  ? "Mark incomplete"
+                                  : "Mark completed"
+                              }
                             >
-                              {isCompleted && <Check className="size-3 stroke-[3]" />}
+                              {isCompleted && (
+                                <Check className="size-3 stroke-[3]" />
+                              )}
                             </button>
                             <div className="rounded-lg bg-indigo-50 p-2 text-indigo-600 border border-indigo-100">
                               <CategoryIcon className="size-3.5" />
                             </div>
                             <div>
-                              <p className={cn("font-semibold", isCompleted ? "line-through text-slate-400" : "text-slate-800")}>
+                              <p
+                                className={cn(
+                                  "font-semibold",
+                                  isCompleted
+                                    ? "line-through text-slate-400"
+                                    : "text-slate-800",
+                                )}
+                              >
                                 {task.title}
                               </p>
                               <p className="text-[11px] text-slate-500 mt-0.5">
-                                {categoryLabels[task.category ?? "CLIENT_FOLLOWUP"] ?? "General Task"}
+                                {categoryLabels[
+                                  task.category ?? "CLIENT_FOLLOWUP"
+                                ] ?? "General Task"}
                               </p>
                               {task.description && (
                                 <p className="text-[11px] text-slate-400 truncate max-w-[220px] mt-0.5">
@@ -716,7 +857,8 @@ export default function TasksPage() {
                           <span
                             className={cn(
                               "inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] uppercase tracking-wider border",
-                              priorityClass[task.priority ?? "MEDIUM"] ?? priorityClass.MEDIUM
+                              priorityClass[task.priority ?? "MEDIUM"] ??
+                                priorityClass.MEDIUM,
                             )}
                           >
                             {task.priority ?? "MEDIUM"}
@@ -730,11 +872,15 @@ export default function TasksPage() {
                               {task.assignee.firstName} {task.assignee.lastName}
                             </span>
                           ) : (
-                            <span className="text-slate-400 italic">Unassigned</span>
+                            <span className="text-slate-400 italic">
+                              Unassigned
+                            </span>
                           )}
                         </td>
 
-                        <td className="px-5 py-3 text-slate-600">{relatedTo(task)}</td>
+                        <td className="px-5 py-3 text-slate-600">
+                          {relatedTo(task)}
+                        </td>
 
                         <td className="px-5 py-3 font-medium text-slate-600">
                           {fmtDate(task.dueDate)}
@@ -743,10 +889,13 @@ export default function TasksPage() {
                         <td className="px-5 py-3">
                           <select
                             value={task.status}
-                            onChange={(e) => void changeStatus(task.id, e.target.value)}
+                            onChange={(e) =>
+                              void changeStatus(task.id, e.target.value)
+                            }
                             className={cn(
                               "h-7 rounded-md border-0 px-2.5 text-xs font-semibold cursor-pointer outline-none",
-                              statusClass[task.status] ?? "bg-slate-100 text-slate-700"
+                              statusClass[task.status] ??
+                                "bg-slate-100 text-slate-700",
                             )}
                             aria-label={`Status for ${task.title}`}
                           >
@@ -763,7 +912,9 @@ export default function TasksPage() {
                             {task.status !== "DONE" && (
                               <Button
                                 size="xs"
-                                onClick={() => void changeStatus(task.id, "DONE")}
+                                onClick={() =>
+                                  void changeStatus(task.id, "DONE")
+                                }
                                 className="bg-emerald-600 hover:bg-emerald-700 text-white h-7 text-[11px] px-2 shadow-2xs font-medium"
                               >
                                 Mark Done
@@ -772,7 +923,9 @@ export default function TasksPage() {
 
                             <button
                               type="button"
-                              onClick={(e) => void handleDeleteSingle(task.id, e)}
+                              onClick={(e) =>
+                                void handleDeleteSingle(task.id, e)
+                              }
                               className="rounded p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
                               title="Delete task"
                             >
@@ -788,11 +941,12 @@ export default function TasksPage() {
             </div>
           )}
           <div className="border-t border-slate-200 px-5 py-2.5 text-xs text-slate-500">
-            {loading ? "Loading…" : `Total Tasks: ${visible.length} ${visible.length !== tasks.length ? `(Filtered from ${tasks.length})` : ""}`}
+            {loading
+              ? "Loading…"
+              : `Total Tasks: ${visible.length} ${visible.length !== tasks.length ? `(Filtered from ${tasks.length})` : ""}`}
           </div>
         </section>
       </div>
     </DashboardShell>
   );
 }
-

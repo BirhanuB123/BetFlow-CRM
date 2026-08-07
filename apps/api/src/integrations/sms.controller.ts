@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Patch, Put, Body, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Put,
+  Body,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import {
   EthioTelecomSmsService,
   SmsSendDto,
@@ -42,7 +51,10 @@ export class SmsController {
   }
 
   @Put('rules/:ruleKey')
-  async updateRule(@Param('ruleKey') ruleKey: 'siteVisit' | 'holdExpiry' | 'paymentDue', @Body() dto: UpdateRuleDto) {
+  async updateRule(
+    @Param('ruleKey') ruleKey: 'siteVisit' | 'holdExpiry' | 'paymentDue',
+    @Body() dto: UpdateRuleDto,
+  ) {
     return this.smsService.updateRule(ruleKey, dto);
   }
 
@@ -64,12 +76,18 @@ export class SmsController {
   }
 
   @Post('drip-campaigns/:id/steps')
-  async addDripStep(@Param('id') campaignId: string, @Body() dto: CreateDripStepDto) {
+  async addDripStep(
+    @Param('id') campaignId: string,
+    @Body() dto: CreateDripStepDto,
+  ) {
     return this.smsService.addDripStep(campaignId, dto);
   }
 
   @Post('drip-campaigns/:id/enroll')
-  async enrollLead(@Param('id') campaignId: string, @Body() dto: EnrollLeadDto) {
+  async enrollLead(
+    @Param('id') campaignId: string,
+    @Body() dto: EnrollLeadDto,
+  ) {
     return this.smsService.enrollLead(campaignId, dto);
   }
 }

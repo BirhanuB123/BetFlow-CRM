@@ -195,7 +195,11 @@ export function printReportDocument(options: PrintReportOptions) {
 </html>`;
 
   // Open in a new clean browser window/tab where native print preview is 100% supported
-  const printWin = window.open("", "_blank", "width=960,height=800,scrollbars=yes");
+  const printWin = window.open(
+    "",
+    "_blank",
+    "width=960,height=800,scrollbars=yes",
+  );
   if (printWin) {
     printWin.document.open();
     printWin.document.write(html);

@@ -17,14 +17,20 @@ export class ReservationsCronService {
     this.logger.log('Running automated reservation expiration check...');
 
     try {
-      const expiredCount = await this.reservationsService.processExpiredReservations();
+      const expiredCount =
+        await this.reservationsService.processExpiredReservations();
       if (expiredCount > 0) {
-        this.logger.log(`Successfully expired ${expiredCount} overdue reservation(s) and released unit(s).`);
+        this.logger.log(
+          `Successfully expired ${expiredCount} overdue reservation(s) and released unit(s).`,
+        );
       } else {
         this.logger.log('No overdue reservations found.');
       }
     } catch (error) {
-      this.logger.error('Error while executing reservation expiration task:', error);
+      this.logger.error(
+        'Error while executing reservation expiration task:',
+        error,
+      );
     }
   }
 }

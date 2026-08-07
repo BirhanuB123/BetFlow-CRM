@@ -37,7 +37,9 @@ export default function BrandingPage() {
       const data = await apiFetch<BrandingSetting[]>("/saas/branding");
       setSettings(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load branding settings");
+      setError(
+        err instanceof Error ? err.message : "Failed to load branding settings",
+      );
     } finally {
       setLoading(false);
     }
@@ -64,7 +66,11 @@ export default function BrandingPage() {
       setEditingId(null);
       showSuccess("Branding setting updated as draft");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update branding setting");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to update branding setting",
+      );
     } finally {
       setSavingId(null);
     }
@@ -74,13 +80,20 @@ export default function BrandingPage() {
     setPublishing(true);
     setError(null);
     try {
-      const published = await apiFetch<BrandingSetting[]>("/saas/branding/publish", {
-        method: "POST",
-      });
+      const published = await apiFetch<BrandingSetting[]>(
+        "/saas/branding/publish",
+        {
+          method: "POST",
+        },
+      );
       setSettings(published);
       showSuccess("All branding changes published to live");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to publish branding changes");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to publish branding changes",
+      );
     } finally {
       setPublishing(false);
     }
@@ -107,9 +120,21 @@ export default function BrandingPage() {
         Back to Settings
       </Link>
       <div className="grid gap-4 md:grid-cols-3 mb-6">
-        <StatCard label="White-label status" value={settings.length > 0 ? "Active" : "Unknown"} detail="Tenant logo, colors, and portal messaging" />
-        <StatCard label="Brand assets" value={String(settings.length)} detail="Configurable identity parameters" />
-        <StatCard label="Draft changes" value={String(draftCount)} detail="Requires publish to reflect on customer portal" />
+        <StatCard
+          label="White-label status"
+          value={settings.length > 0 ? "Active" : "Unknown"}
+          detail="Tenant logo, colors, and portal messaging"
+        />
+        <StatCard
+          label="Brand assets"
+          value={String(settings.length)}
+          detail="Configurable identity parameters"
+        />
+        <StatCard
+          label="Draft changes"
+          value={String(draftCount)}
+          detail="Requires publish to reflect on customer portal"
+        />
       </div>
 
       {error && (
@@ -129,10 +154,17 @@ export default function BrandingPage() {
         <div className="flex items-center justify-between gap-4 border-b border-zinc-200 p-4">
           <div>
             <h2 className="text-base font-semibold">Brand settings</h2>
-            <p className="text-sm text-zinc-500">Workspace labels, logo, colors, and login copy.</p>
+            <p className="text-sm text-zinc-500">
+              Workspace labels, logo, colors, and login copy.
+            </p>
           </div>
-          <Button onClick={handlePublish} disabled={publishing || draftCount === 0}>
-            {publishing ? <RotateCw className="size-4 animate-spin mr-1" /> : null}
+          <Button
+            onClick={handlePublish}
+            disabled={publishing || draftCount === 0}
+          >
+            {publishing ? (
+              <RotateCw className="size-4 animate-spin mr-1" />
+            ) : null}
             Publish changes
           </Button>
         </div>
@@ -142,9 +174,14 @@ export default function BrandingPage() {
         ) : (
           <div className="divide-y divide-zinc-100">
             {settings.map((setting) => (
-              <div key={setting.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 hover:bg-zinc-50 transition">
+              <div
+                key={setting.id}
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 hover:bg-zinc-50 transition"
+              >
                 <div className="sm:w-1/3">
-                  <p className="text-sm font-semibold text-zinc-800">{setting.label}</p>
+                  <p className="text-sm font-semibold text-zinc-800">
+                    {setting.label}
+                  </p>
                 </div>
                 <div className="flex-1 flex items-center gap-3">
                   {editingId === setting.id ? (
@@ -155,25 +192,48 @@ export default function BrandingPage() {
                       autoFocus
                     />
                   ) : (
-                    <span className="text-sm text-zinc-600">{setting.value}</span>
+                    <span className="text-sm text-zinc-600">
+                      {setting.value}
+                    </span>
                   )}
 
-                  <span className={`rounded-md border px-2 py-0.5 text-xs font-medium uppercase ${statusClass[setting.status]}`}>
+                  <span
+                    className={`rounded-md border px-2 py-0.5 text-xs font-medium uppercase ${statusClass[setting.status]}`}
+                  >
                     {setting.status}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 sm:w-[120px] justify-end">
                   {editingId === setting.id ? (
                     <>
-                      <Button size="icon-sm" onClick={() => handleSave(setting.id)} disabled={savingId === setting.id || editValue.trim() === setting.value}>
-                        {savingId === setting.id ? <RotateCw className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
+                      <Button
+                        size="icon-sm"
+                        onClick={() => handleSave(setting.id)}
+                        disabled={
+                          savingId === setting.id ||
+                          editValue.trim() === setting.value
+                        }
+                      >
+                        {savingId === setting.id ? (
+                          <RotateCw className="size-3.5 animate-spin" />
+                        ) : (
+                          <Save className="size-3.5" />
+                        )}
                       </Button>
-                      <Button size="icon-sm" variant="outline" onClick={() => setEditingId(null)}>
+                      <Button
+                        size="icon-sm"
+                        variant="outline"
+                        onClick={() => setEditingId(null)}
+                      >
                         Cancel
                       </Button>
                     </>
                   ) : (
-                    <Button size="icon-sm" variant="ghost" onClick={() => handleStartEdit(setting)}>
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      onClick={() => handleStartEdit(setting)}
+                    >
                       <Edit2 className="size-3.5" />
                     </Button>
                   )}

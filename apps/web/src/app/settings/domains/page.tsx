@@ -45,7 +45,9 @@ export default function DomainsPage() {
       const data = await apiFetch<CustomDomain[]>("/saas/domains");
       setDomains(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load custom domains");
+      setError(
+        err instanceof Error ? err.message : "Failed to load custom domains",
+      );
     } finally {
       setLoading(false);
     }
@@ -116,9 +118,21 @@ export default function DomainsPage() {
         Back to Settings
       </Link>
       <div className="grid gap-4 md:grid-cols-3 mb-6">
-        <StatCard label="Verified domains" value={String(verifiedCount)} detail="Production traffic is routable" />
-        <StatCard label="Pending DNS" value={String(pendingCount)} detail="CNAME records required" />
-        <StatCard label="SSL certificates" value={`${sslCount}/${domains.length}`} detail="Certificates issue after DNS verification" />
+        <StatCard
+          label="Verified domains"
+          value={String(verifiedCount)}
+          detail="Production traffic is routable"
+        />
+        <StatCard
+          label="Pending DNS"
+          value={String(pendingCount)}
+          detail="CNAME records required"
+        />
+        <StatCard
+          label="SSL certificates"
+          value={`${sslCount}/${domains.length}`}
+          detail="Certificates issue after DNS verification"
+        />
       </div>
 
       {error && (
@@ -138,16 +152,25 @@ export default function DomainsPage() {
         <div className="flex items-center justify-between gap-4 border-b border-zinc-200 p-4">
           <div>
             <h2 className="text-base font-semibold">Domains</h2>
-            <p className="text-sm text-zinc-500">CNAME targets and certificate state.</p>
+            <p className="text-sm text-zinc-500">
+              CNAME targets and certificate state.
+            </p>
           </div>
           <Button onClick={() => setShowAddForm((v) => !v)} variant="outline">
-            {showAddForm ? <X className="size-4 mr-1" /> : <Plus className="size-4 mr-1" />}
+            {showAddForm ? (
+              <X className="size-4 mr-1" />
+            ) : (
+              <Plus className="size-4 mr-1" />
+            )}
             {showAddForm ? "Cancel" : "Add domain"}
           </Button>
         </div>
 
         {showAddForm && (
-          <form onSubmit={handleAddDomain} className="flex flex-col sm:flex-row gap-3 bg-zinc-50 p-4 border-b border-zinc-200">
+          <form
+            onSubmit={handleAddDomain}
+            className="flex flex-col sm:flex-row gap-3 bg-zinc-50 p-4 border-b border-zinc-200"
+          >
             <input
               className="h-10 flex-1 max-w-md rounded-md border border-zinc-200 px-3 text-sm outline-none focus:border-zinc-400"
               placeholder="e.g. sales.mycompany.com"
@@ -156,7 +179,9 @@ export default function DomainsPage() {
               required
             />
             <Button type="submit" disabled={adding}>
-              {adding ? <RotateCw className="size-4 animate-spin mr-1" /> : null}
+              {adding ? (
+                <RotateCw className="size-4 animate-spin mr-1" />
+              ) : null}
               Add Domain
             </Button>
           </form>
@@ -165,17 +190,40 @@ export default function DomainsPage() {
         {loading ? (
           <p className="p-6 text-sm text-zinc-500">Loading domains…</p>
         ) : domains.length === 0 ? (
-          <p className="p-6 text-sm text-zinc-500 text-center">No custom domains configured.</p>
+          <p className="p-6 text-sm text-zinc-500 text-center">
+            No custom domains configured.
+          </p>
         ) : (
           <CrmTable
-            columns={["Domain", "Target", "DNS Status", "SSL Status", "Actions"]}
+            columns={[
+              "Domain",
+              "Target",
+              "DNS Status",
+              "SSL Status",
+              "Actions",
+            ]}
             rows={domains.map((domain) => [
-              <span key="domain" className="font-medium">{domain.domain}</span>,
-              <code key="target" className="bg-zinc-100 px-1.5 py-0.5 rounded text-xs text-zinc-700">{domain.target}</code>,
-              <span key="dns" className={`rounded-md border px-2 py-0.5 text-xs font-medium uppercase ${dnsStatusClass[domain.status]}`}>
-                {domain.status === "pending_dns" ? "Pending DNS" : domain.status}
+              <span key="domain" className="font-medium">
+                {domain.domain}
               </span>,
-              <span key="ssl" className={`rounded-md border px-2 py-0.5 text-xs font-medium uppercase ${sslStatusClass[domain.ssl]}`}>
+              <code
+                key="target"
+                className="bg-zinc-100 px-1.5 py-0.5 rounded text-xs text-zinc-700"
+              >
+                {domain.target}
+              </code>,
+              <span
+                key="dns"
+                className={`rounded-md border px-2 py-0.5 text-xs font-medium uppercase ${dnsStatusClass[domain.status]}`}
+              >
+                {domain.status === "pending_dns"
+                  ? "Pending DNS"
+                  : domain.status}
+              </span>,
+              <span
+                key="ssl"
+                className={`rounded-md border px-2 py-0.5 text-xs font-medium uppercase ${sslStatusClass[domain.ssl]}`}
+              >
                 {domain.ssl}
               </span>,
               <Button
@@ -186,7 +234,11 @@ export default function DomainsPage() {
                 onClick={() => handleDeleteDomain(domain.id)}
                 disabled={deletingId === domain.id}
               >
-                {deletingId === domain.id ? <RotateCw className="size-3.5 animate-spin" /> : <Trash2 className="size-3.5" />}
+                {deletingId === domain.id ? (
+                  <RotateCw className="size-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="size-3.5" />
+                )}
               </Button>,
             ])}
           />

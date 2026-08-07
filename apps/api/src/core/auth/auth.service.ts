@@ -34,8 +34,14 @@ export class AuthService {
     email: string;
     password: string;
   }) {
-    if (!input.firstName?.trim() || !input.lastName?.trim() || !input.email?.trim()) {
-      throw new BadRequestException('firstName, lastName, and email are required');
+    if (
+      !input.firstName?.trim() ||
+      !input.lastName?.trim() ||
+      !input.email?.trim()
+    ) {
+      throw new BadRequestException(
+        'firstName, lastName, and email are required',
+      );
     }
 
     if (!input.password || input.password.trim().length < 8) {

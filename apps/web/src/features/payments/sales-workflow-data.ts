@@ -1,7 +1,9 @@
 export type SiteVisitStatus = "Scheduled" | "Completed" | "No show";
-export type ReservationStatus = "Draft" | "Pending payment" | "Reserved" | "Expired";
+export type ReservationStatus =
+  "Draft" | "Pending payment" | "Reserved" | "Expired";
 export type PaymentStatus = "Pending" | "Paid" | "Overdue" | "Partially paid";
-export type ReceiptStatus = "Uploaded" | "Under review" | "Approved" | "Rejected";
+export type ReceiptStatus =
+  "Uploaded" | "Under review" | "Approved" | "Rejected";
 export type ApprovalStatus = "Waiting" | "Approved" | "Needs revision";
 
 export type SiteVisit = {

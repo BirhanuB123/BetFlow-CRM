@@ -36,8 +36,21 @@ import { apiFetch, apiUpload, API_BASE_URL } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
-const UNIT_TYPES = ["APARTMENT", "OFFICE", "SHOP", "STUDIO", "PENTHOUSE", "VILLA"];
-const PROJECT_STATUSES = ["PLANNING", "ACTIVE", "SELLING", "COMPLETED", "ON_HOLD"] as const;
+const UNIT_TYPES = [
+  "APARTMENT",
+  "OFFICE",
+  "SHOP",
+  "STUDIO",
+  "PENTHOUSE",
+  "VILLA",
+];
+const PROJECT_STATUSES = [
+  "PLANNING",
+  "ACTIVE",
+  "SELLING",
+  "COMPLETED",
+  "ON_HOLD",
+] as const;
 
 type ProjectDetail = {
   id: string;
@@ -124,16 +137,29 @@ const DEFAULT_AMENITIES = [
 ];
 
 const PRESET_RENDERS = [
-  { name: "Bole Luxury High-Rise Render", url: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80" },
-  { name: "Kazanchis Glass Tower Render", url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80" },
-  { name: "CMC Villa Compound Render", url: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80" },
-  { name: "Mixed-Use Commercial Plaza", url: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=800&q=80" },
+  {
+    name: "Bole Luxury High-Rise Render",
+    url: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    name: "Kazanchis Glass Tower Render",
+    url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    name: "CMC Villa Compound Render",
+    url: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    name: "Mixed-Use Commercial Plaza",
+    url: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=800&q=80",
+  },
 ];
 
 function money(v: string) {
   return formatCurrency(v);
 }
-const input = "h-9 rounded-md border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-400 shadow-2xs";
+const input =
+  "h-9 rounded-md border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-400 shadow-2xs";
 
 const unitStatusClass: Record<string, string> = {
   AVAILABLE: "bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold",
@@ -154,16 +180,29 @@ function FloorSection({
   const [open, setOpen] = useState(false);
   const [units, setUnits] = useState<UnitNode[] | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ unitNumber: "", type: "APARTMENT", price: "", area: "" });
-  
+  const [form, setForm] = useState({
+    unitNumber: "",
+    type: "APARTMENT",
+    price: "",
+    area: "",
+  });
+
   // Floor edit state
   const [editingFloor, setEditingFloor] = useState(false);
   const [floorNameInput, setFloorNameInput] = useState(floor.name || "");
-  const [floorNumberInput, setFloorNumberInput] = useState(String(floor.floorNumber));
+  const [floorNumberInput, setFloorNumberInput] = useState(
+    String(floor.floorNumber),
+  );
 
   // Unit edit state
   const [editingUnitId, setEditingUnitId] = useState<string | null>(null);
-  const [editUnitForm, setEditUnitForm] = useState({ unitNumber: "", type: "APARTMENT", status: "AVAILABLE", price: "", area: "" });
+  const [editUnitForm, setEditUnitForm] = useState({
+    unitNumber: "",
+    type: "APARTMENT",
+    status: "AVAILABLE",
+    price: "",
+    area: "",
+  });
 
   const [err, setErr] = useState<string | null>(null);
 
@@ -285,7 +324,10 @@ function FloorSection({
     <div className="rounded-lg border border-slate-200/80 bg-white shadow-2xs">
       <div className="flex items-center gap-2 px-3 py-2.5">
         {editingFloor ? (
-          <form onSubmit={saveFloorEdit} className="flex flex-1 items-center gap-2">
+          <form
+            onSubmit={saveFloorEdit}
+            className="flex flex-1 items-center gap-2"
+          >
             <input
               type="number"
               className={cn(input, "w-20")}
@@ -301,17 +343,35 @@ function FloorSection({
               value={floorNameInput}
               onChange={(e) => setFloorNameInput(e.target.value)}
             />
-            <Button type="submit" size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs h-8">
+            <Button
+              type="submit"
+              size="sm"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs h-8"
+            >
               Save
             </Button>
-            <Button type="button" size="sm" variant="outline" onClick={() => setEditingFloor(false)} className="text-xs h-8">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => setEditingFloor(false)}
+              className="text-xs h-8"
+            >
               Cancel
             </Button>
           </form>
         ) : (
           <>
-            <button type="button" onClick={toggle} className="flex flex-1 items-center gap-2 text-left">
-              {open ? <ChevronDown className="size-4 text-slate-400" /> : <ChevronRight className="size-4 text-slate-400" />}
+            <button
+              type="button"
+              onClick={toggle}
+              className="flex flex-1 items-center gap-2 text-left"
+            >
+              {open ? (
+                <ChevronDown className="size-4 text-slate-400" />
+              ) : (
+                <ChevronRight className="size-4 text-slate-400" />
+              )}
               <Layers className="size-4 text-indigo-500" />
               <span className="text-sm font-semibold text-slate-800">
                 {floor.name || `Floor ${floor.floorNumber}`}
@@ -342,7 +402,11 @@ function FloorSection({
 
       {open && (
         <div className="border-t border-slate-100 p-3 bg-slate-50/50">
-          {err && <p className="mb-2 rounded bg-rose-50 px-2 py-1 text-xs font-medium text-rose-600">{err}</p>}
+          {err && (
+            <p className="mb-2 rounded bg-rose-50 px-2 py-1 text-xs font-medium text-rose-600">
+              {err}
+            </p>
+          )}
           {units === null ? (
             <p className="text-xs text-slate-400">Loading units…</p>
           ) : units.length === 0 ? (
@@ -352,27 +416,47 @@ function FloorSection({
               {units.map((u) => (
                 <li key={u.id} className="p-2 text-xs">
                   {editingUnitId === u.id ? (
-                    <form onSubmit={saveUnitEdit} className="grid gap-2 sm:grid-cols-5 items-center bg-indigo-50/50 p-2 rounded-md">
+                    <form
+                      onSubmit={saveUnitEdit}
+                      className="grid gap-2 sm:grid-cols-5 items-center bg-indigo-50/50 p-2 rounded-md"
+                    >
                       <input
                         required
                         className={input}
                         placeholder="Unit No."
                         value={editUnitForm.unitNumber}
-                        onChange={(e) => setEditUnitForm({ ...editUnitForm, unitNumber: e.target.value })}
+                        onChange={(e) =>
+                          setEditUnitForm({
+                            ...editUnitForm,
+                            unitNumber: e.target.value,
+                          })
+                        }
                       />
                       <select
                         className={input}
                         value={editUnitForm.type}
-                        onChange={(e) => setEditUnitForm({ ...editUnitForm, type: e.target.value })}
+                        onChange={(e) =>
+                          setEditUnitForm({
+                            ...editUnitForm,
+                            type: e.target.value,
+                          })
+                        }
                       >
                         {UNIT_TYPES.map((t) => (
-                          <option key={t} value={t}>{t}</option>
+                          <option key={t} value={t}>
+                            {t}
+                          </option>
                         ))}
                       </select>
                       <select
                         className={input}
                         value={editUnitForm.status}
-                        onChange={(e) => setEditUnitForm({ ...editUnitForm, status: e.target.value })}
+                        onChange={(e) =>
+                          setEditUnitForm({
+                            ...editUnitForm,
+                            status: e.target.value,
+                          })
+                        }
                       >
                         <option value="AVAILABLE">AVAILABLE</option>
                         <option value="RESERVED">RESERVED</option>
@@ -385,7 +469,12 @@ function FloorSection({
                         className={input}
                         placeholder="Price ETB"
                         value={editUnitForm.price}
-                        onChange={(e) => setEditUnitForm({ ...editUnitForm, price: e.target.value })}
+                        onChange={(e) =>
+                          setEditUnitForm({
+                            ...editUnitForm,
+                            price: e.target.value,
+                          })
+                        }
                       />
                       <div className="flex items-center gap-1.5">
                         <input
@@ -393,24 +482,51 @@ function FloorSection({
                           className={cn(input, "w-20")}
                           placeholder="Area sqm"
                           value={editUnitForm.area}
-                          onChange={(e) => setEditUnitForm({ ...editUnitForm, area: e.target.value })}
+                          onChange={(e) =>
+                            setEditUnitForm({
+                              ...editUnitForm,
+                              area: e.target.value,
+                            })
+                          }
                         />
-                        <Button type="submit" size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] h-8 px-2.5">
+                        <Button
+                          type="submit"
+                          size="sm"
+                          className="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] h-8 px-2.5"
+                        >
                           Save
                         </Button>
-                        <Button type="button" size="sm" variant="outline" onClick={() => setEditingUnitId(null)} className="text-[11px] h-8 px-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingUnitId(null)}
+                          className="text-[11px] h-8 px-2"
+                        >
                           Cancel
                         </Button>
                       </div>
                     </form>
                   ) : (
                     <div className="flex items-center gap-3 px-1 py-1">
-                      <span className="w-24 font-bold text-slate-900">Unit {u.unitNumber}</span>
-                      <span className="w-24 text-slate-500 font-medium">{u.type}</span>
-                      <span className={cn("rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider border", unitStatusClass[u.status] ?? "bg-slate-100 text-slate-600")}>
+                      <span className="w-24 font-bold text-slate-900">
+                        Unit {u.unitNumber}
+                      </span>
+                      <span className="w-24 text-slate-500 font-medium">
+                        {u.type}
+                      </span>
+                      <span
+                        className={cn(
+                          "rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider border",
+                          unitStatusClass[u.status] ??
+                            "bg-slate-100 text-slate-600",
+                        )}
+                      >
                         {u.status}
                       </span>
-                      <span className="ml-auto font-bold text-slate-900">{money(u.price)}</span>
+                      <span className="ml-auto font-bold text-slate-900">
+                        {money(u.price)}
+                      </span>
                       <button
                         type="button"
                         onClick={() => startEditUnit(u)}
@@ -435,20 +551,74 @@ function FloorSection({
           )}
 
           {showForm ? (
-            <form onSubmit={addUnit} className="mt-3 grid gap-2 sm:grid-cols-4 rounded-lg bg-white p-3 border border-indigo-100">
-              <input required className={input} placeholder="Unit no. *" value={form.unitNumber} onChange={(e) => setForm({ ...form, unitNumber: e.target.value })} />
-              <select className={input} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} aria-label="Unit type">
-                {UNIT_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+            <form
+              onSubmit={addUnit}
+              className="mt-3 grid gap-2 sm:grid-cols-4 rounded-lg bg-white p-3 border border-indigo-100"
+            >
+              <input
+                required
+                className={input}
+                placeholder="Unit no. *"
+                value={form.unitNumber}
+                onChange={(e) =>
+                  setForm({ ...form, unitNumber: e.target.value })
+                }
+              />
+              <select
+                className={input}
+                value={form.type}
+                onChange={(e) => setForm({ ...form, type: e.target.value })}
+                aria-label="Unit type"
+              >
+                {UNIT_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
               </select>
-              <input required type="number" min="0" step="0.01" className={input} placeholder="Price (ETB) *" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
-              <input type="number" min="0" className={input} placeholder="Area (sqm)" value={form.area} onChange={(e) => setForm({ ...form, area: e.target.value })} />
+              <input
+                required
+                type="number"
+                min="0"
+                step="0.01"
+                className={input}
+                placeholder="Price (ETB) *"
+                value={form.price}
+                onChange={(e) => setForm({ ...form, price: e.target.value })}
+              />
+              <input
+                type="number"
+                min="0"
+                className={input}
+                placeholder="Area (sqm)"
+                value={form.area}
+                onChange={(e) => setForm({ ...form, area: e.target.value })}
+              />
               <div className="sm:col-span-4 flex gap-2 pt-1">
-                <Button type="submit" size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs">Add unit</Button>
-                <Button type="button" size="sm" variant="outline" onClick={() => setShowForm(false)} className="text-xs">Cancel</Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs"
+                >
+                  Add unit
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowForm(false)}
+                  className="text-xs"
+                >
+                  Cancel
+                </Button>
               </div>
             </form>
           ) : (
-            <button type="button" onClick={() => setShowForm(true)} className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:underline">
+            <button
+              type="button"
+              onClick={() => setShowForm(true)}
+              className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:underline"
+            >
               <Plus className="size-3.5" /> Add Unit to Floor
             </button>
           )}
@@ -470,7 +640,7 @@ function BuildingSection({
   const [floors, setFloors] = useState<FloorNode[] | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ floorNumber: "", name: "" });
-  
+
   // Building edit state
   const [editingBuilding, setEditingBuilding] = useState(false);
   const [buildingNameInput, setBuildingNameInput] = useState(building.name);
@@ -480,7 +650,11 @@ function BuildingSection({
   const loadFloors = useCallback(async () => {
     setErr(null);
     try {
-      setFloors(await apiFetch<FloorNode[]>(`/properties/floors?buildingId=${building.id}`));
+      setFloors(
+        await apiFetch<FloorNode[]>(
+          `/properties/floors?buildingId=${building.id}`,
+        ),
+      );
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Failed to load floors");
     }
@@ -534,7 +708,9 @@ function BuildingSection({
     if (!window.confirm("Delete this building?")) return;
     setErr(null);
     try {
-      await apiFetch(`/properties/buildings/${building.id}`, { method: "DELETE" });
+      await apiFetch(`/properties/buildings/${building.id}`, {
+        method: "DELETE",
+      });
       onCountsChanged();
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Failed to delete building");
@@ -545,7 +721,10 @@ function BuildingSection({
     <section className="rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
       <div className="flex items-center gap-2 bg-slate-50/50 px-4 py-3 border-b border-slate-100">
         {editingBuilding ? (
-          <form onSubmit={saveBuildingEdit} className="flex flex-1 items-center gap-2">
+          <form
+            onSubmit={saveBuildingEdit}
+            className="flex flex-1 items-center gap-2"
+          >
             <Building className="size-4 text-indigo-600" />
             <input
               required
@@ -554,21 +733,43 @@ function BuildingSection({
               value={buildingNameInput}
               onChange={(e) => setBuildingNameInput(e.target.value)}
             />
-            <Button type="submit" size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs h-8">
+            <Button
+              type="submit"
+              size="sm"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs h-8"
+            >
               Save
             </Button>
-            <Button type="button" size="sm" variant="outline" onClick={() => setEditingBuilding(false)} className="text-xs h-8">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => setEditingBuilding(false)}
+              className="text-xs h-8"
+            >
               Cancel
             </Button>
           </form>
         ) : (
           <>
-            <button type="button" onClick={toggle} className="flex flex-1 items-center gap-2 text-left">
-              {open ? <ChevronDown className="size-4 text-slate-400" /> : <ChevronRight className="size-4 text-slate-400" />}
+            <button
+              type="button"
+              onClick={toggle}
+              className="flex flex-1 items-center gap-2 text-left"
+            >
+              {open ? (
+                <ChevronDown className="size-4 text-slate-400" />
+              ) : (
+                <ChevronRight className="size-4 text-slate-400" />
+              )}
               <Building className="size-4 text-indigo-600" />
               <span className="font-bold text-slate-900">{building.name}</span>
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">{building._count.floors} floors</span>
-              <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700">{building.unitsCount} units</span>
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
+                {building._count.floors} floors
+              </span>
+              <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700">
+                {building.unitsCount} units
+              </span>
             </button>
             <button
               type="button"
@@ -592,28 +793,72 @@ function BuildingSection({
 
       {open && (
         <div className="space-y-3 p-4">
-          {err && <p className="rounded bg-rose-50 px-2 py-1 text-xs text-rose-600">{err}</p>}
+          {err && (
+            <p className="rounded bg-rose-50 px-2 py-1 text-xs text-rose-600">
+              {err}
+            </p>
+          )}
           {floors === null ? (
             <p className="text-xs text-slate-400">Loading floors…</p>
           ) : floors.length === 0 ? (
             <p className="text-xs text-slate-400">No floors added yet.</p>
           ) : (
             floors.map((f) => (
-              <FloorSection key={f.id} floor={f} onCountsChanged={onCountsChanged} onFloorDeleted={loadFloors} />
+              <FloorSection
+                key={f.id}
+                floor={f}
+                onCountsChanged={onCountsChanged}
+                onFloorDeleted={loadFloors}
+              />
             ))
           )}
 
           {showForm ? (
-            <form onSubmit={addFloor} className="mt-3 grid gap-2 sm:grid-cols-3 rounded-lg bg-slate-50 p-3 border border-slate-200">
-              <input required type="number" className={input} placeholder="Floor number *" value={form.floorNumber} onChange={(e) => setForm({ ...form, floorNumber: e.target.value })} />
-              <input className={input} placeholder="Label (e.g. 5th Floor)" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <form
+              onSubmit={addFloor}
+              className="mt-3 grid gap-2 sm:grid-cols-3 rounded-lg bg-slate-50 p-3 border border-slate-200"
+            >
+              <input
+                required
+                type="number"
+                className={input}
+                placeholder="Floor number *"
+                value={form.floorNumber}
+                onChange={(e) =>
+                  setForm({ ...form, floorNumber: e.target.value })
+                }
+              />
+              <input
+                className={input}
+                placeholder="Label (e.g. 5th Floor)"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
               <div className="flex gap-2">
-                <Button type="submit" size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs">Add floor</Button>
-                <Button type="button" size="sm" variant="outline" onClick={() => setShowForm(false)} className="text-xs">Cancel</Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs"
+                >
+                  Add floor
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowForm(false)}
+                  className="text-xs"
+                >
+                  Cancel
+                </Button>
               </div>
             </form>
           ) : (
-            <button type="button" onClick={() => setShowForm(true)} className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:underline">
+            <button
+              type="button"
+              onClick={() => setShowForm(true)}
+              className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:underline"
+            >
               <Plus className="size-3.5" /> Add Floor Level to Building
             </button>
           )}
@@ -625,11 +870,36 @@ function BuildingSection({
 
 // ---- Ethiopian Construction Milestones Widget -------------------------------
 const ETHIOPIAN_STAGES = [
-  { key: "EXCAVATION_FOUNDATION", name: "Excavation & Foundation", amharic: "መሠረት", targetPercent: 15 },
-  { key: "STRUCTURE_CONCRETE_SLAB", name: "Structure & Slab Casting", amharic: "ፍሬም", targetPercent: 45 },
-  { key: "BRICKWORK_PLASTERING", name: "Blockwork & Plastering", amharic: "ፕላስተር", targetPercent: 65 },
-  { key: "FINISHING_TILING", name: "Finishing & Elevators", amharic: "ፊኒሺንግ", targetPercent: 85 },
-  { key: "HANDOVER_READY", name: "Handover Ready & Key Delivery", amharic: "ርክክብ", targetPercent: 100 },
+  {
+    key: "EXCAVATION_FOUNDATION",
+    name: "Excavation & Foundation",
+    amharic: "መሠረት",
+    targetPercent: 15,
+  },
+  {
+    key: "STRUCTURE_CONCRETE_SLAB",
+    name: "Structure & Slab Casting",
+    amharic: "ፍሬም",
+    targetPercent: 45,
+  },
+  {
+    key: "BRICKWORK_PLASTERING",
+    name: "Blockwork & Plastering",
+    amharic: "ፕላስተር",
+    targetPercent: 65,
+  },
+  {
+    key: "FINISHING_TILING",
+    name: "Finishing & Elevators",
+    amharic: "ፊኒሺንግ",
+    targetPercent: 85,
+  },
+  {
+    key: "HANDOVER_READY",
+    name: "Handover Ready & Key Delivery",
+    amharic: "ርክክብ",
+    targetPercent: 100,
+  },
 ];
 
 function ConstructionMilestonesWidget({
@@ -640,13 +910,19 @@ function ConstructionMilestonesWidget({
   onUpdate: () => void;
 }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [stage, setStage] = useState(project.constructionStage || "STRUCTURE_CONCRETE_SLAB");
-  const [progress, setProgress] = useState(String(project.progressPercentage ?? 50));
+  const [stage, setStage] = useState(
+    project.constructionStage || "STRUCTURE_CONCRETE_SLAB",
+  );
+  const [progress, setProgress] = useState(
+    String(project.progressPercentage ?? 50),
+  );
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   const currentProgress = project.progressPercentage ?? 50;
-  const currentStageIndex = ETHIOPIAN_STAGES.findIndex((s) => s.key === project.constructionStage);
+  const currentStageIndex = ETHIOPIAN_STAGES.findIndex(
+    (s) => s.key === project.constructionStage,
+  );
 
   const handleSave = async (e: FormEvent) => {
     e.preventDefault();
@@ -663,7 +939,9 @@ function ConstructionMilestonesWidget({
       setIsEditing(false);
       onUpdate();
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Failed to update construction stage");
+      setErr(
+        e instanceof Error ? e.message : "Failed to update construction stage",
+      );
     } finally {
       setSaving(false);
     }
@@ -677,7 +955,9 @@ function ConstructionMilestonesWidget({
             <Sparkles className="size-4 text-indigo-600" />
             Construction Milestones (የግንባታ ደረጃ)
           </h3>
-          <p className="text-[11px] text-slate-500 mt-0.5">Real estate build progress & delivery tracking</p>
+          <p className="text-[11px] text-slate-500 mt-0.5">
+            Real estate build progress & delivery tracking
+          </p>
         </div>
         <button
           type="button"
@@ -689,19 +969,28 @@ function ConstructionMilestonesWidget({
         </button>
       </div>
 
-      {err && <p className="rounded bg-rose-50 p-2 text-xs text-rose-600">{err}</p>}
+      {err && (
+        <p className="rounded bg-rose-50 p-2 text-xs text-rose-600">{err}</p>
+      )}
 
       {isEditing ? (
-        <form onSubmit={handleSave} className="space-y-3 bg-indigo-50/50 p-3 rounded-lg border border-indigo-100">
+        <form
+          onSubmit={handleSave}
+          className="space-y-3 bg-indigo-50/50 p-3 rounded-lg border border-indigo-100"
+        >
           <div>
-            <label className="block text-[11px] font-bold text-slate-700 mb-1">Current Milestone Stage</label>
+            <label className="block text-[11px] font-bold text-slate-700 mb-1">
+              Current Milestone Stage
+            </label>
             <select
               className="w-full h-8 rounded-md border border-slate-300 bg-white px-2 text-xs text-slate-900 focus:outline-none focus:border-indigo-500"
               value={stage}
               onChange={(e) => {
                 const newStage = e.target.value;
                 setStage(newStage);
-                const matched = ETHIOPIAN_STAGES.find((s) => s.key === newStage);
+                const matched = ETHIOPIAN_STAGES.find(
+                  (s) => s.key === newStage,
+                );
                 if (matched) setProgress(String(matched.targetPercent));
               }}
             >
@@ -714,7 +1003,9 @@ function ConstructionMilestonesWidget({
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold text-slate-700 mb-1">Completion Progress ({progress}%)</label>
+            <label className="block text-[11px] font-bold text-slate-700 mb-1">
+              Completion Progress ({progress}%)
+            </label>
             <input
               type="range"
               min="0"
@@ -726,10 +1017,21 @@ function ConstructionMilestonesWidget({
           </div>
 
           <div className="flex justify-end gap-2 pt-1">
-            <Button type="button" variant="outline" size="sm" onClick={() => setIsEditing(false)} className="text-xs h-7">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEditing(false)}
+              className="text-xs h-7"
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={saving} size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs h-7">
+            <Button
+              type="submit"
+              disabled={saving}
+              size="sm"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs h-7"
+            >
               {saving ? "Saving…" : "Save Progress"}
             </Button>
           </div>
@@ -739,8 +1041,12 @@ function ConstructionMilestonesWidget({
           {/* Overall Progress Gauge */}
           <div className="rounded-lg bg-slate-50 p-3 border border-slate-100 space-y-1.5">
             <div className="flex justify-between text-xs">
-              <span className="font-bold text-slate-700">Overall Site Progress</span>
-              <span className="font-extrabold text-indigo-600">{currentProgress}%</span>
+              <span className="font-bold text-slate-700">
+                Overall Site Progress
+              </span>
+              <span className="font-extrabold text-indigo-600">
+                {currentProgress}%
+              </span>
             </div>
             <div className="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
               <div
@@ -764,8 +1070,8 @@ function ConstructionMilestonesWidget({
                     isCurrent
                       ? "border-indigo-300 bg-indigo-50/80 font-semibold text-indigo-950 shadow-2xs"
                       : isPast
-                      ? "border-slate-200 bg-emerald-50/40 text-slate-700"
-                      : "border-slate-100 bg-white text-slate-400 opacity-75"
+                        ? "border-slate-200 bg-emerald-50/40 text-slate-700"
+                        : "border-slate-100 bg-white text-slate-400 opacity-75",
                   )}
                 >
                   <div className="flex items-center gap-2.5">
@@ -775,15 +1081,17 @@ function ConstructionMilestonesWidget({
                         isPast
                           ? "bg-emerald-600 text-white"
                           : isCurrent
-                          ? "bg-indigo-600 text-white ring-2 ring-indigo-200"
-                          : "bg-slate-200 text-slate-500"
+                            ? "bg-indigo-600 text-white ring-2 ring-indigo-200"
+                            : "bg-slate-200 text-slate-500",
                       )}
                     >
                       {isPast ? <CheckCircle2 className="size-3.5" /> : idx + 1}
                     </div>
                     <div>
                       <p className="font-bold leading-tight">
-                        <span className="text-indigo-600 mr-1">[{stg.amharic}]</span>
+                        <span className="text-indigo-600 mr-1">
+                          [{stg.amharic}]
+                        </span>
                         {stg.name}
                       </p>
                     </div>
@@ -794,8 +1102,8 @@ function ConstructionMilestonesWidget({
                       isCurrent
                         ? "bg-indigo-600 text-white border-indigo-600"
                         : isPast
-                        ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-                        : "bg-slate-100 text-slate-500 border-slate-200"
+                          ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                          : "bg-slate-100 text-slate-500 border-slate-200",
                     )}
                   >
                     {stg.targetPercent}%
@@ -822,9 +1130,14 @@ export default function ProjectDetailPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const [buildingForm, setBuildingForm] = useState({ name: "", floorsCount: "1" });
+  const [buildingForm, setBuildingForm] = useState({
+    name: "",
+    floorsCount: "1",
+  });
   const [timelineKey, setTimelineKey] = useState(0);
-  const [activeTab, setActiveTab] = useState<"INVENTORY" | "GALLERY">("INVENTORY");
+  const [activeTab, setActiveTab] = useState<"INVENTORY" | "GALLERY">(
+    "INVENTORY",
+  );
 
   const [editForm, setEditForm] = useState({
     name: "",
@@ -916,7 +1229,11 @@ export default function ProjectDetailPage() {
 
   const handleDeleteProject = async () => {
     if (!project) return;
-    if (!window.confirm(`Are you sure you want to delete project "${project.name}"? This will delete all associated building blocks, floors, and units.`)) {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete project "${project.name}"? This will delete all associated building blocks, floors, and units.`,
+      )
+    ) {
       return;
     }
     setError(null);
@@ -937,7 +1254,9 @@ export default function ProjectDetailPage() {
         body: JSON.stringify({
           projectId: id,
           name: buildingForm.name,
-          floorsCount: buildingForm.floorsCount ? Number(buildingForm.floorsCount) : 1,
+          floorsCount: buildingForm.floorsCount
+            ? Number(buildingForm.floorsCount)
+            : 1,
         }),
       });
       setBuildingForm({ name: "", floorsCount: "1" });
@@ -984,7 +1303,7 @@ export default function ProjectDetailPage() {
       formData.append("file", file);
       const res = await apiUpload<{ url: string }>("/uploads/image", formData);
       const fullUrl = `${API_BASE_URL.replace("/api", "")}${res.url}`;
-      
+
       if (type === "cover") {
         setEditForm({ ...editForm, coverImage: fullUrl });
       } else {
@@ -1007,7 +1326,10 @@ export default function ProjectDetailPage() {
       active="Projects"
     >
       <div className="flex items-center justify-between mb-4">
-        <Link href="/projects" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors">
+        <Link
+          href="/projects"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
+        >
           <ArrowLeft className="size-4" />
           Back to All Projects
         </Link>
@@ -1032,7 +1354,11 @@ export default function ProjectDetailPage() {
         )}
       </div>
 
-      {error && <p className="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-700">{error}</p>}
+      {error && (
+        <p className="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-700">
+          {error}
+        </p>
+      )}
 
       {loading ? (
         <div className="flex h-48 items-center justify-center rounded-xl border border-slate-200 bg-white">
@@ -1053,43 +1379,67 @@ export default function ProjectDetailPage() {
                   <Pencil className="size-4 text-indigo-600" />
                   Edit Real Estate Project Details & Renderings
                 </h3>
-                <button type="button" onClick={() => setShowEditModal(false)} className="text-slate-400 hover:text-slate-600">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="text-slate-400 hover:text-slate-600"
+                >
                   <X className="size-4" />
                 </button>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Project Name *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Project Name *
+                  </label>
                   <input
                     required
                     type="text"
                     value={editForm.name}
-                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, name: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Project Category</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Project Category
+                  </label>
                   <select
                     value={editForm.category}
-                    onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, category: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
-                    <option value="RESIDENTIAL_TOWER">G+12/G+20 Residential Tower</option>
-                    <option value="LUXURY_VILLA_COMPOUND">Luxury Villa Compound</option>
-                    <option value="COMMERCIAL_PLAZA">Commercial Plaza / Mall</option>
-                    <option value="MIXED_USE_DEVELOPMENT">Mixed-Use Tower</option>
+                    <option value="RESIDENTIAL_TOWER">
+                      G+12/G+20 Residential Tower
+                    </option>
+                    <option value="LUXURY_VILLA_COMPOUND">
+                      Luxury Villa Compound
+                    </option>
+                    <option value="COMMERCIAL_PLAZA">
+                      Commercial Plaza / Mall
+                    </option>
+                    <option value="MIXED_USE_DEVELOPMENT">
+                      Mixed-Use Tower
+                    </option>
                     <option value="TOWN_HOUSES">Modern Townhouses</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Addis Ababa Sub-City</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Addis Ababa Sub-City
+                  </label>
                   <select
                     value={editForm.subCity}
-                    onChange={(e) => setEditForm({ ...editForm, subCity: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, subCity: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
                     {Object.entries(subCityLabels).map(([key, val]) => (
@@ -1101,20 +1451,31 @@ export default function ProjectDetailPage() {
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Specific Location / Landmark</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Specific Location / Landmark
+                  </label>
                   <input
                     type="text"
                     value={editForm.location}
-                    onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, location: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Construction Progress Stage</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Construction Progress Stage
+                  </label>
                   <select
                     value={editForm.constructionStage}
-                    onChange={(e) => setEditForm({ ...editForm, constructionStage: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        constructionStage: e.target.value,
+                      })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
                     {Object.entries(stageLabels).map(([key, val]) => (
@@ -1126,35 +1487,53 @@ export default function ProjectDetailPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Progress Percentage (0 - 100%)</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Progress Percentage (0 - 100%)
+                  </label>
                   <input
                     type="number"
                     min="0"
                     max="100"
                     value={editForm.progressPercentage}
-                    onChange={(e) => setEditForm({ ...editForm, progressPercentage: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        progressPercentage: e.target.value,
+                      })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Estimated Delivery Target</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Estimated Delivery Target
+                  </label>
                   <input
                     type="text"
                     value={editForm.estimatedDelivery}
-                    onChange={(e) => setEditForm({ ...editForm, estimatedDelivery: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        estimatedDelivery: e.target.value,
+                      })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
 
                 <div className="sm:col-span-3 space-y-2">
-                  <label className="block text-xs font-semibold text-slate-700">3D Cover Render Image</label>
+                  <label className="block text-xs font-semibold text-slate-700">
+                    3D Cover Render Image
+                  </label>
                   <div className="flex gap-2">
                     <input
                       type="url"
                       placeholder="https://... or upload file"
                       value={editForm.coverImage}
-                      onChange={(e) => setEditForm({ ...editForm, coverImage: e.target.value })}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, coverImage: e.target.value })
+                      }
                       className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                     />
                     <input
@@ -1176,12 +1555,16 @@ export default function ProjectDetailPage() {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 pt-1">
-                    <span className="text-[11px] font-semibold text-slate-500">Quick Presets:</span>
+                    <span className="text-[11px] font-semibold text-slate-500">
+                      Quick Presets:
+                    </span>
                     {PRESET_RENDERS.map((preset) => (
                       <button
                         key={preset.name}
                         type="button"
-                        onClick={() => setEditForm({ ...editForm, coverImage: preset.url })}
+                        onClick={() =>
+                          setEditForm({ ...editForm, coverImage: preset.url })
+                        }
                         className="rounded bg-white px-2.5 py-1 text-[10px] font-semibold text-indigo-700 border border-indigo-200 hover:bg-indigo-50 transition-colors"
                       >
                         {preset.name}
@@ -1191,21 +1574,34 @@ export default function ProjectDetailPage() {
                 </div>
 
                 <div className="sm:col-span-3">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Project Overview & Description</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Project Overview & Description
+                  </label>
                   <textarea
                     rows={2}
                     value={editForm.description}
-                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, description: e.target.value })
+                    }
                     className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
               </div>
 
               <div className="flex justify-end gap-3 border-t border-indigo-100 pt-3">
-                <Button type="button" variant="outline" onClick={() => setShowEditModal(false)} className="text-xs">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowEditModal(false)}
+                  className="text-xs"
+                >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={saving} className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs">
+                <Button
+                  type="submit"
+                  disabled={saving}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs"
+                >
                   {saving ? "Saving Changes…" : "Save Project Changes"}
                 </Button>
               </div>
@@ -1218,12 +1614,18 @@ export default function ProjectDetailPage() {
               {/* Cover Render Image */}
               <div className="relative h-56 lg:h-auto bg-slate-900 overflow-hidden">
                 {project.coverImage ? (
-                  <img src={project.coverImage} alt={project.name} className="h-full w-full object-cover" />
+                  <img
+                    src={project.coverImage}
+                    alt={project.name}
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
                   <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white">
                     <Building2 className="size-12 text-indigo-400 mb-2" />
                     <p className="text-xs font-semibold text-slate-300">
-                      {categoryLabels[project.category ?? "RESIDENTIAL_TOWER"] ?? "Real Estate Project"}
+                      {categoryLabels[
+                        project.category ?? "RESIDENTIAL_TOWER"
+                      ] ?? "Real Estate Project"}
                     </p>
                   </div>
                 )}
@@ -1238,7 +1640,9 @@ export default function ProjectDetailPage() {
               <div className="p-6 lg:col-span-2 flex flex-col justify-between space-y-4">
                 <div>
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h1 className="text-xl font-extrabold text-slate-900">{project.name}</h1>
+                    <h1 className="text-xl font-extrabold text-slate-900">
+                      {project.name}
+                    </h1>
                     <span className="rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-bold text-emerald-700">
                       {project.status}
                     </span>
@@ -1246,18 +1650,24 @@ export default function ProjectDetailPage() {
 
                   <p className="mt-1 text-xs text-slate-500 flex items-center gap-1">
                     <MapPin className="size-3.5 text-indigo-500" />
-                    {project.location ?? `${subCityLabels[project.subCity ?? "BOLE"] ?? "Addis Ababa"}`}
+                    {project.location ??
+                      `${subCityLabels[project.subCity ?? "BOLE"] ?? "Addis Ababa"}`}
                   </p>
 
                   {project.description && (
-                    <p className="mt-3 text-xs text-slate-600 leading-relaxed">{project.description}</p>
+                    <p className="mt-3 text-xs text-slate-600 leading-relaxed">
+                      {project.description}
+                    </p>
                   )}
 
                   {/* Amenities Badges */}
                   {project.amenities && project.amenities.length > 0 && (
                     <div className="mt-4 flex flex-wrap gap-1.5">
                       {project.amenities.map((am) => (
-                        <span key={am} className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-700 border border-slate-200">
+                        <span
+                          key={am}
+                          className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-700 border border-slate-200"
+                        >
                           <CheckCircle2 className="size-3 text-indigo-600" />
                           {am}
                         </span>
@@ -1269,23 +1679,39 @@ export default function ProjectDetailPage() {
                 {/* Real-time Inventory & Financial Stats */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-slate-100 text-xs">
                   <div className="rounded-lg bg-slate-50 p-2.5 border border-slate-100">
-                    <p className="text-[10px] font-semibold text-slate-400 uppercase">Gross Valuation</p>
-                    <p className="text-sm font-extrabold text-slate-900 mt-0.5">{formatCurrency(project.totalValueETB || 0)}</p>
+                    <p className="text-[10px] font-semibold text-slate-400 uppercase">
+                      Gross Valuation
+                    </p>
+                    <p className="text-sm font-extrabold text-slate-900 mt-0.5">
+                      {formatCurrency(project.totalValueETB || 0)}
+                    </p>
                   </div>
 
                   <div className="rounded-lg bg-emerald-50 p-2.5 border border-emerald-100">
-                    <p className="text-[10px] font-semibold text-emerald-700 uppercase">Available Units</p>
-                    <p className="text-sm font-extrabold text-emerald-800 mt-0.5">{project.availableUnitsCount ?? 0} Units</p>
+                    <p className="text-[10px] font-semibold text-emerald-700 uppercase">
+                      Available Units
+                    </p>
+                    <p className="text-sm font-extrabold text-emerald-800 mt-0.5">
+                      {project.availableUnitsCount ?? 0} Units
+                    </p>
                   </div>
 
                   <div className="rounded-lg bg-amber-50 p-2.5 border border-amber-100">
-                    <p className="text-[10px] font-semibold text-amber-700 uppercase">Reserved Holds</p>
-                    <p className="text-sm font-extrabold text-amber-800 mt-0.5">{project.reservedUnitsCount ?? 0} Units</p>
+                    <p className="text-[10px] font-semibold text-amber-700 uppercase">
+                      Reserved Holds
+                    </p>
+                    <p className="text-sm font-extrabold text-amber-800 mt-0.5">
+                      {project.reservedUnitsCount ?? 0} Units
+                    </p>
                   </div>
 
                   <div className="rounded-lg bg-indigo-50 p-2.5 border border-indigo-100">
-                    <p className="text-[10px] font-semibold text-indigo-700 uppercase">Sold Units</p>
-                    <p className="text-sm font-extrabold text-indigo-900 mt-0.5">{project.soldUnitsCount ?? 0} Units</p>
+                    <p className="text-[10px] font-semibold text-indigo-700 uppercase">
+                      Sold Units
+                    </p>
+                    <p className="text-sm font-extrabold text-indigo-900 mt-0.5">
+                      {project.soldUnitsCount ?? 0} Units
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1301,18 +1727,25 @@ export default function ProjectDetailPage() {
                   onClick={() => setActiveTab("INVENTORY")}
                   className={cn(
                     "px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5",
-                    activeTab === "INVENTORY" ? "bg-indigo-600 text-white shadow-sm" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                    activeTab === "INVENTORY"
+                      ? "bg-indigo-600 text-white shadow-sm"
+                      : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
                   )}
                 >
                   <Building className="size-4" />
-                  Building & Unit Inventory Tree ({project.buildings.length} Blocks)
+                  Building & Unit Inventory Tree ({
+                    project.buildings.length
+                  }{" "}
+                  Blocks)
                 </button>
 
                 <button
                   onClick={() => setActiveTab("GALLERY")}
                   className={cn(
                     "px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5",
-                    activeTab === "GALLERY" ? "bg-indigo-600 text-white shadow-sm" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                    activeTab === "GALLERY"
+                      ? "bg-indigo-600 text-white shadow-sm"
+                      : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
                   )}
                 >
                   <ImageIcon className="size-4" />
@@ -1325,8 +1758,12 @@ export default function ProjectDetailPage() {
                   <section className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-sm font-bold text-slate-900">Project Buildings & Blocks</h3>
-                        <p className="text-xs text-slate-500">Manage blocks, floor levels, and unit pricing.</p>
+                        <h3 className="text-sm font-bold text-slate-900">
+                          Project Buildings & Blocks
+                        </h3>
+                        <p className="text-xs text-slate-500">
+                          Manage blocks, floor levels, and unit pricing.
+                        </p>
                       </div>
                       <Button
                         onClick={() => setShowBuildingForm((v) => !v)}
@@ -1337,11 +1774,43 @@ export default function ProjectDetailPage() {
                     </div>
 
                     {showBuildingForm && (
-                      <form onSubmit={addBuilding} className="mt-4 grid gap-3 rounded-lg bg-slate-50 p-4 border border-slate-200 sm:grid-cols-3">
-                        <input required className={cn(input, "sm:col-span-2")} placeholder="Building name (e.g. Tower A) *" value={buildingForm.name} onChange={(e) => setBuildingForm({ ...buildingForm, name: e.target.value })} />
-                        <input type="number" min="1" className={input} placeholder="Floors count" value={buildingForm.floorsCount} onChange={(e) => setBuildingForm({ ...buildingForm, floorsCount: e.target.value })} />
+                      <form
+                        onSubmit={addBuilding}
+                        className="mt-4 grid gap-3 rounded-lg bg-slate-50 p-4 border border-slate-200 sm:grid-cols-3"
+                      >
+                        <input
+                          required
+                          className={cn(input, "sm:col-span-2")}
+                          placeholder="Building name (e.g. Tower A) *"
+                          value={buildingForm.name}
+                          onChange={(e) =>
+                            setBuildingForm({
+                              ...buildingForm,
+                              name: e.target.value,
+                            })
+                          }
+                        />
+                        <input
+                          type="number"
+                          min="1"
+                          className={input}
+                          placeholder="Floors count"
+                          value={buildingForm.floorsCount}
+                          onChange={(e) =>
+                            setBuildingForm({
+                              ...buildingForm,
+                              floorsCount: e.target.value,
+                            })
+                          }
+                        />
                         <div className="sm:col-span-3">
-                          <Button type="submit" size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs">Create Building</Button>
+                          <Button
+                            type="submit"
+                            size="sm"
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs"
+                          >
+                            Create Building
+                          </Button>
                         </div>
                       </form>
                     )}
@@ -1350,14 +1819,21 @@ export default function ProjectDetailPage() {
                   {project.buildings.length === 0 ? (
                     <div className="rounded-xl border border-dashed border-slate-200 p-8 text-center bg-white">
                       <Building className="size-8 text-slate-400 mx-auto mb-2" />
-                      <p className="text-sm font-semibold text-slate-800">No building blocks added yet</p>
+                      <p className="text-sm font-semibold text-slate-800">
+                        No building blocks added yet
+                      </p>
                       <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
-                        Click "Add Building Block" to start adding floors and units to this project.
+                        Click "Add Building Block" to start adding floors and
+                        units to this project.
                       </p>
                     </div>
                   ) : (
                     project.buildings.map((b) => (
-                      <BuildingSection key={b.id} building={b} onCountsChanged={refresh} />
+                      <BuildingSection
+                        key={b.id}
+                        building={b}
+                        onCountsChanged={refresh}
+                      />
                     ))
                   )}
                 </>
@@ -1366,30 +1842,54 @@ export default function ProjectDetailPage() {
                 <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                     <div>
-                      <h3 className="text-sm font-bold text-slate-900">Project Design Renderings & Gallery</h3>
-                      <p className="text-xs text-slate-500">Architectural models, site progress photos, and video tours.</p>
+                      <h3 className="text-sm font-bold text-slate-900">
+                        Project Design Renderings & Gallery
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Architectural models, site progress photos, and video
+                        tours.
+                      </p>
                     </div>
-                    <Button onClick={() => setShowEditModal(true)} variant="outline" className="text-xs">
+                    <Button
+                      onClick={() => setShowEditModal(true)}
+                      variant="outline"
+                      className="text-xs"
+                    >
                       <Plus className="size-3.5 mr-1" /> Add Gallery Photo
                     </Button>
                   </div>
 
                   {project.coverImage && (
                     <div>
-                      <p className="text-xs font-semibold text-slate-700 mb-2">3D Architectural Cover Render</p>
+                      <p className="text-xs font-semibold text-slate-700 mb-2">
+                        3D Architectural Cover Render
+                      </p>
                       <div className="h-64 w-full rounded-lg overflow-hidden border border-slate-200">
-                        <img src={project.coverImage} alt={project.name} className="h-full w-full object-cover" />
+                        <img
+                          src={project.coverImage}
+                          alt={project.name}
+                          className="h-full w-full object-cover"
+                        />
                       </div>
                     </div>
                   )}
 
                   {project.gallery && project.gallery.length > 0 && (
                     <div>
-                      <p className="text-xs font-semibold text-slate-700 mb-2">Site Construction & Architectural Photos</p>
+                      <p className="text-xs font-semibold text-slate-700 mb-2">
+                        Site Construction & Architectural Photos
+                      </p>
                       <div className="grid gap-3 sm:grid-cols-3">
                         {project.gallery.map((url, i) => (
-                          <div key={url + i} className="h-36 rounded-lg border border-slate-200 overflow-hidden">
-                            <img src={url} alt={`Gallery ${i}`} className="h-full w-full object-cover" />
+                          <div
+                            key={url + i}
+                            className="h-36 rounded-lg border border-slate-200 overflow-hidden"
+                          >
+                            <img
+                              src={url}
+                              alt={`Gallery ${i}`}
+                              className="h-full w-full object-cover"
+                            />
                           </div>
                         ))}
                       </div>
@@ -1401,8 +1901,12 @@ export default function ProjectDetailPage() {
                       <div className="flex items-center gap-2">
                         <Video className="size-5 text-sky-600" />
                         <div>
-                          <p className="text-xs font-bold text-slate-900">Virtual Video Walkthrough</p>
-                          <p className="text-[11px] text-slate-500">{project.videoUrl}</p>
+                          <p className="text-xs font-bold text-slate-900">
+                            Virtual Video Walkthrough
+                          </p>
+                          <p className="text-[11px] text-slate-500">
+                            {project.videoUrl}
+                          </p>
                         </div>
                       </div>
                       <a
@@ -1421,8 +1925,16 @@ export default function ProjectDetailPage() {
 
             {/* Side Panel: Construction Milestones Tracker & Activity Timeline */}
             <div className="space-y-6 lg:col-span-1">
-              <ConstructionMilestonesWidget project={project} onUpdate={refresh} />
-              <ActivityTimeline key={timelineKey} entityType="Project" entityId={project.id} title="Project activity log" />
+              <ConstructionMilestonesWidget
+                project={project}
+                onUpdate={refresh}
+              />
+              <ActivityTimeline
+                key={timelineKey}
+                entityType="Project"
+                entityId={project.id}
+                title="Project activity log"
+              />
             </div>
           </div>
         </div>

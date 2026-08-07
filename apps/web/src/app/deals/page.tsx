@@ -1,7 +1,24 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { Plus, X, Search, DollarSign, TrendingUp, BarChart3, GripVertical, Trash2, CheckCircle, ArrowRight } from "lucide-react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+} from "react";
+import {
+  Plus,
+  X,
+  Search,
+  DollarSign,
+  TrendingUp,
+  BarChart3,
+  GripVertical,
+  Trash2,
+  CheckCircle,
+  ArrowRight,
+} from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
@@ -82,7 +99,9 @@ export default function DealsPage() {
     const term = search.trim().toLowerCase();
     return deals.filter((d) => {
       const nameMatch = d.name.toLowerCase().includes(term);
-      const custMatch = `${d.customer.firstName} ${d.customer.lastName}`.toLowerCase().includes(term);
+      const custMatch = `${d.customer.firstName} ${d.customer.lastName}`
+        .toLowerCase()
+        .includes(term);
       return nameMatch || custMatch;
     });
   }, [deals, search]);
@@ -112,7 +131,9 @@ export default function DealsPage() {
   }, [filteredDeals]);
 
   const avgDealValue = useMemo(() => {
-    return filteredDeals.length > 0 ? Math.round(totalPipelineVolume / filteredDeals.length) : 0;
+    return filteredDeals.length > 0
+      ? Math.round(totalPipelineVolume / filteredDeals.length)
+      : 0;
   }, [filteredDeals, totalPipelineVolume]);
 
   const handleCreate = async (event: FormEvent) => {
@@ -161,7 +182,8 @@ export default function DealsPage() {
   };
 
   const handleDeleteDeal = async (dealId: string) => {
-    if (!confirm("Are you sure you want to delete this deal opportunity?")) return;
+    if (!confirm("Are you sure you want to delete this deal opportunity?"))
+      return;
     try {
       setDeals((prev) => prev.filter((d) => d.id !== dealId));
       await apiFetch(`/deals/${dealId}`, { method: "DELETE" });
@@ -196,7 +218,11 @@ export default function DealsPage() {
             disabled={customers.length === 0 || stages.length === 0}
             className="h-9 text-xs font-semibold"
           >
-            {showForm ? <X className="size-4 mr-1.5" /> : <Plus className="size-4 mr-1.5" />}
+            {showForm ? (
+              <X className="size-4 mr-1.5" />
+            ) : (
+              <Plus className="size-4 mr-1.5" />
+            )}
             {showForm ? "Cancel" : "New Deal Opportunity"}
           </Button>
         </div>
@@ -253,7 +279,11 @@ export default function DealsPage() {
               ))}
             </select>
             <div className="col-span-full flex justify-end gap-2 pt-1">
-              <Button type="submit" disabled={saving} className="h-9 text-xs font-semibold">
+              <Button
+                type="submit"
+                disabled={saving}
+                className="h-9 text-xs font-semibold"
+              >
                 {saving ? "Saving Deal…" : "Save Opportunity"}
               </Button>
             </div>
@@ -268,13 +298,18 @@ export default function DealsPage() {
 
         {/* Interactive Kanban Board */}
         {loading ? (
-          <div className="p-12 text-center text-xs text-slate-500 font-medium">Loading sales Kanban board…</div>
+          <div className="p-12 text-center text-xs text-slate-500 font-medium">
+            Loading sales Kanban board…
+          </div>
         ) : (
           <>
             <div className="grid gap-4 overflow-x-auto xl:grid-cols-4 pb-2">
               {stages.map((stage) => {
                 const stageDeals = dealsByStage.get(stage.id) ?? [];
-                const stageTotalVal = stageDeals.reduce((acc, d) => acc + (Number(d.value) || 0), 0);
+                const stageTotalVal = stageDeals.reduce(
+                  (acc, d) => acc + (Number(d.value) || 0),
+                  0,
+                );
 
                 return (
                   <section
@@ -282,7 +317,8 @@ export default function DealsPage() {
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => {
                       e.preventDefault();
-                      const dealId = e.dataTransfer.getData("text/plain") || draggingDealId;
+                      const dealId =
+                        e.dataTransfer.getData("text/plain") || draggingDealId;
                       if (dealId) {
                         void moveStage(dealId, stage.id);
                         setDraggingDealId(null);
@@ -294,17 +330,24 @@ export default function DealsPage() {
                     <div className="flex items-center justify-between border-b border-slate-200 pb-2.5 mb-3 px-1">
                       <div>
                         <div className="flex items-center gap-2">
-                          <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wide">{stage.name}</h2>
+                          <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+                            {stage.name}
+                          </h2>
                           <span className="inline-flex items-center justify-center rounded-full bg-indigo-100 px-2 py-0.5 text-[11px] font-bold text-indigo-700">
                             {stageDeals.length}
                           </span>
                         </div>
                         <p className="text-[11px] font-medium text-slate-500 mt-0.5">
-                          Win prob: <span className="font-semibold text-slate-700">{stage.probability}%</span>
+                          Win prob:{" "}
+                          <span className="font-semibold text-slate-700">
+                            {stage.probability}%
+                          </span>
                         </p>
                       </div>
                       <div className="text-right">
-                        <span className="text-xs font-bold text-indigo-900 block">{formatValue(stageTotalVal)}</span>
+                        <span className="text-xs font-bold text-indigo-900 block">
+                          {formatValue(stageTotalVal)}
+                        </span>
                       </div>
                     </div>
 
@@ -321,13 +364,16 @@ export default function DealsPage() {
                             }}
                             className={cn(
                               "group relative rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition-all hover:border-indigo-300 hover:shadow-md cursor-grab active:cursor-grabbing",
-                              draggingDealId === deal.id && "opacity-50 border-dashed border-indigo-500",
+                              draggingDealId === deal.id &&
+                                "opacity-50 border-dashed border-indigo-500",
                             )}
                           >
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex items-center gap-1.5 min-w-0">
                                 <GripVertical className="size-4 text-slate-300 group-hover:text-indigo-400 shrink-0" />
-                                <h3 className="font-bold text-slate-900 text-xs truncate">{deal.name}</h3>
+                                <h3 className="font-bold text-slate-900 text-xs truncate">
+                                  {deal.name}
+                                </h3>
                               </div>
                               <button
                                 type="button"
@@ -340,8 +386,11 @@ export default function DealsPage() {
                             </div>
 
                             <p className="mt-2 text-xs text-slate-600 font-medium">
-                              👤 {deal.customer.firstName} {deal.customer.lastName}
-                              {deal.unit ? ` · 🏢 Unit ${deal.unit.unitNumber}` : ""}
+                              👤 {deal.customer.firstName}{" "}
+                              {deal.customer.lastName}
+                              {deal.unit
+                                ? ` · 🏢 Unit ${deal.unit.unitNumber}`
+                                : ""}
                             </p>
 
                             <div className="mt-3.5 flex items-center justify-between border-t border-slate-100 pt-2.5 text-xs">
@@ -349,7 +398,11 @@ export default function DealsPage() {
                                 {formatValue(deal.value)}
                               </span>
                               <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded">
-                                {Math.round((Number(deal.value) || 0) * (stage.probability / 100))} forecast
+                                {Math.round(
+                                  (Number(deal.value) || 0) *
+                                    (stage.probability / 100),
+                                )}{" "}
+                                forecast
                               </span>
                             </div>
 
@@ -357,7 +410,9 @@ export default function DealsPage() {
                             <select
                               aria-label="Move stage"
                               value={deal.stage.id}
-                              onChange={(e) => moveStage(deal.id, e.target.value)}
+                              onChange={(e) =>
+                                moveStage(deal.id, e.target.value)
+                              }
                               className="mt-3 h-7 w-full rounded-md border border-slate-200 bg-slate-50 px-2 text-[11px] font-semibold text-slate-700 outline-none hover:border-indigo-300"
                             >
                               {stages.map((option) => (
@@ -382,11 +437,17 @@ export default function DealsPage() {
             {/* Opportunity Table View */}
             <section className="mt-6 rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
               <div className="border-b border-slate-200 bg-slate-50/70 p-4">
-                <h2 className="text-sm font-bold text-slate-900">Opportunities Forecast Audit Table</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Detailed financial breakdown of active sales opportunities.</p>
+                <h2 className="text-sm font-bold text-slate-900">
+                  Opportunities Forecast Audit Table
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Detailed financial breakdown of active sales opportunities.
+                </p>
               </div>
               {filteredDeals.length === 0 ? (
-                <p className="p-8 text-center text-xs text-slate-500 font-medium">No active opportunities found.</p>
+                <p className="p-8 text-center text-xs text-slate-500 font-medium">
+                  No active opportunities found.
+                </p>
               ) : (
                 <CrmTable
                   columns={[
@@ -400,17 +461,29 @@ export default function DealsPage() {
                   ]}
                   rows={filteredDeals.map((deal) => {
                     const val = Number(deal.value) || 0;
-                    const weighted = Math.round(val * ((deal.stage?.probability ?? 0) / 100));
+                    const weighted = Math.round(
+                      val * ((deal.stage?.probability ?? 0) / 100),
+                    );
                     return [
-                      <span key="name" className="font-bold text-indigo-600">{deal.name}</span>,
+                      <span key="name" className="font-bold text-indigo-600">
+                        {deal.name}
+                      </span>,
                       `${deal.customer.firstName} ${deal.customer.lastName}`,
                       deal.unit ? `Unit ${deal.unit.unitNumber}` : "—",
                       formatValue(deal.value),
-                      <span key="stage" className="inline-flex items-center rounded-md bg-indigo-50 border border-indigo-100 px-2 py-0.5 text-xs font-bold text-indigo-700">
+                      <span
+                        key="stage"
+                        className="inline-flex items-center rounded-md bg-indigo-50 border border-indigo-100 px-2 py-0.5 text-xs font-bold text-indigo-700"
+                      >
                         {deal.stage.name}
                       </span>,
                       `${deal.stage.probability}%`,
-                      <span key="weighted" className="font-bold text-emerald-600">{formatValue(weighted)}</span>,
+                      <span
+                        key="weighted"
+                        className="font-bold text-emerald-600"
+                      >
+                        {formatValue(weighted)}
+                      </span>,
                     ];
                   })}
                 />
@@ -422,4 +495,3 @@ export default function DealsPage() {
     </DashboardShell>
   );
 }
-

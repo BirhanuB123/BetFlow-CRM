@@ -51,7 +51,8 @@ export class ContractsService {
       buildingName: contract.unit.floor.building.name,
       unitNumber: contract.unit.unitNumber,
       unitType: contract.unit.type,
-      floorName: contract.unit.floor.name || `Floor ${contract.unit.floor.floorNumber}`,
+      floorName:
+        contract.unit.floor.name || `Floor ${contract.unit.floor.floorNumber}`,
       buyerName: `${contract.customer.firstName} ${contract.customer.lastName}`,
       buyerEmail: contract.customer.email || undefined,
       buyerPhone: contract.customer.phone || undefined,
@@ -124,7 +125,6 @@ export class ContractsService {
       orderBy: { signedAt: 'asc' },
     });
   }
-
 
   list() {
     return this.prisma.contract.findMany({
