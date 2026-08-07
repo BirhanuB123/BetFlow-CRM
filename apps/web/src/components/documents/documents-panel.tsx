@@ -46,7 +46,7 @@ export function DocumentsPanel({ entityType, entityId, title = "Documents" }: { 
     <section className="rounded-lg border border-zinc-200 bg-white">
       <div className="flex items-center justify-between border-b border-zinc-200 p-4">
         <div className="flex items-center gap-2"><FileText className="size-4 text-zinc-500" /><h2 className="text-base font-semibold">{title}</h2></div>
-        <Link href="/documents" className="text-sm text-[#334cff] hover:underline">Manage</Link>
+        <Link href="/documents" className="text-sm text-[#233b66] hover:underline">Manage</Link>
       </div>
       {loading ? <p className="p-4 text-sm text-zinc-500">Loading documents…</p> : documents.length === 0 ? <p className="p-4 text-sm text-zinc-500">No documents attached.</p> : (
         <ul className="divide-y divide-zinc-100">

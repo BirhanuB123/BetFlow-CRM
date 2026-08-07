@@ -381,7 +381,7 @@ export default function ContractsPage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={saving} className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs shadow-sm">
+                <Button type="submit" disabled={saving} className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium text-xs shadow-sm">
                   {saving ? "Creating…" : "Save & Generate Contract Agreement"}
                 </Button>
               </div>
@@ -404,7 +404,7 @@ export default function ContractsPage() {
                 onClick={() => setFilter("ALL")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "ALL" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "ALL" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
                 All Contracts ({contracts.length})
@@ -414,7 +414,7 @@ export default function ContractsPage() {
                 onClick={() => setFilter("SIGNED")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "SIGNED" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "SIGNED" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
                 Signed & Executed ({signedCount})
@@ -424,7 +424,7 @@ export default function ContractsPage() {
                 onClick={() => setFilter("PENDING_SIGNATURE")}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "PENDING_SIGNATURE" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
+                  filter === "PENDING_SIGNATURE" ? "bg-[#233b66] text-white shadow-sm" : "text-slate-600 hover:bg-slate-200/60"
                 )}
               >
                 Pending Signature ({pendingCount})

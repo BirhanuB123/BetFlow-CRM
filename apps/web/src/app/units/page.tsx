@@ -314,10 +314,10 @@ export default function UnitsPage() {
                   key="plan"
                   size="sm"
                   variant="outline"
-                  className="h-7 text-xs gap-1 text-[#334cff] border-[#334cff]/30 hover:bg-[#334cff]/5"
+                  className="h-7 text-xs gap-1 text-[#233b66] border-[#233b66]/30 hover:bg-[#233b66]/5"
                   onClick={() => setCalcUnit(unit)}
                 >
-                  <Calculator className="size-3" /> Calculate
+                  <Calculator className="size-3" /> Mortgage Calc
                 </Button>,
                 <select
                   key="override"
@@ -388,7 +388,7 @@ function PaymentPlanModal({
       <div className="w-full max-w-xl rounded-xl bg-white p-6 shadow-2xl border border-zinc-100 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
           <div className="flex items-center gap-2">
-            <Calculator className="size-5 text-[#334cff]" />
+            <Calculator className="size-5 text-[#233b66]" />
             <div>
               <h2 className="text-base font-bold text-zinc-900">
                 Payment Plan Calculator — Unit {unit.unitNumber}
@@ -451,10 +451,10 @@ function PaymentPlanModal({
           <p className="p-4 text-center text-xs text-zinc-500">Calculating schedule...</p>
         ) : calculation ? (
           <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-2 rounded-lg bg-[#334cff]/5 p-3 border border-[#334cff]/20 text-center">
+            <div className="grid grid-cols-3 gap-2 rounded-lg bg-[#233b66]/5 p-3 border border-[#233b66]/20 text-center">
               <div>
                 <p className="text-[10px] font-semibold text-zinc-500 uppercase">Down Payment</p>
-                <p className="text-sm font-bold text-[#334cff]">
+                <p className="text-sm font-bold text-[#233b66]">
                   {formatPrice(calculation.downPaymentAmount)}
                 </p>
               </div>

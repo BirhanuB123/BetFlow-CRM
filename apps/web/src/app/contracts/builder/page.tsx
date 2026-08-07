@@ -189,7 +189,7 @@ export default function ContractBuilderPage() {
                 step="1"
                 value={discountPercent}
                 onChange={(e) => setDiscountPercent(Number(e.target.value))}
-                className="mt-2 w-full accent-[#334cff]"
+                className="mt-2 w-full accent-[#233b66]"
               />
               <p className="mt-1 text-[11px] text-zinc-500">
                 Discounts &gt; 5% automatically trigger Finance Manager Approval.
@@ -212,7 +212,7 @@ export default function ContractBuilderPage() {
             <Button
               onClick={handleGenerate}
               disabled={generating || !selectedCustomerId || !selectedUnitId}
-              className="w-full h-10 bg-[#334cff] hover:bg-[#2539cc] text-white gap-2 font-semibold"
+              className="w-full h-10 bg-[#233b66] hover:bg-[#1a2d50] text-white gap-2 font-semibold"
             >
               <FileCheck className="size-4" />
               {generating ? "Building Contract..." : "Generate Sales Agreement"}
@@ -231,11 +231,11 @@ export default function ContractBuilderPage() {
                   variant="outline"
                   className="h-9 text-xs gap-1.5 font-semibold text-zinc-800"
                 >
-                  <Download className="size-4 text-[#334cff]" /> Download PDF
+                  <Download className="size-4 text-[#233b66]" /> Download PDF
                 </Button>
                 <Button
                   onClick={() => setIsSignatureModalOpen(true)}
-                  className="h-9 text-xs gap-1.5 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="h-9 text-xs gap-1.5 font-semibold bg-[#233b66] hover:bg-[#1a2d50] text-white"
                 >
                   <PenTool className="size-4" /> Sign Digitally
                 </Button>
@@ -249,7 +249,7 @@ export default function ContractBuilderPage() {
           <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-2xs min-h-[550px]">
             <div className="mb-4 flex items-center justify-between border-b border-zinc-100 pb-3">
               <div className="flex items-center gap-2">
-                <FileText className="size-5 text-[#334cff]" />
+                <FileText className="size-5 text-[#233b66]" />
                 <h2 className="text-base font-bold text-zinc-900">Legal Document Preview</h2>
               </div>
 
@@ -261,7 +261,7 @@ export default function ContractBuilderPage() {
                     onClick={downloadPdf}
                     className="h-7 text-[11px] gap-1 border-zinc-300"
                   >
-                    <Download className="size-3 text-[#334cff]" /> PDF Stream
+                    <Download className="size-3 text-[#233b66]" /> PDF Stream
                   </Button>
                   <span
                     className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold uppercase ${
