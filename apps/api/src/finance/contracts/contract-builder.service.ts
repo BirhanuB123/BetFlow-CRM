@@ -47,6 +47,22 @@ export class ContractBuilderService {
       throw new NotFoundException(`Customer ${customerId} not found`);
     if (!unit) throw new NotFoundException(`Unit ${unitId} not found`);
 
+    // Prevent duplicate contract creation for the same unit
+    const existingActiveContract = await this.prisma.contract.findFirst({
+      where: {
+        unitId,
+        status: {
+          in: ['ACTIVE', 'SIGNED', 'PENDING_SIGNATURE', 'PENDING_APPROVAL'],
+        },
+      },
+    });
+
+    if (existingActiveContract) {
+      throw new BadRequestException(
+        `Unit ${unit.unitNumber} already has an active sales agreement (${existingActiveContract.contractNumber || existingActiveContract.id}). Duplicate contracts for the same unit are not allowed.`,
+      );
+    }
+
     // Multi-level approval rules
     let requiresApproval = false;
     let approvalReason = '';
@@ -76,6 +92,12 @@ export class ContractBuilderService {
         totalAmt: agreedPrice,
         status: requiresApproval ? 'PENDING_APPROVAL' : 'ACTIVE',
       },
+    });
+
+    // Sync unit status to RESERVED
+    await this.prisma.unit.update({
+      where: { id: unitId },
+      data: { status: 'RESERVED' },
     });
 
     const buyerName = `${customer.firstName} ${customer.lastName}`;

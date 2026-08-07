@@ -124,7 +124,7 @@ export default function ContractsPage() {
       const [contractsData, customersData, unitsData] = await Promise.all([
         apiFetch<ApiContract[]>("/contracts"),
         apiFetch<CustomerOption[]>("/customers"),
-        apiFetch<UnitOption[]>("/units"),
+        apiFetch<UnitOption[]>("/units?status=AVAILABLE"),
       ]);
       setContracts(contractsData);
       setCustomers(customersData);
