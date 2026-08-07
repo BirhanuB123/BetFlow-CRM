@@ -34,11 +34,18 @@ import {
   ArrowUpRight,
   Database,
   RefreshCw,
+  FileCheck2,
+  FileSignature,
+  CreditCard,
+  MousePointerClick,
+  ExternalLink,
+  Laptop,
 } from "lucide-react";
 
 import { demoCredentials } from "@/features/go-to-market/go-to-market-data";
 import { apiFetch, API_BASE_URL, getSession } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
+import { StatusPill } from "@/components/ui/status-pill";
 
 type LeadItem = {
   id: string;
@@ -127,35 +134,6 @@ function fmtDate(iso: string | null) {
   });
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const upper = status?.toUpperCase() || "NEW";
-  let color = "bg-slate-800 text-slate-300 border-slate-700";
-  if (
-    upper === "AVAILABLE" ||
-    upper === "QUALIFIED" ||
-    upper === "COMPLETED" ||
-    upper === "PAID"
-  ) {
-    color = "bg-emerald-950/80 border-emerald-700 text-emerald-300";
-  } else if (
-    upper === "RESERVED" ||
-    upper === "PENDING" ||
-    upper === "SCHEDULED" ||
-    upper === "FOLLOW_UP"
-  ) {
-    color = "bg-amber-950/80 border-amber-700 text-amber-300";
-  } else if (upper === "SOLD" || upper === "CLOSED_WON" || upper === "ACTIVE") {
-    color = "bg-indigo-950/80 border-indigo-700 text-indigo-300";
-  }
-  return (
-    <span
-      className={`inline-block rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${color}`}
-    >
-      {status.replace(/_/g, " ")}
-    </span>
-  );
-}
-
 export default function Home() {
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<
@@ -165,7 +143,6 @@ export default function Home() {
   // Live Database States
   const [loadingDb, setLoadingDb] = useState(true);
   const [dbConnected, setDbConnected] = useState(false);
-  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
 
   const [realLeads, setRealLeads] = useState<LeadItem[]>([]);
   const [realUnits, setRealUnits] = useState<UnitItem[]>([]);
@@ -178,7 +155,6 @@ export default function Home() {
   } | null>(null);
   const [realVisits, setRealVisits] = useState<SiteVisitItem[]>([]);
   const [realSchedules, setRealSchedules] = useState<PaymentScheduleItem[]>([]);
-  const [realSalesReport, setRealSalesReport] = useState<any>(null);
 
   // Workflow selectable tags state
   const [selectedWorkflows, setSelectedWorkflows] = useState<
@@ -191,9 +167,6 @@ export default function Home() {
     payments: true,
     contracts: true,
   });
-
-  // FAQ accordion state
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   const toggleWorkflow = (key: string) => {
     setSelectedWorkflows((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -211,7 +184,6 @@ export default function Home() {
   const loadDatabaseData = useCallback(async () => {
     setLoadingDb(true);
     try {
-      // Ensure we have a valid session token (auto-authenticate demo user if not logged in)
       const session = getSession();
       if (!session?.accessToken) {
         try {
@@ -233,7 +205,7 @@ export default function Home() {
             }
           }
         } catch {
-          // Ignore silent auth failure if offline
+          // Ignore silent auth fallback
         }
       }
 
@@ -245,7 +217,6 @@ export default function Home() {
         forecastRes,
         visitsRes,
         schedulesRes,
-        salesRes,
       ] = await Promise.all([
         apiFetch<LeadItem[]>("/leads", { suppressAuthRedirect: true }).catch(
           () => [],
@@ -268,9 +239,6 @@ export default function Home() {
         apiFetch<PaymentScheduleItem[]>("/payments/schedules", {
           suppressAuthRedirect: true,
         }).catch(() => []),
-        apiFetch<any>("/reports/sales", { suppressAuthRedirect: true }).catch(
-          () => null,
-        ),
       ]);
 
       if (leadsRes?.length) setRealLeads(leadsRes);
@@ -280,10 +248,8 @@ export default function Home() {
       if (forecastRes) setRealForecast(forecastRes);
       if (visitsRes?.length) setRealVisits(visitsRes);
       if (schedulesRes?.length) setRealSchedules(schedulesRes);
-      if (salesRes) setRealSalesReport(salesRes);
 
       setDbConnected(true);
-      setLastRefreshed(new Date());
     } catch (err) {
       console.warn("Home page database fetch notice:", err);
     } finally {
@@ -296,8 +262,8 @@ export default function Home() {
   }, [loadDatabaseData]);
 
   return (
-    <main className="min-h-screen bg-white text-slate-900 font-sans selection:bg-indigo-600 selection:text-white">
-      {/* 1. Navbar */}
+    <main className="min-h-screen bg-white text-slate-900 font-sans selection:bg-[#233b66] selection:text-white">
+      {/* 1. Header Navigation */}
       <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           {/* Logo & Brand */}
@@ -311,11 +277,11 @@ export default function Home() {
               priority
             />
             <div className="flex items-center gap-2">
-              <span className="text-lg font-extrabold text-slate-900 tracking-tight">
+              <span className="text-lg font-extrabold text-[#233b66] tracking-tight">
                 betflow
               </span>
-              <span className="rounded-md bg-indigo-600 px-2 py-0.5 text-[10px] font-bold text-white uppercase tracking-wide">
-                Sales CRM
+              <span className="rounded-md bg-[#233b66] px-2 py-0.5 text-[10px] font-bold text-white uppercase tracking-wide">
+                CRM Platform
               </span>
             </div>
           </Link>
@@ -324,33 +290,33 @@ export default function Home() {
           <nav className="hidden items-center gap-8 text-xs font-semibold text-slate-600 md:flex">
             <Link
               href="/dashboard"
-              className="hover:text-indigo-600 transition-colors"
+              className="hover:text-[#233b66] transition-colors"
             >
               Dashboard
             </Link>
             <Link
               href="/leads"
-              className="hover:text-indigo-600 transition-colors"
+              className="hover:text-[#233b66] transition-colors"
             >
               Lead Intake
             </Link>
             <Link
               href="/units"
-              className="hover:text-indigo-600 transition-colors"
+              className="hover:text-[#233b66] transition-colors"
             >
-              Unit Stacking Plan
+              Stacking Plan
             </Link>
             <Link
-              href="/deals"
-              className="hover:text-indigo-600 transition-colors"
+              href="/contracts"
+              className="hover:text-[#233b66] transition-colors"
             >
-              Sales Kanban
+              Contracts & PDF
             </Link>
             <Link
-              href="/reports"
-              className="hover:text-indigo-600 transition-colors"
+              href="/portal"
+              className="hover:text-[#233b66] transition-colors"
             >
-              Print Engine
+              Buyer Portal
             </Link>
           </nav>
 
@@ -366,12 +332,12 @@ export default function Home() {
               ) : (
                 <Copy className="size-3.5 text-slate-400" />
               )}
-              {copied ? "Copied!" : "Demo Login"}
+              {copied ? "Copied!" : "Demo Credentials"}
             </button>
 
             <Link
               href="/auth"
-              className="group inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700 transition-all"
+              className="group inline-flex items-center gap-2 rounded-lg bg-[#233b66] px-4 py-2 text-xs font-bold text-white shadow-md shadow-[#233b66]/20 hover:bg-[#1c3054] active:scale-[0.98] transition-all"
             >
               <span>Get Started</span>
               <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
@@ -381,57 +347,60 @@ export default function Home() {
       </header>
 
       {/* 2. Hero Section */}
-      <section className="relative pt-12 pb-16 lg:pt-16 lg:pb-24 overflow-hidden bg-gradient-to-b from-indigo-50/40 via-white to-white">
+      <section className="relative pt-12 pb-16 lg:pt-16 lg:pb-24 overflow-hidden bg-gradient-to-b from-[#233b66]/5 via-white to-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 text-center">
-          {/* Eyebrow Pill */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-3.5 py-1 text-xs font-bold text-indigo-700 mb-6">
-            <Sparkles className="size-3.5 text-indigo-600" />
+          {/* Eyebrow Status Pill */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#233b66]/20 bg-[#233b66]/10 px-3.5 py-1 text-xs font-bold text-[#233b66] mb-6 shadow-2xs">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+            </span>
             <span>
-              The #1 Real Estate Sales CRM for Ethiopia Developers & Agencies
+              Real Estate Sales, Unit Stacking & E-Signature Operating System
             </span>
           </div>
 
           {/* Main Headline */}
           <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl max-w-4xl mx-auto leading-[1.12]">
-            Real estate sales grow faster with{" "}
-            <span className="text-indigo-600 underline decoration-indigo-300 decoration-wavy underline-offset-8">
+            Streamline real estate sales & contracts with{" "}
+            <span className="bg-gradient-to-r from-slate-900 via-[#233b66] to-indigo-600 bg-clip-text text-transparent underline decoration-[#233b66]/30 decoration-wavy underline-offset-8">
               BetFlow CRM
             </span>
           </h1>
 
           <p className="mt-5 max-w-2xl mx-auto text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
-            Manage buyer leads, property floor plans, unit hold reservations,
-            payment schedules, and automated sales contracts — all in one visual
-            workspace.
+            Manage buyer leads, property floor plans, unit holds, bank slips,
+            digital e-signatures, and automated legal PDF contracts — in one
+            seamless workspace.
           </p>
 
           {/* Interactive Workflow Selector Tags */}
           <div className="mt-8 max-w-3xl mx-auto">
             <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
-              Select what you want to manage:
+              Select key workflows to explore:
             </p>
             <div className="flex flex-wrap items-center justify-center gap-2.5">
               {[
                 {
                   key: "leads",
-                  label: "Contact & Lead Intake",
+                  label: "Lead Intake & Conversion",
                   icon: UserRoundCheck,
                 },
-                { key: "units", label: "Unit Elevation Matrix", icon: Grid },
+                { key: "units", label: "Unit Stacking Elevation", icon: Grid },
                 {
                   key: "pipeline",
-                  label: "Deals & Sales Pipelines",
+                  label: "Sales Kanban Pipeline",
                   icon: CircleDollarSign,
                 },
                 {
                   key: "visits",
-                  label: "Site Visits & Meetings",
+                  label: "Site Visit Scheduler",
                   icon: CalendarDays,
                 },
                 { key: "payments", label: "Payment Schedules", icon: Coins },
                 {
                   key: "contracts",
-                  label: "Automated Contracts",
+                  label: "PDF & E-Signatures",
                   icon: FileText,
                 },
               ].map((tag) => {
@@ -442,9 +411,9 @@ export default function Home() {
                     key={tag.key}
                     type="button"
                     onClick={() => toggleWorkflow(tag.key)}
-                    className={`inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-xs font-bold transition-all shadow-xs ${
+                    className={`inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-xs font-bold transition-all shadow-xs cursor-pointer ${
                       active
-                        ? "border-indigo-600 bg-indigo-600 text-white shadow-md shadow-indigo-600/20"
+                        ? "border-[#233b66] bg-[#233b66] text-white shadow-md shadow-[#233b66]/20"
                         : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                     }`}
                   >
@@ -465,7 +434,7 @@ export default function Home() {
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href="/dashboard"
-              className="group inline-flex h-12 items-center justify-center gap-2.5 rounded-xl bg-indigo-600 px-8 text-sm font-bold text-white shadow-lg shadow-indigo-600/25 hover:bg-indigo-700 transition-all w-full sm:w-auto"
+              className="group inline-flex h-12 items-center justify-center gap-2.5 rounded-xl bg-[#233b66] px-8 text-sm font-bold text-white shadow-lg shadow-[#233b66]/25 hover:bg-[#1c3054] active:scale-[0.98] transition-all w-full sm:w-auto"
             >
               <span>Launch Command Center</span>
               <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
@@ -479,59 +448,55 @@ export default function Home() {
             </Link>
           </div>
 
-          <p className="mt-3 text-[11px] font-medium text-slate-500">
-            ✓ No credit card required · Instant demo access · Multi-tenant ready
-          </p>
-
-          {/* Demo Login Callout Bar */}
+          {/* Quick Credential Callout */}
           <div className="mt-6 inline-flex items-center gap-3 rounded-xl border border-indigo-100 bg-indigo-50/70 px-4 py-2.5 text-xs text-indigo-950 shadow-xs max-w-xl mx-auto">
-            <KeyRound className="size-4 text-indigo-600 shrink-0" />
+            <KeyRound className="size-4 text-[#233b66] shrink-0" />
             <span className="text-slate-700">
-              <strong>Quick Login:</strong>{" "}
-              <span className="font-mono text-indigo-700 font-bold">
+              <strong>Quick Demo Access:</strong>{" "}
+              <span className="font-mono text-[#233b66] font-bold">
                 {demoCredentials.email}
               </span>{" "}
               /{" "}
-              <span className="font-mono text-indigo-700 font-bold">
+              <span className="font-mono text-[#233b66] font-bold">
                 {demoCredentials.password}
               </span>
             </span>
           </div>
         </div>
 
-        {/* 3. Product Feature Showcase Container with REAL DATABASE DATA */}
+        {/* 3. Dark Glass Workspace Terminal Showcase */}
         <div className="mt-14 mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-2xl p-4 sm:p-6 overflow-hidden">
-            {/* Live Database Sync Header Banner */}
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4 text-xs">
+          <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4 sm:p-6 shadow-2xl overflow-hidden">
+            {/* Live Database Sync Header */}
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4 text-xs">
               <div className="flex items-center gap-2">
-                <div className="relative flex size-2.5">
+                <span className="relative flex size-2.5">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500"></span>
-                </div>
-                <Database className="size-3.5 text-emerald-600" />
-                <span className="font-bold text-slate-700">
-                  Live Database Connected
+                </span>
+                <Database className="size-3.5 text-emerald-400" />
+                <span className="font-bold text-white">
+                  PostgreSQL / Prisma Database Active
                 </span>
                 <span className="hidden sm:inline-block text-[11px] text-slate-400">
-                  • Real-time records from PostgreSQL / Prisma database
+                  • Real-time CRM workspace records
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => void loadDatabaseData()}
                 disabled={loadingDb}
-                className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-50"
+                className="inline-flex items-center gap-1 rounded-md border border-slate-800 bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-slate-300 hover:bg-slate-800 transition-colors disabled:opacity-50"
               >
                 <RefreshCw
-                  className={`size-3 text-indigo-600 ${loadingDb ? "animate-spin" : ""}`}
+                  className={`size-3 text-indigo-400 ${loadingDb ? "animate-spin" : ""}`}
                 />
-                <span>{loadingDb ? "Syncing..." : "Sync Database"}</span>
+                <span>{loadingDb ? "Syncing..." : "Refresh DB"}</span>
               </button>
             </div>
 
             {/* Interactive Tabs Header */}
-            <div className="flex flex-wrap items-center justify-center gap-2 border-b border-slate-100 pb-4 mb-6">
+            <div className="flex flex-wrap items-center justify-center gap-2 border-b border-slate-800 pb-4 mb-6">
               {[
                 {
                   id: "leads",
@@ -541,7 +506,7 @@ export default function Home() {
                 },
                 {
                   id: "units",
-                  label: "Unit Elevation Matrix",
+                  label: "Unit Stacking Elevation",
                   icon: Grid,
                   count: realUnits.length,
                 },
@@ -559,7 +524,7 @@ export default function Home() {
                 },
                 {
                   id: "payments",
-                  label: "Payment Milestone Tracking",
+                  label: "Payment Milestones",
                   icon: Coins,
                   count: realSchedules.length,
                 },
@@ -571,19 +536,17 @@ export default function Home() {
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                    className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${
+                    className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer ${
                       isActive
-                        ? "bg-indigo-50 text-indigo-700 border border-indigo-200/80 shadow-xs"
-                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                        ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                        : "text-slate-400 hover:bg-slate-900 hover:text-white"
                     }`}
                   >
-                    <Icon
-                      className={`size-4 ${isActive ? "text-indigo-600" : "text-slate-400"}`}
-                    />
+                    <Icon className="size-4" />
                     <span>{tab.label}</span>
                     {tab.count > 0 && (
                       <span
-                        className={`rounded-full px-2 py-0.2 text-[10px] font-extrabold ${isActive ? "bg-indigo-600 text-white" : "bg-slate-200 text-slate-700"}`}
+                        className={`rounded-full px-2 py-0.2 text-[10px] font-extrabold ${isActive ? "bg-white/20 text-white" : "bg-slate-800 text-slate-300"}`}
                       >
                         {tab.count}
                       </span>
@@ -593,25 +556,23 @@ export default function Home() {
               })}
             </div>
 
-            {/* Active Tab Preview Display - REAL DATA */}
-            <div className="rounded-xl border border-slate-800 bg-slate-900 text-white p-5 sm:p-6 min-h-[360px]">
+            {/* Active Tab Preview Display */}
+            <div className="min-h-[340px] text-white">
               {/* TAB 1: REAL LEADS FROM DATABASE */}
               {activeTab === "leads" && (
                 <div className="space-y-4">
-                  <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
+                  <div className="flex flex-wrap items-center justify-between border-b border-slate-900 pb-3 gap-2">
                     <div>
                       <h3 className="text-sm font-bold text-white flex items-center gap-2">
                         <UserRoundCheck className="size-4 text-indigo-400" />
                         Buyer Lead Intake & Conversion (Live Database)
                       </h3>
                       <p className="text-xs text-slate-400 mt-0.5">
-                        Real-time buyer leads fetched directly from database
-                        schema.
+                        Real-time buyer leads stored in database schema.
                       </p>
                     </div>
-                    <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
-                      <span className="size-1.5 rounded-full bg-emerald-400 animate-ping" />
-                      LIVE DATABASE ({realLeads.length} RECORDS)
+                    <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold text-emerald-400 border border-emerald-500/30">
+                      LEADS ({realLeads.length} RECORDS)
                     </span>
                   </div>
 
@@ -633,14 +594,14 @@ export default function Home() {
                       {realLeads.slice(0, 6).map((lead) => (
                         <div
                           key={lead.id}
-                          className="rounded-lg border border-slate-800 bg-slate-950 p-3.5 hover:border-slate-700 transition-colors flex flex-col justify-between"
+                          className="rounded-xl border border-slate-800 bg-slate-900 p-3.5 hover:border-slate-700 transition-colors flex flex-col justify-between"
                         >
                           <div>
                             <div className="flex items-center justify-between gap-1">
                               <p className="text-xs font-extrabold text-white truncate">
                                 {lead.firstName} {lead.lastName}
                               </p>
-                              <StatusBadge status={lead.status} />
+                              <StatusPill status={lead.status} size="sm" />
                             </div>
                             <p className="text-[11px] text-slate-400 mt-1 truncate">
                               {lead.company ||
@@ -653,7 +614,7 @@ export default function Home() {
                               </p>
                             )}
                           </div>
-                          <div className="mt-3 pt-2 border-t border-slate-900 flex items-center justify-between text-[10px] text-slate-400">
+                          <div className="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
                             <span>Added: {fmtDate(lead.createdAt)}</span>
                             <Link
                               href="/leads"
@@ -672,15 +633,15 @@ export default function Home() {
               {/* TAB 2: REAL UNIT ELEVATION MATRIX FROM DATABASE */}
               {activeTab === "units" && (
                 <div className="space-y-4">
-                  <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
+                  <div className="flex flex-wrap items-center justify-between border-b border-slate-900 pb-3 gap-2">
                     <div>
                       <h3 className="text-sm font-bold text-white flex items-center gap-2">
                         <Grid className="size-4 text-purple-400" />
                         Property Inventory Matrix (Live Stacking Plan)
                       </h3>
                       <p className="text-xs text-slate-400 mt-0.5">
-                        Real-time building units and status toggles synced with
-                        inventory.
+                        Floor-by-floor building elevation matrix and unit status
+                        locks.
                       </p>
                     </div>
                     <span className="rounded-full bg-purple-500/20 px-2.5 py-1 text-[10px] font-bold text-purple-300 border border-purple-500/30">
@@ -705,7 +666,7 @@ export default function Home() {
                     <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
                       {realStacking.map((b) => (
                         <div key={b.id} className="space-y-2">
-                          <p className="text-xs font-bold text-purple-400 border-b border-slate-800 pb-1">
+                          <p className="text-xs font-bold text-purple-400 border-b border-slate-900 pb-1">
                             🏢 {b.name}
                           </p>
                           {b.floors.map((f) => (
@@ -717,19 +678,16 @@ export default function Home() {
                                 {f.units.map((u) => (
                                   <div
                                     key={u.id}
-                                    className={`rounded-lg border p-2 text-center text-xs font-bold ${
-                                      u.status === "SOLD"
-                                        ? "bg-rose-950/80 border-rose-800 text-rose-300"
-                                        : u.status === "RESERVED"
-                                          ? "bg-amber-950/80 border-amber-800 text-amber-300"
-                                          : "bg-emerald-950/80 border-emerald-800 text-emerald-300"
-                                    }`}
+                                    className="rounded-lg border border-slate-800 bg-slate-900 p-2 text-center text-xs font-bold"
                                   >
                                     <div>
                                       Unit {u.unitNumber} ({u.type})
                                     </div>
-                                    <div className="text-[10px] font-semibold mt-0.5">
-                                      {formatCurrency(u.price)} · {u.status}
+                                    <div className="text-[10px] font-semibold mt-0.5 text-slate-300">
+                                      {formatCurrency(u.price)}
+                                    </div>
+                                    <div className="mt-1 flex justify-center">
+                                      <StatusPill status={u.status} size="sm" />
                                     </div>
                                   </div>
                                 ))}
@@ -744,22 +702,16 @@ export default function Home() {
                       {realUnits.slice(0, 8).map((u) => (
                         <div
                           key={u.id}
-                          className={`rounded-lg border p-3 text-center text-xs font-bold ${
-                            u.status === "SOLD"
-                              ? "bg-rose-950/80 border-rose-800 text-rose-300"
-                              : u.status === "RESERVED"
-                                ? "bg-amber-950/80 border-amber-800 text-amber-300"
-                                : "bg-emerald-950/80 border-emerald-800 text-emerald-300"
-                          }`}
+                          className="rounded-lg border border-slate-800 bg-slate-900 p-3 text-center text-xs font-bold"
                         >
                           <div>
                             Unit {u.unitNumber} ({u.type})
                           </div>
-                          <div className="text-[11px] font-extrabold mt-1">
+                          <div className="text-[11px] font-extrabold mt-1 text-slate-300">
                             {formatCurrency(u.price)}
                           </div>
-                          <div className="text-[9px] uppercase tracking-wider mt-1">
-                            {u.status}
+                          <div className="mt-1 flex justify-center">
+                            <StatusPill status={u.status} size="sm" />
                           </div>
                         </div>
                       ))}
@@ -771,7 +723,7 @@ export default function Home() {
               {/* TAB 3: REAL DEALS & SALES PIPELINE FROM DATABASE */}
               {activeTab === "pipeline" && (
                 <div className="space-y-4">
-                  <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
+                  <div className="flex flex-wrap items-center justify-between border-b border-slate-900 pb-3 gap-2">
                     <div>
                       <h3 className="text-sm font-bold text-white flex items-center gap-2">
                         <CircleDollarSign className="size-4 text-emerald-400" />
@@ -795,85 +747,70 @@ export default function Home() {
                     </span>
                   </div>
 
-                  {realForecast?.stages && realForecast.stages.length > 0 ? (
-                    <div className="grid gap-3 sm:grid-cols-4 text-xs">
-                      {realForecast.stages.map((stage) => (
-                        <div
-                          key={stage.stageId}
-                          className="rounded-lg border border-slate-800 bg-slate-950 p-3 flex flex-col justify-between"
-                        >
-                          <div>
-                            <p className="font-bold text-indigo-400 uppercase text-[10px]">
-                              {stage.stageName} ({stage.probability}%)
-                            </p>
-                            <p className="font-extrabold text-white text-sm mt-1">
-                              {formatCurrency(stage.rawVolume)}
-                            </p>
-                            <p className="text-[10px] text-slate-400 mt-0.5">
-                              Weighted: {formatCurrency(stage.weightedVolume)}
-                            </p>
-                          </div>
-                          <div className="mt-3 pt-2 border-t border-slate-900 flex items-center justify-between text-[10px] text-slate-400 font-semibold">
-                            <span>{stage.dealCount} Active Deals</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : realDeals.length > 0 ? (
-                    <div className="grid gap-3 sm:grid-cols-3 text-xs">
-                      {realDeals.slice(0, 6).map((deal) => (
-                        <div
-                          key={deal.id}
-                          className="rounded-lg border border-slate-800 bg-slate-950 p-3"
-                        >
-                          <p className="font-bold text-white text-xs truncate">
-                            {deal.name}
-                          </p>
-                          <p className="font-extrabold text-indigo-400 mt-1">
-                            {formatCurrency(deal.value)}
-                          </p>
-                          <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-900 text-[10px]">
-                            <span className="text-slate-400">
-                              {deal.stage?.name || "Pipeline"}
-                            </span>
-                            <StatusBadge status="ACTIVE" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
+                  {realDeals.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400">
                       <CircleDollarSign className="size-8 text-slate-600 mb-2" />
                       <p className="text-sm font-semibold">
-                        No sales pipeline deals recorded in database.
+                        No sales deals in pipeline yet.
                       </p>
                       <Link
                         href="/deals"
                         className="mt-2 text-xs font-bold text-emerald-400 hover:underline"
                       >
-                        + Create First Sales Deal →
+                        + Create First Opportunity Deal →
                       </Link>
+                    </div>
+                  ) : (
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      {realDeals.slice(0, 6).map((deal) => (
+                        <div
+                          key={deal.id}
+                          className="rounded-xl border border-slate-800 bg-slate-900 p-4 flex flex-col justify-between"
+                        >
+                          <div>
+                            <p className="text-xs font-bold text-white truncate">
+                              {deal.name}
+                            </p>
+                            <p className="text-[11px] text-slate-400 mt-0.5">
+                              {deal.customer.firstName} {deal.customer.lastName}
+                            </p>
+                            <p className="text-sm font-extrabold text-emerald-400 mt-2">
+                              {formatCurrency(deal.value)}
+                            </p>
+                          </div>
+                          <div className="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[10px]">
+                            <span className="text-indigo-400 font-semibold">
+                              {deal.stage.name}
+                            </span>
+                            <Link
+                              href="/deals"
+                              className="text-slate-400 hover:text-white"
+                            >
+                              Kanban →
+                            </Link>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
               )}
 
-              {/* TAB 4: REAL SITE VISITS FROM DATABASE */}
+              {/* TAB 4: REAL SITE VISITS */}
               {activeTab === "visits" && (
                 <div className="space-y-4">
-                  <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
+                  <div className="flex flex-wrap items-center justify-between border-b border-slate-900 pb-3 gap-2">
                     <div>
                       <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                        <CalendarDays className="size-4 text-sky-400" />
-                        Site Visit Bookings & Property Intake (Live DB)
+                        <CalendarDays className="size-4 text-amber-400" />
+                        Site Visit Calendar & Tour Records
                       </h3>
                       <p className="text-xs text-slate-400 mt-0.5">
-                        Scheduled buyer appointments and site inspections from
-                        database.
+                        Scheduled property tours and agent dispatch records.
                       </p>
                     </div>
-                    <span className="rounded-full bg-sky-500/20 px-2.5 py-1 text-[10px] font-bold text-sky-400 border border-sky-500/30">
-                      APPOINTMENT LOGS ({realVisits.length} VISITS)
+                    <span className="rounded-full bg-amber-500/20 px-2.5 py-1 text-[10px] font-bold text-amber-300 border border-amber-500/30">
+                      SITE TOURS ({realVisits.length} VISITS)
                     </span>
                   </div>
 
@@ -881,69 +818,63 @@ export default function Home() {
                     <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400">
                       <CalendarDays className="size-8 text-slate-600 mb-2" />
                       <p className="text-sm font-semibold">
-                        No site visits scheduled in database.
+                        No upcoming site visits scheduled.
                       </p>
                       <Link
                         href="/site-visits"
-                        className="mt-2 text-xs font-bold text-sky-400 hover:underline"
+                        className="mt-2 text-xs font-bold text-amber-400 hover:underline"
                       >
-                        + Schedule Property Site Visit →
+                        + Book Property Site Tour →
                       </Link>
                     </div>
                   ) : (
-                    <div className="space-y-2.5">
-                      {realVisits.slice(0, 4).map((v) => {
-                        const clientName = v.customer
-                          ? `${v.customer.firstName} ${v.customer.lastName}`
-                          : v.lead
-                            ? `${v.lead.firstName} ${v.lead.lastName}`
-                            : "Property Prospect";
-                        return (
-                          <div
-                            key={v.id}
-                            className="rounded-lg border border-slate-800 bg-slate-950 p-3.5 text-xs space-y-1.5"
-                          >
-                            <div className="flex items-center justify-between border-b border-slate-900 pb-2">
-                              <span className="font-bold text-white flex items-center gap-2">
-                                📍 Site Visit Appointment · {fmtDate(v.date)}
-                              </span>
-                              <StatusBadge status={v.status} />
-                            </div>
-                            <p className="text-slate-300">
-                              Client:{" "}
-                              <strong className="text-white font-bold">
-                                {clientName}
-                              </strong>
-                              {v.notes && (
-                                <span className="text-slate-400 ml-2">
-                                  — "{v.notes}"
-                                </span>
-                              )}
-                            </p>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      {realVisits.slice(0, 6).map((visit) => (
+                        <div
+                          key={visit.id}
+                          className="rounded-xl border border-slate-800 bg-slate-900 p-4"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-white">
+                              {visit.lead
+                                ? `${visit.lead.firstName} ${visit.lead.lastName}`
+                                : visit.customer
+                                  ? `${visit.customer.firstName} ${visit.customer.lastName}`
+                                  : "Buyer Visit"}
+                            </span>
+                            <StatusPill status={visit.status} size="sm" />
                           </div>
-                        );
-                      })}
+                          <p className="text-[11px] text-amber-400 font-semibold mt-2">
+                            🗓️ {fmtDate(visit.date)}
+                          </p>
+                          {visit.notes && (
+                            <p className="text-[10px] text-slate-400 mt-1 line-clamp-2">
+                              {visit.notes}
+                            </p>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
               )}
 
-              {/* TAB 5: REAL PAYMENT MILESTONES FROM DATABASE */}
+              {/* TAB 5: REAL PAYMENT SCHEDULES */}
               {activeTab === "payments" && (
                 <div className="space-y-4">
-                  <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
+                  <div className="flex flex-wrap items-center justify-between border-b border-slate-900 pb-3 gap-2">
                     <div>
                       <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                        <Coins className="size-4 text-rose-400" />
-                        Milestone Payment Schedule Engine (Live DB)
+                        <Coins className="size-4 text-emerald-400" />
+                        Installment Payment Milestones & Receipts
                       </h3>
                       <p className="text-xs text-slate-400 mt-0.5">
-                        Real payment schedules and milestone collections stored
-                        in database.
+                        Track construction milestones, downpayments, and bank
+                        slips.
                       </p>
                     </div>
-                    <span className="rounded-full bg-rose-500/20 px-2.5 py-1 text-[10px] font-bold text-rose-400 border border-rose-500/30">
-                      MILESTONE SCHEDULES ({realSchedules.length} SCHEDULES)
+                    <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold text-emerald-400 border border-emerald-500/30">
+                      SCHEDULED MILESTONES ({realSchedules.length})
                     </span>
                   </div>
 
@@ -951,40 +882,35 @@ export default function Home() {
                     <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400">
                       <Coins className="size-8 text-slate-600 mb-2" />
                       <p className="text-sm font-semibold">
-                        No payment schedules generated in database yet.
+                        No payment milestones logged yet.
                       </p>
                       <Link
                         href="/payments"
-                        className="mt-2 text-xs font-bold text-rose-400 hover:underline"
+                        className="mt-2 text-xs font-bold text-emerald-400 hover:underline"
                       >
-                        + Generate Milestone Schedules →
+                        + Manage Payment Schedules →
                       </Link>
                     </div>
                   ) : (
-                    <div className="grid gap-2.5 sm:grid-cols-3 text-xs">
-                      {realSchedules.slice(0, 6).map((sched) => (
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      {realSchedules.slice(0, 6).map((sch) => (
                         <div
-                          key={sched.id}
-                          className="rounded-lg border border-slate-800 bg-slate-950 p-3 flex flex-col justify-between"
+                          key={sch.id}
+                          className="rounded-xl border border-slate-800 bg-slate-900 p-4"
                         >
-                          <div>
-                            <div className="flex items-center justify-between">
-                              <span className="font-extrabold text-indigo-400">
-                                {sched.percentage}%
-                              </span>
-                              <StatusBadge status={sched.status} />
-                            </div>
-                            <div className="font-bold text-white text-xs mt-1.5">
-                              {sched.milestoneName.replace(/_/g, " ")}
-                            </div>
-                            <div className="font-extrabold text-white text-sm mt-1">
-                              {formatCurrency(sched.amount)}
-                            </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-white">
+                              {sch.milestoneName} ({sch.percentage}%)
+                            </span>
+                            <StatusPill status={sch.status} size="sm" />
                           </div>
-                          {sched.contract?.customer && (
-                            <p className="text-[10px] text-slate-400 mt-2 pt-2 border-t border-slate-900 truncate">
-                              Client: {sched.contract.customer.firstName}{" "}
-                              {sched.contract.customer.lastName}
+                          <p className="text-sm font-extrabold text-emerald-400 mt-2">
+                            {formatCurrency(sch.amount)}
+                          </p>
+                          {sch.contract?.customer && (
+                            <p className="text-[10px] text-slate-400 mt-1">
+                              Buyer: {sch.contract.customer.firstName}{" "}
+                              {sch.contract.customer.lastName}
                             </p>
                           )}
                         </div>
@@ -998,149 +924,201 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. Social Proof Trust Section with REAL DB STATS */}
-      <section className="border-y border-slate-100 bg-slate-50/50 py-12">
-        <div className="mx-auto max-w-7xl px-4 text-center sm:px-6">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-6">
-            Live System Statistics Powered by BetFlow CRM Core Engine
-          </p>
-
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 items-center justify-center">
-            {[
-              {
-                label:
-                  realLeads.length || realDeals.length
-                    ? `${realLeads.length + realDeals.length}`
-                    : "250K+",
-                text: "Active Database Records",
-              },
-              {
-                label: realUnits.length ? `${realUnits.length}` : "99.9%",
-                text: "Units in Inventory Stacking Plan",
-              },
-              {
-                label: realSalesReport?.bookedRevenue
-                  ? formatCurrency(realSalesReport.bookedRevenue)
-                  : "42s",
-                text: "Booked Revenue in Database",
-              },
-              {
-                label: realSalesReport?.collectedPayments
-                  ? formatCurrency(realSalesReport.collectedPayments)
-                  : "4.8 / 5",
-                text: "Collected Payments to Date",
-              },
-            ].map((stat) => (
-              <div
-                key={stat.text}
-                className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs"
-              >
-                <p className="text-2xl font-extrabold text-indigo-600">
-                  {stat.label}
-                </p>
-                <p className="text-xs font-medium text-slate-600 mt-1">
-                  {stat.text}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Frequently Asked Questions */}
-      <section className="py-16 bg-white">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">
-              Frequently Asked Questions
+      {/* 4. Bento Box Feature Highlights (6 Modern Grid Cards) */}
+      <section className="py-16 bg-slate-50 border-t border-b border-slate-200/80">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="text-xs font-extrabold uppercase tracking-wider text-[#233b66]">
+              End-to-End Capabilities
+            </span>
+            <h2 className="mt-2 text-3xl font-extrabold text-slate-900 sm:text-4xl">
+              Built for Ethiopian Real Estate Developers
             </h2>
-            <p className="mt-2 text-xs sm:text-sm text-slate-600">
-              Everything you need to know about setting up and running BetFlow
-              CRM.
+            <p className="mt-3 text-sm text-slate-600">
+              Purpose-built tools for managing high-value residential, commercial,
+              and diaspora property sales.
             </p>
           </div>
 
-          <div className="space-y-3">
-            {[
-              {
-                q: "Is BetFlow CRM easy to set up for our sales team?",
-                a: "Yes. BetFlow CRM comes with pre-seeded real estate inventory schemas, deal pipelines, and user role templates. Most teams start managing leads and units in minutes without IT assistance.",
-              },
-              {
-                q: "Does BetFlow CRM support Ethiopian Birr (ETB) and VAT calculations?",
-                a: "Yes. Workspace currency defaults to Ethiopian Birr (ETB) with integrated VAT calculators, downpayment breakdown models, and receipt collections.",
-              },
-              {
-                q: "Can we track 14-day hold reservations on apartment units?",
-                a: "Absolutely. The Unit Matrix includes automatic hold countdown timers, reservation voucher intakes, and 1-click conversion into sales contracts.",
-              },
-              {
-                q: "How does the standalone print engine work?",
-                a: "BetFlow CRM includes a dedicated standalone print engine (`lib/print.ts`) that opens formatted stock reports, floorplan summaries, and contracts cleanly in clean browser print dialogs without IDE webview popups.",
-              },
-            ].map((item, idx) => (
-              <div
-                key={item.q}
-                className="rounded-xl border border-slate-200 bg-white overflow-hidden transition-colors"
-              >
-                <button
-                  type="button"
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="flex w-full items-center justify-between p-4 text-left text-sm font-bold text-slate-900 hover:bg-slate-50 transition-colors"
-                >
-                  <span>{item.q}</span>
-                  <ChevronDown
-                    className={`size-4 text-slate-400 transition-transform ${openFaq === idx ? "rotate-180 text-indigo-600" : ""}`}
-                  />
-                </button>
-                {openFaq === idx && (
-                  <div className="border-t border-slate-100 bg-slate-50/50 p-4 text-xs leading-relaxed text-slate-600 font-normal">
-                    {item.a}
-                  </div>
-                )}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* Card 1 */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200 group">
+              <div className="flex size-12 items-center justify-center rounded-xl bg-[#233b66]/10 text-[#233b66] mb-5 group-hover:bg-[#233b66] group-hover:text-white transition-colors">
+                <Grid className="size-6" />
               </div>
-            ))}
+              <h3 className="text-base font-bold text-slate-900">
+                Floor Stacking Elevation Matrix
+              </h3>
+              <p className="mt-2 text-xs text-slate-600 leading-relaxed">
+                Visualize building floors, unit layouts, sqm area, and live
+                availability statuses (`AVAILABLE`, `RESERVED`, `SOLD`) with
+                atomic inventory locking.
+              </p>
+              <Link
+                href="/units"
+                className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-[#233b66] hover:underline"
+              >
+                <span>View Stacking Plan</span>
+                <ArrowUpRight className="size-3.5" />
+              </Link>
+            </div>
+
+            {/* Card 2 */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200 group">
+              <div className="flex size-12 items-center justify-center rounded-xl bg-[#233b66]/10 text-[#233b66] mb-5 group-hover:bg-[#233b66] group-hover:text-white transition-colors">
+                <FileText className="size-6" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900">
+                Automated Legal PDF Contracts
+              </h3>
+              <p className="mt-2 text-xs text-slate-600 leading-relaxed">
+                Generate server-side PDF Ethiopian sales agreements with custom
+                payment schedules, property specifications, and brand headers.
+              </p>
+              <Link
+                href="/contracts"
+                className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-[#233b66] hover:underline"
+              >
+                <span>Generate Contracts</span>
+                <ArrowUpRight className="size-3.5" />
+              </Link>
+            </div>
+
+            {/* Card 3 */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200 group">
+              <div className="flex size-12 items-center justify-center rounded-xl bg-[#233b66]/10 text-[#233b66] mb-5 group-hover:bg-[#233b66] group-hover:text-white transition-colors">
+                <FileSignature className="size-6" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900">
+                Digital E-Signatures & Audit Trail
+              </h3>
+              <p className="mt-2 text-xs text-slate-600 leading-relaxed">
+                Capture buyer signatures on touch/mouse canvas pads with
+                timestamped SHA-256 cryptographic verification hashes.
+              </p>
+              <Link
+                href="/contracts/builder"
+                className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-[#233b66] hover:underline"
+              >
+                <span>Test Contract Builder</span>
+                <ArrowUpRight className="size-3.5" />
+              </Link>
+            </div>
+
+            {/* Card 4 */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200 group">
+              <div className="flex size-12 items-center justify-center rounded-xl bg-[#233b66]/10 text-[#233b66] mb-5 group-hover:bg-[#233b66] group-hover:text-white transition-colors">
+                <Laptop className="size-6" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900">
+                Buyer Self-Service Portal
+              </h3>
+              <p className="mt-2 text-xs text-slate-600 leading-relaxed">
+                Dedicated client portal allowing buyers to track payment schedules,
+                upload bank slips, download receipts, and view signed agreements.
+              </p>
+              <Link
+                href="/portal"
+                className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-[#233b66] hover:underline"
+              >
+                <span>Explore Buyer Portal</span>
+                <ArrowUpRight className="size-3.5" />
+              </Link>
+            </div>
+
+            {/* Card 5 */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200 group">
+              <div className="flex size-12 items-center justify-center rounded-xl bg-[#233b66]/10 text-[#233b66] mb-5 group-hover:bg-[#233b66] group-hover:text-white transition-colors">
+                <ChartNoAxesCombined className="size-6" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900">
+                Sales Forecasting & Cash Flow Aging
+              </h3>
+              <p className="mt-2 text-xs text-slate-600 leading-relaxed">
+                Monitor agent sales conversion, aging payment receipts, overdue
+                milestones, and weighted revenue projections.
+              </p>
+              <Link
+                href="/reports"
+                className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-[#233b66] hover:underline"
+              >
+                <span>View Analytics</span>
+                <ArrowUpRight className="size-3.5" />
+              </Link>
+            </div>
+
+            {/* Card 6 */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200 group">
+              <div className="flex size-12 items-center justify-center rounded-xl bg-[#233b66]/10 text-[#233b66] mb-5 group-hover:bg-[#233b66] group-hover:text-white transition-colors">
+                <Workflow className="size-6" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900">
+                Meta & Website Lead Integrations
+              </h3>
+              <p className="mt-2 text-xs text-slate-600 leading-relaxed">
+                Connect Facebook Lead Ads, Instagram inquiries, and website forms
+                with automatic lead assignment and SMS/email drip triggers.
+              </p>
+              <Link
+                href="/integrations/social-leads"
+                className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-[#233b66] hover:underline"
+              >
+                <span>Social Webhooks</span>
+                <ArrowUpRight className="size-3.5" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 6. Bottom Call to Action Banner */}
-      <section className="border-t border-slate-200 bg-gradient-to-r from-indigo-900 via-indigo-950 to-slate-900 py-16 text-white text-center">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6">
-          <h2 className="text-3xl font-extrabold sm:text-4xl tracking-tight">
-            Transform your real estate sales operations today
-          </h2>
-          <p className="mt-4 text-sm text-indigo-200 max-w-xl mx-auto font-normal">
-            Join top property developers, brokers, and sales teams managing
-            leads and inventory with BetFlow CRM.
-          </p>
+      {/* 5. Footer */}
+      <footer className="border-t border-slate-200 bg-slate-900 text-white py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/betflow-mark.svg"
+                alt="BetFlow CRM"
+                width={32}
+                height={32}
+                className="rounded-lg bg-white p-1"
+              />
+              <div>
+                <p className="text-sm font-extrabold tracking-tight">
+                  betflow CRM
+                </p>
+                <p className="text-xs text-slate-400">
+                  Real Estate Sales & Contract Automation Operating System
+                </p>
+              </div>
+            </div>
 
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link
-              href="/dashboard"
-              className="group inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-8 text-sm font-bold text-indigo-950 shadow-xl hover:bg-slate-100 transition-all"
-            >
-              <span>Launch Command Center</span>
-              <ArrowRight className="size-4 text-indigo-600 transition-transform group-hover:translate-x-1" />
-            </Link>
+            <div className="flex items-center gap-6 text-xs font-medium text-slate-400">
+              <Link href="/dashboard" className="hover:text-white transition-colors">
+                Dashboard
+              </Link>
+              <Link href="/leads" className="hover:text-white transition-colors">
+                Leads
+              </Link>
+              <Link href="/units" className="hover:text-white transition-colors">
+                Inventory
+              </Link>
+              <Link href="/contracts" className="hover:text-white transition-colors">
+                Contracts
+              </Link>
+              <Link href="/portal" className="hover:text-white transition-colors">
+                Buyer Portal
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-800 bg-slate-950 py-8 text-slate-500 text-xs">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 sm:flex-row sm:px-6">
-          <div className="flex items-center gap-2">
-            <Image
-              src="/betflow-mark.svg"
-              alt="BetFlow"
-              width={20}
-              height={20}
-            />
-            <span className="font-bold text-slate-300">BetFlow CRM</span>
-            <span>· Enterprise Real Estate Sales Engine</span>
+          <div className="mt-8 border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+            <p>© {new Date().getFullYear()} BetFlow S.C. All rights reserved.</p>
+            <div className="flex items-center gap-2 text-[11px] text-emerald-400">
+              <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>All Systems Operational (NestJS + Prisma + PostgreSQL)</span>
+            </div>
           </div>
-          <p>© {new Date().getFullYear()} BetFlow CRM. All rights reserved.</p>
         </div>
       </footer>
     </main>
