@@ -52,9 +52,14 @@ export class SocialLeadsService {
     const appSecret = process.env.META_APP_SECRET;
 
     if (!appSecret) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new UnauthorizedException(
+          'META_APP_SECRET is not configured on the server in production.',
+        );
+      }
       // If secret is not configured we skip validation in dev
       this.logger.warn(
-        'META_APP_SECRET not set — skipping signature validation.',
+        'META_APP_SECRET not set — skipping signature validation in development.',
       );
       return;
     }

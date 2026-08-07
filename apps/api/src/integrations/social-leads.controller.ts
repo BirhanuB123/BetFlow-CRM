@@ -29,10 +29,14 @@ export class SocialLeadsController {
     @Query('hub.challenge') challenge: string,
     @Res() res: Response,
   ) {
+    const envToken = process.env.META_VERIFY_TOKEN;
     const verifyToken =
-      process.env.META_VERIFY_TOKEN || 'your_random_secret_token';
+      envToken ||
+      (process.env.NODE_ENV === 'production'
+        ? undefined
+        : 'your_random_secret_token');
 
-    if (mode === 'subscribe' && token === verifyToken) {
+    if (mode === 'subscribe' && verifyToken && token === verifyToken) {
       return res.status(HttpStatus.OK).send(challenge);
     }
 
