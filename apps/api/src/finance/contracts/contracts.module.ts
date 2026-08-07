@@ -6,8 +6,10 @@ import { ContractsService } from './contracts.service';
 import { ContractBuilderService } from './contract-builder.service';
 import { PdfGeneratorService } from './pdf-generator.service';
 
+import { DocumentsModule } from '../../platform/documents/documents.module';
+
 @Module({
-  imports: [DatabaseModule, AuthModule],
+  imports: [DatabaseModule, AuthModule, DocumentsModule],
   controllers: [ContractsController],
   providers: [ContractsService, ContractBuilderService, PdfGeneratorService],
   exports: [ContractsService, ContractBuilderService, PdfGeneratorService],
