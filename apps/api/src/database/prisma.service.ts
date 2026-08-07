@@ -3,6 +3,11 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 
 if (!process.env.DATABASE_URL) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'CRITICAL SECURITY FAILURE: DATABASE_URL environment variable is missing in production environment.',
+    );
+  }
   process.env.DATABASE_URL =
     'postgresql://betflow:betflowpassword@localhost:5432/betflow_db?schema=public';
 }
