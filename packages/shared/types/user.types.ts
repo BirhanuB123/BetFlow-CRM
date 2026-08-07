@@ -3,7 +3,7 @@
  * apps/api/src/auth/auth.types.ts re-exports from here.
  */
 
-export type UserStatus = 'Active' | 'Invited' | 'Suspended';
+export type UserStatus = "Active" | "Invited" | "Suspended";
 
 export type AuthenticatedUser = {
   id: string;
@@ -65,7 +65,7 @@ export type BankSlipUploadInput = {
 export type BankSlipSubmissionResult = {
   id: string;
   scheduleId: string;
-  status: 'PENDING_VERIFICATION' | 'APPROVED' | 'REJECTED';
+  status: "PENDING_VERIFICATION" | "APPROVED" | "REJECTED";
   bankName: string;
   referenceNumber: string;
   submittedAt: string;

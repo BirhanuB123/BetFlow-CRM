@@ -6,12 +6,12 @@ Single-tenant enterprise real-estate CRM & ERP. Frontend: **Next.js** (`apps/web
 
 ## Legend
 
-| Participant | Maps to |
-|---|---|
-| Web | `apps/web` client component + `apiFetch` |
-| Guard | `common/guards/jwt-auth.guard.ts` + `auth/jwt.service.ts` |
-| Controller / Service | `apps/api/src/<module>/*.controller.ts` / `*.service.ts` |
-| DB | PostgreSQL through `PrismaService` |
+| Participant          | Maps to                                                   |
+| -------------------- | --------------------------------------------------------- |
+| Web                  | `apps/web` client component + `apiFetch`                  |
+| Guard                | `common/guards/jwt-auth.guard.ts` + `auth/jwt.service.ts` |
+| Controller / Service | `apps/api/src/<module>/*.controller.ts` / `*.service.ts`  |
+| DB                   | PostgreSQL through `PrismaService`                        |
 
 ---
 

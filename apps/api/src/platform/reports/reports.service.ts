@@ -398,7 +398,7 @@ export class ReportsService {
           select: { value: true },
         },
       },
-      orderBy: { order: "asc" },
+      orderBy: { order: 'asc' },
     });
 
     let totalRawPipeline = 0;
@@ -451,9 +451,30 @@ export class ReportsService {
 
     if (!projects || projects.length === 0) {
       return [
-        { project: "Harbor Point Towers", totalUnits: 184, available: 47, reserved: 18, sold: 104, blocked: 15 },
-        { project: "Meridian Luxury Residences", totalUnits: 96, available: 22, reserved: 9, sold: 58, blocked: 7 },
-        { project: "District 7 Commercial Plaza", totalUnits: 58, available: 58, reserved: 0, sold: 0, blocked: 0 },
+        {
+          project: 'Harbor Point Towers',
+          totalUnits: 184,
+          available: 47,
+          reserved: 18,
+          sold: 104,
+          blocked: 15,
+        },
+        {
+          project: 'Meridian Luxury Residences',
+          totalUnits: 96,
+          available: 22,
+          reserved: 9,
+          sold: 58,
+          blocked: 7,
+        },
+        {
+          project: 'District 7 Commercial Plaza',
+          totalUnits: 58,
+          available: 58,
+          reserved: 0,
+          sold: 0,
+          blocked: 0,
+        },
       ];
     }
 
@@ -468,10 +489,10 @@ export class ReportsService {
         for (const floor of building.floors) {
           for (const unit of floor.units) {
             totalUnits++;
-            const st = (unit.status || "").toUpperCase();
-            if (st === "AVAILABLE") available++;
-            else if (st === "RESERVED") reserved++;
-            else if (st === "SOLD") sold++;
+            const st = (unit.status || '').toUpperCase();
+            if (st === 'AVAILABLE') available++;
+            else if (st === 'RESERVED') reserved++;
+            else if (st === 'SOLD') sold++;
             else blocked++;
           }
         }
@@ -492,11 +513,10 @@ export class ReportsService {
   // Utility
   // --------------------------------------------------------
   private formatCurrency(value: number): string {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
       maximumFractionDigits: 0,
     }).format(value);
   }
 }
-

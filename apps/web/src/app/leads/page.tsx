@@ -117,7 +117,11 @@ function initials(text: string) {
   return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase() || "?";
 }
 
-function SocialSourceBadge({ sourceName }: { sourceName: string | null | undefined }) {
+function SocialSourceBadge({
+  sourceName,
+}: {
+  sourceName: string | null | undefined;
+}) {
   if (!sourceName) return <span className="text-zinc-400">—</span>;
   const lower = sourceName.toLowerCase();
   let bg = "bg-zinc-100 text-zinc-700 border-zinc-200";
@@ -136,7 +140,9 @@ function SocialSourceBadge({ sourceName }: { sourceName: string | null | undefin
     icon = "🤝";
   }
   return (
-    <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs ${bg}`}>
+    <span
+      className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs ${bg}`}
+    >
       <span>{icon}</span>
       <span>{sourceName}</span>
     </span>
@@ -345,7 +351,8 @@ export default function LeadsPage() {
     setConfirmModal({
       isOpen: true,
       title: "Delete Lead Confirmation",
-      message: "Are you sure you want to delete this lead? This action cannot be undone.",
+      message:
+        "Are you sure you want to delete this lead? This action cannot be undone.",
       confirmText: "Delete Lead",
       onConfirm: async () => {
         setError(null);
@@ -359,7 +366,9 @@ export default function LeadsPage() {
           });
           setConfirmModal((prev) => ({ ...prev, isOpen: false }));
         } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to delete lead.");
+          setError(
+            err instanceof Error ? err.message : "Failed to delete lead.",
+          );
           await loadLeads();
         }
       },
@@ -383,14 +392,16 @@ export default function LeadsPage() {
               apiFetch(`/leads/${id}`, { method: "DELETE" }).catch((err) => {
                 console.error(`Failed to delete lead ${id}:`, err);
                 return null;
-              })
-            )
+              }),
+            ),
           );
           setLeads((prev) => prev.filter((l) => !selected.has(l.id)));
           setSelected(new Set());
           setConfirmModal((prev) => ({ ...prev, isOpen: false }));
         } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to delete leads.");
+          setError(
+            err instanceof Error ? err.message : "Failed to delete leads.",
+          );
           await loadLeads();
         } finally {
           setBusy(false);
@@ -424,7 +435,7 @@ export default function LeadsPage() {
               "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-semibold transition-colors border",
               showSocialDrawer
                 ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-                : "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
+                : "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100",
             )}
           >
             <Webhook className="size-3.5" />
@@ -497,10 +508,13 @@ export default function LeadsPage() {
               <div>
                 <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
                   Social Lead Outreach & Meta Webhook Intake
-                  <span className="rounded bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700 uppercase">Integrated</span>
+                  <span className="rounded bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700 uppercase">
+                    Integrated
+                  </span>
                 </h4>
                 <p className="text-slate-600 mt-0.5">
-                  Meta Lead Ads (Facebook & Instagram) and Telegram Bot submissions automatically create leads in this table.
+                  Meta Lead Ads (Facebook & Instagram) and Telegram Bot
+                  submissions automatically create leads in this table.
                 </p>
               </div>
             </div>
@@ -509,17 +523,24 @@ export default function LeadsPage() {
               <button
                 type="button"
                 onClick={() => {
-                  const url = typeof window !== "undefined"
-                    ? `${window.location.origin.replace("3001", "4000")}/api/enterprise/social-leads/meta-webhook`
-                    : "/api/enterprise/social-leads/meta-webhook";
+                  const url =
+                    typeof window !== "undefined"
+                      ? `${window.location.origin.replace("3001", "4000")}/api/enterprise/social-leads/meta-webhook`
+                      : "/api/enterprise/social-leads/meta-webhook";
                   void navigator.clipboard.writeText(url);
                   setCopiedUrl(true);
                   setTimeout(() => setCopiedUrl(false), 2000);
                 }}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
               >
-                {copiedUrl ? <Check className="size-3.5 text-emerald-600" /> : <Copy className="size-3.5 text-slate-400" />}
-                <span>{copiedUrl ? "Copied Webhook URL!" : "Copy Meta Callback URL"}</span>
+                {copiedUrl ? (
+                  <Check className="size-3.5 text-emerald-600" />
+                ) : (
+                  <Copy className="size-3.5 text-slate-400" />
+                )}
+                <span>
+                  {copiedUrl ? "Copied Webhook URL!" : "Copy Meta Callback URL"}
+                </span>
               </button>
 
               <Link
@@ -698,20 +719,28 @@ export default function LeadsPage() {
                     dir={sort.dir}
                     onClick={() => toggleSort("owner")}
                   />
-                  <th className="px-4 py-3 font-medium text-purple-700">AI Score</th>
+                  <th className="px-4 py-3 font-medium text-purple-700">
+                    AI Score
+                  </th>
                   <th className="w-10 px-4 py-3"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100">
                 {loading ? (
                   <tr>
-                    <td colSpan={10} className="px-4 py-10 text-center text-zinc-500">
+                    <td
+                      colSpan={10}
+                      className="px-4 py-10 text-center text-zinc-500"
+                    >
                       Loading leads…
                     </td>
                   </tr>
                 ) : pageRows.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="px-4 py-16 text-center text-zinc-500">
+                    <td
+                      colSpan={10}
+                      className="px-4 py-16 text-center text-zinc-500"
+                    >
                       {leads.length === 0
                         ? "No leads yet. Create your first one."
                         : "No leads match your filters."}
@@ -874,7 +903,8 @@ export default function LeadsPage() {
           {/* Footer */}
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-200 px-4 py-2.5 text-sm text-zinc-600">
             <span>
-              Total Records <span className="font-semibold">{sorted.length}</span>
+              Total Records{" "}
+              <span className="font-semibold">{sorted.length}</span>
             </span>
             <div className="flex items-center gap-3">
               <span className="text-zinc-500">
@@ -893,9 +923,7 @@ export default function LeadsPage() {
                 <button
                   type="button"
                   disabled={currentPage >= pageCount - 1}
-                  onClick={() =>
-                    setPage((p) => Math.min(pageCount - 1, p + 1))
-                  }
+                  onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
                   className="rounded-md border border-zinc-200 p-1 text-zinc-500 hover:bg-zinc-100 disabled:opacity-40"
                   aria-label="Next page"
                 >
@@ -972,7 +1000,8 @@ function ConvertLeadModal({
   useEffect(() => {
     queueMicrotask(async () => {
       try {
-        const s = await apiFetch<{ id: string; name: string }[]>("/deals/stages");
+        const s =
+          await apiFetch<{ id: string; name: string }[]>("/deals/stages");
         setStages(s);
         if (s[0]) setDealStageId(s[0].id);
       } catch {
@@ -1014,7 +1043,11 @@ function ConvertLeadModal({
               Convert Qualified Lead
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Transform <span className="font-semibold text-slate-800">{fullName(lead)}</span> into Contact, Account & Deal
+              Transform{" "}
+              <span className="font-semibold text-slate-800">
+                {fullName(lead)}
+              </span>{" "}
+              into Contact, Account & Deal
             </p>
           </div>
           <button
@@ -1036,9 +1069,15 @@ function ConvertLeadModal({
 
           {/* Contact Details Card */}
           <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3.5 text-xs space-y-1">
-            <div className="font-bold text-slate-700 uppercase tracking-wider text-[11px]">1. Contact Entity</div>
-            <div className="font-semibold text-indigo-900 text-sm">{fullName(lead)}</div>
-            <div className="text-slate-600">{lead.email || "No email"} · {lead.phone || "No phone"}</div>
+            <div className="font-bold text-slate-700 uppercase tracking-wider text-[11px]">
+              1. Contact Entity
+            </div>
+            <div className="font-semibold text-indigo-900 text-sm">
+              {fullName(lead)}
+            </div>
+            <div className="text-slate-600">
+              {lead.email || "No email"} · {lead.phone || "No phone"}
+            </div>
           </div>
 
           {/* Account Creation Options */}
@@ -1052,7 +1091,9 @@ function ConvertLeadModal({
               />
               <div>
                 <span>Create linked Account entity:</span>
-                <span className="font-bold text-indigo-700 block mt-0.5">“{accountName}”</span>
+                <span className="font-bold text-indigo-700 block mt-0.5">
+                  “{accountName}”
+                </span>
               </div>
             </label>
           </div>
@@ -1072,7 +1113,9 @@ function ConvertLeadModal({
             {createDeal && (
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                  <label className="text-[11px] font-semibold text-slate-600 block mb-1">Opportunity Name *</label>
+                  <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                    Opportunity Name *
+                  </label>
                   <input
                     required
                     className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500 font-medium"
@@ -1082,7 +1125,9 @@ function ConvertLeadModal({
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-semibold text-slate-600 block mb-1">Target Value ($) *</label>
+                  <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                    Target Value ($) *
+                  </label>
                   <input
                     required
                     type="number"
@@ -1095,7 +1140,9 @@ function ConvertLeadModal({
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-semibold text-slate-600 block mb-1">Pipeline Stage *</label>
+                  <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                    Pipeline Stage *
+                  </label>
                   <select
                     required
                     aria-label="Deal stage"
@@ -1115,10 +1162,19 @@ function ConvertLeadModal({
           </div>
 
           <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-            <Button type="button" variant="outline" onClick={onClose} className="h-9 text-xs font-semibold">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="h-9 text-xs font-semibold"
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={saving} className="h-9 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white">
+            <Button
+              type="submit"
+              disabled={saving}
+              className="h-9 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white"
+            >
               {saving ? "Converting Lead…" : "Convert Lead Now"}
             </Button>
           </div>
@@ -1177,9 +1233,10 @@ function CreateLeadModal({
   onClose: () => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
-  const field = (key: keyof typeof emptyForm) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => setForm((f) => ({ ...f, [key]: e.target.value }));
+  const field =
+    (key: keyof typeof emptyForm) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+      setForm((f) => ({ ...f, [key]: e.target.value }));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
@@ -1328,7 +1385,8 @@ function AiInsightsModal({
                 AI Intent Analysis
               </h2>
               <p className="text-xs text-zinc-500">
-                {lead.firstName} {lead.lastName} ({lead.company || "Individual"})
+                {lead.firstName} {lead.lastName} ({lead.company || "Individual"}
+                )
               </p>
             </div>
           </div>
@@ -1348,7 +1406,8 @@ function AiInsightsModal({
               Lead Score
             </p>
             <p className="text-3xl font-extrabold text-purple-900 mt-0.5">
-              {score.score} <span className="text-sm font-normal text-purple-600">/ 100</span>
+              {score.score}{" "}
+              <span className="text-sm font-normal text-purple-600">/ 100</span>
             </p>
           </div>
           <div className="text-right">
@@ -1363,7 +1422,10 @@ function AiInsightsModal({
               {score.intent} Intent
             </span>
             <p className="text-xs text-zinc-500 mt-1 font-medium">
-              Priority: <span className="text-zinc-900 font-semibold">{score.recommendedPriority}</span>
+              Priority:{" "}
+              <span className="text-zinc-900 font-semibold">
+                {score.recommendedPriority}
+              </span>
             </p>
           </div>
         </div>

@@ -58,7 +58,11 @@ export const metrics: Metric[] = [
   { label: "Active users", value: "24", detail: "18 online this week" },
   { label: "Open audit events", value: "7", detail: "2 require admin review" },
   { label: "Roles configured", value: "5", detail: "Least-privilege model" },
-  { label: "Tenant readiness", value: "82%", detail: "Settings and RBAC complete" },
+  {
+    label: "Tenant readiness",
+    value: "82%",
+    detail: "Settings and RBAC complete",
+  },
 ];
 
 export const roles: Role[] = [

@@ -23,10 +23,22 @@ import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
-const ACCOUNT_TYPES = ["CUSTOMER", "INVESTOR", "PARTNER", "DEVELOPER", "SUPPLIER", "OTHER"] as const;
+const ACCOUNT_TYPES = [
+  "CUSTOMER",
+  "INVESTOR",
+  "PARTNER",
+  "DEVELOPER",
+  "SUPPLIER",
+  "OTHER",
+] as const;
 const ACCOUNT_RATINGS = ["HOT", "WARM", "COLD"] as const;
 
-type Owner = { id: string; firstName: string; lastName: string; email: string } | null;
+type Owner = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+} | null;
 
 type AccountDetail = {
   id: string;
@@ -52,7 +64,12 @@ type AccountDetail = {
   description: string | null;
   owner: Owner;
   parentAccount: { id: string; name: string } | null;
-  childAccounts: { id: string; name: string; accountType: string | null; rating: string | null }[];
+  childAccounts: {
+    id: string;
+    name: string;
+    accountType: string | null;
+    rating: string | null;
+  }[];
   customers: {
     id: string;
     firstName: string;
@@ -92,7 +109,13 @@ function titleCase(v: string | null) {
   return v.charAt(0) + v.slice(1).toLowerCase();
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div>
       <p className="text-xs font-medium text-zinc-400">{label}</p>
@@ -164,7 +187,8 @@ export default function AccountDetailPage() {
     });
   }, [load]);
 
-  const set = (key: string, value: string) => setForm((f) => ({ ...f, [key]: value }));
+  const set = (key: string, value: string) =>
+    setForm((f) => ({ ...f, [key]: value }));
 
   const save = async (event: FormEvent) => {
     event.preventDefault();
@@ -192,7 +216,12 @@ export default function AccountDetailPage() {
   };
 
   const remove = async () => {
-    if (!window.confirm("Delete this account? Contacts and child accounts will be unlinked.")) return;
+    if (
+      !window.confirm(
+        "Delete this account? Contacts and child accounts will be unlinked.",
+      )
+    )
+      return;
     try {
       await apiFetch(`/accounts/${id}`, { method: "DELETE" });
       router.push("/accounts");
@@ -239,12 +268,18 @@ export default function AccountDetailPage() {
                     <h2 className="text-lg font-semibold">{account.name}</h2>
                     <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-zinc-500">
                       {account.accountType && (
-                        <span className={cn(badge, "bg-zinc-100 text-zinc-700")}>
+                        <span
+                          className={cn(badge, "bg-zinc-100 text-zinc-700")}
+                        >
                           {titleCase(account.accountType)}
                         </span>
                       )}
                       {account.rating && (
-                        <span className={cn(badge, ratingClass[account.rating])}>{account.rating}</span>
+                        <span
+                          className={cn(badge, ratingClass[account.rating])}
+                        >
+                          {account.rating}
+                        </span>
                       )}
                       {account.parentAccount && (
                         <span>
@@ -262,7 +297,11 @@ export default function AccountDetailPage() {
                 </div>
                 <div className="flex shrink-0 gap-2">
                   {!editing && (
-                    <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEditing(true)}
+                    >
                       <Pencil className="size-4" />
                       Edit
                     </Button>
@@ -289,7 +328,11 @@ export default function AccountDetailPage() {
                   )}
                   {account.website && (
                     <a
-                      href={account.website.startsWith("http") ? account.website : `https://${account.website}`}
+                      href={
+                        account.website.startsWith("http")
+                          ? account.website
+                          : `https://${account.website}`
+                      }
                       target="_blank"
                       rel="noreferrer"
                       className="inline-flex items-center gap-1.5 text-blue-600 hover:underline"
@@ -304,7 +347,10 @@ export default function AccountDetailPage() {
 
             {editing ? (
               /* Edit form */
-              <form onSubmit={save} className="rounded-lg border border-zinc-200 bg-white p-5">
+              <form
+                onSubmit={save}
+                className="rounded-lg border border-zinc-200 bg-white p-5"
+              >
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="text-base font-semibold">Edit account</h3>
                   <button
@@ -322,72 +368,178 @@ export default function AccountDetailPage() {
                 <div className="grid gap-3 sm:grid-cols-2">
                   <label className="grid gap-1 text-xs font-medium text-zinc-500 sm:col-span-2">
                     Name
-                    <input required className={inputClass} value={form.name} onChange={(e) => set("name", e.target.value)} />
+                    <input
+                      required
+                      className={inputClass}
+                      value={form.name}
+                      onChange={(e) => set("name", e.target.value)}
+                    />
                   </label>
                   <label className="grid gap-1 text-xs font-medium text-zinc-500">
                     Type
-                    <select className={inputClass} value={form.accountType} onChange={(e) => set("accountType", e.target.value)}>
+                    <select
+                      className={inputClass}
+                      value={form.accountType}
+                      onChange={(e) => set("accountType", e.target.value)}
+                    >
                       <option value="">—</option>
                       {ACCOUNT_TYPES.map((t) => (
-                        <option key={t} value={t}>{titleCase(t)}</option>
+                        <option key={t} value={t}>
+                          {titleCase(t)}
+                        </option>
                       ))}
                     </select>
                   </label>
                   <label className="grid gap-1 text-xs font-medium text-zinc-500">
                     Rating
-                    <select className={inputClass} value={form.rating} onChange={(e) => set("rating", e.target.value)}>
+                    <select
+                      className={inputClass}
+                      value={form.rating}
+                      onChange={(e) => set("rating", e.target.value)}
+                    >
                       <option value="">—</option>
                       {ACCOUNT_RATINGS.map((r) => (
-                        <option key={r} value={r}>{titleCase(r)}</option>
+                        <option key={r} value={r}>
+                          {titleCase(r)}
+                        </option>
                       ))}
                     </select>
                   </label>
                   <label className="grid gap-1 text-xs font-medium text-zinc-500">
                     Industry
-                    <input className={inputClass} value={form.industry} onChange={(e) => set("industry", e.target.value)} />
+                    <input
+                      className={inputClass}
+                      value={form.industry}
+                      onChange={(e) => set("industry", e.target.value)}
+                    />
                   </label>
                   <label className="grid gap-1 text-xs font-medium text-zinc-500">
                     Website
-                    <input className={inputClass} value={form.website} onChange={(e) => set("website", e.target.value)} />
+                    <input
+                      className={inputClass}
+                      value={form.website}
+                      onChange={(e) => set("website", e.target.value)}
+                    />
                   </label>
                   <label className="grid gap-1 text-xs font-medium text-zinc-500">
                     Phone
-                    <input className={inputClass} value={form.phone} onChange={(e) => set("phone", e.target.value)} />
+                    <input
+                      className={inputClass}
+                      value={form.phone}
+                      onChange={(e) => set("phone", e.target.value)}
+                    />
                   </label>
                   <label className="grid gap-1 text-xs font-medium text-zinc-500">
                     Email
-                    <input type="email" className={inputClass} value={form.email} onChange={(e) => set("email", e.target.value)} />
+                    <input
+                      type="email"
+                      className={inputClass}
+                      value={form.email}
+                      onChange={(e) => set("email", e.target.value)}
+                    />
                   </label>
                   <label className="grid gap-1 text-xs font-medium text-zinc-500">
                     Employees
-                    <input type="number" min="0" className={inputClass} value={form.employees} onChange={(e) => set("employees", e.target.value)} />
+                    <input
+                      type="number"
+                      min="0"
+                      className={inputClass}
+                      value={form.employees}
+                      onChange={(e) => set("employees", e.target.value)}
+                    />
                   </label>
                   <label className="grid gap-1 text-xs font-medium text-zinc-500">
                     Annual revenue
-                    <input type="number" min="0" step="0.01" className={inputClass} value={form.annualRevenue} onChange={(e) => set("annualRevenue", e.target.value)} />
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      className={inputClass}
+                      value={form.annualRevenue}
+                      onChange={(e) => set("annualRevenue", e.target.value)}
+                    />
                   </label>
                   <label className="grid gap-1 text-xs font-medium text-zinc-500 sm:col-span-2">
                     Description
-                    <textarea rows={2} className="w-full resize-y rounded-md border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400" value={form.description} onChange={(e) => set("description", e.target.value)} />
+                    <textarea
+                      rows={2}
+                      className="w-full resize-y rounded-md border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400"
+                      value={form.description}
+                      onChange={(e) => set("description", e.target.value)}
+                    />
                   </label>
                 </div>
 
-                <p className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wide text-zinc-400">Billing address</p>
+                <p className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wide text-zinc-400">
+                  Billing address
+                </p>
                 <div className="grid gap-3 sm:grid-cols-3">
-                  <input className={cn(inputClass, "sm:col-span-3")} placeholder="Street" value={form.billingStreet} onChange={(e) => set("billingStreet", e.target.value)} />
-                  <input className={inputClass} placeholder="City" value={form.billingCity} onChange={(e) => set("billingCity", e.target.value)} />
-                  <input className={inputClass} placeholder="State" value={form.billingState} onChange={(e) => set("billingState", e.target.value)} />
-                  <input className={inputClass} placeholder="Zip" value={form.billingZip} onChange={(e) => set("billingZip", e.target.value)} />
-                  <input className={cn(inputClass, "sm:col-span-3")} placeholder="Country" value={form.billingCountry} onChange={(e) => set("billingCountry", e.target.value)} />
+                  <input
+                    className={cn(inputClass, "sm:col-span-3")}
+                    placeholder="Street"
+                    value={form.billingStreet}
+                    onChange={(e) => set("billingStreet", e.target.value)}
+                  />
+                  <input
+                    className={inputClass}
+                    placeholder="City"
+                    value={form.billingCity}
+                    onChange={(e) => set("billingCity", e.target.value)}
+                  />
+                  <input
+                    className={inputClass}
+                    placeholder="State"
+                    value={form.billingState}
+                    onChange={(e) => set("billingState", e.target.value)}
+                  />
+                  <input
+                    className={inputClass}
+                    placeholder="Zip"
+                    value={form.billingZip}
+                    onChange={(e) => set("billingZip", e.target.value)}
+                  />
+                  <input
+                    className={cn(inputClass, "sm:col-span-3")}
+                    placeholder="Country"
+                    value={form.billingCountry}
+                    onChange={(e) => set("billingCountry", e.target.value)}
+                  />
                 </div>
 
-                <p className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wide text-zinc-400">Shipping address</p>
+                <p className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wide text-zinc-400">
+                  Shipping address
+                </p>
                 <div className="grid gap-3 sm:grid-cols-3">
-                  <input className={cn(inputClass, "sm:col-span-3")} placeholder="Street" value={form.shippingStreet} onChange={(e) => set("shippingStreet", e.target.value)} />
-                  <input className={inputClass} placeholder="City" value={form.shippingCity} onChange={(e) => set("shippingCity", e.target.value)} />
-                  <input className={inputClass} placeholder="State" value={form.shippingState} onChange={(e) => set("shippingState", e.target.value)} />
-                  <input className={inputClass} placeholder="Zip" value={form.shippingZip} onChange={(e) => set("shippingZip", e.target.value)} />
-                  <input className={cn(inputClass, "sm:col-span-3")} placeholder="Country" value={form.shippingCountry} onChange={(e) => set("shippingCountry", e.target.value)} />
+                  <input
+                    className={cn(inputClass, "sm:col-span-3")}
+                    placeholder="Street"
+                    value={form.shippingStreet}
+                    onChange={(e) => set("shippingStreet", e.target.value)}
+                  />
+                  <input
+                    className={inputClass}
+                    placeholder="City"
+                    value={form.shippingCity}
+                    onChange={(e) => set("shippingCity", e.target.value)}
+                  />
+                  <input
+                    className={inputClass}
+                    placeholder="State"
+                    value={form.shippingState}
+                    onChange={(e) => set("shippingState", e.target.value)}
+                  />
+                  <input
+                    className={inputClass}
+                    placeholder="Zip"
+                    value={form.shippingZip}
+                    onChange={(e) => set("shippingZip", e.target.value)}
+                  />
+                  <input
+                    className={cn(inputClass, "sm:col-span-3")}
+                    placeholder="Country"
+                    value={form.shippingCountry}
+                    onChange={(e) => set("shippingCountry", e.target.value)}
+                  />
                 </div>
 
                 <div className="mt-5 flex gap-2">
@@ -400,14 +552,20 @@ export default function AccountDetailPage() {
               <>
                 {/* Details */}
                 <section className="rounded-lg border border-zinc-200 bg-white p-5">
-                  <h3 className="mb-4 text-base font-semibold">Account details</h3>
+                  <h3 className="mb-4 text-base font-semibold">
+                    Account details
+                  </h3>
                   <div className="grid gap-4 sm:grid-cols-3">
                     <Field label="Industry">{account.industry ?? "—"}</Field>
                     <Field label="Owner">
-                      {account.owner ? `${account.owner.firstName} ${account.owner.lastName}` : "—"}
+                      {account.owner
+                        ? `${account.owner.firstName} ${account.owner.lastName}`
+                        : "—"}
                     </Field>
                     <Field label="Employees">{account.employees ?? "—"}</Field>
-                    <Field label="Annual revenue">{money(account.annualRevenue)}</Field>
+                    <Field label="Annual revenue">
+                      {money(account.annualRevenue)}
+                    </Field>
                     <Field label="Contacts">{account._count.customers}</Field>
                     <Field label="Deals">{account._count.deals}</Field>
                     {account.description && (
@@ -448,15 +606,23 @@ export default function AccountDetailPage() {
             {/* Contacts */}
             <section className="rounded-lg border border-zinc-200 bg-white">
               <div className="border-b border-zinc-200 p-4">
-                <h3 className="text-base font-semibold">Contacts ({account.customers.length})</h3>
+                <h3 className="text-base font-semibold">
+                  Contacts ({account.customers.length})
+                </h3>
               </div>
               {account.customers.length === 0 ? (
-                <p className="p-6 text-sm text-zinc-500">No contacts linked to this account.</p>
+                <p className="p-6 text-sm text-zinc-500">
+                  No contacts linked to this account.
+                </p>
               ) : (
                 <CrmTable
                   columns={["Name", "Title", "Email", "Phone", "Deals"]}
                   rows={account.customers.map((c) => [
-                    <Link key="n" href={`/customers/${c.id}`} className="font-medium text-blue-600 hover:underline">
+                    <Link
+                      key="n"
+                      href={`/customers/${c.id}`}
+                      className="font-medium text-blue-600 hover:underline"
+                    >
                       {c.firstName} {c.lastName}
                     </Link>,
                     c.title ?? "—",
@@ -471,18 +637,26 @@ export default function AccountDetailPage() {
             {/* Deals */}
             <section className="rounded-lg border border-zinc-200 bg-white">
               <div className="border-b border-zinc-200 p-4">
-                <h3 className="text-base font-semibold">Deals ({account.deals.length})</h3>
+                <h3 className="text-base font-semibold">
+                  Deals ({account.deals.length})
+                </h3>
               </div>
               {account.deals.length === 0 ? (
-                <p className="p-6 text-sm text-zinc-500">No deals for this account.</p>
+                <p className="p-6 text-sm text-zinc-500">
+                  No deals for this account.
+                </p>
               ) : (
                 <CrmTable
                   columns={["Deal", "Value", "Stage", "Contact", "Unit"]}
                   rows={account.deals.map((d) => [
-                    <span key="n" className="font-medium">{d.name}</span>,
+                    <span key="n" className="font-medium">
+                      {d.name}
+                    </span>,
                     money(d.value),
                     d.stage.name,
-                    d.customer ? `${d.customer.firstName} ${d.customer.lastName}` : "—",
+                    d.customer
+                      ? `${d.customer.firstName} ${d.customer.lastName}`
+                      : "—",
                     d.unit ? `Unit ${d.unit.unitNumber}` : "—",
                   ])}
                 />
@@ -493,17 +667,28 @@ export default function AccountDetailPage() {
             {account.childAccounts.length > 0 && (
               <section className="rounded-lg border border-zinc-200 bg-white">
                 <div className="border-b border-zinc-200 p-4">
-                  <h3 className="text-base font-semibold">Sub-accounts ({account.childAccounts.length})</h3>
+                  <h3 className="text-base font-semibold">
+                    Sub-accounts ({account.childAccounts.length})
+                  </h3>
                 </div>
                 <CrmTable
                   columns={["Account", "Type", "Rating"]}
                   rows={account.childAccounts.map((c) => [
-                    <Link key="n" href={`/accounts/${c.id}`} className="font-medium text-blue-600 hover:underline">
+                    <Link
+                      key="n"
+                      href={`/accounts/${c.id}`}
+                      className="font-medium text-blue-600 hover:underline"
+                    >
                       {c.name}
                     </Link>,
                     titleCase(c.accountType),
                     c.rating ? (
-                      <span key="r" className={cn(badge, ratingClass[c.rating])}>{c.rating}</span>
+                      <span
+                        key="r"
+                        className={cn(badge, ratingClass[c.rating])}
+                      >
+                        {c.rating}
+                      </span>
                     ) : (
                       "—"
                     ),

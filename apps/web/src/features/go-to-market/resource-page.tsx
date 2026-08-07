@@ -11,7 +11,11 @@ export function ResourceContentPage({ page }: ResourceContentPageProps) {
   const Icon = page.icon;
 
   return (
-    <DashboardShell title={page.title} description={page.description} active={page.active}>
+    <DashboardShell
+      title={page.title}
+      description={page.description}
+      active={page.active}
+    >
       <div className="grid gap-4 md:grid-cols-3">
         {page.metrics.map((metric) => (
           <StatCard key={metric.label} {...metric} />
@@ -25,15 +29,22 @@ export function ResourceContentPage({ page }: ResourceContentPageProps) {
           </div>
           <div>
             <h2 className="text-base font-semibold">Resource outline</h2>
-            <p className="text-sm text-zinc-500">Ownership, readiness, and included material.</p>
+            <p className="text-sm text-zinc-500">
+              Ownership, readiness, and included material.
+            </p>
           </div>
         </div>
         <CrmTable
           columns={["Section", "Owner", "Status", "Included items"]}
           rows={page.sections.map((section) => [
-            <span key="title" className="font-medium">{section.title}</span>,
+            <span key="title" className="font-medium">
+              {section.title}
+            </span>,
             section.owner,
-            <span key="status" className={`rounded-md px-2 py-1 text-xs font-medium ${resourceStatusClass[section.status]}`}>
+            <span
+              key="status"
+              className={`rounded-md px-2 py-1 text-xs font-medium ${resourceStatusClass[section.status]}`}
+            >
               {section.status}
             </span>,
             section.items.join(", "),

@@ -55,7 +55,7 @@ export class AuditInterceptor implements NestInterceptor {
               action: `${action} ${entityType}`,
               entityType: entityType,
               entityId: entityId,
-              newValues: body ? (body as any) : undefined,
+              newValues: body ? body : undefined,
             });
           } catch (e) {
             console.error('Failed to log audit event', e);

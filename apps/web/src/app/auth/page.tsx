@@ -7,7 +7,8 @@ import Image from "next/image";
 
 import { clearSession, getSession } from "@/lib/api";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
 
 type Mode = "login" | "register";
 
@@ -31,12 +32,12 @@ export default function AuthPage() {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("login");
   const [remember, setRemember] = useState(true);
-  
+
   const [loginState, setLoginState] = useState<LoginState>({
     email: "admin@betflow.example",
     password: "admin123",
   });
-  
+
   const [registerState, setRegisterState] = useState<RegisterState>({
     firstName: "",
     lastName: "",
@@ -112,7 +113,10 @@ export default function AuthPage() {
 
       if (!response.ok) {
         throw new Error(
-          await readErrorMessage(response, "Unable to sign in with those credentials."),
+          await readErrorMessage(
+            response,
+            "Unable to sign in with those credentials.",
+          ),
         );
       }
 
@@ -234,7 +238,9 @@ export default function AuthPage() {
           </div>
 
           {error ? (
-            <p className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-600">{error}</p>
+            <p className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-600">
+              {error}
+            </p>
           ) : feedback ? (
             <p className="mt-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-600">
               {feedback}
@@ -251,7 +257,9 @@ export default function AuthPage() {
                   autoComplete="email"
                   placeholder="you@betflow.com"
                   value={loginState.email}
-                  onChange={(e) => setLoginState((s) => ({ ...s, email: e.target.value }))}
+                  onChange={(e) =>
+                    setLoginState((s) => ({ ...s, email: e.target.value }))
+                  }
                   required
                 />
               </label>
@@ -263,7 +271,9 @@ export default function AuthPage() {
                   autoComplete="current-password"
                   placeholder="••••••••"
                   value={loginState.password}
-                  onChange={(e) => setLoginState((s) => ({ ...s, password: e.target.value }))}
+                  onChange={(e) =>
+                    setLoginState((s) => ({ ...s, password: e.target.value }))
+                  }
                   required
                 />
               </label>
@@ -314,7 +324,10 @@ export default function AuthPage() {
                     placeholder="John"
                     value={registerState.firstName}
                     onChange={(e) =>
-                      setRegisterState((s) => ({ ...s, firstName: e.target.value }))
+                      setRegisterState((s) => ({
+                        ...s,
+                        firstName: e.target.value,
+                      }))
                     }
                     required
                   />
@@ -327,7 +340,10 @@ export default function AuthPage() {
                     placeholder="Doe"
                     value={registerState.lastName}
                     onChange={(e) =>
-                      setRegisterState((s) => ({ ...s, lastName: e.target.value }))
+                      setRegisterState((s) => ({
+                        ...s,
+                        lastName: e.target.value,
+                      }))
                     }
                     required
                   />
@@ -358,7 +374,10 @@ export default function AuthPage() {
                   placeholder="••••••••"
                   value={registerState.password}
                   onChange={(e) =>
-                    setRegisterState((s) => ({ ...s, password: e.target.value }))
+                    setRegisterState((s) => ({
+                      ...s,
+                      password: e.target.value,
+                    }))
                   }
                   required
                 />
@@ -393,7 +412,10 @@ export default function AuthPage() {
           )}
 
           <p className="mt-6 border-t border-zinc-100 pt-4 text-center text-xs text-zinc-400">
-            <a href="https://www.gebetatech.com" className="hover:text-zinc-700">
+            <a
+              href="https://www.gebetatech.com"
+              className="hover:text-zinc-700"
+            >
               Developed By: Gebeta Trading Technology
             </a>
           </p>

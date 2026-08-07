@@ -26,6 +26,7 @@ BetFlow-CRM/
 ## 🚀 Tech Stack
 
 ### **Backend (`apps/api`)**
+
 - **Framework**: [NestJS](https://nestjs.com/) (v11)
 - **Database ORM**: [Prisma](https://www.prisma.io/) (PostgreSQL 15)
 - **Background Jobs**: [BullMQ](https://bullmq.io/) with Redis
@@ -33,12 +34,14 @@ BetFlow-CRM/
 - **API Documentation**: Swagger / OpenAPI (`/api/docs`)
 
 ### **Frontend (`apps/web`)**
+
 - **Framework**: [Next.js](https://nextjs.org/) (App Router)
 - **Library**: React 19
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/), Lucide Icons
 - **Components**: Shadcn UI / Base UI
 
 ### **Infrastructure & Tools**
+
 - **Monorepo Manager**: [Turborepo](https://turbo.build/)
 - **Containerization**: Docker & Docker Compose
 - **Language**: TypeScript 5.7+
@@ -50,6 +53,7 @@ BetFlow-CRM/
 ### Prerequisites
 
 Make sure you have the following installed on your system:
+
 - **Node.js** (v20+ recommended)
 - **npm** (v10+ or v11+)
 - **Docker & Docker Compose** (for PostgreSQL and Redis)
@@ -59,29 +63,34 @@ Make sure you have the following installed on your system:
 ### Installation & Local Setup
 
 1. **Clone the Repository**
+
    ```bash
    git clone https://github.com/BirhanuB123/BetFlow-CRM.git
    cd BetFlow-CRM
    ```
 
 2. **Install Dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Configure Environment Variables**
    Copy `.env.example` to `.env`:
+
    ```bash
    cp .env.example .env
    ```
 
 4. **Start Database & Cache Services (Docker)**
    Start local PostgreSQL and Redis containers:
+
    ```bash
    docker-compose up -d
    ```
 
 5. **Run Database Migrations & Seeds**
+
    ```bash
    cd apps/api
    npx prisma migrate dev
@@ -91,6 +100,7 @@ Make sure you have the following installed on your system:
 
 6. **Start Development Mode**
    From the root directory, launch all applications concurrently via Turborepo:
+
    ```bash
    npm run dev
    ```
@@ -115,6 +125,7 @@ Run scripts from the repository root:
 ## 📄 Documentation
 
 Architectural docs and sequence diagrams can be found in the [`/docs`](./docs) directory:
+
 - [Sequence Diagrams](./docs/sequence-diagrams.md)
 
 ---

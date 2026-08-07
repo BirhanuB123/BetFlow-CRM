@@ -37,7 +37,9 @@ export default function OnboardingPage() {
       const data = await apiFetch<OnboardingStep[]>("/saas/onboarding-steps");
       setSteps(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load onboarding steps");
+      setError(
+        err instanceof Error ? err.message : "Failed to load onboarding steps",
+      );
     } finally {
       setLoading(false);
     }
@@ -47,19 +49,28 @@ export default function OnboardingPage() {
     void loadSteps();
   }, []);
 
-  const handleToggleStep = async (stepName: string, currentStatus: OnboardingStep["status"]) => {
+  const handleToggleStep = async (
+    stepName: string,
+    currentStatus: OnboardingStep["status"],
+  ) => {
     setUpdatingStep(stepName);
     setError(null);
-    const nextStatus = currentStatus === "Complete" ? "In progress" : "Complete";
+    const nextStatus =
+      currentStatus === "Complete" ? "In progress" : "Complete";
     try {
-      const updated = await apiFetch<OnboardingStep>(`/saas/onboarding-steps/${encodeURIComponent(stepName)}`, {
-        method: "PATCH",
-        body: JSON.stringify({ status: nextStatus }),
-      });
+      const updated = await apiFetch<OnboardingStep>(
+        `/saas/onboarding-steps/${encodeURIComponent(stepName)}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ status: nextStatus }),
+        },
+      );
       setSteps((prev) => prev.map((s) => (s.step === stepName ? updated : s)));
       showSuccess(`Step '${stepName}' marked as ${nextStatus.toLowerCase()}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update onboarding step");
+      setError(
+        err instanceof Error ? err.message : "Failed to update onboarding step",
+      );
     } finally {
       setUpdatingStep(null);
     }
@@ -87,9 +98,21 @@ export default function OnboardingPage() {
         Back to Settings
       </Link>
       <div className="grid gap-4 md:grid-cols-3 mb-6">
-        <StatCard label="Progress" value={`${completed}/${steps.length}`} detail="Required onboarding steps complete" />
-        <StatCard label="Blocked items" value={String(blocked)} detail="Items currently blocked" />
-        <StatCard label="Target go-live" value="Jul 5" detail="Customer portal and automations" />
+        <StatCard
+          label="Progress"
+          value={`${completed}/${steps.length}`}
+          detail="Required onboarding steps complete"
+        />
+        <StatCard
+          label="Blocked items"
+          value={String(blocked)}
+          detail="Items currently blocked"
+        />
+        <StatCard
+          label="Target go-live"
+          value="Jul 5"
+          detail="Customer portal and automations"
+        />
       </div>
 
       {error && (
@@ -109,7 +132,9 @@ export default function OnboardingPage() {
         <div className="flex items-center justify-between gap-4 border-b border-zinc-200 p-4">
           <div>
             <h2 className="text-base font-semibold">Wizard steps</h2>
-            <p className="text-sm text-zinc-500">Setup checklist with owners, due dates, and blockers.</p>
+            <p className="text-sm text-zinc-500">
+              Setup checklist with owners, due dates, and blockers.
+            </p>
           </div>
           <Button variant="outline" onClick={loadSteps}>
             <ClipboardCheck className="size-4 mr-1" />
@@ -123,10 +148,15 @@ export default function OnboardingPage() {
           <CrmTable
             columns={["Step", "Owner", "Due", "Status", "Action"]}
             rows={steps.map((step) => [
-              <span key="step" className="font-medium">{step.step}</span>,
+              <span key="step" className="font-medium">
+                {step.step}
+              </span>,
               step.owner,
               step.due,
-              <span key="status" className={`rounded-md border px-2 py-0.5 text-xs font-medium uppercase ${statusClass[step.status]}`}>
+              <span
+                key="status"
+                className={`rounded-md border px-2 py-0.5 text-xs font-medium uppercase ${statusClass[step.status]}`}
+              >
                 {step.status}
               </span>,
               <Button

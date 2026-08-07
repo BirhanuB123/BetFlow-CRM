@@ -94,8 +94,7 @@ export class SiteVisitsService {
     }
 
     if (input.leadId) await this.assertLeadExists(input.leadId);
-    if (input.customerId)
-      await this.assertCustomerExists(input.customerId);
+    if (input.customerId) await this.assertCustomerExists(input.customerId);
 
     const data: Record<string, unknown> = {};
     if (input.date !== undefined) data.date = this.normalizeDate(input.date);

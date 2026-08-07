@@ -29,7 +29,7 @@ export type UpdateFloorInput = {
 
 // ─── Stacking Plan & Inventory Visualizer Types ───────────────────────────────
 
-export type UnitStatus = 'AVAILABLE' | 'RESERVED' | 'SOLD' | 'BLOCKED';
+export type UnitStatus = "AVAILABLE" | "RESERVED" | "SOLD" | "BLOCKED";
 
 export type StackingPlanUnit = {
   id: string;
@@ -56,16 +56,17 @@ export type StackingPlanBuilding = {
 // ─── Ethiopian Real Estate Construction Milestone Types ────────────────────────
 
 export const ETHIOPIAN_CONSTRUCTION_STAGES = [
-  'FOUNDATION', // መሰረት (Substructure & Excavation)
-  'SUPERSTRUCTURE', // ኮንክሪት ስራ (Columns & Beams)
-  'BLOCKWORK', // ብሎኬት ስራ (Masonry & Walls)
-  'FINISHING', // ማጠናቀቂያ (Plastering, MEP & Tiles)
-  'HANDOVER', // ካርታና ርክክብ (Key Handover & Title Deed)
+  "FOUNDATION", // መሰረት (Substructure & Excavation)
+  "SUPERSTRUCTURE", // ኮንክሪት ስራ (Columns & Beams)
+  "BLOCKWORK", // ብሎኬት ስራ (Masonry & Walls)
+  "FINISHING", // ማጠናቀቂያ (Plastering, MEP & Tiles)
+  "HANDOVER", // ካርታና ርክክብ (Key Handover & Title Deed)
 ] as const;
 
-export type ConstructionStageKey = (typeof ETHIOPIAN_CONSTRUCTION_STAGES)[number];
+export type ConstructionStageKey =
+  (typeof ETHIOPIAN_CONSTRUCTION_STAGES)[number];
 
-export type MilestoneStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+export type MilestoneStatus = "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
 
 export type ConstructionMilestone = {
   id: string;

@@ -5,7 +5,8 @@
 
 // ─── Activity ─────────────────────────────────────────────────────────────────
 
-export type ActivityType = 'Call' | 'Email' | 'Assignment' | 'Task' | 'Note' | 'Deal';
+export type ActivityType =
+  "Call" | "Email" | "Assignment" | "Task" | "Note" | "Deal";
 
 export type Activity = {
   id: string;

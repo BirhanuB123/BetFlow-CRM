@@ -1,7 +1,28 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { Check, Download, FileText, Trash2, Upload, X, Search, Eye, Filter, Sparkles, FolderOpen, Tag, Calendar, UserCheck } from "lucide-react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+} from "react";
+import {
+  Check,
+  Download,
+  FileText,
+  Trash2,
+  Upload,
+  X,
+  Search,
+  Eye,
+  Filter,
+  Sparkles,
+  FolderOpen,
+  Tag,
+  Calendar,
+  UserCheck,
+} from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
@@ -27,13 +48,29 @@ type DocumentRecord = {
 };
 
 type Customer = { id: string; firstName: string; lastName: string };
-type Reservation = { id: string; customer: Customer; unit: { unitNumber: string } };
-type Contract = { id: string; customer: Customer; unit: { unitNumber: string } };
+type Reservation = {
+  id: string;
+  customer: Customer;
+  unit: { unitNumber: string };
+};
+type Contract = {
+  id: string;
+  customer: Customer;
+  unit: { unitNumber: string };
+};
 type Payment = { id: string; amount: string; date: string };
 type EntityType = "CUSTOMER" | "RESERVATION" | "CONTRACT" | "PAYMENT";
 type EntityOption = { id: string; label: string };
 
-const CATEGORIES = ["ID", "KYC", "CONTRACT", "RECEIPT", "TITLE_DEED", "FLOOR_PLAN", "OTHER"];
+const CATEGORIES = [
+  "ID",
+  "KYC",
+  "CONTRACT",
+  "RECEIPT",
+  "TITLE_DEED",
+  "FLOOR_PLAN",
+  "OTHER",
+];
 const statusClass: Record<DocumentStatus, string> = {
   PENDING_REVIEW: "bg-amber-50 text-amber-700 border border-amber-200",
   VERIFIED: "bg-emerald-50 text-emerald-700 border border-emerald-200",
@@ -41,7 +78,8 @@ const statusClass: Record<DocumentStatus, string> = {
   EXPIRED: "bg-slate-100 text-slate-700 border border-slate-200",
 };
 
-const inputClass = "h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500 font-medium";
+const inputClass =
+  "h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500 font-medium";
 
 function documentSize(bytes: number | null) {
   if (bytes == null) return "—";
@@ -51,7 +89,12 @@ function documentSize(bytes: number | null) {
 
 export default function DocumentsPage() {
   const [documents, setDocuments] = useState<DocumentRecord[]>([]);
-  const [options, setOptions] = useState<Record<EntityType, EntityOption[]>>({ CUSTOMER: [], RESERVATION: [], CONTRACT: [], PAYMENT: [] });
+  const [options, setOptions] = useState<Record<EntityType, EntityOption[]>>({
+    CUSTOMER: [],
+    RESERVATION: [],
+    CONTRACT: [],
+    PAYMENT: [],
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -59,25 +102,44 @@ export default function DocumentsPage() {
   const [saving, setSaving] = useState(false);
   const [filter, setFilter] = useState<DocumentStatus | "ALL">("ALL");
   const [previewDoc, setPreviewDoc] = useState<DocumentRecord | null>(null);
-  const [form, setForm] = useState({ file: null as File | null, category: "OTHER", entityType: "CUSTOMER" as EntityType, entityId: "", expiresAt: "" });
+  const [form, setForm] = useState({
+    file: null as File | null,
+    category: "OTHER",
+    entityType: "CUSTOMER" as EntityType,
+    entityId: "",
+    expiresAt: "",
+  });
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [documentsData, customers, reservations, contracts, payments] = await Promise.all([
-        apiFetch<DocumentRecord[]>("/documents"),
-        apiFetch<Customer[]>("/customers"),
-        apiFetch<Reservation[]>("/reservations"),
-        apiFetch<Contract[]>("/contracts"),
-        apiFetch<Payment[]>("/payments"),
-      ]);
+      const [documentsData, customers, reservations, contracts, payments] =
+        await Promise.all([
+          apiFetch<DocumentRecord[]>("/documents"),
+          apiFetch<Customer[]>("/customers"),
+          apiFetch<Reservation[]>("/reservations"),
+          apiFetch<Contract[]>("/contracts"),
+          apiFetch<Payment[]>("/payments"),
+        ]);
       setDocuments(documentsData);
       setOptions({
-        CUSTOMER: customers.map((customer) => ({ id: customer.id, label: `${customer.firstName} ${customer.lastName}` })),
-        RESERVATION: reservations.map((reservation) => ({ id: reservation.id, label: `${reservation.customer.firstName} ${reservation.customer.lastName} · Unit ${reservation.unit.unitNumber}` })),
-        CONTRACT: contracts.map((contract) => ({ id: contract.id, label: `${contract.customer.firstName} ${contract.customer.lastName} · Unit ${contract.unit.unitNumber}` })),
-        PAYMENT: payments.map((payment) => ({ id: payment.id, label: `Payment ${payment.id.slice(0, 8)} · ${new Date(payment.date).toLocaleDateString()}` })),
+        CUSTOMER: customers.map((customer) => ({
+          id: customer.id,
+          label: `${customer.firstName} ${customer.lastName}`,
+        })),
+        RESERVATION: reservations.map((reservation) => ({
+          id: reservation.id,
+          label: `${reservation.customer.firstName} ${reservation.customer.lastName} · Unit ${reservation.unit.unitNumber}`,
+        })),
+        CONTRACT: contracts.map((contract) => ({
+          id: contract.id,
+          label: `${contract.customer.firstName} ${contract.customer.lastName} · Unit ${contract.unit.unitNumber}`,
+        })),
+        PAYMENT: payments.map((payment) => ({
+          id: payment.id,
+          label: `Payment ${payment.id.slice(0, 8)} · ${new Date(payment.date).toLocaleDateString()}`,
+        })),
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load documents");
@@ -87,7 +149,9 @@ export default function DocumentsPage() {
   }, []);
 
   useEffect(() => {
-    const t = setTimeout(() => { void load(); });
+    const t = setTimeout(() => {
+      void load();
+    });
     return () => clearTimeout(t);
   }, [load]);
 
@@ -124,7 +188,13 @@ export default function DocumentsPage() {
       body.set("entityId", form.entityId);
       if (form.expiresAt) body.set("expiresAt", form.expiresAt);
       await apiUpload<DocumentRecord>("/documents", body);
-      setForm({ file: null, category: "OTHER", entityType: "CUSTOMER", entityId: "", expiresAt: "" });
+      setForm({
+        file: null,
+        category: "OTHER",
+        entityType: "CUSTOMER",
+        entityId: "",
+        expiresAt: "",
+      });
       setShowUpload(false);
       await load();
     } catch (err) {
@@ -149,10 +219,16 @@ export default function DocumentsPage() {
   };
 
   const review = async (id: string, status: "VERIFIED" | "REJECTED") => {
-    const rejectionReason = status === "REJECTED" ? window.prompt("Reason for rejecting this document:") : undefined;
+    const rejectionReason =
+      status === "REJECTED"
+        ? window.prompt("Reason for rejecting this document:")
+        : undefined;
     if (status === "REJECTED" && !rejectionReason?.trim()) return;
     try {
-      await apiFetch(`/documents/${id}/review`, { method: "PATCH", body: JSON.stringify({ status, rejectionReason }) });
+      await apiFetch(`/documents/${id}/review`, {
+        method: "PATCH",
+        body: JSON.stringify({ status, rejectionReason }),
+      });
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Document review failed");
@@ -189,30 +265,72 @@ export default function DocumentsPage() {
             />
           </label>
 
-          <Button onClick={() => setShowUpload((value) => !value)} className="h-9 text-xs font-semibold">
-            {showUpload ? <X className="size-4 mr-1.5" /> : <Upload className="size-4 mr-1.5" />}
+          <Button
+            onClick={() => setShowUpload((value) => !value)}
+            className="h-9 text-xs font-semibold"
+          >
+            {showUpload ? (
+              <X className="size-4 mr-1.5" />
+            ) : (
+              <Upload className="size-4 mr-1.5" />
+            )}
             {showUpload ? "Cancel" : "Upload New Document"}
           </Button>
         </div>
 
         {/* Upload Form */}
         {showUpload && (
-          <form onSubmit={upload} className="grid gap-3.5 rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 shadow-sm sm:grid-cols-2 xl:grid-cols-4">
+          <form
+            onSubmit={upload}
+            className="grid gap-3.5 rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 shadow-sm sm:grid-cols-2 xl:grid-cols-4"
+          >
             <div>
-              <label className="text-[11px] font-semibold text-slate-700 block mb-1">Select Document File *</label>
-              <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx" className={inputClass} onChange={(e) => setForm({ ...form, file: e.target.files?.[0] ?? null })} required />
+              <label className="text-[11px] font-semibold text-slate-700 block mb-1">
+                Select Document File *
+              </label>
+              <input
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx"
+                className={inputClass}
+                onChange={(e) =>
+                  setForm({ ...form, file: e.target.files?.[0] ?? null })
+                }
+                required
+              />
             </div>
 
             <div>
-              <label className="text-[11px] font-semibold text-slate-700 block mb-1">Document Category</label>
-              <select className={inputClass} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
-                {CATEGORIES.map((cat) => <option key={cat} value={cat}>{cat.replace(/_/g, " ")}</option>)}
+              <label className="text-[11px] font-semibold text-slate-700 block mb-1">
+                Document Category
+              </label>
+              <select
+                className={inputClass}
+                value={form.category}
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+              >
+                {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat.replace(/_/g, " ")}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div>
-              <label className="text-[11px] font-semibold text-slate-700 block mb-1">Link to Entity</label>
-              <select className={inputClass} value={form.entityType} onChange={(e) => setForm({ ...form, entityType: e.target.value as EntityType, entityId: "" })}>
+              <label className="text-[11px] font-semibold text-slate-700 block mb-1">
+                Link to Entity
+              </label>
+              <select
+                className={inputClass}
+                value={form.entityType}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    entityType: e.target.value as EntityType,
+                    entityId: "",
+                  })
+                }
+              >
                 <option value="CUSTOMER">Customer Contact</option>
                 <option value="RESERVATION">Reservation</option>
                 <option value="CONTRACT">Contract</option>
@@ -221,32 +339,66 @@ export default function DocumentsPage() {
             </div>
 
             <div>
-              <label className="text-[11px] font-semibold text-slate-700 block mb-1">Related Record *</label>
-              <select required className={inputClass} value={form.entityId} onChange={(e) => setForm({ ...form, entityId: e.target.value })}>
+              <label className="text-[11px] font-semibold text-slate-700 block mb-1">
+                Related Record *
+              </label>
+              <select
+                required
+                className={inputClass}
+                value={form.entityId}
+                onChange={(e) => setForm({ ...form, entityId: e.target.value })}
+              >
                 <option value="">Select related record…</option>
-                {options[form.entityType].map((opt) => <option key={opt.id} value={opt.id}>{opt.label}</option>)}
+                {options[form.entityType].map((opt) => (
+                  <option key={opt.id} value={opt.id}>
+                    {opt.label}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div className="xl:col-span-4 flex items-center justify-between border-t border-indigo-100 pt-3">
               <label className="text-xs font-semibold text-slate-600 flex items-center gap-2">
                 Expiry Date (Optional):
-                <input type="date" className="h-8 rounded-md border border-slate-300 bg-white px-2 text-xs" value={form.expiresAt} onChange={(e) => setForm({ ...form, expiresAt: e.target.value })} />
+                <input
+                  type="date"
+                  className="h-8 rounded-md border border-slate-300 bg-white px-2 text-xs"
+                  value={form.expiresAt}
+                  onChange={(e) =>
+                    setForm({ ...form, expiresAt: e.target.value })
+                  }
+                />
               </label>
-              <Button type="submit" disabled={saving} className="h-9 text-xs font-semibold">
+              <Button
+                type="submit"
+                disabled={saving}
+                className="h-9 text-xs font-semibold"
+              >
                 {saving ? "Uploading File…" : "Upload & Submit for Review"}
               </Button>
             </div>
           </form>
         )}
 
-        {error && <p className="rounded-lg border border-rose-200 bg-rose-50 p-3.5 text-xs font-semibold text-rose-700">{error}</p>}
+        {error && (
+          <p className="rounded-lg border border-rose-200 bg-rose-50 p-3.5 text-xs font-semibold text-rose-700">
+            {error}
+          </p>
+        )}
 
         {/* Repository Table */}
         <section className="rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
           {/* Status Tabs */}
           <div className="flex gap-2 overflow-x-auto border-b border-slate-200 bg-slate-50/70 p-3">
-            {(["ALL", "PENDING_REVIEW", "VERIFIED", "REJECTED", "EXPIRED"] as const).map((st) => (
+            {(
+              [
+                "ALL",
+                "PENDING_REVIEW",
+                "VERIFIED",
+                "REJECTED",
+                "EXPIRED",
+              ] as const
+            ).map((st) => (
               <button
                 key={st}
                 type="button"
@@ -264,49 +416,106 @@ export default function DocumentsPage() {
           </div>
 
           {loading ? (
-            <p className="p-8 text-center text-xs text-slate-500 font-medium">Loading document library…</p>
+            <p className="p-8 text-center text-xs text-slate-500 font-medium">
+              Loading document library…
+            </p>
           ) : visibleDocuments.length === 0 ? (
-            <p className="p-8 text-center text-xs text-slate-500 font-medium">No documents match your filter.</p>
+            <p className="p-8 text-center text-xs text-slate-500 font-medium">
+              No documents match your filter.
+            </p>
           ) : (
             <CrmTable
-              columns={["Document Name", "Category", "Related Record", "Uploaded Date", "Status", "Actions"]}
+              columns={[
+                "Document Name",
+                "Category",
+                "Related Record",
+                "Uploaded Date",
+                "Status",
+                "Actions",
+              ]}
               rows={visibleDocuments.map((doc) => [
                 <div key="name" className="flex items-center gap-2">
                   <FileText className="size-4 text-indigo-500 shrink-0" />
-                  <button type="button" onClick={() => setPreviewDoc(doc)} className="font-bold text-indigo-600 hover:underline text-xs text-left">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewDoc(doc)}
+                    className="font-bold text-indigo-600 hover:underline text-xs text-left"
+                  >
                     {doc.name}
-                    <span className="font-normal text-slate-400 block text-[11px]">{documentSize(doc.sizeBytes)}</span>
+                    <span className="font-normal text-slate-400 block text-[11px]">
+                      {documentSize(doc.sizeBytes)}
+                    </span>
                   </button>
                 </div>,
-                <span key="cat" className="inline-flex items-center rounded-md bg-indigo-50 border border-indigo-100 px-2 py-0.5 text-xs font-bold text-indigo-700">
+                <span
+                  key="cat"
+                  className="inline-flex items-center rounded-md bg-indigo-50 border border-indigo-100 px-2 py-0.5 text-xs font-bold text-indigo-700"
+                >
                   {doc.category.replace(/_/g, " ")}
                 </span>,
                 `${doc.entityType.replace(/_/g, " ")} · ${doc.entityId.slice(0, 8)}`,
-                <span key="uploaded" className="text-xs font-medium text-slate-600">
+                <span
+                  key="uploaded"
+                  className="text-xs font-medium text-slate-600"
+                >
                   {new Date(doc.uploadedAt).toLocaleDateString()}
-                  <span className="block text-[11px] text-slate-400">{doc.uploadedBy?.name ?? "System"}</span>
+                  <span className="block text-[11px] text-slate-400">
+                    {doc.uploadedBy?.name ?? "System"}
+                  </span>
                 </span>,
-                <span key="status" className={cn("rounded-md px-2 py-1 text-xs font-bold", statusClass[doc.status])} title={doc.rejectionReason ?? undefined}>
+                <span
+                  key="status"
+                  className={cn(
+                    "rounded-md px-2 py-1 text-xs font-bold",
+                    statusClass[doc.status],
+                  )}
+                  title={doc.rejectionReason ?? undefined}
+                >
                   {doc.status.replace(/_/g, " ")}
                 </span>,
                 <div key="actions" className="flex items-center gap-1">
-                  <button type="button" className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100" onClick={() => setPreviewDoc(doc)} title="Quick Preview">
+                  <button
+                    type="button"
+                    className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100"
+                    onClick={() => setPreviewDoc(doc)}
+                    title="Quick Preview"
+                  >
                     <Eye className="size-4 text-indigo-600" />
                   </button>
-                  <button type="button" className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100" onClick={() => void download(doc)} title="Download file">
+                  <button
+                    type="button"
+                    className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100"
+                    onClick={() => void download(doc)}
+                    title="Download file"
+                  >
                     <Download className="size-4 text-slate-600" />
                   </button>
                   {doc.status === "PENDING_REVIEW" && (
                     <>
-                      <button type="button" className="rounded-md p-1.5 text-emerald-600 hover:bg-emerald-50" onClick={() => void review(doc.id, "VERIFIED")} title="Approve & Verify">
+                      <button
+                        type="button"
+                        className="rounded-md p-1.5 text-emerald-600 hover:bg-emerald-50"
+                        onClick={() => void review(doc.id, "VERIFIED")}
+                        title="Approve & Verify"
+                      >
                         <Check className="size-4" />
                       </button>
-                      <button type="button" className="rounded-md p-1.5 text-rose-600 hover:bg-rose-50" onClick={() => void review(doc.id, "REJECTED")} title="Reject">
+                      <button
+                        type="button"
+                        className="rounded-md p-1.5 text-rose-600 hover:bg-rose-50"
+                        onClick={() => void review(doc.id, "REJECTED")}
+                        title="Reject"
+                      >
                         <X className="size-4" />
                       </button>
                     </>
                   )}
-                  <button type="button" className="rounded-md p-1.5 text-rose-600 hover:bg-rose-50" onClick={() => void remove(doc.id)} title="Delete document">
+                  <button
+                    type="button"
+                    className="rounded-md p-1.5 text-rose-600 hover:bg-rose-50"
+                    onClick={() => void remove(doc.id)}
+                    title="Delete document"
+                  >
                     <Trash2 className="size-4" />
                   </button>
                 </div>,
@@ -323,11 +532,20 @@ export default function DocumentsPage() {
                 <div className="flex items-center gap-2">
                   <FileText className="size-5 text-indigo-600" />
                   <div>
-                    <h3 className="font-bold text-slate-900 text-sm">{previewDoc.name}</h3>
-                    <p className="text-xs text-slate-500">{documentSize(previewDoc.sizeBytes)} · {previewDoc.category}</p>
+                    <h3 className="font-bold text-slate-900 text-sm">
+                      {previewDoc.name}
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      {documentSize(previewDoc.sizeBytes)} ·{" "}
+                      {previewDoc.category}
+                    </p>
                   </div>
                 </div>
-                <button type="button" onClick={() => setPreviewDoc(null)} className="rounded-md p-1 text-slate-400 hover:bg-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setPreviewDoc(null)}
+                  className="rounded-md p-1 text-slate-400 hover:bg-slate-100"
+                >
                   <X className="size-4" />
                 </button>
               </div>
@@ -335,19 +553,32 @@ export default function DocumentsPage() {
               <div className="my-4 space-y-2 text-xs text-slate-700">
                 <div className="flex justify-between border-b border-slate-100 pb-1.5">
                   <span className="text-slate-500">Document Status:</span>
-                  <span className={cn("font-bold px-2 py-0.5 rounded text-[11px]", statusClass[previewDoc.status])}>{previewDoc.status}</span>
+                  <span
+                    className={cn(
+                      "font-bold px-2 py-0.5 rounded text-[11px]",
+                      statusClass[previewDoc.status],
+                    )}
+                  >
+                    {previewDoc.status}
+                  </span>
                 </div>
                 <div className="flex justify-between border-b border-slate-100 pb-1.5">
                   <span className="text-slate-500">Linked Entity:</span>
-                  <span className="font-semibold text-slate-800">{previewDoc.entityType} ({previewDoc.entityId.slice(0, 8)})</span>
+                  <span className="font-semibold text-slate-800">
+                    {previewDoc.entityType} ({previewDoc.entityId.slice(0, 8)})
+                  </span>
                 </div>
                 <div className="flex justify-between border-b border-slate-100 pb-1.5">
                   <span className="text-slate-500">Uploaded On:</span>
-                  <span className="font-medium">{new Date(previewDoc.uploadedAt).toLocaleString()}</span>
+                  <span className="font-medium">
+                    {new Date(previewDoc.uploadedAt).toLocaleString()}
+                  </span>
                 </div>
                 <div className="flex justify-between border-b border-slate-100 pb-1.5">
                   <span className="text-slate-500">Uploaded By:</span>
-                  <span className="font-medium">{previewDoc.uploadedBy?.name ?? "System"}</span>
+                  <span className="font-medium">
+                    {previewDoc.uploadedBy?.name ?? "System"}
+                  </span>
                 </div>
                 {previewDoc.rejectionReason && (
                   <div className="rounded-lg bg-rose-50 border border-rose-200 p-2.5 text-rose-700 mt-2">
@@ -358,11 +589,18 @@ export default function DocumentsPage() {
               </div>
 
               <div className="flex gap-2 pt-2">
-                <Button onClick={() => void download(previewDoc)} className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white h-9 text-xs font-semibold">
+                <Button
+                  onClick={() => void download(previewDoc)}
+                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white h-9 text-xs font-semibold"
+                >
                   <Download className="size-3.5 mr-1.5" />
                   Download File
                 </Button>
-                <Button variant="outline" onClick={() => setPreviewDoc(null)} className="h-9 text-xs font-semibold">
+                <Button
+                  variant="outline"
+                  onClick={() => setPreviewDoc(null)}
+                  className="h-9 text-xs font-semibold"
+                >
                   Close
                 </Button>
               </div>
@@ -373,4 +611,3 @@ export default function DocumentsPage() {
     </DashboardShell>
   );
 }
-

@@ -7,7 +7,12 @@ export type SmsLog = {
   recipientName: string;
   recipientPhone: string;
   body: string;
-  triggerType: "SITE_VISIT_REMINDER" | "HOLD_EXPIRY_ALERT" | "PAYMENT_DUE_ALERT" | "DRIP_CAMPAIGN" | "MANUAL_BROADCAST";
+  triggerType:
+    | "SITE_VISIT_REMINDER"
+    | "HOLD_EXPIRY_ALERT"
+    | "PAYMENT_DUE_ALERT"
+    | "DRIP_CAMPAIGN"
+    | "MANUAL_BROADCAST";
   status: SmsStatus;
   sentAt: string;
   costEthioBirr?: number;
@@ -24,7 +29,8 @@ export type DripStep = {
 export type DripCampaign = {
   id: string;
   name: string;
-  targetSegment: "COLD_LEADS" | "WARM_LEADS" | "SITE_VISITORS" | "RESERVATION_CLIENTS";
+  targetSegment:
+    "COLD_LEADS" | "WARM_LEADS" | "SITE_VISITORS" | "RESERVATION_CLIENTS";
   status: "ACTIVE" | "PAUSED";
   enrolledCount: number;
   completedCount: number;
@@ -61,7 +67,8 @@ export type SmsContact = {
   phone: string;
   email: string;
   type: "LEAD" | "CUSTOMER";
-  segment: "COLD_LEADS" | "WARM_LEADS" | "SITE_VISITORS" | "RESERVATION_CLIENTS";
+  segment:
+    "COLD_LEADS" | "WARM_LEADS" | "SITE_VISITORS" | "RESERVATION_CLIENTS";
   details: string;
 };
 
@@ -84,7 +91,10 @@ export function formatEthioPhone(raw: string): string {
 /**
  * Calculate SMS segment length (160 characters for standard ASCII, 70 for Unicode/Amharic)
  */
-export function calculateSmsSegments(text: string): { charCount: number; segmentCount: number } {
+export function calculateSmsSegments(text: string): {
+  charCount: number;
+  segmentCount: number;
+} {
   const charCount = text.length;
   const isUnicode = /[^\x00-\x7F]/.test(text);
   const maxCharPerSegment = isUnicode ? 70 : 160;
@@ -97,7 +107,7 @@ export function calculateSmsSegments(text: string): { charCount: number; segment
  */
 export function interpolateSmsTemplate(
   template: string,
-  variables: Record<string, string | number | undefined>
+  variables: Record<string, string | number | undefined>,
 ): string {
   let result = template;
   for (const [key, val] of Object.entries(variables)) {
@@ -369,20 +379,24 @@ export async function toggleDripCampaignApi(id: string): Promise<DripCampaign> {
     });
   } catch {
     const existing = PRESEEDED_DRIP_CAMPAIGNS.find((c) => c.id === id);
-    if (existing) existing.status = existing.status === "ACTIVE" ? "PAUSED" : "ACTIVE";
+    if (existing)
+      existing.status = existing.status === "ACTIVE" ? "PAUSED" : "ACTIVE";
     return existing || PRESEEDED_DRIP_CAMPAIGNS[0];
   }
 }
 
 export async function addDripStepApi(
   campaignId: string,
-  payload: { delayDays: number; title: string; smsTemplate: string }
+  payload: { delayDays: number; title: string; smsTemplate: string },
 ): Promise<DripCampaign> {
   try {
-    return await apiFetch<DripCampaign>(`/sms/drip-campaigns/${campaignId}/steps`, {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
+    return await apiFetch<DripCampaign>(
+      `/sms/drip-campaigns/${campaignId}/steps`,
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+    );
   } catch {
     const campaign = PRESEEDED_DRIP_CAMPAIGNS.find((c) => c.id === campaignId);
     if (campaign) {
@@ -401,16 +415,17 @@ export async function addDripStepApi(
 
 export async function enrollLeadApi(
   campaignId: string,
-  payload: { clientName: string; clientPhone: string }
+  payload: { clientName: string; clientPhone: string },
 ): Promise<{ success: boolean; message: string; campaign?: DripCampaign }> {
   try {
-    return await apiFetch<{ success: boolean; message: string; campaign?: DripCampaign }>(
-      `/sms/drip-campaigns/${campaignId}/enroll`,
-      {
-        method: "POST",
-        body: JSON.stringify(payload),
-      }
-    );
+    return await apiFetch<{
+      success: boolean;
+      message: string;
+      campaign?: DripCampaign;
+    }>(`/sms/drip-campaigns/${campaignId}/enroll`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
   } catch {
     const campaign = PRESEEDED_DRIP_CAMPAIGNS.find((c) => c.id === campaignId);
     if (campaign) campaign.enrolledCount += 1;
@@ -448,7 +463,7 @@ export async function fetchRulesApi(): Promise<TriggerRulesMap> {
 
 export async function updateRuleApi(
   ruleKey: "siteVisit" | "holdExpiry" | "paymentDue",
-  payload: { enabled?: boolean; timing?: string; template?: string }
+  payload: { enabled?: boolean; timing?: string; template?: string },
 ): Promise<TriggerRule> {
   try {
     return await apiFetch<TriggerRule>(`/sms/rules/${ruleKey}`, {

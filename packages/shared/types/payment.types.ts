@@ -3,10 +3,20 @@
  * Extracted from apps/api/src/payments/payments.types.ts
  */
 
-export const PAYMENT_STATUSES = ['PENDING', 'PAID', 'OVERDUE', 'CANCELLED'] as const;
+export const PAYMENT_STATUSES = [
+  "PENDING",
+  "PAID",
+  "OVERDUE",
+  "CANCELLED",
+] as const;
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
-export const PAYMENT_METHODS = ['BANK_TRANSFER', 'CASH', 'CARD', 'CHEQUE'] as const;
+export const PAYMENT_METHODS = [
+  "BANK_TRANSFER",
+  "CASH",
+  "CARD",
+  "CHEQUE",
+] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
 // ─── Input Types (API) ─────────────────────────────────────────────────────────
@@ -25,7 +35,7 @@ export type CreatePaymentInput = {
 
 export type VerifyPaymentInput = {
   paymentId: string;
-  status: 'COMPLETED' | 'REJECTED';
+  status: "COMPLETED" | "REJECTED";
   bankName?: string;
   receiptNumber?: string;
   notes?: string;
@@ -72,7 +82,7 @@ export type PaymentScheduleItem = {
   dueDate: string;
   amount: number;
   percentage: number;
-  status: 'PENDING' | 'PAID' | 'LATE';
+  status: "PENDING" | "PAID" | "LATE";
 };
 
 export type PaymentPlanCalculation = {
@@ -85,14 +95,15 @@ export type PaymentPlanCalculation = {
 
 // ─── Contract Builder & Multi-Level Approval Types ─────────────────────────────
 
-export type ApprovalStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type ApprovalStatus = "PENDING" | "APPROVED" | "REJECTED";
 
 export type GenerateContractInput = {
-  templateType: 'ETHIOPIAN_REAL_ESTATE_SALE' | 'COMMERCIAL_LEASE' | 'RESERVATION_AGREEMENT';
+  templateType:
+    "ETHIOPIAN_REAL_ESTATE_SALE" | "COMMERCIAL_LEASE" | "RESERVATION_AGREEMENT";
   customerId: string;
   unitId: string;
   agreedPrice: number;
-  currency: 'ETB' | 'USD';
+  currency: "ETB" | "USD";
   discountPercent?: number;
   downPaymentPercent?: number;
   installmentsCount?: number;
@@ -107,7 +118,7 @@ export type ContractTemplateResult = {
   unitNumber: string;
   buildingName: string;
   agreedPrice: number;
-  currency: 'ETB' | 'USD';
+  currency: "ETB" | "USD";
   discountPercent: number;
   requiresApproval: boolean;
   approvalReason?: string;
@@ -122,7 +133,7 @@ export type ApprovalRequestItem = {
   requesterName: string;
   buyerName: string;
   amount: number;
-  currency: 'ETB' | 'USD';
+  currency: "ETB" | "USD";
   discountPercent: number;
   reason: string;
   status: ApprovalStatus;
@@ -131,7 +142,7 @@ export type ApprovalRequestItem = {
 
 // ─── E-Signature & Audit Trail Types ───────────────────────────────────────────
 
-export type SignerRole = 'BUYER' | 'SELLER_REP' | 'WITNESS';
+export type SignerRole = "BUYER" | "SELLER_REP" | "WITNESS";
 
 export type ContractSignatureInput = {
   contractId: string;
@@ -153,4 +164,3 @@ export type SignatureAuditItem = {
   verificationHash: string;
   signedAt: string;
 };
-

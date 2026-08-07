@@ -53,20 +53,27 @@ export function SignatureModal({
     setError(null);
 
     try {
-      const res = await apiFetch<SignatureAuditItem>(`/contracts/${contractId}/signatures`, {
-        method: "POST",
-        body: JSON.stringify({
-          contractId,
-          signerName,
-          signerEmail: signerEmail || undefined,
-          signerRole,
-          signatureDataUrl,
-        }),
-      });
+      const res = await apiFetch<SignatureAuditItem>(
+        `/contracts/${contractId}/signatures`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            contractId,
+            signerName,
+            signerEmail: signerEmail || undefined,
+            signerRole,
+            signatureDataUrl,
+          }),
+        },
+      );
       onSuccess(res);
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to record digital signature");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to record digital signature",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -79,7 +86,9 @@ export function SignatureModal({
         <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
           <div className="flex items-center gap-2">
             <ShieldCheck className="size-5 text-[#233b66]" />
-            <h2 className="text-base font-bold text-zinc-900">E-Signature Verification</h2>
+            <h2 className="text-base font-bold text-zinc-900">
+              E-Signature Verification
+            </h2>
           </div>
           <button
             onClick={onClose}
@@ -92,7 +101,9 @@ export function SignatureModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-zinc-700">Signer Full Name *</label>
+              <label className="text-xs font-semibold text-zinc-700">
+                Signer Full Name *
+              </label>
               <input
                 type="text"
                 required
@@ -104,7 +115,9 @@ export function SignatureModal({
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-zinc-700">Signer Role</label>
+              <label className="text-xs font-semibold text-zinc-700">
+                Signer Role
+              </label>
               <select
                 value={signerRole}
                 onChange={(e) => setSignerRole(e.target.value as SignerRole)}
@@ -118,7 +131,9 @@ export function SignatureModal({
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-zinc-700">Signer Email (Optional)</label>
+            <label className="text-xs font-semibold text-zinc-700">
+              Signer Email (Optional)
+            </label>
             <input
               type="email"
               value={signerEmail}
@@ -133,7 +148,11 @@ export function SignatureModal({
             <label className="text-xs font-semibold text-zinc-700 mb-1 block">
               Draw Signature *
             </label>
-            <SignaturePad onSignatureChange={setSignatureDataUrl} width={450} height={160} />
+            <SignaturePad
+              onSignatureChange={setSignatureDataUrl}
+              width={450}
+              height={160}
+            />
           </div>
 
           {/* Terms Checkbox */}
@@ -145,15 +164,27 @@ export function SignatureModal({
               onChange={(e) => setAgreeTerms(e.target.checked)}
               className="mt-0.5 size-4 rounded border-zinc-300 accent-[#233b66]"
             />
-            <label htmlFor="agreeTerms" className="text-[11px] text-zinc-600 font-medium leading-snug">
-              I acknowledge that this digital signature constitutes a legally binding intent to sign this property agreement. The timestamp, IP address, and SHA-256 hash will be recorded.
+            <label
+              htmlFor="agreeTerms"
+              className="text-[11px] text-zinc-600 font-medium leading-snug"
+            >
+              I acknowledge that this digital signature constitutes a legally
+              binding intent to sign this property agreement. The timestamp, IP
+              address, and SHA-256 hash will be recorded.
             </label>
           </div>
 
-          {error && <p className="text-xs text-rose-600 font-medium">{error}</p>}
+          {error && (
+            <p className="text-xs text-rose-600 font-medium">{error}</p>
+          )}
 
           <div className="flex items-center justify-end gap-2 border-t border-zinc-100 pt-3">
-            <Button type="button" variant="outline" onClick={onClose} className="h-9 text-xs">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="h-9 text-xs"
+            >
               Cancel
             </Button>
             <Button

@@ -8,8 +8,8 @@ import {
   Query,
   Headers,
   UnauthorizedException,
+  type RawBodyRequest,
 } from '@nestjs/common';
-import type { RawBodyRequest } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { IntegrationsService } from './integrations.service';
 

@@ -1,16 +1,43 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, Download, FileCheck, FileText, PenTool, ShieldAlert, ShieldCheck } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Download,
+  FileCheck,
+  FileText,
+  PenTool,
+  ShieldAlert,
+  ShieldCheck,
+} from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { SignatureModal } from "@/components/contracts/signature-modal";
 import { apiFetch } from "@/lib/api";
-import type { ContractTemplateResult, GenerateContractInput, SignatureAuditItem } from "@betflow/shared";
+import type {
+  ContractTemplateResult,
+  GenerateContractInput,
+  SignatureAuditItem,
+} from "@betflow/shared";
 
-type CustomerOption = { id: string; firstName: string; lastName: string; email: string | null };
-type UnitOption = { id: string; unitNumber: string; type: string; price: string; floor: { name: string; building: { name: string; project: { name: string } } } };
+type CustomerOption = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string | null;
+};
+type UnitOption = {
+  id: string;
+  unitNumber: string;
+  type: string;
+  price: string;
+  floor: {
+    name: string;
+    building: { name: string; project: { name: string } };
+  };
+};
 
 export default function ContractBuilderPage() {
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
@@ -25,7 +52,8 @@ export default function ContractBuilderPage() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [generatedResult, setGeneratedResult] = useState<ContractTemplateResult | null>(null);
+  const [generatedResult, setGeneratedResult] =
+    useState<ContractTemplateResult | null>(null);
 
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
   const [signatures, setSignatures] = useState<SignatureAuditItem[]>([]);
@@ -57,7 +85,9 @@ export default function ContractBuilderPage() {
 
   const loadSignatures = async (contractId: string) => {
     try {
-      const list = await apiFetch<SignatureAuditItem[]>(`/contracts/${contractId}/signatures`);
+      const list = await apiFetch<SignatureAuditItem[]>(
+        `/contracts/${contractId}/signatures`,
+      );
       setSignatures(list);
     } catch {
       // Ignore if no signatures yet
@@ -77,22 +107,29 @@ export default function ContractBuilderPage() {
     setGenerating(true);
     setError(null);
     try {
-      const res = await apiFetch<ContractTemplateResult>("/contracts/generate", {
-        method: "POST",
-        body: JSON.stringify({
-          templateType: "ETHIOPIAN_REAL_ESTATE_SALE",
-          customerId: selectedCustomerId,
-          unitId: selectedUnitId,
-          agreedPrice: Number(price),
-          currency,
-          discountPercent,
-          specialTerms: specialTerms || undefined,
-        } satisfies GenerateContractInput),
-      });
+      const res = await apiFetch<ContractTemplateResult>(
+        "/contracts/generate",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            templateType: "ETHIOPIAN_REAL_ESTATE_SALE",
+            customerId: selectedCustomerId,
+            unitId: selectedUnitId,
+            agreedPrice: Number(price),
+            currency,
+            discountPercent,
+            specialTerms: specialTerms || undefined,
+          } satisfies GenerateContractInput),
+        },
+      );
       setGeneratedResult(res);
       void loadSignatures(res.contractId);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate legal contract");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to generate legal contract",
+      );
     } finally {
       setGenerating(false);
     }
@@ -104,8 +141,12 @@ export default function ContractBuilderPage() {
 
   const downloadPdf = () => {
     if (!generatedResult) return;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
-    window.open(`${apiUrl}/contracts/${generatedResult.contractId}/pdf`, "_blank");
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+    window.open(
+      `${apiUrl}/contracts/${generatedResult.contractId}/pdf`,
+      "_blank",
+    );
   };
 
   const selectedCustomer = customers.find((c) => c.id === selectedCustomerId);
@@ -125,7 +166,9 @@ export default function ContractBuilderPage() {
             </h2>
 
             <div>
-              <label className="text-xs font-semibold text-zinc-700">Buyer Customer</label>
+              <label className="text-xs font-semibold text-zinc-700">
+                Buyer Customer
+              </label>
               <select
                 value={selectedCustomerId}
                 onChange={(e) => setSelectedCustomerId(e.target.value)}
@@ -140,7 +183,9 @@ export default function ContractBuilderPage() {
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-zinc-700">Target Unit & Project</label>
+              <label className="text-xs font-semibold text-zinc-700">
+                Target Unit & Project
+              </label>
               <select
                 value={selectedUnitId}
                 onChange={(e) => handleUnitChange(e.target.value)}
@@ -148,7 +193,8 @@ export default function ContractBuilderPage() {
               >
                 {units.map((u) => (
                   <option key={u.id} value={u.id}>
-                    Unit {u.unitNumber} ({u.type}) — {u.floor.building.project.name}
+                    Unit {u.unitNumber} ({u.type}) —{" "}
+                    {u.floor.building.project.name}
                   </option>
                 ))}
               </select>
@@ -156,7 +202,9 @@ export default function ContractBuilderPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-semibold text-zinc-700">Currency</label>
+                <label className="text-xs font-semibold text-zinc-700">
+                  Currency
+                </label>
                 <select
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value as "ETB" | "USD")}
@@ -168,7 +216,9 @@ export default function ContractBuilderPage() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-zinc-700">Agreed Contract Price</label>
+                <label className="text-xs font-semibold text-zinc-700">
+                  Agreed Contract Price
+                </label>
                 <input
                   type="number"
                   value={price}
@@ -192,12 +242,15 @@ export default function ContractBuilderPage() {
                 className="mt-2 w-full accent-[#233b66]"
               />
               <p className="mt-1 text-[11px] text-zinc-500">
-                Discounts &gt; 5% automatically trigger Finance Manager Approval.
+                Discounts &gt; 5% automatically trigger Finance Manager
+                Approval.
               </p>
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-zinc-700">Special Legal Terms (Optional)</label>
+              <label className="text-xs font-semibold text-zinc-700">
+                Special Legal Terms (Optional)
+              </label>
               <textarea
                 rows={3}
                 placeholder="e.g., Extended payment schedule or customized finishing specifications..."
@@ -207,7 +260,9 @@ export default function ContractBuilderPage() {
               />
             </div>
 
-            {error && <p className="text-xs text-rose-600 font-medium">{error}</p>}
+            {error && (
+              <p className="text-xs text-rose-600 font-medium">{error}</p>
+            )}
 
             <Button
               onClick={handleGenerate}
@@ -250,7 +305,9 @@ export default function ContractBuilderPage() {
             <div className="mb-4 flex items-center justify-between border-b border-zinc-100 pb-3">
               <div className="flex items-center gap-2">
                 <FileText className="size-5 text-[#233b66]" />
-                <h2 className="text-base font-bold text-zinc-900">Legal Document Preview</h2>
+                <h2 className="text-base font-bold text-zinc-900">
+                  Legal Document Preview
+                </h2>
               </div>
 
               {generatedResult ? (
@@ -268,13 +325,14 @@ export default function ContractBuilderPage() {
                       signatures.length > 0
                         ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
                         : generatedResult.requiresApproval
-                        ? "bg-amber-100 text-amber-800 border border-amber-300"
-                        : "bg-blue-100 text-blue-800 border border-blue-300"
+                          ? "bg-amber-100 text-amber-800 border border-amber-300"
+                          : "bg-blue-100 text-blue-800 border border-blue-300"
                     }`}
                   >
                     {signatures.length > 0 ? (
                       <>
-                        <ShieldCheck className="size-3.5" /> Digitally Signed ({signatures.length})
+                        <ShieldCheck className="size-3.5" /> Digitally Signed (
+                        {signatures.length})
                       </>
                     ) : generatedResult.requiresApproval ? (
                       <>
@@ -299,7 +357,8 @@ export default function ContractBuilderPage() {
                       <p className="font-bold">Management Approval Required</p>
                       <p className="mt-0.5">{generatedResult.approvalReason}</p>
                       <p className="mt-1 text-[11px] text-amber-800 font-semibold">
-                        Contract submitted to Manager Approval Queue (/approvals).
+                        Contract submitted to Manager Approval Queue
+                        (/approvals).
                       </p>
                     </div>
                   </div>
@@ -308,14 +367,22 @@ export default function ContractBuilderPage() {
                 {/* Document Container */}
                 <div
                   className="rounded-lg border border-zinc-200 bg-zinc-50/50 p-4 font-serif text-sm shadow-inner max-h-[420px] overflow-y-auto"
-                  dangerouslySetInnerHTML={{ __html: generatedResult.htmlContent }}
+                  dangerouslySetInnerHTML={{
+                    __html: generatedResult.htmlContent,
+                  }}
                 />
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-32 text-center text-zinc-400">
                 <FileText className="size-12 stroke-1 text-zinc-300 mb-2" />
-                <p className="text-sm font-medium">Select parameters and click &quot;Generate Sales Agreement&quot;</p>
-                <p className="text-xs text-zinc-400">Live preview of Ethiopian Real Estate Agreement will render here.</p>
+                <p className="text-sm font-medium">
+                  Select parameters and click &quot;Generate Sales
+                  Agreement&quot;
+                </p>
+                <p className="text-xs text-zinc-400">
+                  Live preview of Ethiopian Real Estate Agreement will render
+                  here.
+                </p>
               </div>
             )}
           </div>
@@ -326,39 +393,59 @@ export default function ContractBuilderPage() {
               <div className="flex items-center justify-between border-b border-zinc-100 pb-2.5">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="size-4 text-emerald-600" />
-                  <h3 className="text-sm font-bold text-zinc-900">E-Signature Verification Audit Trail</h3>
+                  <h3 className="text-sm font-bold text-zinc-900">
+                    E-Signature Verification Audit Trail
+                  </h3>
                 </div>
-                <span className="text-xs font-semibold text-zinc-500">{signatures.length} Signatures Logged</span>
+                <span className="text-xs font-semibold text-zinc-500">
+                  {signatures.length} Signatures Logged
+                </span>
               </div>
 
               {signatures.length === 0 ? (
                 <div className="py-6 text-center text-xs text-zinc-500 bg-zinc-50 rounded-lg border border-dashed border-zinc-200">
-                  No signatures attached yet. Click <strong>&quot;Sign Digitally&quot;</strong> to capture client signature.
+                  No signatures attached yet. Click{" "}
+                  <strong>&quot;Sign Digitally&quot;</strong> to capture client
+                  signature.
                 </div>
               ) : (
                 <div className="space-y-3">
                   {signatures.map((sig) => (
-                    <div key={sig.id} className="rounded-lg border border-zinc-200 bg-zinc-50/70 p-3 flex items-start gap-4 text-xs">
+                    <div
+                      key={sig.id}
+                      className="rounded-lg border border-zinc-200 bg-zinc-50/70 p-3 flex items-start gap-4 text-xs"
+                    >
                       {/* Signature canvas rendering */}
                       <div className="bg-white rounded border border-zinc-300 p-1 shrink-0">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={sig.signatureDataUrl} alt="Signature" className="h-12 w-28 object-contain" />
+                        <img
+                          src={sig.signatureDataUrl}
+                          alt="Signature"
+                          className="h-12 w-28 object-contain"
+                        />
                       </div>
 
                       <div className="flex-1 space-y-1">
                         <div className="flex items-center justify-between">
                           <p className="font-bold text-zinc-900">
-                            {sig.signerName} <span className="text-[11px] font-normal text-zinc-500">({sig.signerRole})</span>
+                            {sig.signerName}{" "}
+                            <span className="text-[11px] font-normal text-zinc-500">
+                              ({sig.signerRole})
+                            </span>
                           </p>
                           <span className="text-[10px] font-mono bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full font-semibold">
                             SHA-256 Verified
                           </span>
                         </div>
                         <p className="text-[11px] text-zinc-600">
-                          Signed at: <strong>{new Date(sig.signedAt).toLocaleString()}</strong>
+                          Signed at:{" "}
+                          <strong>
+                            {new Date(sig.signedAt).toLocaleString()}
+                          </strong>
                         </p>
                         <p className="text-[10px] text-zinc-500 font-mono">
-                          IP: {sig.ipAddress} | Hash: {sig.verificationHash.slice(0, 32)}...
+                          IP: {sig.ipAddress} | Hash:{" "}
+                          {sig.verificationHash.slice(0, 32)}...
                         </p>
                       </div>
                     </div>
@@ -374,7 +461,11 @@ export default function ContractBuilderPage() {
       {generatedResult && (
         <SignatureModal
           contractId={generatedResult.contractId}
-          defaultSignerName={selectedCustomer ? `${selectedCustomer.firstName} ${selectedCustomer.lastName}` : ""}
+          defaultSignerName={
+            selectedCustomer
+              ? `${selectedCustomer.firstName} ${selectedCustomer.lastName}`
+              : ""
+          }
           defaultSignerEmail={selectedCustomer?.email || ""}
           isOpen={isSignatureModalOpen}
           onClose={() => setIsSignatureModalOpen(false)}

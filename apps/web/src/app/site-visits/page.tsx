@@ -119,7 +119,9 @@ export default function SiteVisitsPage() {
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [activeModalVisit, setActiveModalVisit] = useState<ApiSiteVisit | null>(null);
+  const [activeModalVisit, setActiveModalVisit] = useState<ApiSiteVisit | null>(
+    null,
+  );
 
   const [form, setForm] = useState({
     withType: "customer" as "customer" | "lead",
@@ -150,7 +152,9 @@ export default function SiteVisitsPage() {
       setCustomers(customersData);
       setLeads(leadsData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load site visits");
+      setError(
+        err instanceof Error ? err.message : "Failed to load site visits",
+      );
     } finally {
       setLoading(false);
     }
@@ -173,8 +177,12 @@ export default function SiteVisitsPage() {
           date: toIso(form.date),
           notes: form.notes || undefined,
           propertyType: form.propertyType,
-          preferredSqm: form.preferredSqm ? Number(form.preferredSqm) : undefined,
-          bedroomCount: form.bedroomCount ? Number(form.bedroomCount) : undefined,
+          preferredSqm: form.preferredSqm
+            ? Number(form.preferredSqm)
+            : undefined,
+          bedroomCount: form.bedroomCount
+            ? Number(form.bedroomCount)
+            : undefined,
           preferredFloor: form.preferredFloor,
           facingDirection: form.facingDirection,
           purpose: form.purpose,
@@ -250,18 +258,27 @@ export default function SiteVisitsPage() {
             <div>
               <div className="flex items-center gap-2">
                 <Building2 className="size-5 text-[#233b66]" />
-                <h2 className="text-lg font-bold text-slate-900">Site Visit Bookings & Buyer Preferences</h2>
+                <h2 className="text-lg font-bold text-slate-900">
+                  Site Visit Bookings & Buyer Preferences
+                </h2>
               </div>
               <p className="mt-1 text-sm text-slate-500">
-                Book physical property tours, track client transport details, and record exact unit specifications requested.
+                Book physical property tours, track client transport details,
+                and record exact unit specifications requested.
               </p>
             </div>
             <Button
               onClick={() => setShowForm((v) => !v)}
-              disabled={!showForm && customers.length === 0 && leads.length === 0}
+              disabled={
+                !showForm && customers.length === 0 && leads.length === 0
+              }
               className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium shadow-sm transition-all"
             >
-              {showForm ? <X className="size-4 mr-1.5" /> : <CalendarPlus className="size-4 mr-1.5" />}
+              {showForm ? (
+                <X className="size-4 mr-1.5" />
+              ) : (
+                <CalendarPlus className="size-4 mr-1.5" />
+              )}
               {showForm ? "Cancel Intake" : "Book Site Visit"}
             </Button>
           </div>
@@ -274,32 +291,46 @@ export default function SiteVisitsPage() {
             >
               <div className="border-b border-[#233b66]/20 pb-3 mb-4 flex items-center justify-between">
                 <h3 className="text-sm font-bold text-[#233b66] uppercase tracking-wider flex items-center gap-2">
-                  <span className="flex size-5 items-center justify-center rounded-full bg-[#233b66] text-[10px] text-white font-bold">1</span>
+                  <span className="flex size-5 items-center justify-center rounded-full bg-[#233b66] text-[10px] text-white font-bold">
+                    1
+                  </span>
                   Visit Appointment & Client Selection
                 </h3>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Visit With</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Visit With
+                  </label>
                   <select
                     value={form.withType}
                     onChange={(e) =>
-                      setForm({ ...form, withType: e.target.value as "customer" | "lead", withId: "" })
+                      setForm({
+                        ...form,
+                        withType: e.target.value as "customer" | "lead",
+                        withId: "",
+                      })
                     }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
-                    <option value="customer">Customer (Converted Contact)</option>
+                    <option value="customer">
+                      Customer (Converted Contact)
+                    </option>
                     <option value="lead">Lead (Prospect)</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Select Client / Lead *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Select Client / Lead *
+                  </label>
                   <select
                     required
                     value={form.withId}
-                    onChange={(e) => setForm({ ...form, withId: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, withId: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
                     <option value="">Select {form.withType}…</option>
@@ -312,7 +343,9 @@ export default function SiteVisitsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Date & Time *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Date & Time *
+                  </label>
                   <input
                     required
                     type="datetime-local"
@@ -326,45 +359,63 @@ export default function SiteVisitsPage() {
               {/* Section 2: Ethiopian Real Estate Buyer Preferences & Demands */}
               <div className="border-b border-indigo-100 pb-3 my-5 pt-2 flex items-center justify-between">
                 <h3 className="text-sm font-bold text-indigo-950 uppercase tracking-wider flex items-center gap-2">
-                  <span className="flex size-5 items-center justify-center rounded-full bg-indigo-600 text-[10px] text-white font-bold">2</span>
+                  <span className="flex size-5 items-center justify-center rounded-full bg-indigo-600 text-[10px] text-white font-bold">
+                    2
+                  </span>
                   Buyer Property Specifications & Placement Demands
                 </h3>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Property Type</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Property Type
+                  </label>
                   <select
                     value={form.propertyType}
-                    onChange={(e) => setForm({ ...form, propertyType: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, propertyType: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
                     {PROPERTY_TYPES.map((t) => (
-                      <option key={t} value={t}>{t}</option>
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Required Area (Square Meters / ካሬ)</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Required Area (Square Meters / ካሬ)
+                  </label>
                   <div className="relative">
                     <input
                       type="number"
                       step="0.1"
                       placeholder="e.g. 120"
                       value={form.preferredSqm}
-                      onChange={(e) => setForm({ ...form, preferredSqm: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, preferredSqm: e.target.value })
+                      }
                       className="w-full h-9 rounded-lg border border-slate-300 bg-white pl-3 pr-10 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                     />
-                    <span className="absolute right-3 top-2.5 text-[11px] font-bold text-slate-400">m²</span>
+                    <span className="absolute right-3 top-2.5 text-[11px] font-bold text-slate-400">
+                      m²
+                    </span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Bedrooms Count</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Bedrooms Count
+                  </label>
                   <select
                     value={form.bedroomCount}
-                    onChange={(e) => setForm({ ...form, bedroomCount: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, bedroomCount: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
                     <option value="1">1 Bedroom (Studio / Single)</option>
@@ -375,64 +426,92 @@ export default function SiteVisitsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Floor Placement Preference</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Floor Placement Preference
+                  </label>
                   <select
                     value={form.preferredFloor}
-                    onChange={(e) => setForm({ ...form, preferredFloor: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, preferredFloor: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
                     {FLOOR_PREFERENCES.map((f) => (
-                      <option key={f} value={f}>{f}</option>
+                      <option key={f} value={f}>
+                        {f}
+                      </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Orientation & Facing</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Orientation & Facing
+                  </label>
                   <select
                     value={form.facingDirection}
-                    onChange={(e) => setForm({ ...form, facingDirection: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, facingDirection: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
                     {FACING_DIRECTIONS.map((d) => (
-                      <option key={d} value={d}>{d}</option>
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Purchase Purpose</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Purchase Purpose
+                  </label>
                   <select
                     value={form.purpose}
-                    onChange={(e) => setForm({ ...form, purpose: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, purpose: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
                     {PURPOSES.map((p) => (
-                      <option key={p} value={p}>{p}</option>
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Target Budget (ETB / ብር)</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Target Budget (ETB / ብር)
+                  </label>
                   <input
                     type="number"
                     placeholder="e.g. 8500000"
                     value={form.budgetETB}
-                    onChange={(e) => setForm({ ...form, budgetETB: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, budgetETB: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Plan Preference</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Payment Plan Preference
+                  </label>
                   <select
                     value={form.paymentMethod}
-                    onChange={(e) => setForm({ ...form, paymentMethod: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, paymentMethod: e.target.value })
+                    }
                     className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   >
                     {PAYMENT_METHODS.map((pm) => (
-                      <option key={pm} value={pm}>{pm}</option>
+                      <option key={pm} value={pm}>
+                        {pm}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -441,30 +520,40 @@ export default function SiteVisitsPage() {
               {/* Section 3: Detailed Demands & Follow-up Notes */}
               <div className="border-b border-indigo-100 pb-3 my-5 pt-2 flex items-center justify-between">
                 <h3 className="text-sm font-bold text-indigo-950 uppercase tracking-wider flex items-center gap-2">
-                  <span className="flex size-5 items-center justify-center rounded-full bg-indigo-600 text-[10px] text-white font-bold">3</span>
+                  <span className="flex size-5 items-center justify-center rounded-full bg-indigo-600 text-[10px] text-white font-bold">
+                    3
+                  </span>
                   Specific Demands & Visit Notes
                 </h3>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Client Custom Demands & Requests</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Client Custom Demands & Requests
+                  </label>
                   <textarea
                     rows={2}
                     placeholder="e.g., Requested balcony with sunrise view, parking space for 2 SUVs, backup generator guarantee, installment breakdown over 24 months..."
                     value={form.demands}
-                    onChange={(e) => setForm({ ...form, demands: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, demands: e.target.value })
+                    }
                     className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">General Visit Notes & Outcome</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    General Visit Notes & Outcome
+                  </label>
                   <textarea
                     rows={2}
                     placeholder="e.g., Client visited site with spouse. Showed Model Unit 4B. Highly interested, requested pro-forma invoice by Friday..."
                     value={form.notes}
-                    onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, notes: e.target.value })
+                    }
                     className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
                   />
                 </div>
@@ -479,8 +568,14 @@ export default function SiteVisitsPage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={saving} className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs shadow-sm">
-                  {saving ? "Scheduling Intake…" : "Save Visit & Requirements Intake"}
+                <Button
+                  type="submit"
+                  disabled={saving}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs shadow-sm"
+                >
+                  {saving
+                    ? "Scheduling Intake…"
+                    : "Save Visit & Requirements Intake"}
                 </Button>
               </div>
             </form>
@@ -496,21 +591,28 @@ export default function SiteVisitsPage() {
         {/* Site Visits Data Table */}
         <section className="rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
           <div className="border-b border-slate-100 bg-slate-50/50 px-5 py-4 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-800">Scheduled Visits & Demand Records ({visits.length})</h3>
+            <h3 className="text-sm font-bold text-slate-800">
+              Scheduled Visits & Demand Records ({visits.length})
+            </h3>
           </div>
 
           {loading ? (
             <div className="flex h-36 items-center justify-center">
-              <p className="text-sm text-slate-500">Loading site visit records…</p>
+              <p className="text-sm text-slate-500">
+                Loading site visit records…
+              </p>
             </div>
           ) : visits.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center">
               <div className="rounded-full bg-slate-50 p-4 border border-slate-100 mb-2">
                 <Building2 className="size-6 text-slate-400" />
               </div>
-              <p className="text-sm font-semibold text-slate-800">No site visits recorded yet</p>
+              <p className="text-sm font-semibold text-slate-800">
+                No site visits recorded yet
+              </p>
               <p className="text-xs text-slate-500 max-w-sm mt-1">
-                Click "Schedule New Visit & Intake" to log your first Ethiopian real estate customer site visit with detailed buying demands.
+                Click "Schedule New Visit & Intake" to log your first Ethiopian
+                real estate customer site visit with detailed buying demands.
               </p>
             </div>
           ) : (
@@ -532,7 +634,10 @@ export default function SiteVisitsPage() {
                     const person = visit.customer ?? visit.lead;
                     const isCustomer = Boolean(visit.customer);
                     return (
-                      <tr key={visit.id} className="hover:bg-slate-50/60 transition-colors">
+                      <tr
+                        key={visit.id}
+                        className="hover:bg-slate-50/60 transition-colors"
+                      >
                         <td className="px-5 py-3 font-medium">
                           {person ? (
                             isCustomer ? (
@@ -563,7 +668,9 @@ export default function SiteVisitsPage() {
 
                         {/* Demand Specs */}
                         <td className="px-5 py-3">
-                          {visit.preferredSqm || visit.bedroomCount || visit.propertyType ? (
+                          {visit.preferredSqm ||
+                          visit.bedroomCount ||
+                          visit.propertyType ? (
                             <div className="flex flex-col gap-0.5">
                               <div className="flex items-center gap-1.5">
                                 {visit.preferredSqm && (
@@ -582,7 +689,9 @@ export default function SiteVisitsPage() {
                               </span>
                             </div>
                           ) : (
-                            <span className="text-slate-400 italic">Not specified</span>
+                            <span className="text-slate-400 italic">
+                              Not specified
+                            </span>
                           )}
                         </td>
 
@@ -598,7 +707,9 @@ export default function SiteVisitsPage() {
                               </span>
                             </div>
                           ) : (
-                            <span className="text-slate-400 italic">Flexible</span>
+                            <span className="text-slate-400 italic">
+                              Flexible
+                            </span>
                           )}
                         </td>
 
@@ -610,7 +721,9 @@ export default function SiteVisitsPage() {
                                 {formatCurrency(visit.budgetETB)}
                               </span>
                               <span className="text-[10px] text-slate-500 truncate max-w-[150px]">
-                                {visit.paymentMethod ? visit.paymentMethod.split("(")[0] : "Standard"}
+                                {visit.paymentMethod
+                                  ? visit.paymentMethod.split("(")[0]
+                                  : "Standard"}
                               </span>
                             </div>
                           ) : (
@@ -623,13 +736,22 @@ export default function SiteVisitsPage() {
                           <span
                             className={cn(
                               "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold border",
-                              statusClass[visit.status] ?? "bg-slate-100 text-slate-700 border-slate-200"
+                              statusClass[visit.status] ??
+                                "bg-slate-100 text-slate-700 border-slate-200",
                             )}
                           >
-                            {visit.status === "COMPLETED" && <CheckCircle2 className="size-3" />}
-                            {visit.status === "SCHEDULED" && <Clock className="size-3" />}
-                            {visit.status === "CANCELLED" && <XCircle className="size-3" />}
-                            {visit.status === "NO_SHOW" && <AlertTriangle className="size-3" />}
+                            {visit.status === "COMPLETED" && (
+                              <CheckCircle2 className="size-3" />
+                            )}
+                            {visit.status === "SCHEDULED" && (
+                              <Clock className="size-3" />
+                            )}
+                            {visit.status === "CANCELLED" && (
+                              <XCircle className="size-3" />
+                            )}
+                            {visit.status === "NO_SHOW" && (
+                              <AlertTriangle className="size-3" />
+                            )}
                             {visit.status.replace(/_/g, " ")}
                           </span>
                         </td>
@@ -651,7 +773,9 @@ export default function SiteVisitsPage() {
                               <>
                                 <Button
                                   size="xs"
-                                  onClick={() => changeStatus(visit.id, "COMPLETED")}
+                                  onClick={() =>
+                                    changeStatus(visit.id, "COMPLETED")
+                                  }
                                   className="bg-emerald-600 hover:bg-emerald-700 text-white h-7 text-[11px] px-2"
                                 >
                                   Complete
@@ -659,7 +783,9 @@ export default function SiteVisitsPage() {
                                 <Button
                                   size="xs"
                                   variant="outline"
-                                  onClick={() => changeStatus(visit.id, "NO_SHOW")}
+                                  onClick={() =>
+                                    changeStatus(visit.id, "NO_SHOW")
+                                  }
                                   className="border-amber-300 text-amber-800 hover:bg-amber-50 h-7 text-[11px] px-2"
                                 >
                                   No-show
@@ -693,7 +819,9 @@ export default function SiteVisitsPage() {
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
                   <Building2 className="size-5 text-indigo-600" />
-                  <h3 className="text-base font-bold text-slate-900">Buyer Specifications & Demands</h3>
+                  <h3 className="text-base font-bold text-slate-900">
+                    Buyer Specifications & Demands
+                  </h3>
                 </div>
                 <button
                   onClick={() => setActiveModalVisit(null)}
@@ -706,16 +834,23 @@ export default function SiteVisitsPage() {
               <div className="mt-4 space-y-4 text-xs">
                 <div className="flex items-center justify-between rounded-lg bg-indigo-50/60 p-3">
                   <div>
-                    <p className="text-[11px] font-medium text-slate-500">Client / Visitor</p>
+                    <p className="text-[11px] font-medium text-slate-500">
+                      Client / Visitor
+                    </p>
                     <p className="text-sm font-bold text-indigo-950">
                       {activeModalVisit.customer
                         ? `${activeModalVisit.customer.firstName} ${activeModalVisit.customer.lastName}`
                         : activeModalVisit.lead
-                        ? `${activeModalVisit.lead.firstName} ${activeModalVisit.lead.lastName} (Lead)`
-                        : "—"}
+                          ? `${activeModalVisit.lead.firstName} ${activeModalVisit.lead.lastName} (Lead)`
+                          : "—"}
                     </p>
                   </div>
-                  <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-semibold border", statusClass[activeModalVisit.status])}>
+                  <span
+                    className={cn(
+                      "px-2.5 py-1 rounded-full text-[11px] font-semibold border",
+                      statusClass[activeModalVisit.status],
+                    )}
+                  >
                     {activeModalVisit.status}
                   </span>
                 </div>
@@ -726,22 +861,28 @@ export default function SiteVisitsPage() {
                       <Ruler className="size-3 text-indigo-500" /> Required Area
                     </p>
                     <p className="mt-1 text-sm font-bold text-slate-800">
-                      {activeModalVisit.preferredSqm ? `${activeModalVisit.preferredSqm} m²` : "Not specified"}
+                      {activeModalVisit.preferredSqm
+                        ? `${activeModalVisit.preferredSqm} m²`
+                        : "Not specified"}
                     </p>
                   </div>
 
                   <div className="rounded-lg border border-slate-100 p-3 bg-slate-50/50">
                     <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                      <Layers className="size-3 text-indigo-500" /> Bedrooms & Type
+                      <Layers className="size-3 text-indigo-500" /> Bedrooms &
+                      Type
                     </p>
                     <p className="mt-1 text-sm font-bold text-slate-800">
-                      {activeModalVisit.bedroomCount ? `${activeModalVisit.bedroomCount} Bedrooms` : "Flexible"}
+                      {activeModalVisit.bedroomCount
+                        ? `${activeModalVisit.bedroomCount} Bedrooms`
+                        : "Flexible"}
                     </p>
                   </div>
 
                   <div className="rounded-lg border border-slate-100 p-3 bg-slate-50/50">
                     <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                      <Compass className="size-3 text-indigo-500" /> Placement & Floor
+                      <Compass className="size-3 text-indigo-500" /> Placement &
+                      Floor
                     </p>
                     <p className="mt-1 text-xs font-semibold text-slate-800">
                       {activeModalVisit.preferredFloor ?? "Any floor"}
@@ -750,7 +891,8 @@ export default function SiteVisitsPage() {
 
                   <div className="rounded-lg border border-slate-100 p-3 bg-slate-50/50">
                     <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                      <Compass className="size-3 text-indigo-500" /> Facing / Orientation
+                      <Compass className="size-3 text-indigo-500" /> Facing /
+                      Orientation
                     </p>
                     <p className="mt-1 text-xs font-semibold text-slate-800">
                       {activeModalVisit.facingDirection ?? "Any orientation"}
@@ -759,16 +901,20 @@ export default function SiteVisitsPage() {
 
                   <div className="rounded-lg border border-slate-100 p-3 bg-slate-50/50">
                     <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                      <Banknote className="size-3 text-emerald-600" /> Target Budget (ETB)
+                      <Banknote className="size-3 text-emerald-600" /> Target
+                      Budget (ETB)
                     </p>
                     <p className="mt-1 text-sm font-bold text-emerald-700">
-                      {activeModalVisit.budgetETB ? formatCurrency(activeModalVisit.budgetETB) : "Flexible"}
+                      {activeModalVisit.budgetETB
+                        ? formatCurrency(activeModalVisit.budgetETB)
+                        : "Flexible"}
                     </p>
                   </div>
 
                   <div className="rounded-lg border border-slate-100 p-3 bg-slate-50/50">
                     <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                      <FileText className="size-3 text-indigo-500" /> Payment Terms
+                      <FileText className="size-3 text-indigo-500" /> Payment
+                      Terms
                     </p>
                     <p className="mt-1 text-xs font-semibold text-slate-800">
                       {activeModalVisit.paymentMethod ?? "Standard Plan"}
@@ -778,15 +924,23 @@ export default function SiteVisitsPage() {
 
                 {activeModalVisit.demands && (
                   <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-3">
-                    <p className="text-[11px] font-bold text-amber-900 mb-1">Specific Buyer Demands & Requests</p>
-                    <p className="text-xs text-slate-700 leading-relaxed">{activeModalVisit.demands}</p>
+                    <p className="text-[11px] font-bold text-amber-900 mb-1">
+                      Specific Buyer Demands & Requests
+                    </p>
+                    <p className="text-xs text-slate-700 leading-relaxed">
+                      {activeModalVisit.demands}
+                    </p>
                   </div>
                 )}
 
                 {activeModalVisit.notes && (
                   <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                    <p className="text-[11px] font-bold text-slate-700 mb-1">Visit Notes & Next Steps</p>
-                    <p className="text-xs text-slate-600 leading-relaxed">{activeModalVisit.notes}</p>
+                    <p className="text-[11px] font-bold text-slate-700 mb-1">
+                      Visit Notes & Next Steps
+                    </p>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      {activeModalVisit.notes}
+                    </p>
                   </div>
                 )}
               </div>

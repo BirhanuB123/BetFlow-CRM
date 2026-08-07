@@ -27,7 +27,9 @@ export default function RevenueReportPage() {
         const data = await apiFetch<RevenueRow[]>("/reports/revenue");
         setRows(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load revenue report");
+        setError(
+          err instanceof Error ? err.message : "Failed to load revenue report",
+        );
       } finally {
         setLoading(false);
       }
@@ -36,7 +38,13 @@ export default function RevenueReportPage() {
   }, []);
 
   const handleExportCSV = () => {
-    const headers = ["Period", "Booked", "Collected", "Outstanding", "Forecast"];
+    const headers = [
+      "Period",
+      "Booked",
+      "Collected",
+      "Outstanding",
+      "Forecast",
+    ];
     const csvRows = rows.map((r) => [
       `"${r.period}"`,
       `"${r.booked}"`,
@@ -44,7 +52,9 @@ export default function RevenueReportPage() {
       `"${r.outstanding}"`,
       `"${r.forecast}"`,
     ]);
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...csvRows.map((e) => e.join(","))].join("\n");
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...csvRows.map((e) => e.join(","))].join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -57,9 +67,22 @@ export default function RevenueReportPage() {
   const handlePrint = () => {
     printReportDocument({
       title: "Commercial Revenue Outlook Report",
-      subtitle: "Monthly breakdown of booked revenue, collected payments, outstanding balances, and growth forecasts.",
-      columns: ["Period", "Booked Revenue", "Collected Payments", "Outstanding Balance", "Growth Forecast"],
-      rows: rows.map((r) => [r.period, r.booked, r.collected, r.outstanding, r.forecast]),
+      subtitle:
+        "Monthly breakdown of booked revenue, collected payments, outstanding balances, and growth forecasts.",
+      columns: [
+        "Period",
+        "Booked Revenue",
+        "Collected Payments",
+        "Outstanding Balance",
+        "Growth Forecast",
+      ],
+      rows: rows.map((r) => [
+        r.period,
+        r.booked,
+        r.collected,
+        r.outstanding,
+        r.forecast,
+      ]),
     });
   };
 
@@ -103,22 +126,52 @@ export default function RevenueReportPage() {
 
         <section className="rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
           <div className="border-b border-slate-200 bg-slate-50/70 p-4">
-            <h2 className="text-sm font-bold text-slate-900">Revenue by Period</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Monthly commercial outlook from reservations and contracts.</p>
+            <h2 className="text-sm font-bold text-slate-900">
+              Revenue by Period
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Monthly commercial outlook from reservations and contracts.
+            </p>
           </div>
           {loading ? (
-            <p className="p-8 text-center text-xs text-slate-500 font-medium">Loading revenue data…</p>
+            <p className="p-8 text-center text-xs text-slate-500 font-medium">
+              Loading revenue data…
+            </p>
           ) : rows.length === 0 ? (
-            <p className="p-8 text-center text-xs text-slate-500 font-medium">No revenue data available yet.</p>
+            <p className="p-8 text-center text-xs text-slate-500 font-medium">
+              No revenue data available yet.
+            </p>
           ) : (
             <CrmTable
-              columns={["Period", "Booked", "Collected", "Outstanding", "Forecast"]}
+              columns={[
+                "Period",
+                "Booked",
+                "Collected",
+                "Outstanding",
+                "Forecast",
+              ]}
               rows={rows.map((row) => [
-                <span key="period" className="font-bold text-slate-800">{row.period}</span>,
-                <span key="booked" className="font-semibold text-indigo-600">{row.booked}</span>,
-                <span key="collected" className="font-semibold text-emerald-600">{row.collected}</span>,
-                <span key="outstanding" className="font-semibold text-amber-600">{row.outstanding}</span>,
-                <span key="forecast" className="font-semibold text-slate-600">{row.forecast}</span>,
+                <span key="period" className="font-bold text-slate-800">
+                  {row.period}
+                </span>,
+                <span key="booked" className="font-semibold text-indigo-600">
+                  {row.booked}
+                </span>,
+                <span
+                  key="collected"
+                  className="font-semibold text-emerald-600"
+                >
+                  {row.collected}
+                </span>,
+                <span
+                  key="outstanding"
+                  className="font-semibold text-amber-600"
+                >
+                  {row.outstanding}
+                </span>,
+                <span key="forecast" className="font-semibold text-slate-600">
+                  {row.forecast}
+                </span>,
               ])}
             />
           )}
@@ -127,4 +180,3 @@ export default function RevenueReportPage() {
     </DashboardShell>
   );
 }
-

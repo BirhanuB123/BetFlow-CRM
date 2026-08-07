@@ -64,13 +64,26 @@ export function ConfirmModal({
         </button>
 
         <div className="flex items-start gap-4">
-          <div className={cn("flex size-12 shrink-0 items-center justify-center rounded-2xl border shadow-inner", variantStyles.iconBg)}>
-            {variant === "danger" ? <Trash2 className="size-6" /> : <AlertTriangle className="size-6" />}
+          <div
+            className={cn(
+              "flex size-12 shrink-0 items-center justify-center rounded-2xl border shadow-inner",
+              variantStyles.iconBg,
+            )}
+          >
+            {variant === "danger" ? (
+              <Trash2 className="size-6" />
+            ) : (
+              <AlertTriangle className="size-6" />
+            )}
           </div>
 
           <div className="flex-1 pt-0.5">
-            <h3 className="text-base font-bold text-slate-900 leading-snug">{title}</h3>
-            <p className="mt-2 text-xs leading-relaxed text-slate-600 font-normal">{message}</p>
+            <h3 className="text-base font-bold text-slate-900 leading-snug">
+              {title}
+            </h3>
+            <p className="mt-2 text-xs leading-relaxed text-slate-600 font-normal">
+              {message}
+            </p>
           </div>
         </div>
 
@@ -90,7 +103,10 @@ export function ConfirmModal({
             type="button"
             onClick={() => void onConfirm()}
             disabled={loading}
-            className={cn("h-9 px-4 text-xs font-bold transition-all", variantStyles.confirmBtn)}
+            className={cn(
+              "h-9 px-4 text-xs font-bold transition-all",
+              variantStyles.confirmBtn,
+            )}
           >
             {loading ? "Processing…" : confirmText}
           </Button>

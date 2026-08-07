@@ -36,20 +36,6 @@ export function ConnectionErrorDisplay({
   const [countdown, setCountdown] = useState(autoRetrySeconds);
   const [showDiagnostics, setShowDiagnostics] = useState(false);
 
-  // Auto retry countdown timer
-  useEffect(() => {
-    if (countdown <= 0) {
-      handleRetry();
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setCountdown((prev) => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [countdown]);
-
   const handleCopy = () => {
     navigator.clipboard.writeText(url);
     setCopied(true);
@@ -65,6 +51,25 @@ export function ConnectionErrorDisplay({
     }
   };
 
+  // Auto retry countdown timer
+  useEffect(() => {
+    if (countdown <= 0) {
+      setRetrying(true);
+      if (onRetry) {
+        onRetry();
+      } else {
+        window.location.reload();
+      }
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [countdown, onRetry]);
+
   const progressPercent = (countdown / autoRetrySeconds) * 100;
 
   return (
@@ -72,19 +77,18 @@ export function ConnectionErrorDisplay({
       {/* Dynamic Glow Orbs Background */}
       <div className="pointer-events-none absolute -top-40 left-1/2 h-[550px] w-[550px] -translate-x-1/2 rounded-full bg-radial from-rose-500/15 via-[#0E6E63]/10 to-transparent blur-[70px] animate-pulse" />
       <div className="pointer-events-none absolute -bottom-20 right-10 h-[380px] w-[380px] rounded-full bg-radial from-[#0E6E63]/20 to-transparent blur-[60px]" />
-      
+
       {/* Background Mesh Grid */}
-      <div 
+      <div
         className="pointer-events-none absolute inset-0 opacity-40"
         style={{
           backgroundImage: `radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px)`,
-          backgroundSize: '28px 28px'
+          backgroundSize: "28px 28px",
         }}
       />
 
       {/* Main Glassmorphism Card */}
       <div className="relative z-10 w-full max-w-[500px] rounded-3xl border border-white/10 bg-slate-900/80 p-6 sm:p-8 shadow-[0_30px_70px_-15px_rgba(0,0,0,0.7)] backdrop-blur-2xl transition-all duration-300">
-        
         {/* Brand Header */}
         <div className="mb-6 flex flex-col items-center justify-center gap-1 text-center">
           <div className="flex items-center gap-2">
@@ -134,7 +138,10 @@ export function ConnectionErrorDisplay({
             <span className="text-[10px] font-bold tracking-wider text-slate-500 uppercase">
               URL
             </span>
-            <span className="truncate font-mono text-xs text-sky-400" title={url}>
+            <span
+              className="truncate font-mono text-xs text-sky-400"
+              title={url}
+            >
               {url}
             </span>
           </div>
@@ -183,7 +190,8 @@ export function ConnectionErrorDisplay({
             />
           </div>
           <p className="mt-1.5 text-center text-xs text-slate-500">
-            Auto-retrying in <span className="font-mono text-slate-300">{countdown}s</span>
+            Auto-retrying in{" "}
+            <span className="font-mono text-slate-300">{countdown}s</span>
           </p>
         </div>
 
@@ -212,7 +220,8 @@ export function ConnectionErrorDisplay({
                   1
                 </span>
                 <p>
-                  Ensure local dev server is running (<code>npm run dev</code> on port 3001).
+                  Ensure local dev server is running (<code>npm run dev</code>{" "}
+                  on port 3001).
                 </p>
               </div>
               <div className="flex items-start gap-2.5">
@@ -220,7 +229,8 @@ export function ConnectionErrorDisplay({
                   2
                 </span>
                 <p>
-                  Verify backend API service is active (<code>http://localhost:4000/api</code>).
+                  Verify backend API service is active (
+                  <code>http://localhost:4000/api</code>).
                 </p>
               </div>
               <div className="flex items-start gap-2.5">
@@ -228,7 +238,8 @@ export function ConnectionErrorDisplay({
                   3
                 </span>
                 <p>
-                  Check if firewall, proxy, or local port conflict is blocking <code>localhost</code>.
+                  Check if firewall, proxy, or local port conflict is blocking{" "}
+                  <code>localhost</code>.
                 </p>
               </div>
             </div>

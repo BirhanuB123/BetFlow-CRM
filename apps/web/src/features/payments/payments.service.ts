@@ -1,8 +1,5 @@
 import { apiFetch } from "@/lib/api";
-import type {
-  CreatePaymentInput,
-  UpdatePaymentInput,
-} from "@betflow/shared";
+import type { CreatePaymentInput, UpdatePaymentInput } from "@betflow/shared";
 
 export type PaymentRecord = {
   id: string;
@@ -32,7 +29,10 @@ export const paymentsService = {
   },
 
   /** Update payment status/details */
-  async updatePayment(id: string, input: UpdatePaymentInput): Promise<PaymentRecord> {
+  async updatePayment(
+    id: string,
+    input: UpdatePaymentInput,
+  ): Promise<PaymentRecord> {
     return apiFetch<PaymentRecord>(`/payments/${id}`, {
       method: "PATCH",
       body: JSON.stringify(input),

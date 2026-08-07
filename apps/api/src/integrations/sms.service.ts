@@ -6,7 +6,12 @@ export class SmsSendDto {
   recipientPhone!: string;
   recipientName!: string;
   body!: string;
-  triggerType?: 'SITE_VISIT_REMINDER' | 'HOLD_EXPIRY_ALERT' | 'PAYMENT_DUE_ALERT' | 'DRIP_CAMPAIGN' | 'MANUAL_BROADCAST';
+  triggerType?:
+    | 'SITE_VISIT_REMINDER'
+    | 'HOLD_EXPIRY_ALERT'
+    | 'PAYMENT_DUE_ALERT'
+    | 'DRIP_CAMPAIGN'
+    | 'MANUAL_BROADCAST';
   leadId?: string;
   customerId?: string;
 }
@@ -19,7 +24,8 @@ export class CreateDripStepDto {
 
 export class CreateDripCampaignDto {
   name!: string;
-  targetSegment!: 'COLD_LEADS' | 'WARM_LEADS' | 'SITE_VISITORS' | 'RESERVATION_CLIENTS';
+  targetSegment!:
+    'COLD_LEADS' | 'WARM_LEADS' | 'SITE_VISITORS' | 'RESERVATION_CLIENTS';
   steps?: CreateDripStepDto[];
 }
 
@@ -46,7 +52,8 @@ export type DripStep = {
 export type DripCampaign = {
   id: string;
   name: string;
-  targetSegment: 'COLD_LEADS' | 'WARM_LEADS' | 'SITE_VISITORS' | 'RESERVATION_CLIENTS';
+  targetSegment:
+    'COLD_LEADS' | 'WARM_LEADS' | 'SITE_VISITORS' | 'RESERVATION_CLIENTS';
   status: 'ACTIVE' | 'PAUSED';
   enrolledCount: number;
   completedCount: number;
@@ -59,7 +66,8 @@ export type SmsContact = {
   phone: string;
   email: string;
   type: 'LEAD' | 'CUSTOMER';
-  segment: 'COLD_LEADS' | 'WARM_LEADS' | 'SITE_VISITORS' | 'RESERVATION_CLIENTS';
+  segment:
+    'COLD_LEADS' | 'WARM_LEADS' | 'SITE_VISITORS' | 'RESERVATION_CLIENTS';
   details: string;
 };
 
@@ -227,7 +235,8 @@ export class EthioTelecomSmsService {
     const leadContacts: SmsContact[] = leads.map((l) => {
       let segment: SmsContact['segment'] = 'COLD_LEADS';
       if (l.stage === 'tour_scheduled') segment = 'SITE_VISITORS';
-      else if (l.stage === 'proposal' || l.stage === 'qualified') segment = 'WARM_LEADS';
+      else if (l.stage === 'proposal' || l.stage === 'qualified')
+        segment = 'WARM_LEADS';
 
       return {
         id: l.id,
@@ -273,7 +282,9 @@ export class EthioTelecomSmsService {
         const senderId = process.env.AFROMESSAGE_SENDER_ID || '';
         const url = `https://api.afromessage.com/api/send?to=${formattedPhone}&message=${encodeURIComponent(dto.body)}${senderId ? `&sender=${encodeURIComponent(senderId)}` : ''}`;
 
-        this.logger.log(`Dispatching real SMS via AfroMessage Gateway to +${formattedPhone}...`);
+        this.logger.log(
+          `Dispatching real SMS via AfroMessage Gateway to +${formattedPhone}...`,
+        );
 
         const response = await fetch(url, {
           method: 'GET',
@@ -288,11 +299,18 @@ export class EthioTelecomSmsService {
           response?: { code?: number };
         } | null;
 
-        if (response.ok && (data?.acknowledge === 'success' || data?.response?.code === 200)) {
-          this.logger.log(`[AfroMessage SMS Success] Message delivered to +${formattedPhone}`);
+        if (
+          response.ok &&
+          (data?.acknowledge === 'success' || data?.response?.code === 200)
+        ) {
+          this.logger.log(
+            `[AfroMessage SMS Success] Message delivered to +${formattedPhone}`,
+          );
           status = 'DELIVERED';
         } else {
-          this.logger.warn(`[AfroMessage SMS Failed] HTTP ${response.status}: ${JSON.stringify(data)}`);
+          this.logger.warn(
+            `[AfroMessage SMS Failed] HTTP ${response.status}: ${JSON.stringify(data)}`,
+          );
           status = 'FAILED';
         }
       } catch (err) {
@@ -368,9 +386,16 @@ export class EthioTelecomSmsService {
    */
   async getSmsStats() {
     const totalSent = this.smsOutboxLogs.length;
-    const delivered = this.smsOutboxLogs.filter((l) => l.status === 'DELIVERED').length;
-    const totalCostBirr = this.smsOutboxLogs.reduce((acc, curr) => acc + (curr.costEthioBirr || 0), 0);
-    const activeCampaigns = this.dripCampaigns.filter((c) => c.status === 'ACTIVE').length;
+    const delivered = this.smsOutboxLogs.filter(
+      (l) => l.status === 'DELIVERED',
+    ).length;
+    const totalCostBirr = this.smsOutboxLogs.reduce(
+      (acc, curr) => acc + (curr.costEthioBirr || 0),
+      0,
+    );
+    const activeCampaigns = this.dripCampaigns.filter(
+      (c) => c.status === 'ACTIVE',
+    ).length;
 
     let gatewayProvider = 'Ethio Telecom Gateway Sandbox';
     if (process.env.AFROMESSAGE_API_KEY) {
@@ -383,11 +408,14 @@ export class EthioTelecomSmsService {
       totalSent,
       delivered,
       failed: totalSent - delivered,
-      deliveryRate: totalSent > 0 ? Math.round((delivered / totalSent) * 100) : 100,
+      deliveryRate:
+        totalSent > 0 ? Math.round((delivered / totalSent) * 100) : 100,
       totalCostBirr: Math.round(totalCostBirr * 100) / 100,
       gatewayProvider,
       shortcode: process.env.ETHIO_SMS_SHORTCODE || '8844',
-      isLive: !!(process.env.AFROMESSAGE_API_KEY || process.env.ETHIO_SMS_API_URL),
+      isLive: !!(
+        process.env.AFROMESSAGE_API_KEY || process.env.ETHIO_SMS_API_URL
+      ),
       activeCampaignsCount: activeCampaigns,
     };
   }
@@ -398,7 +426,10 @@ export class EthioTelecomSmsService {
     return this.rules;
   }
 
-  async updateRule(ruleKey: 'siteVisit' | 'holdExpiry' | 'paymentDue', dto: UpdateRuleDto) {
+  async updateRule(
+    ruleKey: 'siteVisit' | 'holdExpiry' | 'paymentDue',
+    dto: UpdateRuleDto,
+  ) {
     if (!this.rules[ruleKey]) {
       throw new NotFoundException(`Rule with key '${ruleKey}' not found.`);
     }
@@ -440,7 +471,9 @@ export class EthioTelecomSmsService {
     };
 
     this.dripCampaigns.unshift(campaign);
-    this.logger.log(`Created new SMS Drip Campaign: ${campaign.name} (${campaign.id})`);
+    this.logger.log(
+      `Created new SMS Drip Campaign: ${campaign.name} (${campaign.id})`,
+    );
     return campaign;
   }
 
@@ -453,9 +486,13 @@ export class EthioTelecomSmsService {
     return campaign;
   }
 
-  async addDripStep(campaignId: string, dto: CreateDripStepDto): Promise<DripCampaign> {
+  async addDripStep(
+    campaignId: string,
+    dto: CreateDripStepDto,
+  ): Promise<DripCampaign> {
     const campaign = this.dripCampaigns.find((c) => c.id === campaignId);
-    if (!campaign) throw new NotFoundException(`Drip Campaign ${campaignId} not found`);
+    if (!campaign)
+      throw new NotFoundException(`Drip Campaign ${campaignId} not found`);
 
     const newStepNumber = campaign.steps.length + 1;
     const newStep: DripStep = {
@@ -470,9 +507,13 @@ export class EthioTelecomSmsService {
     return campaign;
   }
 
-  async enrollLead(campaignId: string, dto: EnrollLeadDto): Promise<{ success: boolean; message: string; campaign: DripCampaign }> {
+  async enrollLead(
+    campaignId: string,
+    dto: EnrollLeadDto,
+  ): Promise<{ success: boolean; message: string; campaign: DripCampaign }> {
     const campaign = this.dripCampaigns.find((c) => c.id === campaignId);
-    if (!campaign) throw new NotFoundException(`Drip Campaign ${campaignId} not found`);
+    if (!campaign)
+      throw new NotFoundException(`Drip Campaign ${campaignId} not found`);
 
     campaign.enrolledCount += 1;
 

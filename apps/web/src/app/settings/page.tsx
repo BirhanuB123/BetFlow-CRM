@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+} from "react";
 import Link from "next/link";
 import {
   Check,
@@ -71,7 +77,9 @@ const inputClass =
   "h-10 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#233b66] focus:ring-2 focus:ring-[#233b66]/20";
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<"profile" | "tenant" | "rbac" | "users">("profile");
+  const [activeTab, setActiveTab] = useState<
+    "profile" | "tenant" | "rbac" | "users"
+  >("profile");
   const [isAdmin, setIsAdmin] = useState(false);
   const [tenant, setTenant] = useState<Tenant | null>(null);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -80,7 +88,11 @@ export default function SettingsPage() {
   const [error, setError] = useState<string | null>(null);
 
   // User Profile
-  const [profileForm, setProfileForm] = useState({ firstName: "", lastName: "", email: "" });
+  const [profileForm, setProfileForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+  });
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
 
@@ -106,18 +118,27 @@ export default function SettingsPage() {
   const [roleForm, setRoleForm] = useState({ name: "", description: "" });
   const [showRoleForm, setShowRoleForm] = useState(false);
   const [savingRole, setSavingRole] = useState(false);
-  const [inviteForm, setInviteForm] = useState({ name: "", email: "", roleId: "" });
+  const [inviteForm, setInviteForm] = useState({
+    name: "",
+    email: "",
+    roleId: "",
+  });
   const [showInvite, setShowInvite] = useState(false);
   const [savingInvite, setSavingInvite] = useState(false);
 
   // Inline editing roles
   const [editingRoleId, setEditingRoleId] = useState<string | null>(null);
-  const [editRoleForm, setEditRoleForm] = useState({ name: "", description: "" });
+  const [editRoleForm, setEditRoleForm] = useState({
+    name: "",
+    description: "",
+  });
   const [savingRoleId, setSavingRoleId] = useState<string | null>(null);
 
   // User status loaders
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
-  const [updatingUserRoleId, setUpdatingUserRoleId] = useState<string | null>(null);
+  const [updatingUserRoleId, setUpdatingUserRoleId] = useState<string | null>(
+    null,
+  );
 
   // Custom confirmation modal
   const [confirmModal, setConfirmModal] = useState<{
@@ -139,12 +160,16 @@ export default function SettingsPage() {
 
     const raw =
       typeof window !== "undefined"
-        ? window.localStorage.getItem("betflow-auth") ??
-          window.sessionStorage.getItem("betflow-auth")
+        ? (window.localStorage.getItem("betflow-auth") ??
+          window.sessionStorage.getItem("betflow-auth"))
         : null;
 
     let rolesList: string[] = [];
-    let initialUser: { firstName?: string; lastName?: string; email?: string } | null = null;
+    let initialUser: {
+      firstName?: string;
+      lastName?: string;
+      email?: string;
+    } | null = null;
 
     if (raw) {
       try {
@@ -166,8 +191,10 @@ export default function SettingsPage() {
             const jsonPayload = decodeURIComponent(
               rawBinary
                 .split("")
-                .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-                .join("")
+                .map(
+                  (c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2),
+                )
+                .join(""),
             );
             rolesList = JSON.parse(jsonPayload).roles ?? [];
           }
@@ -177,7 +204,8 @@ export default function SettingsPage() {
       }
     }
 
-    const hasAdminAccess = rolesList.includes("Owner") || rolesList.includes("Admin");
+    const hasAdminAccess =
+      rolesList.includes("Owner") || rolesList.includes("Admin");
     setIsAdmin(hasAdminAccess);
 
     try {
@@ -267,7 +295,10 @@ export default function SettingsPage() {
     event.preventDefault();
     setPasswordFeedback(null);
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setPasswordFeedback({ type: "error", message: "New passwords do not match" });
+      setPasswordFeedback({
+        type: "error",
+        message: "New passwords do not match",
+      });
       return;
     }
     if (passwordForm.newPassword.length < 8) {
@@ -286,13 +317,21 @@ export default function SettingsPage() {
           newPassword: passwordForm.newPassword,
         }),
       });
-      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-      setPasswordFeedback({ type: "success", message: "Password updated successfully!" });
+      setPasswordForm({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setPasswordFeedback({
+        type: "success",
+        message: "Password updated successfully!",
+      });
       setTimeout(() => setPasswordFeedback(null), 3000);
     } catch (err) {
       setPasswordFeedback({
         type: "error",
-        message: err instanceof Error ? err.message : "Failed to change password",
+        message:
+          err instanceof Error ? err.message : "Failed to change password",
       });
     } finally {
       setSavingPassword(false);
@@ -308,7 +347,10 @@ export default function SettingsPage() {
     try {
       const updated = await apiFetch<Tenant>(`/tenants/${tenant.id}`, {
         method: "PATCH",
-        body: JSON.stringify({ name: tenantName.trim(), currency: tenantCurrency }),
+        body: JSON.stringify({
+          name: tenantName.trim(),
+          currency: tenantCurrency,
+        }),
       });
       setTenant(updated);
       setTenantName(updated.name);
@@ -317,7 +359,9 @@ export default function SettingsPage() {
       setTenantSaved(true);
       setTimeout(() => setTenantSaved(false), 2500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save tenant settings");
+      setError(
+        err instanceof Error ? err.message : "Failed to save tenant settings",
+      );
     } finally {
       setSavingTenant(false);
     }
@@ -397,7 +441,8 @@ export default function SettingsPage() {
     setConfirmModal({
       isOpen: true,
       title: "Delete Role Confirmation",
-      message: "Are you sure you want to delete this role? This will also remove it from any users assigned to it.",
+      message:
+        "Are you sure you want to delete this role? This will also remove it from any users assigned to it.",
       confirmText: "Delete Role",
       onConfirm: async () => {
         setError(null);
@@ -406,7 +451,9 @@ export default function SettingsPage() {
           setConfirmModal((prev) => ({ ...prev, isOpen: false }));
           await load();
         } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to delete role");
+          setError(
+            err instanceof Error ? err.message : "Failed to delete role",
+          );
         }
       },
     });
@@ -423,7 +470,9 @@ export default function SettingsPage() {
       });
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update user role");
+      setError(
+        err instanceof Error ? err.message : "Failed to update user role",
+      );
     } finally {
       setUpdatingUserRoleId(null);
     }
@@ -433,7 +482,8 @@ export default function SettingsPage() {
     setConfirmModal({
       isOpen: true,
       title: "Delete User Confirmation",
-      message: "Are you sure you want to delete this user? If they own accounts or leads, they will be deactivated instead.",
+      message:
+        "Are you sure you want to delete this user? If they own accounts or leads, they will be deactivated instead.",
       confirmText: "Delete User",
       onConfirm: async () => {
         setDeletingUserId(id);
@@ -443,7 +493,9 @@ export default function SettingsPage() {
           setConfirmModal((prev) => ({ ...prev, isOpen: false }));
           await load();
         } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to delete user");
+          setError(
+            err instanceof Error ? err.message : "Failed to delete user",
+          );
         } finally {
           setDeletingUserId(null);
         }
@@ -452,13 +504,55 @@ export default function SettingsPage() {
   };
 
   const settingsModules = [
-    { title: "Branding & Portal", desc: "Logo, colors, and white-label theme", icon: Palette, href: "/settings/branding", badge: "Design" },
-    { title: "Custom Domains", desc: "Map custom portal domain names", icon: Globe, href: "/settings/domains", badge: "DNS" },
-    { title: "Audit Logs", desc: "Security and system activity history", icon: History, href: "/settings/audit-logs", badge: "Security" },
-    { title: "Data Backup & Export", desc: "Database backups and bulk exports", icon: Database, href: "/settings/data", badge: "Storage" },
-    { title: "Data Import", desc: "Import leads, contacts, and units", icon: UploadCloud, href: "/settings/import", badge: "CSV / Excel" },
-    { title: "Feature Flags", desc: "Toggle experimental features", icon: Flag, href: "/settings/feature-flags", badge: "System" },
-    { title: "Subscription & Billing", desc: "Manage plan, seats, and invoices", icon: CreditCard, href: "/settings/subscription", badge: "Plan" },
+    {
+      title: "Branding & Portal",
+      desc: "Logo, colors, and white-label theme",
+      icon: Palette,
+      href: "/settings/branding",
+      badge: "Design",
+    },
+    {
+      title: "Custom Domains",
+      desc: "Map custom portal domain names",
+      icon: Globe,
+      href: "/settings/domains",
+      badge: "DNS",
+    },
+    {
+      title: "Audit Logs",
+      desc: "Security and system activity history",
+      icon: History,
+      href: "/settings/audit-logs",
+      badge: "Security",
+    },
+    {
+      title: "Data Backup & Export",
+      desc: "Database backups and bulk exports",
+      icon: Database,
+      href: "/settings/data",
+      badge: "Storage",
+    },
+    {
+      title: "Data Import",
+      desc: "Import leads, contacts, and units",
+      icon: UploadCloud,
+      href: "/settings/import",
+      badge: "CSV / Excel",
+    },
+    {
+      title: "Feature Flags",
+      desc: "Toggle experimental features",
+      icon: Flag,
+      href: "/settings/feature-flags",
+      badge: "System",
+    },
+    {
+      title: "Subscription & Billing",
+      desc: "Manage plan, seats, and invoices",
+      icon: CreditCard,
+      href: "/settings/subscription",
+      badge: "Plan",
+    },
   ];
 
   return (
@@ -469,7 +563,9 @@ export default function SettingsPage() {
     >
       {loading ? (
         <div className="flex h-64 items-center justify-center rounded-xl border border-slate-200/80 bg-white shadow-2xs">
-          <p className="text-xs font-semibold text-slate-500">Loading system settings…</p>
+          <p className="text-xs font-semibold text-slate-500">
+            Loading system settings…
+          </p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -489,7 +585,7 @@ export default function SettingsPage() {
                   "flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-bold transition-all cursor-pointer",
                   activeTab === "profile"
                     ? "bg-[#233b66] text-white shadow-xs"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-[#233b66]"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-[#233b66]",
                 )}
               >
                 <UserIcon className="size-3.5" />
@@ -505,7 +601,7 @@ export default function SettingsPage() {
                       "flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-bold transition-all cursor-pointer",
                       activeTab === "tenant"
                         ? "bg-[#233b66] text-white shadow-xs"
-                        : "text-slate-600 hover:bg-slate-100 hover:text-[#233b66]"
+                        : "text-slate-600 hover:bg-slate-100 hover:text-[#233b66]",
                     )}
                   >
                     <Building2 className="size-3.5" />
@@ -519,7 +615,7 @@ export default function SettingsPage() {
                       "flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-bold transition-all cursor-pointer",
                       activeTab === "rbac"
                         ? "bg-[#233b66] text-white shadow-xs"
-                        : "text-slate-600 hover:bg-slate-100 hover:text-[#233b66]"
+                        : "text-slate-600 hover:bg-slate-100 hover:text-[#233b66]",
                     )}
                   >
                     <ShieldCheck className="size-3.5" />
@@ -533,7 +629,7 @@ export default function SettingsPage() {
                       "flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-bold transition-all cursor-pointer",
                       activeTab === "users"
                         ? "bg-[#233b66] text-white shadow-xs"
-                        : "text-slate-600 hover:bg-slate-100 hover:text-[#233b66]"
+                        : "text-slate-600 hover:bg-slate-100 hover:text-[#233b66]",
                     )}
                   >
                     <Users className="size-3.5" />
@@ -546,7 +642,10 @@ export default function SettingsPage() {
             {tenant && (
               <div className="flex items-center gap-2 px-3 py-1 text-xs text-slate-500 font-semibold">
                 <span className="inline-flex size-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Workspace: <strong className="text-[#233b66]">{tenant.name}</strong></span>
+                <span>
+                  Workspace:{" "}
+                  <strong className="text-[#233b66]">{tenant.name}</strong>
+                </span>
               </div>
             )}
           </div>
@@ -554,7 +653,6 @@ export default function SettingsPage() {
           {/* TAB 1: PERSONAL PROFILE TAB */}
           {activeTab === "profile" && (
             <div className="grid gap-6 xl:grid-cols-3">
-              
               {/* Profile Summary Card */}
               <div className="xl:col-span-1 space-y-6">
                 <div className="rounded-xl border border-slate-200/80 bg-white p-6 shadow-xs text-center">
@@ -564,7 +662,9 @@ export default function SettingsPage() {
                   <h3 className="text-lg font-extrabold text-slate-900">
                     {profileForm.firstName || "User"} {profileForm.lastName}
                   </h3>
-                  <p className="text-xs text-slate-500 font-medium">{profileForm.email || "Registered Account"}</p>
+                  <p className="text-xs text-slate-500 font-medium">
+                    {profileForm.email || "Registered Account"}
+                  </p>
 
                   <div className="mt-4 flex items-center justify-center gap-2">
                     <span className="inline-flex items-center gap-1 rounded-full bg-[#233b66]/10 border border-[#233b66]/20 px-3 py-1 text-xs font-bold text-[#233b66] shadow-2xs">
@@ -576,18 +676,24 @@ export default function SettingsPage() {
                   <div className="mt-6 border-t border-slate-100 pt-4 text-left text-xs space-y-2 text-slate-600">
                     <div className="flex justify-between">
                       <span className="text-slate-400">Account Type</span>
-                      <span className="font-semibold text-[#233b66]">Corporate CRM</span>
+                      <span className="font-semibold text-[#233b66]">
+                        Corporate CRM
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">Security Status</span>
-                      <span className="font-semibold text-emerald-600">Protected</span>
+                      <span className="font-semibold text-emerald-600">
+                        Protected
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Quick Navigation Modules */}
                 <div className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs">
-                  <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">Workspace Modules</h4>
+                  <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">
+                    Workspace Modules
+                  </h4>
                   <div className="space-y-2">
                     {settingsModules.slice(0, 4).map((mod) => {
                       const ModIcon = mod.icon;
@@ -601,7 +707,9 @@ export default function SettingsPage() {
                             <div className="flex size-7 items-center justify-center rounded-md bg-[#233b66]/10 text-[#233b66]">
                               <ModIcon className="size-3.5" />
                             </div>
-                            <span className="text-xs font-bold text-slate-800">{mod.title}</span>
+                            <span className="text-xs font-bold text-slate-800">
+                              {mod.title}
+                            </span>
                           </div>
                           <ArrowRight className="size-3.5 text-slate-400" />
                         </Link>
@@ -613,14 +721,18 @@ export default function SettingsPage() {
 
               {/* Forms Column */}
               <div className="xl:col-span-2 space-y-6">
-                
                 {/* Personal Details Form */}
                 <section className="rounded-xl border border-slate-200/80 bg-white p-6 shadow-xs">
                   <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-5">
                     <UserIcon className="size-5 text-[#233b66]" />
                     <div>
-                      <h2 className="text-sm font-bold text-slate-900">Personal Profile Details</h2>
-                      <p className="text-xs text-slate-500">Update your identity and display preferences in this workspace.</p>
+                      <h2 className="text-sm font-bold text-slate-900">
+                        Personal Profile Details
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        Update your identity and display preferences in this
+                        workspace.
+                      </p>
                     </div>
                   </div>
 
@@ -632,7 +744,10 @@ export default function SettingsPage() {
                           className={inputClass}
                           value={profileForm.firstName}
                           onChange={(e) =>
-                            setProfileForm({ ...profileForm, firstName: e.target.value })
+                            setProfileForm({
+                              ...profileForm,
+                              firstName: e.target.value,
+                            })
                           }
                           required
                         />
@@ -643,7 +758,10 @@ export default function SettingsPage() {
                           className={inputClass}
                           value={profileForm.lastName}
                           onChange={(e) =>
-                            setProfileForm({ ...profileForm, lastName: e.target.value })
+                            setProfileForm({
+                              ...profileForm,
+                              lastName: e.target.value,
+                            })
                           }
                           required
                         />
@@ -653,9 +771,12 @@ export default function SettingsPage() {
                     <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-2">
                       {profileSaved ? (
                         <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600">
-                          <CheckCircle2 className="size-4" /> Profile updated successfully
+                          <CheckCircle2 className="size-4" /> Profile updated
+                          successfully
                         </span>
-                      ) : <div />}
+                      ) : (
+                        <div />
+                      )}
 
                       <Button
                         type="submit"
@@ -673,8 +794,13 @@ export default function SettingsPage() {
                   <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-5">
                     <KeyRound className="size-5 text-[#233b66]" />
                     <div>
-                      <h2 className="text-sm font-bold text-slate-900">Security & Password</h2>
-                      <p className="text-xs text-slate-500">Ensure your account is protected with a strong security key.</p>
+                      <h2 className="text-sm font-bold text-slate-900">
+                        Security & Password
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        Ensure your account is protected with a strong security
+                        key.
+                      </p>
                     </div>
                   </div>
 
@@ -684,7 +810,7 @@ export default function SettingsPage() {
                         "mb-4 rounded-xl border p-3.5 text-xs font-semibold shadow-2xs",
                         passwordFeedback.type === "success"
                           ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                          : "border-rose-200 bg-rose-50 text-rose-700"
+                          : "border-rose-200 bg-rose-50 text-rose-700",
                       )}
                     >
                       {passwordFeedback.message}
@@ -700,7 +826,10 @@ export default function SettingsPage() {
                         placeholder="••••••••"
                         value={passwordForm.currentPassword}
                         onChange={(e) =>
-                          setPasswordForm({ ...passwordForm, currentPassword: e.target.value })
+                          setPasswordForm({
+                            ...passwordForm,
+                            currentPassword: e.target.value,
+                          })
                         }
                         required
                       />
@@ -714,7 +843,10 @@ export default function SettingsPage() {
                           placeholder="Min 8 characters"
                           value={passwordForm.newPassword}
                           onChange={(e) =>
-                            setPasswordForm({ ...passwordForm, newPassword: e.target.value })
+                            setPasswordForm({
+                              ...passwordForm,
+                              newPassword: e.target.value,
+                            })
                           }
                           required
                         />
@@ -727,7 +859,10 @@ export default function SettingsPage() {
                           placeholder="Re-type password"
                           value={passwordForm.confirmPassword}
                           onChange={(e) =>
-                            setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })
+                            setPasswordForm({
+                              ...passwordForm,
+                              confirmPassword: e.target.value,
+                            })
                           }
                           required
                         />
@@ -740,12 +875,13 @@ export default function SettingsPage() {
                         disabled={savingPassword}
                         className="bg-[#233b66] hover:bg-[#192b4b] text-white font-bold text-xs h-9 px-4"
                       >
-                        {savingPassword ? "Updating Password…" : "Update Password"}
+                        {savingPassword
+                          ? "Updating Password…"
+                          : "Update Password"}
                       </Button>
                     </div>
                   </form>
                 </section>
-
               </div>
             </div>
           )}
@@ -753,7 +889,6 @@ export default function SettingsPage() {
           {/* TAB 2: WORKSPACE PROFILE TAB */}
           {activeTab === "tenant" && isAdmin && (
             <div className="space-y-6">
-              
               <div className="grid gap-6 xl:grid-cols-3">
                 {/* Tenant Config Form */}
                 <div className="xl:col-span-2">
@@ -761,8 +896,12 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-5">
                       <Building2 className="size-5 text-[#233b66]" />
                       <div>
-                        <h2 className="text-sm font-bold text-slate-900">Workspace Tenant Profile</h2>
-                        <p className="text-xs text-slate-500">Operational settings and default financial currency.</p>
+                        <h2 className="text-sm font-bold text-slate-900">
+                          Workspace Tenant Profile
+                        </h2>
+                        <p className="text-xs text-slate-500">
+                          Operational settings and default financial currency.
+                        </p>
                       </div>
                     </div>
 
@@ -780,7 +919,10 @@ export default function SettingsPage() {
                         <label className="grid gap-1.5 text-xs font-bold text-slate-700">
                           Domain Slug
                           <input
-                            className={cn(inputClass, "bg-slate-50 text-slate-500 cursor-not-allowed")}
+                            className={cn(
+                              inputClass,
+                              "bg-slate-50 text-slate-500 cursor-not-allowed",
+                            )}
                             value={tenant?.slug ?? tenant?.domain ?? ""}
                             readOnly
                           />
@@ -801,7 +943,8 @@ export default function SettingsPage() {
                           ))}
                         </select>
                         <span className="text-[11px] font-medium text-slate-400">
-                          New deals, contracts, and payment records are recorded in this currency.
+                          New deals, contracts, and payment records are recorded
+                          in this currency.
                         </span>
                       </label>
 
@@ -809,7 +952,10 @@ export default function SettingsPage() {
                         <label className="grid gap-1.5 text-xs font-bold text-slate-700">
                           Hosting Region
                           <input
-                            className={cn(inputClass, "bg-slate-50 text-slate-500 cursor-not-allowed")}
+                            className={cn(
+                              inputClass,
+                              "bg-slate-50 text-slate-500 cursor-not-allowed",
+                            )}
                             value={tenant?.region ?? "US-East"}
                             readOnly
                           />
@@ -817,7 +963,10 @@ export default function SettingsPage() {
                         <label className="grid gap-1.5 text-xs font-bold text-slate-700">
                           Subscription Plan
                           <input
-                            className={cn(inputClass, "bg-slate-50 text-[#233b66] font-extrabold cursor-not-allowed")}
+                            className={cn(
+                              inputClass,
+                              "bg-slate-50 text-[#233b66] font-extrabold cursor-not-allowed",
+                            )}
                             value={tenant?.plan ?? "ENTERPRISE"}
                             readOnly
                           />
@@ -827,9 +976,12 @@ export default function SettingsPage() {
                       <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-2">
                         {tenantSaved ? (
                           <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600">
-                            <CheckCircle2 className="size-4" /> Workspace updated
+                            <CheckCircle2 className="size-4" /> Workspace
+                            updated
                           </span>
-                        ) : <div />}
+                        ) : (
+                          <div />
+                        )}
 
                         <Button
                           type="submit"
@@ -850,7 +1002,9 @@ export default function SettingsPage() {
                 {/* Workspace Admin Modules Grid */}
                 <div className="xl:col-span-1">
                   <div className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs space-y-4">
-                    <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Enterprise Modules</h3>
+                    <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                      Enterprise Modules
+                    </h3>
                     <div className="grid gap-2.5">
                       {settingsModules.map((mod) => {
                         const ModIcon = mod.icon;
@@ -865,8 +1019,12 @@ export default function SettingsPage() {
                                 <ModIcon className="size-4" />
                               </div>
                               <div>
-                                <h4 className="text-xs font-bold text-slate-800">{mod.title}</h4>
-                                <p className="text-[11px] text-slate-500">{mod.desc}</p>
+                                <h4 className="text-xs font-bold text-slate-800">
+                                  {mod.title}
+                                </h4>
+                                <p className="text-[11px] text-slate-500">
+                                  {mod.desc}
+                                </p>
                               </div>
                             </div>
                             <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">
@@ -879,7 +1037,6 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </div>
-
             </div>
           )}
 
@@ -890,15 +1047,24 @@ export default function SettingsPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="size-4.5 text-[#233b66]" />
-                    <h2 className="text-sm font-bold text-slate-900">Role-Based Access Control (RBAC)</h2>
+                    <h2 className="text-sm font-bold text-slate-900">
+                      Role-Based Access Control (RBAC)
+                    </h2>
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5">Define team role scopes and granular system permission policies.</p>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Define team role scopes and granular system permission
+                    policies.
+                  </p>
                 </div>
                 <Button
                   onClick={() => setShowRoleForm((v) => !v)}
                   className="bg-[#233b66] hover:bg-[#192b4b] text-white font-bold text-xs h-8.5 px-3"
                 >
-                  {showRoleForm ? <X className="size-3.5 mr-1" /> : <Plus className="size-3.5 mr-1" />}
+                  {showRoleForm ? (
+                    <X className="size-3.5 mr-1" />
+                  ) : (
+                    <Plus className="size-3.5 mr-1" />
+                  )}
                   {showRoleForm ? "Cancel" : "New Role"}
                 </Button>
               </div>
@@ -912,7 +1078,9 @@ export default function SettingsPage() {
                     className={inputClass}
                     placeholder="Role name (e.g. Sales Manager)"
                     value={roleForm.name}
-                    onChange={(e) => setRoleForm({ ...roleForm, name: e.target.value })}
+                    onChange={(e) =>
+                      setRoleForm({ ...roleForm, name: e.target.value })
+                    }
                     required
                   />
                   <input
@@ -924,7 +1092,11 @@ export default function SettingsPage() {
                     }
                   />
                   <div className="sm:col-span-2">
-                    <Button type="submit" disabled={savingRole} className="bg-[#233b66] text-white font-bold text-xs">
+                    <Button
+                      type="submit"
+                      disabled={savingRole}
+                      className="bg-[#233b66] text-white font-bold text-xs"
+                    >
                       {savingRole ? "Creating…" : "Create Role"}
                     </Button>
                   </div>
@@ -944,14 +1116,20 @@ export default function SettingsPage() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {roles.map((role) => (
-                      <tr key={role.id} className="hover:bg-slate-50/80 transition-colors">
+                      <tr
+                        key={role.id}
+                        className="hover:bg-slate-50/80 transition-colors"
+                      >
                         <td className="px-5 py-3.5 font-bold text-slate-900">
                           {editingRoleId === role.id ? (
                             <input
                               className="h-8 rounded-lg border border-slate-300 px-2 text-xs font-semibold outline-none focus:border-[#233b66]"
                               value={editRoleForm.name}
                               onChange={(e) =>
-                                setEditRoleForm({ ...editRoleForm, name: e.target.value })
+                                setEditRoleForm({
+                                  ...editRoleForm,
+                                  name: e.target.value,
+                                })
                               }
                             />
                           ) : (
@@ -973,7 +1151,7 @@ export default function SettingsPage() {
                               }
                             />
                           ) : (
-                            role.description ?? "—"
+                            (role.description ?? "—")
                           )}
                         </td>
                         <td className="px-5 py-3.5 text-center">
@@ -985,16 +1163,23 @@ export default function SettingsPage() {
                           {role.permissionKeys.length > 0 ? (
                             <div className="flex flex-wrap gap-1">
                               {role.permissionKeys.slice(0, 3).map((pk) => (
-                                <span key={pk} className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-mono text-slate-600">
+                                <span
+                                  key={pk}
+                                  className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-mono text-slate-600"
+                                >
                                   {pk}
                                 </span>
                               ))}
                               {role.permissionKeys.length > 3 && (
-                                <span className="text-[10px] font-bold text-slate-400">+{role.permissionKeys.length - 3} more</span>
+                                <span className="text-[10px] font-bold text-slate-400">
+                                  +{role.permissionKeys.length - 3} more
+                                </span>
                               )}
                             </div>
                           ) : (
-                            <span className="text-slate-400 font-mono text-[11px]">full_access</span>
+                            <span className="text-slate-400 font-mono text-[11px]">
+                              full_access
+                            </span>
                           )}
                         </td>
                         <td className="px-5 py-3.5 text-right">
@@ -1058,16 +1243,25 @@ export default function SettingsPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <Users className="size-4.5 text-[#233b66]" />
-                    <h2 className="text-sm font-bold text-slate-900">Workspace User Directory</h2>
+                    <h2 className="text-sm font-bold text-slate-900">
+                      Workspace User Directory
+                    </h2>
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5">Invite team members, assign workspace roles, and manage access status.</p>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Invite team members, assign workspace roles, and manage
+                    access status.
+                  </p>
                 </div>
                 <Button
                   onClick={() => setShowInvite((v) => !v)}
                   disabled={!showInvite && roles.length === 0}
                   className="bg-[#233b66] hover:bg-[#192b4b] text-white font-bold text-xs h-8.5 px-3"
                 >
-                  {showInvite ? <X className="size-3.5 mr-1" /> : <Plus className="size-3.5 mr-1" />}
+                  {showInvite ? (
+                    <X className="size-3.5 mr-1" />
+                  ) : (
+                    <Plus className="size-3.5 mr-1" />
+                  )}
                   {showInvite ? "Cancel" : "Invite User"}
                 </Button>
               </div>
@@ -1081,7 +1275,9 @@ export default function SettingsPage() {
                     className={inputClass}
                     placeholder="Full Name"
                     value={inviteForm.name}
-                    onChange={(e) => setInviteForm({ ...inviteForm, name: e.target.value })}
+                    onChange={(e) =>
+                      setInviteForm({ ...inviteForm, name: e.target.value })
+                    }
                     required
                   />
                   <input
@@ -1089,14 +1285,18 @@ export default function SettingsPage() {
                     type="email"
                     placeholder="Email Address"
                     value={inviteForm.email}
-                    onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
+                    onChange={(e) =>
+                      setInviteForm({ ...inviteForm, email: e.target.value })
+                    }
                     required
                   />
                   <select
                     className={inputClass}
                     aria-label="Assign role"
                     value={inviteForm.roleId}
-                    onChange={(e) => setInviteForm({ ...inviteForm, roleId: e.target.value })}
+                    onChange={(e) =>
+                      setInviteForm({ ...inviteForm, roleId: e.target.value })
+                    }
                     required
                   >
                     <option value="">Assign role…</option>
@@ -1107,11 +1307,16 @@ export default function SettingsPage() {
                     ))}
                   </select>
                   <div className="sm:col-span-3 flex items-center justify-between">
-                    <Button type="submit" disabled={savingInvite} className="bg-[#233b66] text-white font-bold text-xs">
+                    <Button
+                      type="submit"
+                      disabled={savingInvite}
+                      className="bg-[#233b66] text-white font-bold text-xs"
+                    >
                       {savingInvite ? "Sending Invite…" : "Send Invite"}
                     </Button>
                     <span className="text-xs text-slate-500 font-medium">
-                      Invited users receive an email link with a temporary sign-in token.
+                      Invited users receive an email link with a temporary
+                      sign-in token.
                     </span>
                   </div>
                 </form>
@@ -1139,7 +1344,10 @@ export default function SettingsPage() {
                         .slice(0, 2);
 
                       return (
-                        <tr key={user.id} className="hover:bg-slate-50/80 transition-colors">
+                        <tr
+                          key={user.id}
+                          className="hover:bg-slate-50/80 transition-colors"
+                        >
                           <td className="px-5 py-3.5 font-bold text-slate-900">
                             <div className="flex items-center gap-2.5">
                               <div className="flex size-7 items-center justify-center rounded-full bg-[#233b66] text-[11px] font-extrabold text-white">
@@ -1148,12 +1356,16 @@ export default function SettingsPage() {
                               <span>{user.name}</span>
                             </div>
                           </td>
-                          <td className="px-5 py-3.5 text-slate-600 font-medium">{user.email}</td>
+                          <td className="px-5 py-3.5 text-slate-600 font-medium">
+                            {user.email}
+                          </td>
                           <td className="px-5 py-3.5">
                             <select
                               className="h-8 rounded-lg border border-slate-200 px-2 text-xs font-semibold bg-white outline-none focus:border-[#233b66] disabled:opacity-50"
                               value={user.roleId ?? ""}
-                              onChange={(e) => handleUpdateUserRole(user.id, e.target.value)}
+                              onChange={(e) =>
+                                handleUpdateUserRole(user.id, e.target.value)
+                              }
                               disabled={updatingUserRoleId === user.id}
                             >
                               <option value="">No Role</option>
@@ -1173,10 +1385,12 @@ export default function SettingsPage() {
                                 "inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-bold uppercase tracking-wider shadow-2xs",
                                 user.status === "active"
                                   ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                                  : "bg-slate-100 text-slate-600 border-slate-200"
+                                  : "bg-slate-100 text-slate-600 border-slate-200",
                               )}
                             >
-                              {user.status === "active" && <CheckCircle2 className="size-3 text-emerald-600" />}
+                              {user.status === "active" && (
+                                <CheckCircle2 className="size-3 text-emerald-600" />
+                              )}
                               {user.status}
                             </span>
                           </td>

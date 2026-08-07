@@ -50,10 +50,13 @@ export default function ExcelImportPage() {
         apiFetch<SubscriptionData>("/saas/subscription"),
       ]);
       setTemplates(templatesData);
-      const limit = subData.limits.find((l) => l.feature === "Excel import rows") || null;
+      const limit =
+        subData.limits.find((l) => l.feature === "Excel import rows") || null;
       setRowLimit(limit);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load import templates");
+      setError(
+        err instanceof Error ? err.message : "Failed to load import templates",
+      );
     } finally {
       setLoading(false);
     }
@@ -85,18 +88,32 @@ export default function ExcelImportPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard
           label="Import rows"
-          value={rowLimit ? `${rowLimit.used.toLocaleString()}/${rowLimit.limit.toLocaleString()}` : "N/A"}
+          value={
+            rowLimit
+              ? `${rowLimit.used.toLocaleString()}/${rowLimit.limit.toLocaleString()}`
+              : "N/A"
+          }
           detail="Rows used this billing cycle"
         />
-        <StatCard label="Templates" value={String(templates.length)} detail="Validated workbook formats" />
-        <StatCard label="Validation mode" value="Strict" detail="Rejects missing required columns" />
+        <StatCard
+          label="Templates"
+          value={String(templates.length)}
+          detail="Validated workbook formats"
+        />
+        <StatCard
+          label="Validation mode"
+          value="Strict"
+          detail="Rejects missing required columns"
+        />
       </div>
 
       <section className="mt-6 rounded-lg border border-zinc-200 bg-white">
         <div className="flex items-center justify-between gap-4 border-b border-zinc-200 p-4">
           <div>
             <h2 className="text-base font-semibold">Workbook templates</h2>
-            <p className="text-sm text-zinc-500">Supported Excel imports and required field mappings.</p>
+            <p className="text-sm text-zinc-500">
+              Supported Excel imports and required field mappings.
+            </p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline">
@@ -114,13 +131,24 @@ export default function ExcelImportPage() {
           <p className="p-6 text-sm text-zinc-500">Loading templates…</p>
         ) : (
           <CrmTable
-            columns={["Template", "Entity", "Required columns", "Last run", "Status"]}
+            columns={[
+              "Template",
+              "Entity",
+              "Required columns",
+              "Last run",
+              "Status",
+            ]}
             rows={templates.map((template) => [
-              <span key="template" className="font-medium">{template.template}</span>,
+              <span key="template" className="font-medium">
+                {template.template}
+              </span>,
               template.entity,
               template.requiredColumns.join(", "),
               template.lastRun,
-              <span key="status" className={`rounded-md border px-2 py-0.5 text-xs font-medium uppercase ${statusClass[template.status]}`}>
+              <span
+                key="status"
+                className={`rounded-md border px-2 py-0.5 text-xs font-medium uppercase ${statusClass[template.status]}`}
+              >
                 {template.status}
               </span>,
             ])}

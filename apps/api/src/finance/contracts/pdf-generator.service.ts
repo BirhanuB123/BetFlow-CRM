@@ -72,7 +72,11 @@ export class PdfGeneratorService {
         .fontSize(10)
         .font('Helvetica')
         .fillColor('#93c5fd')
-        .text('Addis Ababa, Ethiopia  |  Official Legal Sales Agreement', 55, 78);
+        .text(
+          'Addis Ababa, Ethiopia  |  Official Legal Sales Agreement',
+          55,
+          78,
+        );
 
       // ─── Document Title ────────────────────────────────────────────────────
       doc.moveDown(3);
@@ -80,7 +84,9 @@ export class PdfGeneratorService {
         .fillColor(darkColor)
         .fontSize(14)
         .font('Helvetica-Bold')
-        .text('PROPERTY SALE & PURCHASE AGREEMENT', 40, 120, { align: 'center' });
+        .text('PROPERTY SALE & PURCHASE AGREEMENT', 40, 120, {
+          align: 'center',
+        });
 
       doc
         .fontSize(10)
@@ -172,21 +178,33 @@ export class PdfGeneratorService {
         .font('Helvetica-Bold')
         .text('Building & Floor:', col2, tableY + 25)
         .font('Helvetica')
-        .text(`${data.buildingName} (${data.floorName || 'Standard Floor'})`, col2 + 95, tableY + 25);
+        .text(
+          `${data.buildingName} (${data.floorName || 'Standard Floor'})`,
+          col2 + 95,
+          tableY + 25,
+        );
 
       // Row 2
       doc
         .font('Helvetica-Bold')
         .text('Unit Number:', col1, tableY + 45)
         .font('Helvetica')
-        .text(`Unit ${data.unitNumber} (${data.unitType})`, col1 + 90, tableY + 45);
+        .text(
+          `Unit ${data.unitNumber} (${data.unitType})`,
+          col1 + 90,
+          tableY + 45,
+        );
 
       doc
         .font('Helvetica-Bold')
         .text('Agreed Price:', col2, tableY + 45)
         .font('Helvetica-Bold')
         .fillColor('#047857') // Emerald
-        .text(`${data.agreedPrice.toLocaleString()} ${data.currency}`, col2 + 95, tableY + 45);
+        .text(
+          `${data.agreedPrice.toLocaleString()} ${data.currency}`,
+          col2 + 95,
+          tableY + 45,
+        );
 
       // Row 3
       doc.fillColor(darkColor);
@@ -209,7 +227,11 @@ export class PdfGeneratorService {
         .font('Helvetica-Bold')
         .text('Payment Terms:', col1, tableY + 85)
         .font('Helvetica')
-        .text('Standard Construction Milestone Schedule (Installments)', col1 + 90, tableY + 85);
+        .text(
+          'Standard Construction Milestone Schedule (Installments)',
+          col1 + 90,
+          tableY + 85,
+        );
 
       // ─── 3. Terms & Conditions ──────────────────────────────────────────────
       const termsY = tableY + 140;
@@ -255,10 +277,15 @@ export class PdfGeneratorService {
         let currentSigY = sigY + 25;
 
         for (const sig of signatures) {
-          doc.rect(40, currentSigY, 515, 65).fillAndStroke('#f1f5f9', '#94a3b8');
+          doc
+            .rect(40, currentSigY, 515, 65)
+            .fillAndStroke('#f1f5f9', '#94a3b8');
 
           // Signature Base64 Image
-          if (sig.signatureDataUrl && sig.signatureDataUrl.startsWith('data:image/png;base64,')) {
+          if (
+            sig.signatureDataUrl &&
+            sig.signatureDataUrl.startsWith('data:image/png;base64,')
+          ) {
             try {
               const imgBuffer = Buffer.from(
                 sig.signatureDataUrl.replace(/^data:image\/png;base64,/, ''),
@@ -277,7 +304,11 @@ export class PdfGeneratorService {
             .fillColor(darkColor)
             .fontSize(9)
             .font('Helvetica-Bold')
-            .text(`Signed by: ${sig.signerName} (${sig.signerRole})`, 180, currentSigY + 10);
+            .text(
+              `Signed by: ${sig.signerName} (${sig.signerRole})`,
+              180,
+              currentSigY + 10,
+            );
 
           const sigDateStr = new Date(sig.signedAt).toLocaleString();
 
@@ -286,13 +317,21 @@ export class PdfGeneratorService {
             .font('Helvetica')
             .fillColor(textMuted)
             .text(`Timestamp: ${sigDateStr}`, 180, currentSigY + 24)
-            .text(`IP Address: ${sig.ipAddress}  |  Agent: ${sig.userAgent.slice(0, 35)}...`, 180, currentSigY + 36);
+            .text(
+              `IP Address: ${sig.ipAddress}  |  Agent: ${sig.userAgent.slice(0, 35)}...`,
+              180,
+              currentSigY + 36,
+            );
 
           doc
             .fontSize(7.5)
             .font('Helvetica-Bold')
             .fillColor('#0369a1')
-            .text(`SHA-256 Hash: ${sig.verificationHash.slice(0, 32)}...`, 180, currentSigY + 48);
+            .text(
+              `SHA-256 Hash: ${sig.verificationHash.slice(0, 32)}...`,
+              180,
+              currentSigY + 48,
+            );
 
           currentSigY += 75;
         }
@@ -330,9 +369,14 @@ export class PdfGeneratorService {
         .fontSize(7.5)
         .font('Helvetica')
         .fillColor(textMuted)
-        .text('Generated electronically by BetFlow CRM Audit System. Page 1 of 1', 40, 780, {
-          align: 'center',
-        });
+        .text(
+          'Generated electronically by BetFlow CRM Audit System. Page 1 of 1',
+          40,
+          780,
+          {
+            align: 'center',
+          },
+        );
 
       doc.end();
     });

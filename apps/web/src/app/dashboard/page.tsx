@@ -141,7 +141,12 @@ const statusTone: Record<string, string> = {
 
 function StatusBadge({ status }: { status: string }) {
   return (
-    <span className={cn("inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold uppercase tracking-wider", statusTone[status] ?? "bg-slate-100 text-slate-700 border-slate-200")}>
+    <span
+      className={cn(
+        "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold uppercase tracking-wider",
+        statusTone[status] ?? "bg-slate-100 text-slate-700 border-slate-200",
+      )}
+    >
       {status.replace(/_/g, " ")}
     </span>
   );
@@ -149,7 +154,10 @@ function StatusBadge({ status }: { status: string }) {
 
 function customerLink(person: NonNullable<PersonRef>) {
   return (
-    <Link href={`/customers/${person.id}`} className="font-semibold text-indigo-600 hover:text-indigo-800 hover:underline">
+    <Link
+      href={`/customers/${person.id}`}
+      className="font-semibold text-indigo-600 hover:text-indigo-800 hover:underline"
+    >
       {person.firstName} {person.lastName}
     </Link>
   );
@@ -171,9 +179,14 @@ function Card({
       <div className="flex h-13 items-center justify-between border-b border-slate-200/80 bg-slate-50/60 px-5">
         <div className="flex items-center gap-2.5">
           <Icon className="size-4.5 text-indigo-600" />
-          <h2 className="text-[14px] font-bold text-slate-800 tracking-tight">{title}</h2>
+          <h2 className="text-[14px] font-bold text-slate-800 tracking-tight">
+            {title}
+          </h2>
         </div>
-        <Link href={href} className="flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
+        <Link
+          href={href}
+          className="flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors"
+        >
           View all
           <ArrowUpRight className="size-3.5" />
         </Link>
@@ -214,12 +227,23 @@ function OperationalGrid({ tasks, visits, todaysLeads, deals }: any) {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {tasks.slice(0, 5).map((task: any) => (
-                  <tr key={task.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-5 py-3 font-semibold text-slate-800">{task.title}</td>
-                    <td className="px-5 py-3 text-slate-500 font-medium">{fmtDate(task.dueDate)}</td>
-                    <td className="px-5 py-3"><StatusBadge status={task.status} /></td>
+                  <tr
+                    key={task.id}
+                    className="hover:bg-slate-50/50 transition-colors"
+                  >
+                    <td className="px-5 py-3 font-semibold text-slate-800">
+                      {task.title}
+                    </td>
+                    <td className="px-5 py-3 text-slate-500 font-medium">
+                      {fmtDate(task.dueDate)}
+                    </td>
+                    <td className="px-5 py-3">
+                      <StatusBadge status={task.status} />
+                    </td>
                     <td className="px-5 py-3 text-slate-600">
-                      {task.assignee ? `${task.assignee.firstName} ${task.assignee.lastName}` : "Unassigned"}
+                      {task.assignee
+                        ? `${task.assignee.firstName} ${task.assignee.lastName}`
+                        : "Unassigned"}
                     </td>
                   </tr>
                 ))}
@@ -230,7 +254,11 @@ function OperationalGrid({ tasks, visits, todaysLeads, deals }: any) {
       </Card>
 
       {/* 2. Scheduled Meetings */}
-      <Card title="Scheduled Meetings & Site Visits" icon={CalendarDays} href="/site-visits">
+      <Card
+        title="Scheduled Meetings & Site Visits"
+        icon={CalendarDays}
+        href="/site-visits"
+      >
         {visits.length === 0 ? (
           <Empty label="No scheduled site visits." />
         ) : (
@@ -246,17 +274,29 @@ function OperationalGrid({ tasks, visits, todaysLeads, deals }: any) {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {visits.slice(0, 5).map((visit: any) => (
-                  <tr key={visit.id} className="hover:bg-slate-50/50 transition-colors">
+                  <tr
+                    key={visit.id}
+                    className="hover:bg-slate-50/50 transition-colors"
+                  >
                     <td className="px-5 py-3 font-semibold text-slate-800">
-                      Site Visit with {visit.customer?.firstName || visit.lead?.firstName || "Client"}
+                      Site Visit with{" "}
+                      {visit.customer?.firstName ||
+                        visit.lead?.firstName ||
+                        "Client"}
                     </td>
-                    <td className="px-5 py-3 text-slate-500 font-medium">{fmtDate(visit.date)}</td>
-                    <td className="px-5 py-3"><StatusBadge status={visit.status} /></td>
+                    <td className="px-5 py-3 text-slate-500 font-medium">
+                      {fmtDate(visit.date)}
+                    </td>
+                    <td className="px-5 py-3">
+                      <StatusBadge status={visit.status} />
+                    </td>
                     <td className="px-5 py-3">
                       {visit.customer ? (
                         customerLink(visit.customer)
                       ) : visit.lead ? (
-                        <span className="font-semibold text-indigo-600">{visit.lead.firstName} {visit.lead.lastName}</span>
+                        <span className="font-semibold text-indigo-600">
+                          {visit.lead.firstName} {visit.lead.lastName}
+                        </span>
                       ) : (
                         "—"
                       )}
@@ -285,16 +325,29 @@ function OperationalGrid({ tasks, visits, todaysLeads, deals }: any) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {(todaysLeads.length > 0 ? todaysLeads : deals.slice(0, 5)).map((item: any) => (
-                  <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-5 py-3 font-semibold text-indigo-600 hover:underline">
-                      {item.firstName ? `${item.firstName} ${item.lastName}` : item.name}
-                    </td>
-                    <td className="px-5 py-3 text-slate-600">{item.company || "—"}</td>
-                    <td className="px-5 py-3 text-slate-500 font-medium">{item.source?.name || "Direct Referral"}</td>
-                    <td className="px-5 py-3"><StatusBadge status={item.status || "NEW"} /></td>
-                  </tr>
-                ))}
+                {(todaysLeads.length > 0 ? todaysLeads : deals.slice(0, 5)).map(
+                  (item: any) => (
+                    <tr
+                      key={item.id}
+                      className="hover:bg-slate-50/50 transition-colors"
+                    >
+                      <td className="px-5 py-3 font-semibold text-indigo-600 hover:underline">
+                        {item.firstName
+                          ? `${item.firstName} ${item.lastName}`
+                          : item.name}
+                      </td>
+                      <td className="px-5 py-3 text-slate-600">
+                        {item.company || "—"}
+                      </td>
+                      <td className="px-5 py-3 text-slate-500 font-medium">
+                        {item.source?.name || "Direct Referral"}
+                      </td>
+                      <td className="px-5 py-3">
+                        <StatusBadge status={item.status || "NEW"} />
+                      </td>
+                    </tr>
+                  ),
+                )}
               </tbody>
             </table>
           </div>
@@ -318,9 +371,16 @@ function OperationalGrid({ tasks, visits, todaysLeads, deals }: any) {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {deals.slice(0, 5).map((deal: Deal) => (
-                  <tr key={deal.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-5 py-3 font-semibold text-slate-800">{deal.name}</td>
-                    <td className="px-5 py-3 font-bold text-indigo-600">{money(deal.value)}</td>
+                  <tr
+                    key={deal.id}
+                    className="hover:bg-slate-50/50 transition-colors"
+                  >
+                    <td className="px-5 py-3 font-semibold text-slate-800">
+                      {deal.name}
+                    </td>
+                    <td className="px-5 py-3 font-bold text-indigo-600">
+                      {money(deal.value)}
+                    </td>
                     <td className="px-5 py-3">
                       <span className="inline-flex items-center rounded-md bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-xs font-semibold text-indigo-700">
                         {deal.stage.name}
@@ -360,8 +420,8 @@ export default function DashboardPage() {
 
     const raw =
       typeof window !== "undefined"
-        ? window.localStorage.getItem("betflow-auth") ??
-          window.sessionStorage.getItem("betflow-auth")
+        ? (window.localStorage.getItem("betflow-auth") ??
+          window.sessionStorage.getItem("betflow-auth"))
         : null;
 
     let roles: string[] = [];
@@ -377,8 +437,10 @@ export default function DashboardPage() {
             const jsonPayload = decodeURIComponent(
               rawBinary
                 .split("")
-                .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-                .join("")
+                .map(
+                  (c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2),
+                )
+                .join(""),
             );
             roles = JSON.parse(jsonPayload).roles ?? [];
           }
@@ -390,17 +452,22 @@ export default function DashboardPage() {
     setUserRoles(roles);
 
     try {
-      const [tasksData, visitsData, dealsData, leadsData, salesData] = await Promise.all([
-        apiFetch<Task[]>("/tasks?open=true").catch(() => []),
-        apiFetch<SiteVisit[]>("/site-visits").catch(() => []),
-        apiFetch<Deal[]>("/deals").catch(() => []),
-        apiFetch<Lead[]>("/leads").catch(() => []),
-        apiFetch<{ metrics: ReportMetric[] }>("/reports/sales").catch(() => ({ metrics: [] })),
-      ]);
+      const [tasksData, visitsData, dealsData, leadsData, salesData] =
+        await Promise.all([
+          apiFetch<Task[]>("/tasks?open=true").catch(() => []),
+          apiFetch<SiteVisit[]>("/site-visits").catch(() => []),
+          apiFetch<Deal[]>("/deals").catch(() => []),
+          apiFetch<Lead[]>("/leads").catch(() => []),
+          apiFetch<{ metrics: ReportMetric[] }>("/reports/sales").catch(() => ({
+            metrics: [],
+          })),
+        ]);
 
       setTasks(tasksData);
       setVisits(visitsData);
-      setDeals([...dealsData].sort((a, b) => Number(b.value) - Number(a.value)));
+      setDeals(
+        [...dealsData].sort((a, b) => Number(b.value) - Number(a.value)),
+      );
       setLeads(leadsData);
       setSalesMetrics(salesData.metrics ?? []);
     } catch (err) {
@@ -417,7 +484,10 @@ export default function DashboardPage() {
   const primaryRole = userRoles[0] || "Agent";
   const todaysLeads = leads.filter((lead) => isToday(lead.createdAt));
 
-  const totalPipelineValue = deals.reduce((acc, d) => acc + (Number(d.value) || 0), 0);
+  const totalPipelineValue = deals.reduce(
+    (acc, d) => acc + (Number(d.value) || 0),
+    0,
+  );
 
   return (
     <DashboardShell
@@ -433,12 +503,19 @@ export default function DashboardPage() {
 
       {loading ? (
         <div className="flex h-48 items-center justify-center">
-          <p className="text-sm text-slate-500 font-medium">Loading sales command center…</p>
+          <p className="text-sm text-slate-500 font-medium">
+            Loading sales command center…
+          </p>
         </div>
       ) : (
         <div className="space-y-6">
           {/* Operational Grid Cards */}
-          <OperationalGrid tasks={tasks} visits={visits} todaysLeads={todaysLeads} deals={deals} />
+          <OperationalGrid
+            tasks={tasks}
+            visits={visits}
+            todaysLeads={todaysLeads}
+            deals={deals}
+          />
 
           {/* Recent Activity Section */}
           <div className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
@@ -449,4 +526,3 @@ export default function DashboardPage() {
     </DashboardShell>
   );
 }
-

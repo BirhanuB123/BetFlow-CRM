@@ -60,7 +60,9 @@ import { cn } from "@/lib/utils";
 
 export default function SmsAutomationPage() {
   // Active Tab: "rules" | "drip" | "outbox"
-  const [activeTab, setActiveTab] = useState<"rules" | "drip" | "outbox">("rules");
+  const [activeTab, setActiveTab] = useState<"rules" | "drip" | "outbox">(
+    "rules",
+  );
 
   // Loading & Refresh State
   const [loading, setLoading] = useState(true);
@@ -85,13 +87,27 @@ export default function SmsAutomationPage() {
 
   // Automated Trigger Rules State
   const [rules, setRules] = useState<TriggerRulesMap>({
-    siteVisit: { enabled: true, timing: "2 Hours Prior", template: DEFAULT_SMS_TEMPLATES.SITE_VISIT_REMINDER },
-    holdExpiry: { enabled: true, timing: "48h & 24h Prior", template: DEFAULT_SMS_TEMPLATES.HOLD_EXPIRY_ALERT },
-    paymentDue: { enabled: true, timing: "3 Days Prior", template: DEFAULT_SMS_TEMPLATES.PAYMENT_DUE_ALERT },
+    siteVisit: {
+      enabled: true,
+      timing: "2 Hours Prior",
+      template: DEFAULT_SMS_TEMPLATES.SITE_VISIT_REMINDER,
+    },
+    holdExpiry: {
+      enabled: true,
+      timing: "48h & 24h Prior",
+      template: DEFAULT_SMS_TEMPLATES.HOLD_EXPIRY_ALERT,
+    },
+    paymentDue: {
+      enabled: true,
+      timing: "3 Days Prior",
+      template: DEFAULT_SMS_TEMPLATES.PAYMENT_DUE_ALERT,
+    },
   });
 
   // Drip Campaigns State
-  const [dripCampaigns, setDripCampaigns] = useState<DripCampaign[]>(PRESEEDED_DRIP_CAMPAIGNS);
+  const [dripCampaigns, setDripCampaigns] = useState<DripCampaign[]>(
+    PRESEEDED_DRIP_CAMPAIGNS,
+  );
 
   // Outbox Logs State
   const [logs, setLogs] = useState<SmsLog[]>([]);
@@ -104,7 +120,9 @@ export default function SmsAutomationPage() {
   const [showNewCampaignModal, setShowNewCampaignModal] = useState(false);
   const [showAddStepModal, setShowAddStepModal] = useState<string | null>(null);
   const [showEnrollModal, setShowEnrollModal] = useState<string | null>(null);
-  const [editingRuleKey, setEditingRuleKey] = useState<"siteVisit" | "holdExpiry" | "paymentDue" | null>(null);
+  const [editingRuleKey, setEditingRuleKey] = useState<
+    "siteVisit" | "holdExpiry" | "paymentDue" | null
+  >(null);
 
   // Form States
   const [composerForm, setComposerForm] = useState({
@@ -121,7 +139,8 @@ export default function SmsAutomationPage() {
     targetSegment: "COLD_LEADS" as DripCampaign["targetSegment"],
     step1Title: "Welcome & Introduction",
     step1Delay: 0,
-    step1Template: "Selam {clientName}! Thank you for inquiring about {projectName}. View elevation plans: betflow.et/units",
+    step1Template:
+      "Selam {clientName}! Thank you for inquiring about {projectName}. View elevation plans: betflow.et/units",
   });
 
   const [addStepForm, setAddStepForm] = useState({
@@ -146,13 +165,14 @@ export default function SmsAutomationPage() {
   const loadData = async (isManualRefresh = false) => {
     if (isManualRefresh) setRefreshing(true);
     try {
-      const [statsRes, contactsRes, logsRes, dripRes, rulesRes] = await Promise.all([
-        fetchSmsStats(),
-        fetchSmsContacts(),
-        fetchOutboxLogs(),
-        fetchDripCampaigns(),
-        fetchRulesApi(),
-      ]);
+      const [statsRes, contactsRes, logsRes, dripRes, rulesRes] =
+        await Promise.all([
+          fetchSmsStats(),
+          fetchSmsContacts(),
+          fetchOutboxLogs(),
+          fetchDripCampaigns(),
+          fetchRulesApi(),
+        ]);
       setStats(statsRes);
       setContacts(contactsRes);
       setLogs(logsRes);
@@ -226,7 +246,10 @@ export default function SmsAutomationPage() {
         recipientName: composerForm.recipientName.trim() || "Recipient",
         recipientPhone: composerForm.recipientPhone,
         body: composerForm.body.trim(),
-        triggerType: composerForm.templateKey !== "CUSTOM" ? composerForm.templateKey : "MANUAL_BROADCAST",
+        triggerType:
+          composerForm.templateKey !== "CUSTOM"
+            ? composerForm.templateKey
+            : "MANUAL_BROADCAST",
       });
 
       setLogs((prev) => [newLog, ...prev]);
@@ -237,9 +260,17 @@ export default function SmsAutomationPage() {
         totalCostBirr: Math.round((prev.totalCostBirr + 0.35) * 100) / 100,
       }));
 
-      showToast(`SMS sent to +${formatEthioPhone(composerForm.recipientPhone)} via Shortcode 8844!`);
+      showToast(
+        `SMS sent to +${formatEthioPhone(composerForm.recipientPhone)} via Shortcode 8844!`,
+      );
       setShowComposer(false);
-      setComposerForm({ selectedContactId: "", recipientName: "", recipientPhone: "", templateKey: "CUSTOM", body: "" });
+      setComposerForm({
+        selectedContactId: "",
+        recipientName: "",
+        recipientPhone: "",
+        templateKey: "CUSTOM",
+        body: "",
+      });
     } catch (err: any) {
       showToast(`Failed to send SMS: ${err.message}`);
     } finally {
@@ -250,7 +281,9 @@ export default function SmsAutomationPage() {
   const toggleCampaign = async (id: string) => {
     const updated = await toggleDripCampaignApi(id);
     setDripCampaigns((prev) => prev.map((c) => (c.id === id ? updated : c)));
-    showToast(`Drip Campaign sequence '${updated.name}' set to ${updated.status}`);
+    showToast(
+      `Drip Campaign sequence '${updated.name}' set to ${updated.status}`,
+    );
   };
 
   const handleCreateCampaign = async (e: React.FormEvent) => {
@@ -277,16 +310,24 @@ export default function SmsAutomationPage() {
       targetSegment: "COLD_LEADS",
       step1Title: "Welcome & Introduction",
       step1Delay: 0,
-      step1Template: "Selam {clientName}! Thank you for inquiring about {projectName}. View elevation plans: betflow.et/units",
+      step1Template:
+        "Selam {clientName}! Thank you for inquiring about {projectName}. View elevation plans: betflow.et/units",
     });
   };
 
   const handleAddStep = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!showAddStepModal || !addStepForm.title.trim() || !addStepForm.smsTemplate.trim()) return;
+    if (
+      !showAddStepModal ||
+      !addStepForm.title.trim() ||
+      !addStepForm.smsTemplate.trim()
+    )
+      return;
 
     const updated = await addDripStepApi(showAddStepModal, addStepForm);
-    setDripCampaigns((prev) => prev.map((c) => (c.id === showAddStepModal ? updated : c)));
+    setDripCampaigns((prev) =>
+      prev.map((c) => (c.id === showAddStepModal ? updated : c)),
+    );
     setShowAddStepModal(null);
     showToast(`New sequence step added to campaign!`);
     setAddStepForm({ title: "", delayDays: 3, smsTemplate: "" });
@@ -294,11 +335,14 @@ export default function SmsAutomationPage() {
 
   const handleEnrollLead = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!showEnrollModal || !enrollForm.clientName || !enrollForm.clientPhone) return;
+    if (!showEnrollModal || !enrollForm.clientName || !enrollForm.clientPhone)
+      return;
 
     const res = await enrollLeadApi(showEnrollModal, enrollForm);
     if (res.campaign) {
-      setDripCampaigns((prev) => prev.map((c) => (c.id === showEnrollModal ? res.campaign! : c)));
+      setDripCampaigns((prev) =>
+        prev.map((c) => (c.id === showEnrollModal ? res.campaign! : c)),
+      );
     }
     setShowEnrollModal(null);
     showToast(res.message || "Buyer enrolled into sequence successfully!");
@@ -306,7 +350,9 @@ export default function SmsAutomationPage() {
     loadData();
   };
 
-  const handleOpenRuleEdit = (key: "siteVisit" | "holdExpiry" | "paymentDue") => {
+  const handleOpenRuleEdit = (
+    key: "siteVisit" | "holdExpiry" | "paymentDue",
+  ) => {
     const rule = rules[key];
     setRuleEditForm({
       enabled: rule.enabled,
@@ -363,14 +409,17 @@ export default function SmsAutomationPage() {
             <div>
               <div className="flex items-center gap-2">
                 <MessageSquare className="size-5 text-[#233b66]" />
-                <h2 className="text-base font-bold text-slate-900">Ethio Telecom Bulk SMS & Drip Engine</h2>
+                <h2 className="text-base font-bold text-slate-900">
+                  Ethio Telecom Bulk SMS & Drip Engine
+                </h2>
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
                   <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   SHORTCODE {stats.shortcode}
                 </span>
               </div>
               <p className="mt-1 text-xs text-slate-500">
-                {stats.gatewayProvider} · Automated notification engine connected to {contacts.length} CRM database leads & buyers.
+                {stats.gatewayProvider} · Automated notification engine
+                connected to {contacts.length} CRM database leads & buyers.
               </p>
             </div>
 
@@ -382,7 +431,12 @@ export default function SmsAutomationPage() {
                 disabled={refreshing}
                 className="h-9 px-3 text-xs font-semibold border-slate-300 text-slate-700 hover:bg-slate-50"
               >
-                <RefreshCw className={cn("size-3.5 mr-1.5 text-slate-500", refreshing && "animate-spin")} />
+                <RefreshCw
+                  className={cn(
+                    "size-3.5 mr-1.5 text-slate-500",
+                    refreshing && "animate-spin",
+                  )}
+                />
                 Refresh
               </Button>
 
@@ -398,8 +452,6 @@ export default function SmsAutomationPage() {
           </div>
         </section>
 
-
-
         {/* Uniform Tab Navigation */}
         <div className="flex items-center justify-between border-b border-slate-200">
           <div className="flex items-center gap-2">
@@ -410,7 +462,7 @@ export default function SmsAutomationPage() {
                 "flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-bold transition-all",
                 activeTab === "rules"
                   ? "border-[#233b66] text-[#233b66]"
-                  : "border-transparent text-slate-500 hover:text-slate-900"
+                  : "border-transparent text-slate-500 hover:text-slate-900",
               )}
             >
               <Clock className="size-4" />
@@ -424,7 +476,7 @@ export default function SmsAutomationPage() {
                 "flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-bold transition-all",
                 activeTab === "drip"
                   ? "border-[#233b66] text-[#233b66]"
-                  : "border-transparent text-slate-500 hover:text-slate-900"
+                  : "border-transparent text-slate-500 hover:text-slate-900",
               )}
             >
               <Layers className="size-4" />
@@ -438,7 +490,7 @@ export default function SmsAutomationPage() {
                 "flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-bold transition-all",
                 activeTab === "outbox"
                   ? "border-[#233b66] text-[#233b66]"
-                  : "border-transparent text-slate-500 hover:text-slate-900"
+                  : "border-transparent text-slate-500 hover:text-slate-900",
               )}
             >
               <Send className="size-4" />
@@ -473,21 +525,34 @@ export default function SmsAutomationPage() {
                   </span>
                 </div>
 
-                <h3 className="text-sm font-bold text-slate-900">Site Visit Reminders</h3>
+                <h3 className="text-sm font-bold text-slate-900">
+                  Site Visit Reminders
+                </h3>
                 <p className="mt-1 text-xs text-slate-500 leading-relaxed">
-                  Sends an automated SMS before a scheduled property site visit with location details and assigned sales agent phone number.
+                  Sends an automated SMS before a scheduled property site visit
+                  with location details and assigned sales agent phone number.
                 </p>
 
                 <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs">
-                  <span className="font-semibold text-slate-700 block mb-1">SMS Template:</span>
-                  <p className="text-slate-600 font-mono text-[11px] leading-relaxed">{rules.siteVisit.template}</p>
+                  <span className="font-semibold text-slate-700 block mb-1">
+                    SMS Template:
+                  </span>
+                  <p className="text-slate-600 font-mono text-[11px] leading-relaxed">
+                    {rules.siteVisit.template}
+                  </p>
                 </div>
               </div>
 
               <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-3">
                 <span className="text-xs font-semibold text-slate-600">
                   Status:{" "}
-                  <strong className={rules.siteVisit.enabled ? "text-emerald-600" : "text-amber-600"}>
+                  <strong
+                    className={
+                      rules.siteVisit.enabled
+                        ? "text-emerald-600"
+                        : "text-amber-600"
+                    }
+                  >
                     {rules.siteVisit.enabled ? "Active" : "Disabled"}
                   </strong>
                 </span>
@@ -536,21 +601,34 @@ export default function SmsAutomationPage() {
                   </span>
                 </div>
 
-                <h3 className="text-sm font-bold text-slate-900">14-Day Hold Expiry Alerts</h3>
+                <h3 className="text-sm font-bold text-slate-900">
+                  14-Day Hold Expiry Alerts
+                </h3>
                 <p className="mt-1 text-xs text-slate-500 leading-relaxed">
-                  Triggers urgent SMS alerts prior to unit hold voucher expiration to convert warm holds into signed contracts.
+                  Triggers urgent SMS alerts prior to unit hold voucher
+                  expiration to convert warm holds into signed contracts.
                 </p>
 
                 <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs">
-                  <span className="font-semibold text-slate-700 block mb-1">SMS Template:</span>
-                  <p className="text-slate-600 font-mono text-[11px] leading-relaxed">{rules.holdExpiry.template}</p>
+                  <span className="font-semibold text-slate-700 block mb-1">
+                    SMS Template:
+                  </span>
+                  <p className="text-slate-600 font-mono text-[11px] leading-relaxed">
+                    {rules.holdExpiry.template}
+                  </p>
                 </div>
               </div>
 
               <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-3">
                 <span className="text-xs font-semibold text-slate-600">
                   Status:{" "}
-                  <strong className={rules.holdExpiry.enabled ? "text-emerald-600" : "text-amber-600"}>
+                  <strong
+                    className={
+                      rules.holdExpiry.enabled
+                        ? "text-emerald-600"
+                        : "text-amber-600"
+                    }
+                  >
                     {rules.holdExpiry.enabled ? "Active" : "Disabled"}
                   </strong>
                 </span>
@@ -569,7 +647,9 @@ export default function SmsAutomationPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      const found = contacts.find((c) => c.name.includes("Priya")) || contacts[1];
+                      const found =
+                        contacts.find((c) => c.name.includes("Priya")) ||
+                        contacts[1];
                       setComposerForm({
                         selectedContactId: found?.id || "",
                         recipientName: found?.name || "Priya Shah",
@@ -599,21 +679,35 @@ export default function SmsAutomationPage() {
                   </span>
                 </div>
 
-                <h3 className="text-sm font-bold text-slate-900">Installment Due Notices</h3>
+                <h3 className="text-sm font-bold text-slate-900">
+                  Installment Due Notices
+                </h3>
                 <p className="mt-1 text-xs text-slate-500 leading-relaxed">
-                  Reminds property buyers prior to milestone payment due dates (*30/20/20/20/10*) with Commercial Bank of Ethiopia account details.
+                  Reminds property buyers prior to milestone payment due dates
+                  (*30/20/20/20/10*) with Commercial Bank of Ethiopia account
+                  details.
                 </p>
 
                 <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs">
-                  <span className="font-semibold text-slate-700 block mb-1">SMS Template:</span>
-                  <p className="text-slate-600 font-mono text-[11px] leading-relaxed">{rules.paymentDue.template}</p>
+                  <span className="font-semibold text-slate-700 block mb-1">
+                    SMS Template:
+                  </span>
+                  <p className="text-slate-600 font-mono text-[11px] leading-relaxed">
+                    {rules.paymentDue.template}
+                  </p>
                 </div>
               </div>
 
               <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-3">
                 <span className="text-xs font-semibold text-slate-600">
                   Status:{" "}
-                  <strong className={rules.paymentDue.enabled ? "text-emerald-600" : "text-amber-600"}>
+                  <strong
+                    className={
+                      rules.paymentDue.enabled
+                        ? "text-emerald-600"
+                        : "text-amber-600"
+                    }
+                  >
                     {rules.paymentDue.enabled ? "Active" : "Disabled"}
                   </strong>
                 </span>
@@ -632,7 +726,9 @@ export default function SmsAutomationPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      const found = contacts.find((c) => c.name.includes("Marcus")) || contacts[2];
+                      const found =
+                        contacts.find((c) => c.name.includes("Marcus")) ||
+                        contacts[2];
                       setComposerForm({
                         selectedContactId: found?.id || "",
                         recipientName: found?.name || "Marcus Bell",
@@ -656,26 +752,40 @@ export default function SmsAutomationPage() {
         {activeTab === "drip" && (
           <div className="space-y-6">
             {dripCampaigns.map((campaign) => (
-              <div key={campaign.id} className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs space-y-5 hover:border-slate-300 transition-colors">
+              <div
+                key={campaign.id}
+                className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs space-y-5 hover:border-slate-300 transition-colors"
+              >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-base font-bold text-slate-900">{campaign.name}</h3>
+                      <h3 className="text-base font-bold text-slate-900">
+                        {campaign.name}
+                      </h3>
                       <span
                         className={cn(
                           "rounded-full px-2.5 py-0.5 text-[10px] font-semibold border",
                           campaign.status === "ACTIVE"
                             ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                            : "bg-slate-100 text-slate-600 border-slate-200"
+                            : "bg-slate-100 text-slate-600 border-slate-200",
                         )}
                       >
                         {campaign.status}
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 mt-1">
-                      Target Segment: <strong className="text-slate-700">{campaign.targetSegment}</strong> · Enrolled:{" "}
-                      <strong className="text-[#233b66] font-bold">{campaign.enrolledCount} buyers</strong> · Steps:{" "}
-                      <strong className="text-slate-900 font-semibold">{campaign.steps.length} SMS touchpoints</strong>
+                      Target Segment:{" "}
+                      <strong className="text-slate-700">
+                        {campaign.targetSegment}
+                      </strong>{" "}
+                      · Enrolled:{" "}
+                      <strong className="text-[#233b66] font-bold">
+                        {campaign.enrolledCount} buyers
+                      </strong>{" "}
+                      · Steps:{" "}
+                      <strong className="text-slate-900 font-semibold">
+                        {campaign.steps.length} SMS touchpoints
+                      </strong>
                     </p>
                   </div>
 
@@ -686,7 +796,8 @@ export default function SmsAutomationPage() {
                       onClick={() => setShowEnrollModal(campaign.id)}
                       className="h-8 px-3 text-xs font-semibold text-[#233b66] border-slate-300 hover:bg-slate-50 flex items-center gap-1.5"
                     >
-                      <UserPlus className="size-3.5 text-[#233b66]" /> Enroll Buyer
+                      <UserPlus className="size-3.5 text-[#233b66]" /> Enroll
+                      Buyer
                     </Button>
 
                     <Button
@@ -706,11 +817,13 @@ export default function SmsAutomationPage() {
                     >
                       {campaign.status === "ACTIVE" ? (
                         <>
-                          <Pause className="size-3.5 mr-1 text-amber-600" /> Pause
+                          <Pause className="size-3.5 mr-1 text-amber-600" />{" "}
+                          Pause
                         </>
                       ) : (
                         <>
-                          <Play className="size-3.5 mr-1 text-emerald-600" /> Activate
+                          <Play className="size-3.5 mr-1 text-emerald-600" />{" "}
+                          Activate
                         </>
                       )}
                     </Button>
@@ -727,12 +840,18 @@ export default function SmsAutomationPage() {
 
                       <div className="flex-1 rounded-lg border border-slate-200 bg-slate-50/70 p-3.5">
                         <div className="flex items-center justify-between mb-1">
-                          <h4 className="text-xs font-bold text-slate-900">{step.title}</h4>
+                          <h4 className="text-xs font-bold text-slate-900">
+                            {step.title}
+                          </h4>
                           <span className="text-[11px] font-semibold text-[#233b66] bg-[#233b66]/10 px-2 py-0.5 rounded border border-[#233b66]/20">
-                            {step.delayDays === 0 ? "Immediately on Intake" : `Day ${step.delayDays} Delay`}
+                            {step.delayDays === 0
+                              ? "Immediately on Intake"
+                              : `Day ${step.delayDays} Delay`}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-600 font-mono leading-relaxed">{step.smsTemplate}</p>
+                        <p className="text-xs text-slate-600 font-mono leading-relaxed">
+                          {step.smsTemplate}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -760,7 +879,10 @@ export default function SmsAutomationPage() {
 
               <div className="flex items-center gap-4 text-xs font-semibold text-slate-600">
                 <span>
-                  Total Logs: <strong className="text-slate-900 font-bold">{filteredLogs.length}</strong>
+                  Total Logs:{" "}
+                  <strong className="text-slate-900 font-bold">
+                    {filteredLogs.length}
+                  </strong>
                 </span>
                 <span>
                   Total Outbox Cost:{" "}
@@ -787,15 +909,25 @@ export default function SmsAutomationPage() {
                 <tbody className="divide-y divide-slate-100">
                   {filteredLogs.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                      <td
+                        colSpan={6}
+                        className="px-4 py-8 text-center text-slate-400"
+                      >
                         No SMS delivery logs match your search.
                       </td>
                     </tr>
                   ) : (
                     filteredLogs.map((log) => (
-                      <tr key={log.id} className="hover:bg-slate-50/70 transition-colors">
-                        <td className="px-4 py-3 font-semibold text-slate-900">{log.recipientName}</td>
-                        <td className="px-4 py-3 font-mono text-slate-600">+{log.recipientPhone}</td>
+                      <tr
+                        key={log.id}
+                        className="hover:bg-slate-50/70 transition-colors"
+                      >
+                        <td className="px-4 py-3 font-semibold text-slate-900">
+                          {log.recipientName}
+                        </td>
+                        <td className="px-4 py-3 font-mono text-slate-600">
+                          +{log.recipientPhone}
+                        </td>
                         <td className="px-4 py-3 max-w-md text-slate-700 font-mono text-[11px] truncate">
                           {log.body}
                         </td>
@@ -810,7 +942,7 @@ export default function SmsAutomationPage() {
                               "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold border",
                               log.status === "DELIVERED"
                                 ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                                : "bg-amber-50 text-amber-700 border-amber-200"
+                                : "bg-amber-50 text-amber-700 border-amber-200",
                             )}
                           >
                             <CheckCircle2 className="size-3 text-emerald-600" />
@@ -818,7 +950,10 @@ export default function SmsAutomationPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3 text-right text-slate-500 font-mono">
-                          {new Date(log.sentAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          {new Date(log.sentAt).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </td>
                       </tr>
                     ))
@@ -856,7 +991,9 @@ export default function SmsAutomationPage() {
                   </label>
                   <select
                     value={composerForm.selectedContactId}
-                    onChange={(e) => handleSelectContactForComposer(e.target.value)}
+                    onChange={(e) =>
+                      handleSelectContactForComposer(e.target.value)
+                    }
                     className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66] bg-slate-50 font-medium text-slate-900"
                   >
                     <option value="">-- Choose from CRM Database --</option>
@@ -870,24 +1007,38 @@ export default function SmsAutomationPage() {
 
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div>
-                    <label className="font-semibold text-slate-700 block mb-1">Recipient Name</label>
+                    <label className="font-semibold text-slate-700 block mb-1">
+                      Recipient Name
+                    </label>
                     <input
                       type="text"
                       placeholder="e.g. Ari Kaplan"
                       value={composerForm.recipientName}
-                      onChange={(e) => setComposerForm({ ...composerForm, recipientName: e.target.value })}
+                      onChange={(e) =>
+                        setComposerForm({
+                          ...composerForm,
+                          recipientName: e.target.value,
+                        })
+                      }
                       className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66]"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="font-semibold text-slate-700 block mb-1">Ethio Phone Number</label>
+                    <label className="font-semibold text-slate-700 block mb-1">
+                      Ethio Phone Number
+                    </label>
                     <input
                       type="text"
                       placeholder="0911234567 or +251911..."
                       value={composerForm.recipientPhone}
-                      onChange={(e) => setComposerForm({ ...composerForm, recipientPhone: e.target.value })}
+                      onChange={(e) =>
+                        setComposerForm({
+                          ...composerForm,
+                          recipientPhone: e.target.value,
+                        })
+                      }
                       className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66] font-mono"
                       required
                     />
@@ -895,31 +1046,46 @@ export default function SmsAutomationPage() {
                 </div>
 
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Template Preset</label>
+                  <label className="font-semibold text-slate-700 block mb-1">
+                    Template Preset
+                  </label>
                   <select
                     value={composerForm.templateKey}
                     onChange={(e) => handleTemplateSelect(e.target.value)}
                     className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66] bg-white"
                   >
                     <option value="CUSTOM">Custom Message Text</option>
-                    <option value="SITE_VISIT_REMINDER">Site Visit Reminder Preset</option>
-                    <option value="HOLD_EXPIRY_ALERT">14-Day Hold Expiry Alert Preset</option>
-                    <option value="PAYMENT_DUE_ALERT">Installment Due Alert Preset</option>
+                    <option value="SITE_VISIT_REMINDER">
+                      Site Visit Reminder Preset
+                    </option>
+                    <option value="HOLD_EXPIRY_ALERT">
+                      14-Day Hold Expiry Alert Preset
+                    </option>
+                    <option value="PAYMENT_DUE_ALERT">
+                      Installment Due Alert Preset
+                    </option>
                   </select>
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="font-semibold text-slate-700">SMS Body Text</label>
+                    <label className="font-semibold text-slate-700">
+                      SMS Body Text
+                    </label>
                     <span className="text-[11px] font-semibold text-slate-500">
-                      {charCount} chars · <strong className="text-[#233b66]">{segmentCount} segment(s)</strong>
+                      {charCount} chars ·{" "}
+                      <strong className="text-[#233b66]">
+                        {segmentCount} segment(s)
+                      </strong>
                     </span>
                   </div>
                   <textarea
                     rows={4}
                     placeholder="Type your SMS alert message..."
                     value={composerForm.body}
-                    onChange={(e) => setComposerForm({ ...composerForm, body: e.target.value })}
+                    onChange={(e) =>
+                      setComposerForm({ ...composerForm, body: e.target.value })
+                    }
                     className="w-full rounded-lg border border-slate-300 p-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66] font-mono leading-relaxed"
                     required
                   />
@@ -966,35 +1132,56 @@ export default function SmsAutomationPage() {
                 </button>
               </div>
 
-              <form onSubmit={handleCreateCampaign} className="space-y-4 text-xs">
+              <form
+                onSubmit={handleCreateCampaign}
+                className="space-y-4 text-xs"
+              >
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Campaign Sequence Name</label>
+                  <label className="font-semibold text-slate-700 block mb-1">
+                    Campaign Sequence Name
+                  </label>
                   <input
                     type="text"
                     placeholder="e.g. Luxury Apartment Buyer Nurturing"
                     value={newCampaignForm.name}
-                    onChange={(e) => setNewCampaignForm({ ...newCampaignForm, name: e.target.value })}
+                    onChange={(e) =>
+                      setNewCampaignForm({
+                        ...newCampaignForm,
+                        name: e.target.value,
+                      })
+                    }
                     className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66]"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Target Lead Segment</label>
+                  <label className="font-semibold text-slate-700 block mb-1">
+                    Target Lead Segment
+                  </label>
                   <select
                     value={newCampaignForm.targetSegment}
                     onChange={(e) =>
                       setNewCampaignForm({
                         ...newCampaignForm,
-                        targetSegment: e.target.value as DripCampaign["targetSegment"],
+                        targetSegment: e.target
+                          .value as DripCampaign["targetSegment"],
                       })
                     }
                     className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66] bg-white font-semibold text-slate-700"
                   >
-                    <option value="COLD_LEADS">COLD LEADS (New Inquiries)</option>
-                    <option value="WARM_LEADS">WARM LEADS (Post-Site Visit)</option>
-                    <option value="SITE_VISITORS">SITE VISITORS (Attended Tour)</option>
-                    <option value="RESERVATION_CLIENTS">RESERVATION CLIENTS (Placed Hold)</option>
+                    <option value="COLD_LEADS">
+                      COLD LEADS (New Inquiries)
+                    </option>
+                    <option value="WARM_LEADS">
+                      WARM LEADS (Post-Site Visit)
+                    </option>
+                    <option value="SITE_VISITORS">
+                      SITE VISITORS (Attended Tour)
+                    </option>
+                    <option value="RESERVATION_CLIENTS">
+                      RESERVATION CLIENTS (Placed Hold)
+                    </option>
                   </select>
                 </div>
 
@@ -1009,24 +1196,36 @@ export default function SmsAutomationPage() {
 
                   <div className="grid gap-3 sm:grid-cols-3">
                     <div className="sm:col-span-2">
-                      <label className="font-semibold text-slate-700 block mb-1">Step Title</label>
+                      <label className="font-semibold text-slate-700 block mb-1">
+                        Step Title
+                      </label>
                       <input
                         type="text"
                         value={newCampaignForm.step1Title}
-                        onChange={(e) => setNewCampaignForm({ ...newCampaignForm, step1Title: e.target.value })}
+                        onChange={(e) =>
+                          setNewCampaignForm({
+                            ...newCampaignForm,
+                            step1Title: e.target.value,
+                          })
+                        }
                         className="h-8 w-full rounded-lg border border-slate-300 bg-white px-2.5 text-xs outline-none focus:border-[#233b66]"
                         required
                       />
                     </div>
                     <div>
-                      <label className="font-semibold text-slate-700 block mb-1">Delay (Days)</label>
+                      <label className="font-semibold text-slate-700 block mb-1">
+                        Delay (Days)
+                      </label>
                       <input
                         type="number"
                         min={0}
                         max={90}
                         value={newCampaignForm.step1Delay}
                         onChange={(e) =>
-                          setNewCampaignForm({ ...newCampaignForm, step1Delay: Number(e.target.value) || 0 })
+                          setNewCampaignForm({
+                            ...newCampaignForm,
+                            step1Delay: Number(e.target.value) || 0,
+                          })
                         }
                         className="h-8 w-full rounded-lg border border-slate-300 bg-white px-2.5 text-xs outline-none focus:border-[#233b66]"
                       />
@@ -1034,11 +1233,18 @@ export default function SmsAutomationPage() {
                   </div>
 
                   <div>
-                    <label className="font-semibold text-slate-700 block mb-1">Step 1 SMS Template</label>
+                    <label className="font-semibold text-slate-700 block mb-1">
+                      Step 1 SMS Template
+                    </label>
                     <textarea
                       rows={3}
                       value={newCampaignForm.step1Template}
-                      onChange={(e) => setNewCampaignForm({ ...newCampaignForm, step1Template: e.target.value })}
+                      onChange={(e) =>
+                        setNewCampaignForm({
+                          ...newCampaignForm,
+                          step1Template: e.target.value,
+                        })
+                      }
                       className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs outline-none focus:border-[#233b66] font-mono leading-relaxed"
                       required
                     />
@@ -1088,25 +1294,39 @@ export default function SmsAutomationPage() {
               <form onSubmit={handleAddStep} className="space-y-4 text-xs">
                 <div className="grid gap-3 sm:grid-cols-3">
                   <div className="sm:col-span-2">
-                    <label className="font-semibold text-slate-700 block mb-1">Step Title</label>
+                    <label className="font-semibold text-slate-700 block mb-1">
+                      Step Title
+                    </label>
                     <input
                       type="text"
                       placeholder="e.g. VIP Site Visit Follow-up"
                       value={addStepForm.title}
-                      onChange={(e) => setAddStepForm({ ...addStepForm, title: e.target.value })}
+                      onChange={(e) =>
+                        setAddStepForm({
+                          ...addStepForm,
+                          title: e.target.value,
+                        })
+                      }
                       className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66]"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="font-semibold text-slate-700 block mb-1">Delay (Days)</label>
+                    <label className="font-semibold text-slate-700 block mb-1">
+                      Delay (Days)
+                    </label>
                     <input
                       type="number"
                       min={0}
                       max={90}
                       value={addStepForm.delayDays}
-                      onChange={(e) => setAddStepForm({ ...addStepForm, delayDays: Number(e.target.value) || 0 })}
+                      onChange={(e) =>
+                        setAddStepForm({
+                          ...addStepForm,
+                          delayDays: Number(e.target.value) || 0,
+                        })
+                      }
                       className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66]"
                       required
                     />
@@ -1114,12 +1334,19 @@ export default function SmsAutomationPage() {
                 </div>
 
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">SMS Template Text</label>
+                  <label className="font-semibold text-slate-700 block mb-1">
+                    SMS Template Text
+                  </label>
                   <textarea
                     rows={4}
                     placeholder="Selam {clientName}! Remember to schedule your private tour..."
                     value={addStepForm.smsTemplate}
-                    onChange={(e) => setAddStepForm({ ...addStepForm, smsTemplate: e.target.value })}
+                    onChange={(e) =>
+                      setAddStepForm({
+                        ...addStepForm,
+                        smsTemplate: e.target.value,
+                      })
+                    }
                     className="w-full rounded-lg border border-slate-300 p-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66] font-mono leading-relaxed"
                     required
                   />
@@ -1174,7 +1401,9 @@ export default function SmsAutomationPage() {
                   </label>
                   <select
                     value={enrollForm.selectedContactId}
-                    onChange={(e) => handleSelectContactForEnroll(e.target.value)}
+                    onChange={(e) =>
+                      handleSelectContactForEnroll(e.target.value)
+                    }
                     className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66] bg-slate-50 font-medium text-slate-900"
                   >
                     <option value="">-- Choose from CRM Database --</option>
@@ -1187,31 +1416,47 @@ export default function SmsAutomationPage() {
                 </div>
 
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Buyer Full Name</label>
+                  <label className="font-semibold text-slate-700 block mb-1">
+                    Buyer Full Name
+                  </label>
                   <input
                     type="text"
                     placeholder="e.g. Ari Kaplan"
                     value={enrollForm.clientName}
-                    onChange={(e) => setEnrollForm({ ...enrollForm, clientName: e.target.value })}
+                    onChange={(e) =>
+                      setEnrollForm({
+                        ...enrollForm,
+                        clientName: e.target.value,
+                      })
+                    }
                     className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66]"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Ethio Phone Number</label>
+                  <label className="font-semibold text-slate-700 block mb-1">
+                    Ethio Phone Number
+                  </label>
                   <input
                     type="text"
                     placeholder="0911234567 or +251911..."
                     value={enrollForm.clientPhone}
-                    onChange={(e) => setEnrollForm({ ...enrollForm, clientPhone: e.target.value })}
+                    onChange={(e) =>
+                      setEnrollForm({
+                        ...enrollForm,
+                        clientPhone: e.target.value,
+                      })
+                    }
                     className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66] font-mono"
                     required
                   />
                 </div>
 
                 <div className="rounded-lg bg-sky-50 p-3 text-sky-800 text-[11px] leading-relaxed border border-sky-200">
-                  <strong>Notice:</strong> Enrolling this CRM lead will trigger multi-step SMS touchpoints according to the drip timeline sequence.
+                  <strong>Notice:</strong> Enrolling this CRM lead will trigger
+                  multi-step SMS touchpoints according to the drip timeline
+                  sequence.
                 </div>
 
                 <div className="flex items-center justify-end gap-2.5 border-t border-slate-100 pt-3">
@@ -1257,39 +1502,64 @@ export default function SmsAutomationPage() {
               <form onSubmit={handleSaveRule} className="space-y-4 text-xs">
                 <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-3">
                   <div>
-                    <span className="font-bold text-slate-900 block">Enable Automated Trigger</span>
-                    <span className="text-[11px] text-slate-500">Automatically dispatch SMS when conditions match</span>
+                    <span className="font-bold text-slate-900 block">
+                      Enable Automated Trigger
+                    </span>
+                    <span className="text-[11px] text-slate-500">
+                      Automatically dispatch SMS when conditions match
+                    </span>
                   </div>
                   <input
                     type="checkbox"
                     checked={ruleEditForm.enabled}
-                    onChange={(e) => setRuleEditForm({ ...ruleEditForm, enabled: e.target.checked })}
+                    onChange={(e) =>
+                      setRuleEditForm({
+                        ...ruleEditForm,
+                        enabled: e.target.checked,
+                      })
+                    }
                     className="size-4 rounded border-slate-300 text-[#233b66] focus:ring-[#233b66]"
                   />
                 </div>
 
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Trigger Timing</label>
+                  <label className="font-semibold text-slate-700 block mb-1">
+                    Trigger Timing
+                  </label>
                   <input
                     type="text"
                     value={ruleEditForm.timing}
-                    onChange={(e) => setRuleEditForm({ ...ruleEditForm, timing: e.target.value })}
+                    onChange={(e) =>
+                      setRuleEditForm({
+                        ...ruleEditForm,
+                        timing: e.target.value,
+                      })
+                    }
                     className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66]"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">SMS Template Text</label>
+                  <label className="font-semibold text-slate-700 block mb-1">
+                    SMS Template Text
+                  </label>
                   <textarea
                     rows={4}
                     value={ruleEditForm.template}
-                    onChange={(e) => setRuleEditForm({ ...ruleEditForm, template: e.target.value })}
+                    onChange={(e) =>
+                      setRuleEditForm({
+                        ...ruleEditForm,
+                        template: e.target.value,
+                      })
+                    }
                     className="w-full rounded-lg border border-slate-300 p-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66] font-mono leading-relaxed"
                     required
                   />
                   <span className="text-[11px] text-slate-500 mt-1 block">
-                    Available variables: <code>{"{clientName}"}</code>, <code>{"{projectName}"}</code>, <code>{"{unitNumber}"}</code>, <code>{"{agentPhone}"}</code>
+                    Available variables: <code>{"{clientName}"}</code>,{" "}
+                    <code>{"{projectName}"}</code>,{" "}
+                    <code>{"{unitNumber}"}</code>, <code>{"{agentPhone}"}</code>
                   </span>
                 </div>
 

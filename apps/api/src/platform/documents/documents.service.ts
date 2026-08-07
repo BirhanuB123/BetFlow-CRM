@@ -208,10 +208,7 @@ export class DocumentsService {
     return document;
   }
 
-  private async assertEntityExists(
-    entityType: EntityType,
-    entityId: string,
-  ) {
+  private async assertEntityExists(entityType: EntityType, entityId: string) {
     const where = { id: entityId };
     const entity = await {
       ACCOUNT: () => this.prisma.account.findFirst({ where }),

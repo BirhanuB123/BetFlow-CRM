@@ -50,7 +50,11 @@ export default function DataTransferPage() {
       setJobs(jobsData);
       setTemplates(templatesData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load data transfer settings");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to load data transfer settings",
+      );
     } finally {
       setLoading(false);
     }
@@ -64,14 +68,19 @@ export default function DataTransferPage() {
     setTriggering(true);
     setError(null);
     try {
-      const newJob = await apiFetch<DataTransferJob>("/saas/data-transfer-jobs", {
-        method: "POST",
-        body: JSON.stringify({ type, scope }),
-      });
+      const newJob = await apiFetch<DataTransferJob>(
+        "/saas/data-transfer-jobs",
+        {
+          method: "POST",
+          body: JSON.stringify({ type, scope }),
+        },
+      );
       setJobs((prev) => [newJob, ...prev]);
       showSuccess(`Triggered ${type} job for ${scope}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to trigger transfer job");
+      setError(
+        err instanceof Error ? err.message : "Failed to trigger transfer job",
+      );
     } finally {
       setTriggering(false);
     }
@@ -112,7 +121,9 @@ export default function DataTransferPage() {
         <div className="flex items-center justify-between gap-4 border-b border-zinc-200 p-4">
           <div>
             <h2 className="text-base font-semibold">Transfer jobs</h2>
-            <p className="text-sm text-zinc-500">Exports and imports by scope and requester.</p>
+            <p className="text-sm text-zinc-500">
+              Exports and imports by scope and requester.
+            </p>
           </div>
           <div className="flex gap-2">
             <Button
@@ -136,16 +147,23 @@ export default function DataTransferPage() {
         {loading ? (
           <p className="p-6 text-sm text-zinc-500">Loading transfer jobs…</p>
         ) : jobs.length === 0 ? (
-          <p className="p-6 text-sm text-zinc-500 text-center">No transfer jobs recorded.</p>
+          <p className="p-6 text-sm text-zinc-500 text-center">
+            No transfer jobs recorded.
+          </p>
         ) : (
           <CrmTable
             columns={["Type", "Scope", "Requested By", "Requested", "Status"]}
             rows={jobs.map((job) => [
-              <span key="type" className="font-medium uppercase">{job.type}</span>,
+              <span key="type" className="font-medium uppercase">
+                {job.type}
+              </span>,
               job.scope,
               job.requestedByUserId === "user_001" ? "You (Admin)" : "System",
               job.requestedAt,
-              <span key="status" className={`rounded-md border px-2 py-0.5 text-xs font-medium uppercase ${statusClass[job.status]}`}>
+              <span
+                key="status"
+                className={`rounded-md border px-2 py-0.5 text-xs font-medium uppercase ${statusClass[job.status]}`}
+              >
                 {job.status}
               </span>,
             ])}
@@ -156,20 +174,33 @@ export default function DataTransferPage() {
       <section className="mt-6 rounded-lg border border-zinc-200 bg-white">
         <div className="border-b border-zinc-200 p-4">
           <h2 className="text-base font-semibold">Excel import templates</h2>
-          <p className="text-sm text-zinc-500">Workbook formats for tenant onboarding and bulk data migration.</p>
+          <p className="text-sm text-zinc-500">
+            Workbook formats for tenant onboarding and bulk data migration.
+          </p>
         </div>
 
         {loading ? (
           <p className="p-6 text-sm text-zinc-500">Loading templates…</p>
         ) : (
           <CrmTable
-            columns={["Template", "Entity", "Required columns", "Last run", "Status"]}
+            columns={[
+              "Template",
+              "Entity",
+              "Required columns",
+              "Last run",
+              "Status",
+            ]}
             rows={templates.map((template) => [
-              <span key="template" className="font-medium">{template.template}</span>,
+              <span key="template" className="font-medium">
+                {template.template}
+              </span>,
               template.entity,
               template.requiredColumns.join(", "),
               template.lastRun,
-              <span key="status" className={`rounded-md border px-2 py-0.5 text-xs font-medium uppercase ${statusClass[template.status]}`}>
+              <span
+                key="status"
+                className={`rounded-md border px-2 py-0.5 text-xs font-medium uppercase ${statusClass[template.status]}`}
+              >
                 {template.status}
               </span>,
             ])}

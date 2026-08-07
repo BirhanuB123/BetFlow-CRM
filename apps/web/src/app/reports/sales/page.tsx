@@ -62,7 +62,9 @@ export default function SalesReportPage() {
       setDashboard(sales);
       setAgents(agentData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load sales report");
+      setError(
+        err instanceof Error ? err.message : "Failed to load sales report",
+      );
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -77,7 +79,7 @@ export default function SalesReportPage() {
   const filteredAgents = useMemo(() => {
     if (!searchQuery.trim()) return agents;
     return agents.filter((a) =>
-      a.agent.toLowerCase().includes(searchQuery.toLowerCase())
+      a.agent.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [agents, searchQuery]);
 
@@ -89,11 +91,25 @@ export default function SalesReportPage() {
     }, 0);
   }, [agents]);
 
-  const totalLeads = useMemo(() => agents.reduce((acc, a) => acc + a.leads, 0), [agents]);
-  const totalReservations = useMemo(() => agents.reduce((acc, a) => acc + a.reservations, 0), [agents]);
+  const totalLeads = useMemo(
+    () => agents.reduce((acc, a) => acc + a.leads, 0),
+    [agents],
+  );
+  const totalReservations = useMemo(
+    () => agents.reduce((acc, a) => acc + a.reservations, 0),
+    [agents],
+  );
 
   const handleExportCSV = () => {
-    const headers = ["Rank", "Agent", "Leads", "Visits", "Reservations", "Revenue", "Conversion"];
+    const headers = [
+      "Rank",
+      "Agent",
+      "Leads",
+      "Visits",
+      "Reservations",
+      "Revenue",
+      "Conversion",
+    ];
     const csvRows = agents.map((a, idx) => [
       `"#${idx + 1}"`,
       `"${a.agent}"`,
@@ -117,17 +133,38 @@ export default function SalesReportPage() {
 
   const handlePrint = () => {
     const printMetrics = dashboard?.metrics ?? [
-      { label: "Booked Revenue", value: "$250,000", detail: "Active contracts" },
-      { label: "Collected", value: "$12,937,000", detail: "Completed payments" },
-      { label: "Sales Velocity", value: "$93,000", detail: "Projected revenue / day" },
+      {
+        label: "Booked Revenue",
+        value: "$250,000",
+        detail: "Active contracts",
+      },
+      {
+        label: "Collected",
+        value: "$12,937,000",
+        detail: "Completed payments",
+      },
+      {
+        label: "Sales Velocity",
+        value: "$93,000",
+        detail: "Projected revenue / day",
+      },
       { label: "Open Leads", value: "3", detail: "Awaiting conversion" },
     ];
 
     printReportDocument({
       title: "Sales Productivity & Revenue Performance Dashboard",
-      subtitle: "Comprehensive overview of agent contributions, booked revenue, and conversion metrics.",
+      subtitle:
+        "Comprehensive overview of agent contributions, booked revenue, and conversion metrics.",
       metrics: printMetrics,
-      columns: ["Rank", "Agent Name", "Leads", "Site Visits", "Reservations", "Total Revenue", "Conversion Rate"],
+      columns: [
+        "Rank",
+        "Agent Name",
+        "Leads",
+        "Site Visits",
+        "Reservations",
+        "Total Revenue",
+        "Conversion Rate",
+      ],
       rows: agents.map((a, idx) => [
         `#${idx + 1}`,
         a.agent,
@@ -198,7 +235,6 @@ export default function SalesReportPage() {
       active="Sales report"
     >
       <div className="space-y-6">
-        
         {/* Top Header Control Toolbar */}
         <div className="no-print flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-slate-200/80 bg-white p-4 shadow-xs">
           <div className="flex items-center gap-3">
@@ -206,8 +242,12 @@ export default function SalesReportPage() {
               <TrendingUp className="size-5" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-slate-900">Sales Performance Analytics</h2>
-              <p className="text-xs text-slate-500">Real-time team revenue & conversion tracking</p>
+              <h2 className="text-sm font-bold text-slate-900">
+                Sales Performance Analytics
+              </h2>
+              <p className="text-xs text-slate-500">
+                Real-time team revenue & conversion tracking
+              </p>
             </div>
           </div>
 
@@ -234,7 +274,12 @@ export default function SalesReportPage() {
               disabled={refreshing}
               className="h-9 text-xs font-semibold border-slate-200 text-slate-700 hover:bg-slate-50"
             >
-              <RefreshCw className={cn("size-3.5 mr-1.5 text-slate-500", refreshing && "animate-spin")} />
+              <RefreshCw
+                className={cn(
+                  "size-3.5 mr-1.5 text-slate-500",
+                  refreshing && "animate-spin",
+                )}
+              />
               Refresh
             </Button>
 
@@ -268,7 +313,10 @@ export default function SalesReportPage() {
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {loading
             ? Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-32 animate-pulse rounded-xl border border-slate-200/80 bg-slate-50" />
+                <div
+                  key={i}
+                  className="h-32 animate-pulse rounded-xl border border-slate-200/80 bg-slate-50"
+                />
               ))
             : (dashboard?.metrics ?? []).map((metric, idx) => {
                 const config = cardConfigs[idx] ?? {
@@ -289,7 +337,12 @@ export default function SalesReportPage() {
                     className="relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs transition-all hover:shadow-md hover:-translate-y-0.5"
                   >
                     {/* Top Accent Line */}
-                    <div className={cn("absolute top-0 left-0 right-0 h-1 bg-gradient-to-r", config.accentBar)} />
+                    <div
+                      className={cn(
+                        "absolute top-0 left-0 right-0 h-1 bg-gradient-to-r",
+                        config.accentBar,
+                      )}
+                    />
 
                     <div className="flex items-start justify-between">
                       <div>
@@ -300,7 +353,12 @@ export default function SalesReportPage() {
                           {metric.value}
                         </h3>
                       </div>
-                      <div className={cn("flex size-10 items-center justify-center rounded-xl border shadow-xs", config.iconBg)}>
+                      <div
+                        className={cn(
+                          "flex size-10 items-center justify-center rounded-xl border shadow-xs",
+                          config.iconBg,
+                        )}
+                      >
                         <IconComponent className="size-5" />
                       </div>
                     </div>
@@ -309,7 +367,12 @@ export default function SalesReportPage() {
                       <span className="text-xs font-medium text-slate-500">
                         {metric.detail}
                       </span>
-                      <span className={cn("inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-bold shadow-2xs", config.badgeColor)}>
+                      <span
+                        className={cn(
+                          "inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-bold shadow-2xs",
+                          config.badgeColor,
+                        )}
+                      >
                         {config.badge}
                       </span>
                     </div>
@@ -321,7 +384,7 @@ export default function SalesReportPage() {
         {/* Goal Achievement & Performance Progress Banner */}
         <div className="relative overflow-hidden rounded-xl border border-indigo-100 bg-gradient-to-r from-indigo-900 via-[#1e293b] to-slate-900 p-6 text-white shadow-sm">
           <div className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full bg-indigo-500/20 blur-3xl" />
-          
+
           <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-indigo-400 font-semibold text-xs uppercase tracking-wider">
@@ -329,10 +392,12 @@ export default function SalesReportPage() {
                 <span>Monthly Target & Pace Tracking</span>
               </div>
               <h3 className="text-xl font-bold tracking-tight text-white">
-                Booked Revenue Target: <span className="text-emerald-400">$500,000</span>
+                Booked Revenue Target:{" "}
+                <span className="text-emerald-400">$500,000</span>
               </h3>
               <p className="text-xs text-slate-300">
-                Currently at <strong className="text-white">$250,000</strong> (50.0% of target). On track to meet quarterly forecasts.
+                Currently at <strong className="text-white">$250,000</strong>{" "}
+                (50.0% of target). On track to meet quarterly forecasts.
               </p>
             </div>
 
@@ -361,9 +426,13 @@ export default function SalesReportPage() {
             <div>
               <div className="flex items-center gap-2">
                 <Trophy className="size-4.5 text-amber-500" />
-                <h2 className="text-sm font-bold text-slate-900">Top Sales Contributors</h2>
+                <h2 className="text-sm font-bold text-slate-900">
+                  Top Sales Contributors
+                </h2>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">Reservations, leads, and revenue attributed per sales agent.</p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Reservations, leads, and revenue attributed per sales agent.
+              </p>
             </div>
 
             {/* Search Input Bar */}
@@ -405,7 +474,9 @@ export default function SalesReportPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filteredAgents.map((agent, index) => {
-                    const isTopPerformer = index === 0 && parseFloat(agent.revenue.replace(/[^0-9.-]+/g, "")) > 0;
+                    const isTopPerformer =
+                      index === 0 &&
+                      parseFloat(agent.revenue.replace(/[^0-9.-]+/g, "")) > 0;
                     const initials = getInitials(agent.agent);
                     const conversionNum = parseFloat(agent.conversion) || 0;
 
@@ -414,7 +485,7 @@ export default function SalesReportPage() {
                         key={agent.agentId || agent.agent}
                         className={cn(
                           "transition-colors hover:bg-slate-50/80",
-                          isTopPerformer && "bg-amber-50/30"
+                          isTopPerformer && "bg-amber-50/30",
                         )}
                       >
                         {/* Rank Badge */}
@@ -435,17 +506,23 @@ export default function SalesReportPage() {
                         {/* Agent Column */}
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-3">
-                            <div className={cn(
-                              "flex size-8 items-center justify-center rounded-full font-extrabold text-xs text-white shadow-2xs",
-                              index === 0 ? "bg-gradient-to-tr from-amber-500 to-orange-400" :
-                              index === 1 ? "bg-gradient-to-tr from-indigo-500 to-blue-500" :
-                              "bg-gradient-to-tr from-slate-600 to-slate-500"
-                            )}>
+                            <div
+                              className={cn(
+                                "flex size-8 items-center justify-center rounded-full font-extrabold text-xs text-white shadow-2xs",
+                                index === 0
+                                  ? "bg-gradient-to-tr from-amber-500 to-orange-400"
+                                  : index === 1
+                                    ? "bg-gradient-to-tr from-indigo-500 to-blue-500"
+                                    : "bg-gradient-to-tr from-slate-600 to-slate-500",
+                              )}
+                            >
                               {initials}
                             </div>
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="font-bold text-slate-900">{agent.agent}</span>
+                                <span className="font-bold text-slate-900">
+                                  {agent.agent}
+                                </span>
                                 {isTopPerformer && (
                                   <span className="inline-flex items-center rounded-md bg-amber-100 border border-amber-200 px-2 py-0.5 text-[10px] font-extrabold text-amber-800 shadow-2xs">
                                     <Award className="size-3 mr-1 text-amber-600" />
@@ -453,7 +530,9 @@ export default function SalesReportPage() {
                                   </span>
                                 )}
                               </div>
-                              <span className="text-[11px] text-slate-500">Sales Representative</span>
+                              <span className="text-[11px] text-slate-500">
+                                Sales Representative
+                              </span>
                             </div>
                           </div>
                         </td>
@@ -482,9 +561,13 @@ export default function SalesReportPage() {
                         {/* Revenue */}
                         <td className="px-5 py-3.5 text-right font-extrabold text-slate-900">
                           {agent.revenue !== "$0" ? (
-                            <span className="text-emerald-600 font-bold">{agent.revenue}</span>
+                            <span className="text-emerald-600 font-bold">
+                              {agent.revenue}
+                            </span>
                           ) : (
-                            <span className="text-slate-400 font-medium">$0</span>
+                            <span className="text-slate-400 font-medium">
+                              $0
+                            </span>
                           )}
                         </td>
 
@@ -495,18 +578,27 @@ export default function SalesReportPage() {
                               <div
                                 className={cn(
                                   "h-full rounded-full transition-all",
-                                  conversionNum > 25 ? "bg-emerald-500" :
-                                  conversionNum > 0 ? "bg-indigo-500" : "bg-slate-300"
+                                  conversionNum > 25
+                                    ? "bg-emerald-500"
+                                    : conversionNum > 0
+                                      ? "bg-indigo-500"
+                                      : "bg-slate-300",
                                 )}
-                                style={{ width: `${Math.min(conversionNum, 100)}%` }}
+                                style={{
+                                  width: `${Math.min(conversionNum, 100)}%`,
+                                }}
                               />
                             </div>
-                            <span className={cn(
-                              "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-bold",
-                              conversionNum > 25 ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
-                              conversionNum > 0 ? "bg-indigo-50 text-indigo-700 border-indigo-200" :
-                              "bg-slate-100 text-slate-600 border-slate-200"
-                            )}>
+                            <span
+                              className={cn(
+                                "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-bold",
+                                conversionNum > 25
+                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                  : conversionNum > 0
+                                    ? "bg-indigo-50 text-indigo-700 border-indigo-200"
+                                    : "bg-slate-100 text-slate-600 border-slate-200",
+                              )}
+                            >
                               {agent.conversion}
                             </span>
                           </div>
@@ -519,7 +611,6 @@ export default function SalesReportPage() {
             </div>
           )}
         </section>
-
       </div>
     </DashboardShell>
   );

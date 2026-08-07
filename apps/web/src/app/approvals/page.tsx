@@ -26,7 +26,9 @@ export default function ApprovalWorkflowsPage() {
       const res = await apiFetch<ApprovalRequestItem[]>("/contracts/approvals");
       setApprovals(res);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load approval queue");
+      setError(
+        err instanceof Error ? err.message : "Failed to load approval queue",
+      );
     } finally {
       setLoading(false);
     }
@@ -44,7 +46,9 @@ export default function ApprovalWorkflowsPage() {
       });
       await loadApprovals();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to review contract");
+      setError(
+        err instanceof Error ? err.message : "Failed to review contract",
+      );
     }
   };
 
@@ -69,8 +73,13 @@ export default function ApprovalWorkflowsPage() {
           <div className="flex items-center gap-2">
             <ShieldAlert className="size-5 text-amber-600" />
             <div>
-              <h2 className="text-base font-bold text-zinc-900">Pending Manager Approvals</h2>
-              <p className="text-xs text-zinc-500">Requires Executive or Finance Manager sign-off before contract activation.</p>
+              <h2 className="text-base font-bold text-zinc-900">
+                Pending Manager Approvals
+              </h2>
+              <p className="text-xs text-zinc-500">
+                Requires Executive or Finance Manager sign-off before contract
+                activation.
+              </p>
             </div>
           </div>
           <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
@@ -101,19 +110,28 @@ export default function ApprovalWorkflowsPage() {
                     </span>
                   </div>
 
-                  <h3 className="mt-2 text-sm font-bold text-zinc-900">{item.title}</h3>
+                  <h3 className="mt-2 text-sm font-bold text-zinc-900">
+                    {item.title}
+                  </h3>
                   <p className="text-xs text-zinc-500">
-                    Buyer: <span className="font-semibold text-zinc-800">{item.buyerName}</span>
+                    Buyer:{" "}
+                    <span className="font-semibold text-zinc-800">
+                      {item.buyerName}
+                    </span>
                   </p>
 
                   <div className="mt-3 rounded-lg bg-white p-3 border border-amber-100 text-xs space-y-1">
                     <p className="flex justify-between">
                       <span className="text-zinc-500">Agreed Price:</span>
-                      <span className="font-extrabold text-zinc-900">{fmt(item.amount, item.currency)}</span>
+                      <span className="font-extrabold text-zinc-900">
+                        {fmt(item.amount, item.currency)}
+                      </span>
                     </p>
                     <p className="flex justify-between">
                       <span className="text-zinc-500">Custom Discount:</span>
-                      <span className="font-bold text-rose-600">{item.discountPercent}%</span>
+                      <span className="font-bold text-rose-600">
+                        {item.discountPercent}%
+                      </span>
                     </p>
                     <div className="mt-2 border-t border-zinc-100 pt-1 text-[11px] text-amber-900">
                       <strong>Reason:</strong> {item.reason}
@@ -152,7 +170,10 @@ export default function ApprovalWorkflowsPage() {
           </h2>
           <div className="divide-y divide-zinc-100">
             {processed.map((item) => (
-              <div key={item.id} className="flex items-center justify-between py-2.5 text-xs">
+              <div
+                key={item.id}
+                className="flex items-center justify-between py-2.5 text-xs"
+              >
                 <div>
                   <p className="font-bold text-zinc-900">{item.title}</p>
                   <p className="text-zinc-500">{item.reason}</p>
