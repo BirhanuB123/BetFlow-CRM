@@ -48,7 +48,7 @@ export class LeadsController {
     @Param('id') id: string,
     @Body() body: UpdateLeadStatusInput,
   ) {
-    return this.leads.updateStatus(user.id, id, body.status);
+    return this.leads.updateStatus(user, id, body.status);
   }
 
   @Post(':id/convert')
@@ -57,7 +57,7 @@ export class LeadsController {
     @Param('id') id: string,
     @Body() body: ConvertLeadInput,
   ) {
-    return this.leads.convert(user.id, id, body);
+    return this.leads.convert(user, id, body);
   }
 
   @Patch(':id')
@@ -66,11 +66,11 @@ export class LeadsController {
     @Param('id') id: string,
     @Body() body: UpdateLeadInput,
   ) {
-    return this.leads.update(user.id, id, body);
+    return this.leads.update(user, id, body);
   }
 
   @Delete(':id')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.leads.remove(user.id, id);
+    return this.leads.remove(user, id);
   }
 }

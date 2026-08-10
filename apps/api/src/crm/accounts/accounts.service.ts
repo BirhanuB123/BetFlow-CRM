@@ -13,6 +13,8 @@ import {
   CreateAccountInput,
   UpdateAccountInput,
 } from './accounts.types';
+import type { AuthenticatedUser } from '../../core/auth/auth.types';
+import { assertEntityOwnership } from '../../common/utils/ownership.util';
 
 const ownerSelect = {
   id: true,
@@ -146,7 +148,8 @@ export class AccountsService {
     return account;
   }
 
-  async update(userId: string, id: string, input: UpdateAccountInput) {
+  async update(user: AuthenticatedUser | string, id: string, input: UpdateAccountInput) {
+    const userId = typeof user === 'string' ? user : user.id;
     const existing = await this.prisma.account.findFirst({
       where: { id },
     });
@@ -154,6 +157,8 @@ export class AccountsService {
     if (!existing) {
       throw new NotFoundException(`Account ${id} was not found`);
     }
+
+    assertEntityOwnership(user, existing.ownerId, 'account');
 
     if (input.parentAccountId === id) {
       throw new BadRequestException('An account cannot be its own parent');
@@ -251,7 +256,8 @@ export class AccountsService {
     return account;
   }
 
-  async remove(userId: string, id: string) {
+  async remove(user: AuthenticatedUser | string, id: string) {
+    const userId = typeof user === 'string' ? user : user.id;
     const existing = await this.prisma.account.findFirst({
       where: { id },
       include: {
@@ -264,6 +270,8 @@ export class AccountsService {
     if (!existing) {
       throw new NotFoundException(`Account ${id} was not found`);
     }
+
+    assertEntityOwnership(user, existing.ownerId, 'account');
 
     if (existing._count.deals > 0) {
       throw new BadRequestException(

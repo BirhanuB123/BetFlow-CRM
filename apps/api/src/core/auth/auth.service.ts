@@ -199,11 +199,18 @@ export class AuthService {
       throw new NotFoundException(`User was not found`);
     }
 
+    const firstName = body?.firstName?.trim();
+    const lastName = body?.lastName?.trim();
+
+    if (!firstName || !lastName) {
+      throw new BadRequestException('firstName and lastName are required');
+    }
+
     const updated = await this.prisma.user.update({
       where: { id: userId },
       data: {
-        firstName: body.firstName.trim(),
-        lastName: body.lastName.trim(),
+        firstName,
+        lastName,
       },
     });
 
@@ -236,15 +243,21 @@ export class AuthService {
       throw new NotFoundException(`User was not found`);
     }
 
+    if (!body?.newPassword || body.newPassword.trim().length < 8) {
+      throw new BadRequestException(
+        'newPassword is required and must be at least 8 characters long',
+      );
+    }
+
     const matched = await this.passwords.verify(
-      body.currentPassword,
+      body.currentPassword || '',
       user.password,
     );
     if (!matched) {
       throw new BadRequestException('Current password does not match');
     }
 
-    const hashed = await this.passwords.hash(body.newPassword);
+    const hashed = await this.passwords.hash(body.newPassword.trim());
     await this.prisma.user.update({
       where: { id: userId },
       data: { password: hashed },
