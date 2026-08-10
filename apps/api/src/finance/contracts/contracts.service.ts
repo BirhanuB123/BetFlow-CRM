@@ -184,7 +184,6 @@ export class ContractsService {
   }
 
   async list() {
-    await this.deduplicateUnitContracts();
     return this.prisma.contract.findMany({
       where: {},
       include: contractInclude,
@@ -240,22 +239,6 @@ export class ContractsService {
       throw new BadRequestException('customerId is required');
     if (!input.unitId) throw new BadRequestException('unitId is required');
 
-    // Prevent duplicate active/signed contracts for the same unit
-    const existingActiveContract = await this.prisma.contract.findFirst({
-      where: {
-        unitId: input.unitId,
-        status: {
-          in: ['ACTIVE', 'SIGNED', 'PENDING_SIGNATURE', 'PENDING_APPROVAL'],
-        },
-      },
-    });
-
-    if (existingActiveContract) {
-      throw new BadRequestException(
-        `Unit already has an active contract (${existingActiveContract.contractNumber || existingActiveContract.id}). Duplicate contracts for the same unit are not allowed.`,
-      );
-    }
-
     const startDate = this.normalizeDate(input.startDate, 'startDate');
     const endDate =
       input.endDate != null && input.endDate !== ''
@@ -282,34 +265,70 @@ export class ContractsService {
     }
 
     const initialStatus = input.status?.trim() || 'ACTIVE';
+    const targetUnitStatus = initialStatus === 'SIGNED' ? 'SOLD' : 'RESERVED';
 
-    const contract = await this.prisma.contract.create({
-      data: {
-        contractNumber,
-        contractType: input.contractType || 'SALES_AGREEMENT',
-        customerId: input.customerId,
-        unitId: input.unitId,
-        dealId: input.dealId || null,
-        startDate,
-        endDate,
-        totalAmt,
-        downPaymentAmt,
-        paymentPlan: input.paymentPlan || 'INSTALLMENTS_24M',
-        notes: input.notes?.trim() || null,
-        status: initialStatus,
-      },
-      include: contractInclude,
+    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      // Prevent duplicate active/signed contracts for the same unit inside transaction
+      const existingActiveContract = await tx.contract.findFirst({
+        where: {
+          unitId: input.unitId,
+          status: {
+            in: ['ACTIVE', 'SIGNED', 'PENDING_SIGNATURE', 'PENDING_APPROVAL'],
+          },
+        },
+      });
+
+      if (existingActiveContract) {
+        throw new BadRequestException(
+          `Unit already has an active contract (${existingActiveContract.contractNumber || existingActiveContract.id}). Duplicate contracts for the same unit are not allowed.`,
+        );
+      }
+
+      // Atomic unit status lock to prevent concurrent double-booking
+      const unitUpdateResult = await tx.unit.updateMany({
+        where: {
+          id: input.unitId,
+          status: { not: 'SOLD' },
+        },
+        data: { status: targetUnitStatus },
+      });
+
+      if (unitUpdateResult.count === 0) {
+        const unit = await tx.unit.findFirst({ where: { id: input.unitId } });
+        throw new BadRequestException(
+          `Unit ${unit?.unitNumber || input.unitId} is ${unit?.status.toLowerCase() || 'unavailable'} and cannot accept a new contract`,
+        );
+      }
+
+      const contract = await tx.contract.create({
+        data: {
+          contractNumber,
+          contractType: input.contractType || 'SALES_AGREEMENT',
+          customerId: input.customerId,
+          unitId: input.unitId,
+          dealId: input.dealId || null,
+          startDate,
+          endDate,
+          totalAmt,
+          downPaymentAmt,
+          paymentPlan: input.paymentPlan || 'INSTALLMENTS_24M',
+          notes: input.notes?.trim() || null,
+          status: initialStatus,
+        },
+        include: contractInclude,
+      });
+
+      await tx.auditLog.create({
+        data: {
+          userId,
+          action: 'contract.created',
+          entityType: 'Contract',
+          entityId: contract.id,
+        },
+      });
+
+      return contract;
     });
-
-    // Update unit status to RESERVED or SOLD
-    await this.prisma.unit.update({
-      where: { id: input.unitId },
-      data: { status: initialStatus === 'SIGNED' ? 'SOLD' : 'RESERVED' },
-    });
-
-    await this.recordAudit(userId, 'contract.created', contract.id);
-
-    return contract;
   }
 
   async update(userId: string, id: string, input: UpdateContractInput) {

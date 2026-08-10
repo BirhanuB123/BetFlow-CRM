@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import { CreatePaymentInput, UpdatePaymentInput } from './payments.types';
 
@@ -72,6 +73,8 @@ export class PaymentsService {
     const method = input.method?.trim() || 'CBE_BANK_TRANSFER';
     const contractId = input.contractId || null;
     const reservationId = input.reservationId || null;
+    const scheduleId = input.scheduleId || null;
+    const paymentStatus = input.status?.trim() || 'COMPLETED';
 
     if (!contractId && !reservationId) {
       throw new BadRequestException(
@@ -85,116 +88,205 @@ export class PaymentsService {
     if (reservationId) {
       await this.assertReservationExists(reservationId);
     }
-
-    const payment = await this.prisma.payment.create({
-      data: {
-        amount,
-        method,
-        receiptNumber: input.receiptNumber?.trim() || null,
-        status: 'COMPLETED',
-        date: input.date ? this.normalizeDate(input.date) : new Date(),
-        notes: input.notes?.trim() || null,
-        contractId,
-        reservationId,
-        scheduleId: input.scheduleId || null,
-      },
-      include: paymentInclude,
-    });
-
-    if (input.scheduleId) {
-      const schedule = await this.prisma.paymentSchedule.findFirst({
-        where: { id: input.scheduleId },
-      });
-      if (schedule) {
-        const newPaid = Number(schedule.paidAmount) + Number(amount);
-        const schedTotal = Number(schedule.amount);
-        let newStatus = 'PARTIALLY_PAID';
-        if (newPaid >= schedTotal) newStatus = 'PAID';
-
-        await this.prisma.paymentSchedule.update({
-          where: { id: input.scheduleId },
-          data: {
-            paidAmount: newPaid,
-            status: newStatus,
-          },
-        });
-      }
+    if (scheduleId) {
+      await this.assertScheduleExists(scheduleId);
     }
 
-    await this.recordAudit(userId, 'payment.created', payment.id);
+    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const payment = await tx.payment.create({
+        data: {
+          amount,
+          method,
+          receiptNumber: input.receiptNumber?.trim() || null,
+          status: paymentStatus,
+          date: input.date ? this.normalizeDate(input.date) : new Date(),
+          notes: input.notes?.trim() || null,
+          contractId,
+          reservationId,
+          scheduleId,
+        },
+        include: paymentInclude,
+      });
 
-    return payment;
+      if (scheduleId) {
+        await this.recalculateSchedule(tx, scheduleId);
+      }
+
+      await tx.auditLog.create({
+        data: {
+          userId,
+          action: 'payment.created',
+          entityType: 'Payment',
+          entityId: payment.id,
+        },
+      });
+
+      return payment;
+    });
   }
 
   async update(userId: string, id: string, input: UpdatePaymentInput) {
-    const existing = await this.prisma.payment.findFirst({
-      where: { id },
-    });
+    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const existing = await tx.payment.findFirst({
+        where: { id },
+      });
 
-    if (!existing) {
-      throw new NotFoundException(`Payment ${id} was not found`);
-    }
-
-    const contractId =
-      input.contractId !== undefined
-        ? input.contractId || null
-        : existing.contractId;
-    const reservationId =
-      input.reservationId !== undefined
-        ? input.reservationId || null
-        : existing.reservationId;
-
-    if (input.contractId !== undefined || input.reservationId !== undefined) {
-      this.assertExactlyOneTarget(contractId, reservationId);
-      if (contractId && contractId !== existing.contractId) {
-        await this.assertContractExists(contractId);
+      if (!existing) {
+        throw new NotFoundException(`Payment ${id} was not found`);
       }
-      if (reservationId && reservationId !== existing.reservationId) {
-        await this.assertReservationExists(reservationId);
+
+      const contractId =
+        input.contractId !== undefined
+          ? input.contractId || null
+          : existing.contractId;
+      const reservationId =
+        input.reservationId !== undefined
+          ? input.reservationId || null
+          : existing.reservationId;
+      const scheduleId =
+        input.scheduleId !== undefined
+          ? input.scheduleId || null
+          : existing.scheduleId;
+
+      if (input.contractId !== undefined || input.reservationId !== undefined) {
+        this.assertExactlyOneTarget(contractId, reservationId);
+        if (contractId && contractId !== existing.contractId) {
+          await this.assertContractExists(contractId);
+        }
+        if (reservationId && reservationId !== existing.reservationId) {
+          await this.assertReservationExists(reservationId);
+        }
       }
-    }
 
-    const data: Record<string, unknown> = {};
-    if (input.amount !== undefined)
-      data.amount = this.normalizeAmount(input.amount);
-    if (input.method !== undefined) {
-      const method = input.method.trim();
-      if (!method) throw new BadRequestException('method cannot be empty');
-      data.method = method;
-    }
-    if (input.status !== undefined) {
-      const status = input.status.trim();
-      if (!status) throw new BadRequestException('status cannot be empty');
-      data.status = status;
-    }
-    if (input.date !== undefined) data.date = this.normalizeDate(input.date);
-    if (input.contractId !== undefined) data.contractId = contractId;
-    if (input.reservationId !== undefined) data.reservationId = reservationId;
+      if (scheduleId && scheduleId !== existing.scheduleId) {
+        await this.assertScheduleExists(scheduleId);
+      }
 
-    const payment = await this.prisma.payment.update({
-      where: { id },
-      data,
-      include: paymentInclude,
+      const data: Record<string, unknown> = {};
+      if (input.amount !== undefined)
+        data.amount = this.normalizeAmount(input.amount);
+      if (input.method !== undefined) {
+        const method = input.method.trim();
+        if (!method) throw new BadRequestException('method cannot be empty');
+        data.method = method;
+      }
+      if (input.status !== undefined) {
+        const status = input.status.trim();
+        if (!status) throw new BadRequestException('status cannot be empty');
+        data.status = status;
+      }
+      if (input.date !== undefined) data.date = this.normalizeDate(input.date);
+      if (input.receiptNumber !== undefined)
+        data.receiptNumber = input.receiptNumber?.trim() || null;
+      if (input.notes !== undefined) data.notes = input.notes?.trim() || null;
+      if (input.contractId !== undefined) data.contractId = contractId;
+      if (input.reservationId !== undefined) data.reservationId = reservationId;
+      if (input.scheduleId !== undefined) data.scheduleId = scheduleId;
+
+      const payment = await tx.payment.update({
+        where: { id },
+        data,
+        include: paymentInclude,
+      });
+
+      const oldScheduleId = existing.scheduleId;
+      const newScheduleId = payment.scheduleId;
+
+      if (oldScheduleId) {
+        await this.recalculateSchedule(tx, oldScheduleId);
+      }
+      if (newScheduleId && newScheduleId !== oldScheduleId) {
+        await this.recalculateSchedule(tx, newScheduleId);
+      }
+
+      await tx.auditLog.create({
+        data: {
+          userId,
+          action: 'payment.updated',
+          entityType: 'Payment',
+          entityId: payment.id,
+        },
+      });
+
+      return payment;
     });
-
-    await this.recordAudit(userId, 'payment.updated', payment.id);
-
-    return payment;
   }
 
   async remove(userId: string, id: string) {
-    const existing = await this.prisma.payment.findFirst({
-      where: { id },
+    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const existing = await tx.payment.findFirst({
+        where: { id },
+      });
+
+      if (!existing) {
+        throw new NotFoundException(`Payment ${id} was not found`);
+      }
+
+      const scheduleId = existing.scheduleId;
+
+      await tx.payment.delete({ where: { id } });
+
+      if (scheduleId) {
+        await this.recalculateSchedule(tx, scheduleId);
+      }
+
+      await tx.auditLog.create({
+        data: {
+          userId,
+          action: 'payment.deleted',
+          entityType: 'Payment',
+          entityId: id,
+        },
+      });
+
+      return { id, deleted: true };
+    });
+  }
+
+  private async recalculateSchedule(
+    tx: Prisma.TransactionClient,
+    scheduleId: string,
+  ) {
+    const schedule = await tx.paymentSchedule.findUnique({
+      where: { id: scheduleId },
     });
 
-    if (!existing) {
-      throw new NotFoundException(`Payment ${id} was not found`);
+    if (!schedule) {
+      return;
     }
 
-    await this.prisma.payment.delete({ where: { id } });
-    await this.recordAudit(userId, 'payment.deleted', id);
+    const completedPayments = await tx.payment.findMany({
+      where: {
+        scheduleId,
+        status: 'COMPLETED',
+      },
+      select: {
+        amount: true,
+      },
+    });
 
-    return { id, deleted: true };
+    const totalPaid = completedPayments.reduce(
+      (sum: number, p: { amount: unknown }) => sum + Number(p.amount),
+      0,
+    );
+
+    const totalPaidDecimal = Number(totalPaid.toFixed(2));
+    const schedTotal = Number(schedule.amount);
+
+    let newStatus = 'PENDING';
+    if (totalPaidDecimal >= schedTotal) {
+      newStatus = 'PAID';
+    } else if (totalPaidDecimal > 0) {
+      newStatus = 'PARTIALLY_PAID';
+    }
+
+    await tx.paymentSchedule.update({
+      where: { id: scheduleId },
+      data: {
+        paidAmount: totalPaidDecimal,
+        status: newStatus,
+      },
+    });
   }
 
   private assertExactlyOneTarget(
@@ -245,6 +337,17 @@ export class PaymentsService {
     if (!reservation) {
       throw new BadRequestException(
         `Reservation ${reservationId} was not found`,
+      );
+    }
+  }
+
+  private async assertScheduleExists(scheduleId: string) {
+    const schedule = await this.prisma.paymentSchedule.findFirst({
+      where: { id: scheduleId },
+    });
+    if (!schedule) {
+      throw new BadRequestException(
+        `Payment schedule ${scheduleId} was not found`,
       );
     }
   }

@@ -14,6 +14,8 @@ import {
 } from './leads.types';
 
 import { AiScoringService } from './ai-scoring.service';
+import type { AuthenticatedUser } from '../../core/auth/auth.types';
+import { assertEntityOwnership } from '../../common/utils/ownership.util';
 
 const leadInclude = {
   source: { select: { id: true, name: true } },
@@ -131,7 +133,8 @@ export class LeadsService {
     };
   }
 
-  async update(userId: string, id: string, input: UpdateLeadInput) {
+  async update(user: AuthenticatedUser | string, id: string, input: UpdateLeadInput) {
+    const userId = typeof user === 'string' ? user : user.id;
     const existing = await this.prisma.lead.findFirst({
       where: { id },
     });
@@ -139,6 +142,8 @@ export class LeadsService {
     if (!existing) {
       throw new NotFoundException(`Lead ${id} was not found`);
     }
+
+    assertEntityOwnership(user, existing.ownerId, 'lead');
 
     if (input.sourceId) {
       await this.assertSourceExists(input.sourceId);
@@ -167,7 +172,8 @@ export class LeadsService {
     return lead;
   }
 
-  async remove(userId: string, id: string) {
+  async remove(user: AuthenticatedUser | string, id: string) {
+    const userId = typeof user === 'string' ? user : user.id;
     const existing = await this.prisma.lead.findFirst({
       where: { id },
     });
@@ -176,13 +182,16 @@ export class LeadsService {
       throw new NotFoundException(`Lead ${id} was not found`);
     }
 
+    assertEntityOwnership(user, existing.ownerId, 'lead');
+
     await this.prisma.lead.delete({ where: { id } });
     await this.recordAudit(userId, 'lead.deleted', id);
 
     return { id, deleted: true };
   }
 
-  async updateStatus(userId: string, id: string, status: string) {
+  async updateStatus(user: AuthenticatedUser | string, id: string, status: string) {
+    const userId = typeof user === 'string' ? user : user.id;
     const normalized = this.normalizeStatus(status);
     const existing = await this.prisma.lead.findFirst({
       where: { id },
@@ -191,6 +200,8 @@ export class LeadsService {
     if (!existing) {
       throw new NotFoundException(`Lead ${id} was not found`);
     }
+
+    assertEntityOwnership(user, existing.ownerId, 'lead');
 
     const lead = await this.prisma.lead.update({
       where: { id },
@@ -206,9 +217,11 @@ export class LeadsService {
     return lead;
   }
 
-  async convert(userId: string, id: string, input: ConvertLeadInput) {
+  async convert(user: AuthenticatedUser | string, id: string, input: ConvertLeadInput) {
+    const userId = typeof user === 'string' ? user : user.id;
     const lead = await this.prisma.lead.findFirst({ where: { id } });
     if (!lead) throw new NotFoundException(`Lead ${id} was not found`);
+    assertEntityOwnership(user, lead.ownerId, 'lead');
     if (lead.convertedAt) {
       throw new BadRequestException('Lead has already been converted');
     }

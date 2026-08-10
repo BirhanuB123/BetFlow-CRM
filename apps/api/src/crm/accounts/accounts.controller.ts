@@ -43,11 +43,11 @@ export class AccountsController {
     @Param('id') id: string,
     @Body() body: UpdateAccountInput,
   ) {
-    return this.accounts.update(user.id, id, body);
+    return this.accounts.update(user, id, body);
   }
 
   @Delete(':id')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.accounts.remove(user.id, id);
+    return this.accounts.remove(user, id);
   }
 }

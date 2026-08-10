@@ -1,5 +1,5 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import type { JwtPayload } from './auth.types';
 
 const algorithm = 'HS256';
@@ -15,15 +15,25 @@ export class JwtService {
     const isProduction = process.env.NODE_ENV === 'production';
 
     if (!envSecret) {
-      if (isProduction) {
+      if (isProduction || process.env.NODE_ENV === 'staging') {
         throw new Error(
-          'CRITICAL SECURITY FAILURE: JWT_SECRET environment variable is missing in production environment.',
+          'CRITICAL SECURITY FAILURE: JWT_SECRET environment variable is missing in production/staging environment.',
         );
       }
       this.logger.warn(
-        'SECURITY WARNING: JWT_SECRET is not configured in environment variables. Falling back to development secret. DO NOT USE IN PRODUCTION.',
+        'SECURITY WARNING: JWT_SECRET environment variable is missing. Generating a random runtime secret for this process. Configure JWT_SECRET in .env.',
       );
-      this.secret = 'betflow-dev-jwt-secret';
+      this.secret = randomBytes(32).toString('hex');
+    } else if (envSecret.length < 16) {
+      if (isProduction) {
+        throw new Error(
+          'CRITICAL SECURITY FAILURE: JWT_SECRET must be at least 16 characters long in production.',
+        );
+      }
+      this.logger.warn(
+        'SECURITY WARNING: JWT_SECRET is weak (<16 characters). Consider using a stronger key.',
+      );
+      this.secret = envSecret;
     } else {
       this.secret = envSecret;
     }
