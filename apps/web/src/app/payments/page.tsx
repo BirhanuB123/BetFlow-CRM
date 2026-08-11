@@ -27,7 +27,6 @@ import {
 } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
-import { StatCard, StatRow } from "@/components/ui/stat-card";
 import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
@@ -238,38 +237,6 @@ export default function RealEstatePaymentsPage() {
       active="Payments"
     >
       <div className="space-y-6">
-        <StatRow>
-          <StatCard
-            label="Total Collected"
-            value={formatCurrency(totalCollectionsETB)}
-            detail={`${payments.length} deposit receipts`}
-            icon={Banknote}
-            color="emerald"
-          />
-          <StatCard
-            label="Total Scheduled"
-            value={formatCurrency(totalScheduledETB)}
-            detail={`${schedules.length} milestones`}
-            icon={Layers}
-            color="navy"
-          />
-          <StatCard
-            label="Pending Collection"
-            value={formatCurrency(totalPendingETB)}
-            detail="Outstanding balance"
-            icon={Clock}
-            color="amber"
-          />
-          <StatCard
-            label="Overdue Milestones"
-            value={String(overdueCount)}
-            detail="Require immediate action"
-            icon={AlertTriangle}
-            color={overdueCount > 0 ? "rose" : "emerald"}
-            trend={overdueCount > 0 ? "down" : "flat"}
-            trendLabel={overdueCount > 0 ? `${overdueCount} overdue` : "On track"}
-          />
-        </StatRow>
 
         {/* Section Header & Record Deposit Button */}
         <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
