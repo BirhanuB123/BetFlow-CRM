@@ -4,6 +4,9 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 config({ path: ['.env.local', '.env', '../../.env'] });
 
@@ -54,6 +57,13 @@ async function bootstrap() {
       },
     }),
   );
+
+  // Global Exception Filters & Request Logging Interceptor
+  app.useGlobalFilters(
+    new PrismaExceptionFilter(),
+    new HttpExceptionFilter(),
+  );
+  app.useGlobalInterceptors(new LoggingInterceptor());
 
   app.setGlobalPrefix('api');
 

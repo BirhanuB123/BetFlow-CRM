@@ -22,6 +22,15 @@ export type EnvConfig = z.infer<typeof envSchema>;
 export function validateEnv(config: Record<string, unknown>): EnvConfig {
   const result = envSchema.safeParse(config);
 
+  if (result.success && result.data.NODE_ENV === 'production') {
+    if (result.data.JWT_SECRET === 'super-secret-betflow-jwt-key') {
+      console.error(
+        '\n❌ [Security Alert] Cannot use default JWT_SECRET in production environment.\n',
+      );
+      throw new Error('Insecure default JWT_SECRET in production mode');
+    }
+  }
+
   if (!result.success) {
     const formattedErrors = result.error.issues
       .map((err: z.ZodIssue) => `  - ${err.path.join('.')}: ${err.message}`)

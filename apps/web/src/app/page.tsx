@@ -40,6 +40,12 @@ import {
   MousePointerClick,
   ExternalLink,
   Laptop,
+  CheckCircle,
+  Play,
+  Building,
+  Search,
+  Lock,
+  MessageSquare,
 } from "lucide-react";
 
 import { demoCredentials } from "@/features/go-to-market/go-to-market-data";
@@ -263,7 +269,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-white text-slate-900 font-sans selection:bg-[#233b66] selection:text-white">
-      {/* 1. Header Navigation */}
+      {/* 1. Header Navigation (Follow Up Boss Style Sticky Bar) */}
       <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           {/* Logo & Brand */}
@@ -325,7 +331,7 @@ export default function Home() {
             <button
               type="button"
               onClick={copyCreds}
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
             >
               {copied ? (
                 <Check className="size-3.5 text-emerald-600" />
@@ -346,11 +352,15 @@ export default function Home() {
         </div>
       </header>
 
-      {/* 2. Hero Section */}
-      <section className="relative pt-12 pb-16 lg:pt-16 lg:pb-24 overflow-hidden bg-gradient-to-b from-[#233b66]/5 via-white to-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 text-center">
+      {/* 2. Hero Section (Follow Up Boss Style High-Impact Banner with Background Image Overlay) */}
+      <section className="relative pt-12 pb-16 lg:pt-20 lg:pb-24 overflow-hidden bg-gradient-to-b from-[#233b66]/5 via-white to-white">
+        {/* Background Image Overlay matching system colors (#233b66) */}
+        <div className="absolute inset-0 z-0 opacity-15 bg-cover bg-center bg-no-repeat pointer-events-none mix-blend-multiply" style={{ backgroundImage: "url('/hero-bg.png')" }} />
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-white/30 via-white/80 to-white pointer-events-none" />
+
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 text-center">
           {/* Eyebrow Status Pill */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#233b66]/20 bg-[#233b66]/10 px-3.5 py-1 text-xs font-bold text-[#233b66] mb-6 shadow-2xs">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#233b66]/20 bg-[#233b66]/10 px-4 py-1.5 text-xs font-bold text-[#233b66] mb-6 shadow-2xs">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
@@ -361,14 +371,14 @@ export default function Home() {
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl max-w-4xl mx-auto leading-[1.12]">
+          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl max-w-5xl mx-auto leading-[1.12]">
             Streamline real estate sales & contracts with{" "}
             <span className="bg-gradient-to-r from-slate-900 via-[#233b66] to-indigo-600 bg-clip-text text-transparent underline decoration-[#233b66]/30 decoration-wavy underline-offset-8">
               BetFlow CRM
             </span>
           </h1>
 
-          <p className="mt-5 max-w-2xl mx-auto text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
+          <p className="mt-6 max-w-3xl mx-auto text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
             Manage buyer leads, property floor plans, unit holds, bank slips,
             digital e-signatures, and automated legal PDF contracts — in one
             seamless workspace.
@@ -462,37 +472,66 @@ export default function Home() {
               </span>
             </span>
           </div>
-        </div>
 
-        {/* 3. Dark Glass Workspace Terminal Showcase */}
-        <div className="mt-14 mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4 sm:p-6 shadow-2xl overflow-hidden">
-            {/* Live Database Sync Header */}
+          {/* Follow Up Boss Style Social Proof Metric Bar */}
+          <div className="mt-12 pt-8 border-t border-slate-200/80 max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <p className="text-xl font-extrabold text-[#233b66]">100% Real-Time</p>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">PostgreSQL Sync</p>
+            </div>
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <p className="text-xl font-extrabold text-[#233b66]">SHA-256 Verified</p>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">Digital E-Signatures</p>
+            </div>
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <p className="text-xl font-extrabold text-[#233b66]">Unit Elevation</p>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">Stacking Floor Locks</p>
+            </div>
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <p className="text-xl font-extrabold text-[#233b66]">Automated PDF</p>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">Sales Agreements</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Dark Glass Workspace Window Showcase (Follow Up Boss macOS Window Frame) */}
+      <section className="py-16 bg-slate-900 border-t border-b border-slate-800 text-white relative z-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="dark rounded-2xl border border-slate-700 bg-slate-950 p-4 sm:p-6 shadow-2xl overflow-hidden">
+            {/* macOS Styled Header / Window Chrome */}
             <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4 text-xs">
-              <div className="flex items-center gap-2">
-                <span className="relative flex size-2.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500"></span>
-                </span>
-                <Database className="size-3.5 text-emerald-400" />
-                <span className="font-bold text-white">
-                  PostgreSQL / Prisma Database Active
-                </span>
-                <span className="hidden sm:inline-block text-[11px] text-slate-400">
-                  • Real-time CRM workspace records
-                </span>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5">
+                  <span className="size-3 rounded-full bg-red-500/80 inline-block" />
+                  <span className="size-3 rounded-full bg-yellow-500/80 inline-block" />
+                  <span className="size-3 rounded-full bg-emerald-500/80 inline-block" />
+                </div>
+                <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-slate-800 text-slate-200 font-mono text-[11px]">
+                  <Database className="size-3.5 text-emerald-400" />
+                  <span>betflow-crm.app — Active PostgreSQL Session</span>
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={() => void loadDatabaseData()}
-                disabled={loadingDb}
-                className="inline-flex items-center gap-1 rounded-md border border-slate-800 bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-slate-300 hover:bg-slate-800 transition-colors disabled:opacity-50"
-              >
-                <RefreshCw
-                  className={`size-3 text-indigo-400 ${loadingDb ? "animate-spin" : ""}`}
-                />
-                <span>{loadingDb ? "Syncing..." : "Refresh DB"}</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <span className="relative flex size-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex size-2 rounded-full bg-emerald-500"></span>
+                </span>
+                <span className="text-[11px] font-bold text-slate-200">
+                  Real-time CRM Workspace Records
+                </span>
+                <button
+                  type="button"
+                  onClick={() => void loadDatabaseData()}
+                  disabled={loadingDb}
+                  className="ml-2 inline-flex items-center gap-1 rounded-md border border-slate-700 bg-slate-900 px-2.5 py-1 text-[11px] font-bold text-slate-200 hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  <RefreshCw
+                    className={`size-3 text-indigo-400 ${loadingDb ? "animate-spin" : ""}`}
+                  />
+                  <span>{loadingDb ? "Syncing..." : "Refresh DB"}</span>
+                </button>
+              </div>
             </div>
 
             {/* Interactive Tabs Header */}
@@ -536,17 +575,17 @@ export default function Home() {
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                    className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-extrabold transition-all cursor-pointer ${
                       isActive
-                        ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                        : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                        ? "bg-[#233b66] text-white border border-indigo-400/40 shadow-md shadow-[#233b66]/40"
+                        : "bg-slate-900/90 text-slate-200 border border-slate-800 hover:bg-slate-800 hover:text-white"
                     }`}
                   >
                     <Icon className="size-4" />
                     <span>{tab.label}</span>
                     {tab.count > 0 && (
                       <span
-                        className={`rounded-full px-2 py-0.2 text-[10px] font-extrabold ${isActive ? "bg-white/20 text-white" : "bg-slate-800 text-slate-300"}`}
+                        className={`rounded-full px-2 py-0.2 text-[10px] font-black ${isActive ? "bg-white/20 text-white" : "bg-slate-800 text-slate-200 border border-slate-700"}`}
                       >
                         {tab.count}
                       </span>
@@ -561,24 +600,24 @@ export default function Home() {
               {/* TAB 1: REAL LEADS FROM DATABASE */}
               {activeTab === "leads" && (
                 <div className="space-y-4">
-                  <div className="flex flex-wrap items-center justify-between border-b border-slate-900 pb-3 gap-2">
+                  <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
                     <div>
                       <h3 className="text-sm font-bold text-white flex items-center gap-2">
                         <UserRoundCheck className="size-4 text-indigo-400" />
                         Buyer Lead Intake & Conversion (Live Database)
                       </h3>
-                      <p className="text-xs text-slate-400 mt-0.5">
+                      <p className="text-xs text-slate-300 mt-0.5 font-medium">
                         Real-time buyer leads stored in database schema.
                       </p>
                     </div>
-                    <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold text-emerald-400 border border-emerald-500/30">
+                    <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold text-emerald-300 border border-emerald-500/40">
                       LEADS ({realLeads.length} RECORDS)
                     </span>
                   </div>
 
                   {realLeads.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400">
-                      <UserRoundCheck className="size-8 text-slate-600 mb-2" />
+                    <div className="flex flex-col items-center justify-center py-12 text-center text-slate-300">
+                      <UserRoundCheck className="size-8 text-slate-500 mb-2" />
                       <p className="text-sm font-semibold">
                         No buyer leads recorded in database yet.
                       </p>
@@ -594,31 +633,31 @@ export default function Home() {
                       {realLeads.slice(0, 6).map((lead) => (
                         <div
                           key={lead.id}
-                          className="rounded-xl border border-slate-800 bg-slate-900 p-3.5 hover:border-slate-700 transition-colors flex flex-col justify-between"
+                          className="rounded-xl border border-slate-800 bg-slate-900 p-4 hover:border-slate-700 transition-colors flex flex-col justify-between"
                         >
                           <div>
-                            <div className="flex items-center justify-between gap-1">
-                              <p className="text-xs font-extrabold text-white truncate">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-sm font-extrabold text-white truncate">
                                 {lead.firstName} {lead.lastName}
                               </p>
                               <StatusPill status={lead.status} size="sm" />
                             </div>
-                            <p className="text-[11px] text-slate-400 mt-1 truncate">
+                            <p className="text-xs text-slate-300 font-semibold mt-1 truncate">
                               {lead.company ||
                                 lead.source?.name ||
                                 "Direct Inquiry"}
                             </p>
                             {(lead.phone || lead.email) && (
-                              <p className="text-[10px] text-slate-500 font-mono mt-0.5 truncate">
+                              <p className="text-[11px] text-indigo-300 font-mono mt-1 truncate">
                                 {lead.phone || lead.email}
                               </p>
                             )}
                           </div>
-                          <div className="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
+                          <div className="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
                             <span>Added: {fmtDate(lead.createdAt)}</span>
                             <Link
                               href="/leads"
-                              className="text-indigo-400 hover:underline font-bold"
+                              className="text-indigo-400 hover:text-indigo-300 font-bold"
                             >
                               View →
                             </Link>
@@ -633,25 +672,24 @@ export default function Home() {
               {/* TAB 2: REAL UNIT ELEVATION MATRIX FROM DATABASE */}
               {activeTab === "units" && (
                 <div className="space-y-4">
-                  <div className="flex flex-wrap items-center justify-between border-b border-slate-900 pb-3 gap-2">
+                  <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
                     <div>
                       <h3 className="text-sm font-bold text-white flex items-center gap-2">
                         <Grid className="size-4 text-purple-400" />
                         Property Inventory Matrix (Live Stacking Plan)
                       </h3>
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        Floor-by-floor building elevation matrix and unit status
-                        locks.
+                      <p className="text-xs text-slate-300 mt-0.5 font-medium">
+                        Floor-by-floor building elevation matrix and unit status locks.
                       </p>
                     </div>
-                    <span className="rounded-full bg-purple-500/20 px-2.5 py-1 text-[10px] font-bold text-purple-300 border border-purple-500/30">
+                    <span className="rounded-full bg-purple-500/20 px-2.5 py-1 text-[10px] font-bold text-purple-300 border border-purple-500/40">
                       INVENTORY MATRIX ({realUnits.length} UNITS)
                     </span>
                   </div>
 
                   {realUnits.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400">
-                      <Grid className="size-8 text-slate-600 mb-2" />
+                    <div className="flex flex-col items-center justify-center py-12 text-center text-slate-300">
+                      <Grid className="size-8 text-slate-500 mb-2" />
                       <p className="text-sm font-semibold">
                         No property units found in database.
                       </p>
@@ -666,24 +704,24 @@ export default function Home() {
                     <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
                       {realStacking.map((b) => (
                         <div key={b.id} className="space-y-2">
-                          <p className="text-xs font-bold text-purple-400 border-b border-slate-900 pb-1">
+                          <p className="text-xs font-bold text-purple-400 border-b border-slate-800 pb-1">
                             🏢 {b.name}
                           </p>
                           {b.floors.map((f) => (
                             <div key={f.id} className="flex items-center gap-3">
-                              <span className="w-20 text-xs font-bold text-slate-400 shrink-0">
+                              <span className="w-20 text-xs font-extrabold text-slate-300 shrink-0">
                                 {f.name || `Floor ${f.floorNumber}`}
                               </span>
                               <div className="grid flex-1 grid-cols-2 sm:grid-cols-4 gap-2">
                                 {f.units.map((u) => (
                                   <div
                                     key={u.id}
-                                    className="rounded-lg border border-slate-800 bg-slate-900 p-2 text-center text-xs font-bold"
+                                    className="rounded-lg border border-slate-800 bg-slate-900 p-2.5 text-center text-xs font-extrabold text-white"
                                   >
                                     <div>
                                       Unit {u.unitNumber} ({u.type})
                                     </div>
-                                    <div className="text-[10px] font-semibold mt-0.5 text-slate-300">
+                                    <div className="text-[11px] font-bold mt-1 text-emerald-400">
                                       {formatCurrency(u.price)}
                                     </div>
                                     <div className="mt-1 flex justify-center">
@@ -702,12 +740,12 @@ export default function Home() {
                       {realUnits.slice(0, 8).map((u) => (
                         <div
                           key={u.id}
-                          className="rounded-lg border border-slate-800 bg-slate-900 p-3 text-center text-xs font-bold"
+                          className="rounded-lg border border-slate-800 bg-slate-900 p-3 text-center text-xs font-extrabold text-white"
                         >
                           <div>
                             Unit {u.unitNumber} ({u.type})
                           </div>
-                          <div className="text-[11px] font-extrabold mt-1 text-slate-300">
+                          <div className="text-[11px] font-bold mt-1 text-emerald-400">
                             {formatCurrency(u.price)}
                           </div>
                           <div className="mt-1 flex justify-center">
@@ -723,18 +761,17 @@ export default function Home() {
               {/* TAB 3: REAL DEALS & SALES PIPELINE FROM DATABASE */}
               {activeTab === "pipeline" && (
                 <div className="space-y-4">
-                  <div className="flex flex-wrap items-center justify-between border-b border-slate-900 pb-3 gap-2">
+                  <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
                     <div>
                       <h3 className="text-sm font-bold text-white flex items-center gap-2">
                         <CircleDollarSign className="size-4 text-emerald-400" />
                         Opportunity Kanban & Revenue Forecast (Live DB)
                       </h3>
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        Weighted pipeline value calculated directly from stored
-                        sales deals.
+                      <p className="text-xs text-slate-300 mt-0.5 font-medium">
+                        Weighted pipeline value calculated directly from stored sales deals.
                       </p>
                     </div>
-                    <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold text-emerald-400 border border-emerald-500/30">
+                    <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold text-emerald-300 border border-emerald-500/40">
                       PIPELINE VALUATION (
                       {formatCurrency(
                         realForecast?.totalRawPipeline ||
@@ -748,8 +785,8 @@ export default function Home() {
                   </div>
 
                   {realDeals.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400">
-                      <CircleDollarSign className="size-8 text-slate-600 mb-2" />
+                    <div className="flex flex-col items-center justify-center py-12 text-center text-slate-300">
+                      <CircleDollarSign className="size-8 text-slate-500 mb-2" />
                       <p className="text-sm font-semibold">
                         No sales deals in pipeline yet.
                       </p>
@@ -768,23 +805,23 @@ export default function Home() {
                           className="rounded-xl border border-slate-800 bg-slate-900 p-4 flex flex-col justify-between"
                         >
                           <div>
-                            <p className="text-xs font-bold text-white truncate">
+                            <p className="text-sm font-extrabold text-white truncate">
                               {deal.name}
                             </p>
-                            <p className="text-[11px] text-slate-400 mt-0.5">
+                            <p className="text-xs text-slate-300 font-semibold mt-1">
                               {deal.customer.firstName} {deal.customer.lastName}
                             </p>
-                            <p className="text-sm font-extrabold text-emerald-400 mt-2">
+                            <p className="text-sm font-black text-emerald-400 mt-2">
                               {formatCurrency(deal.value)}
                             </p>
                           </div>
-                          <div className="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[10px]">
-                            <span className="text-indigo-400 font-semibold">
+                          <div className="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+                            <span className="text-indigo-400 font-bold">
                               {deal.stage.name}
                             </span>
                             <Link
                               href="/deals"
-                              className="text-slate-400 hover:text-white"
+                              className="text-slate-300 hover:text-white font-bold"
                             >
                               Kanban →
                             </Link>
@@ -799,24 +836,24 @@ export default function Home() {
               {/* TAB 4: REAL SITE VISITS */}
               {activeTab === "visits" && (
                 <div className="space-y-4">
-                  <div className="flex flex-wrap items-center justify-between border-b border-slate-900 pb-3 gap-2">
+                  <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
                     <div>
                       <h3 className="text-sm font-bold text-white flex items-center gap-2">
                         <CalendarDays className="size-4 text-amber-400" />
                         Site Visit Calendar & Tour Records
                       </h3>
-                      <p className="text-xs text-slate-400 mt-0.5">
+                      <p className="text-xs text-slate-300 mt-0.5 font-medium">
                         Scheduled property tours and agent dispatch records.
                       </p>
                     </div>
-                    <span className="rounded-full bg-amber-500/20 px-2.5 py-1 text-[10px] font-bold text-amber-300 border border-amber-500/30">
+                    <span className="rounded-full bg-amber-500/20 px-2.5 py-1 text-[10px] font-bold text-amber-300 border border-amber-500/40">
                       SITE TOURS ({realVisits.length} VISITS)
                     </span>
                   </div>
 
                   {realVisits.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400">
-                      <CalendarDays className="size-8 text-slate-600 mb-2" />
+                    <div className="flex flex-col items-center justify-center py-12 text-center text-slate-300">
+                      <CalendarDays className="size-8 text-slate-500 mb-2" />
                       <p className="text-sm font-semibold">
                         No upcoming site visits scheduled.
                       </p>
@@ -834,8 +871,8 @@ export default function Home() {
                           key={visit.id}
                           className="rounded-xl border border-slate-800 bg-slate-900 p-4"
                         >
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-white">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-xs font-extrabold text-white">
                               {visit.lead
                                 ? `${visit.lead.firstName} ${visit.lead.lastName}`
                                 : visit.customer
@@ -844,11 +881,11 @@ export default function Home() {
                             </span>
                             <StatusPill status={visit.status} size="sm" />
                           </div>
-                          <p className="text-[11px] text-amber-400 font-semibold mt-2">
+                          <p className="text-xs text-amber-400 font-bold mt-2">
                             🗓️ {fmtDate(visit.date)}
                           </p>
                           {visit.notes && (
-                            <p className="text-[10px] text-slate-400 mt-1 line-clamp-2">
+                            <p className="text-xs text-slate-300 mt-1 line-clamp-2">
                               {visit.notes}
                             </p>
                           )}
@@ -862,25 +899,24 @@ export default function Home() {
               {/* TAB 5: REAL PAYMENT SCHEDULES */}
               {activeTab === "payments" && (
                 <div className="space-y-4">
-                  <div className="flex flex-wrap items-center justify-between border-b border-slate-900 pb-3 gap-2">
+                  <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
                     <div>
                       <h3 className="text-sm font-bold text-white flex items-center gap-2">
                         <Coins className="size-4 text-emerald-400" />
                         Installment Payment Milestones & Receipts
                       </h3>
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        Track construction milestones, downpayments, and bank
-                        slips.
+                      <p className="text-xs text-slate-300 mt-0.5 font-medium">
+                        Track construction milestones, downpayments, and bank slips.
                       </p>
                     </div>
-                    <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold text-emerald-400 border border-emerald-500/30">
+                    <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold text-emerald-300 border border-emerald-500/40">
                       SCHEDULED MILESTONES ({realSchedules.length})
                     </span>
                   </div>
 
                   {realSchedules.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400">
-                      <Coins className="size-8 text-slate-600 mb-2" />
+                    <div className="flex flex-col items-center justify-center py-12 text-center text-slate-300">
+                      <Coins className="size-8 text-slate-500 mb-2" />
                       <p className="text-sm font-semibold">
                         No payment milestones logged yet.
                       </p>
@@ -898,17 +934,17 @@ export default function Home() {
                           key={sch.id}
                           className="rounded-xl border border-slate-800 bg-slate-900 p-4"
                         >
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-white">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-xs font-extrabold text-white">
                               {sch.milestoneName} ({sch.percentage}%)
                             </span>
                             <StatusPill status={sch.status} size="sm" />
                           </div>
-                          <p className="text-sm font-extrabold text-emerald-400 mt-2">
+                          <p className="text-sm font-black text-emerald-400 mt-2">
                             {formatCurrency(sch.amount)}
                           </p>
                           {sch.contract?.customer && (
-                            <p className="text-[10px] text-slate-400 mt-1">
+                            <p className="text-xs text-slate-300 mt-1 font-semibold">
                               Buyer: {sch.contract.customer.firstName}{" "}
                               {sch.contract.customer.lastName}
                             </p>
@@ -924,8 +960,209 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. Bento Box Feature Highlights (6 Modern Grid Cards) */}
-      <section className="py-16 bg-slate-50 border-t border-b border-slate-200/80">
+      {/* 4. Follow Up Boss Style Alternating Feature Showcase Rows */}
+      <section className="py-20 bg-white border-t border-slate-200/80">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 space-y-20">
+          <div className="text-center max-w-3xl mx-auto">
+            <span className="text-xs font-extrabold uppercase tracking-wider text-[#233b66]">
+              Why Real Estate Developers Choose BetFlow
+            </span>
+            <h2 className="mt-2 text-3xl font-extrabold text-slate-900 sm:text-4xl">
+              Turn every buyer lead into a closed property sale
+            </h2>
+            <p className="mt-3 text-sm text-slate-600">
+              Purpose-built tools for managing high-value residential, commercial,
+              and diaspora property sales.
+            </p>
+          </div>
+
+          {/* Row 1: Lead Intake */}
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-1 text-xs font-bold text-[#233b66]">
+                <UserRoundCheck className="size-4" />
+                <span>Speed-to-Lead Engine</span>
+              </div>
+              <h3 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">
+                Capture & convert buyer leads before anyone else
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Connect your social channels, Meta lead forms, and website landing pages. Automatically assign leads to sales agents based on location and budget.
+              </p>
+              <ul className="space-y-2.5 text-xs text-slate-700 font-semibold pt-2">
+                <li className="flex items-center gap-2.5">
+                  <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                  <span>Instant Facebook & Instagram lead form webhook synchronization</span>
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                  <span>Automated SMS and WhatsApp drip sequence triggers</span>
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                  <span>Diaspora buyer tracking with currency conversion support</span>
+                </li>
+              </ul>
+              <div className="pt-2">
+                <Link
+                  href="/leads"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#233b66] hover:underline"
+                >
+                  <span>Explore Lead Intake Engine</span>
+                  <ArrowRight className="size-4" />
+                </Link>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+              <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
+                <div className="flex items-center justify-between border-b pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-9 items-center justify-center rounded-full bg-[#233b66] text-white text-xs font-bold">
+                      BH
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-900">Birhanu Haile</p>
+                      <p className="text-[11px] text-slate-500">Addis Ababa • Luxury Apartment Inquiry</p>
+                    </div>
+                  </div>
+                  <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700">
+                    HOT LEAD
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="rounded-lg bg-slate-50 p-2.5">
+                    <span className="text-[10px] text-slate-400 block font-semibold">Budget Range</span>
+                    <span className="font-extrabold text-slate-800">12.5M – 18.0M ETB</span>
+                  </div>
+                  <div className="rounded-lg bg-slate-50 p-2.5">
+                    <span className="text-[10px] text-slate-400 block font-semibold">Preferred Unit</span>
+                    <span className="font-extrabold text-slate-800">3 BHK Penthouse</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Row 2: Stacking Plan Elevation Matrix */}
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            <div className="order-2 lg:order-1 rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+              <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-3">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <span className="text-xs font-extrabold text-[#233b66]">Bole Tower A — Floor 12 Elevation</span>
+                  <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded">STACKING PLAN</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-center text-xs font-bold">
+                  <div className="rounded-lg border border-emerald-300 bg-emerald-50 p-3">
+                    <p className="text-emerald-800 font-extrabold">Unit 1201</p>
+                    <p className="text-[10px] text-emerald-600 mt-0.5">AVAILABLE</p>
+                    <p className="text-[11px] text-slate-700 mt-1 font-mono">142 sqm</p>
+                  </div>
+                  <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">
+                    <p className="text-amber-800 font-extrabold">Unit 1202</p>
+                    <p className="text-[10px] text-amber-600 mt-0.5">RESERVED</p>
+                    <p className="text-[11px] text-slate-700 mt-1 font-mono">98 sqm</p>
+                  </div>
+                  <div className="rounded-lg border border-slate-300 bg-slate-100 p-3">
+                    <p className="text-slate-800 font-extrabold">Unit 1203</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5">SOLD</p>
+                    <p className="text-[11px] text-slate-700 mt-1 font-mono">180 sqm</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="order-1 lg:order-2 space-y-4">
+              <div className="inline-flex items-center gap-2 rounded-lg bg-purple-50 px-3 py-1 text-xs font-bold text-purple-700">
+                <Grid className="size-4" />
+                <span>Inventory Lock Matrix</span>
+              </div>
+              <h3 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">
+                Floor-by-floor unit stacking elevation matrix
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Never double-book a property unit again. Manage real-time inventory statuses across multiple towers, floors, and layouts with instant reservation locks.
+              </p>
+              <ul className="space-y-2.5 text-xs text-slate-700 font-semibold pt-2">
+                <li className="flex items-center gap-2.5">
+                  <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                  <span>Atomic unit status locking (`AVAILABLE`, `RESERVED`, `SOLD`)</span>
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                  <span>Calculated price per sqm and orientation filters</span>
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                  <span>Direct link to buyer hold receipts and sales contracts</span>
+                </li>
+              </ul>
+              <div className="pt-2">
+                <Link
+                  href="/units"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#233b66] hover:underline"
+                >
+                  <span>Open Stacking Elevation Matrix</span>
+                  <ArrowRight className="size-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Row 3: Contracts & E-Signatures */}
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+                <FileSignature className="size-4" />
+                <span>Legal Document Automation</span>
+              </div>
+              <h3 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">
+                Automated legal PDF contracts & digital e-signatures
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Generate server-side sales contracts in seconds with custom installment schedules. Collect digital signatures with tamper-evident cryptographic audit logs.
+              </p>
+              <ul className="space-y-2.5 text-xs text-slate-700 font-semibold pt-2">
+                <li className="flex items-center gap-2.5">
+                  <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                  <span>PDF generation with custom branding and payment milestones</span>
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                  <span>Touch & mouse signature pad canvas with SHA-256 hash</span>
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                  <span>Audit trail with timestamp, IP address, and signer verification</span>
+                </li>
+              </ul>
+              <div className="pt-2">
+                <Link
+                  href="/contracts"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#233b66] hover:underline"
+                >
+                  <span>Test PDF & Contract Builder</span>
+                  <ArrowRight className="size-4" />
+                </Link>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+              <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-3">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <span className="text-xs font-extrabold text-[#233b66]">Sales Contract Agreement #2026-089</span>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">VERIFIED E-SIGN</span>
+                </div>
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs space-y-1.5 font-mono">
+                  <p className="text-[11px] text-slate-600">Signer: Solomon Tadesse</p>
+                  <p className="text-[11px] text-slate-600">SHA-256: 8f9a2b1c4e7d3a2f...</p>
+                  <p className="text-[10px] text-emerald-600 font-bold">✓ Signature Recorded (Aug 10, 2026)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Bento Box Feature Highlights (6 Follow Up Boss Style Capability Cards) */}
+      <section className="py-20 bg-slate-50 border-t border-b border-slate-200/80">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <span className="text-xs font-extrabold uppercase tracking-wider text-[#233b66]">
@@ -1071,7 +1308,108 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. Footer */}
+      {/* 6. Follow Up Boss Style Social Proof & Testimonials */}
+      <section className="py-20 bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="text-xs font-extrabold uppercase tracking-wider text-[#233b66]">
+              Real Results
+            </span>
+            <h2 className="mt-2 text-3xl font-extrabold text-slate-900 sm:text-4xl">
+              Trusted by Top Real Estate Developers
+            </h2>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-6 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-1 text-amber-400 mb-3">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="size-4 fill-amber-400" />
+                  ))}
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed italic">
+                  &ldquo;BetFlow CRM transformed how our sales agents manage unit availability and contracts. We eliminated double-booking and closed deals 35% faster.&rdquo;
+                </p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-slate-200">
+                <p className="text-xs font-extrabold text-slate-900">Dawit Yohannes</p>
+                <p className="text-[11px] text-slate-500 font-medium">Sales Director, Apex Real Estate</p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-6 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-1 text-amber-400 mb-3">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="size-4 fill-amber-400" />
+                  ))}
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed italic">
+                  &ldquo;The unit stacking elevation matrix and buyer self-service portal gave our diaspora buyers complete trust. Highly recommended for real estate teams.&rdquo;
+                </p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-slate-200">
+                <p className="text-xs font-extrabold text-slate-900">Helina Bekele</p>
+                <p className="text-[11px] text-slate-500 font-medium">Operations Lead, Sunshine Housing</p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-6 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-1 text-amber-400 mb-3">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="size-4 fill-amber-400" />
+                  ))}
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed italic">
+                  &ldquo;Generating legal PDF sales agreements with cryptographic e-signatures directly from lead records saved our legal team hundreds of hours.&rdquo;
+                </p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-slate-200">
+                <p className="text-xs font-extrabold text-slate-900">Tewodros Alemu</p>
+                <p className="text-[11px] text-slate-500 font-medium">General Manager, Zemen Properties</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. High-Conversion Follow Up Boss Bottom CTA Banner */}
+      <section className="relative overflow-hidden py-16 bg-[#233b66] text-white">
+        {/* Background Image Overlay matching system colors (#233b66) */}
+        <div className="absolute inset-0 z-0 opacity-25 bg-cover bg-center bg-no-repeat pointer-events-none mix-blend-overlay" style={{ backgroundImage: "url('/hero-bg.png')" }} />
+
+        <div className="relative z-10 mx-auto max-w-5xl px-4 text-center sm:px-6">
+          <h2 className="text-3xl font-extrabold sm:text-4xl">
+            Ready to streamline your real estate sales pipeline?
+          </h2>
+          <p className="mt-4 text-sm text-slate-200 max-w-2xl mx-auto leading-relaxed">
+            Get instant access to the BetFlow CRM command center with live unit stacking, lead intake, and automated contract workflows.
+          </p>
+
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              href="/dashboard"
+              className="group inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-8 text-sm font-bold text-[#233b66] shadow-lg hover:bg-slate-100 active:scale-[0.98] transition-all w-full sm:w-auto"
+            >
+              <span>Launch Command Center</span>
+              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+
+            <button
+              type="button"
+              onClick={copyCreds}
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 px-6 text-sm font-semibold text-white hover:bg-white/20 transition-all w-full sm:w-auto cursor-pointer"
+            >
+              {copied ? <Check className="size-4 text-emerald-400" /> : <Copy className="size-4 text-slate-300" />}
+              <span>{copied ? "Demo Credentials Copied!" : "Copy Demo Credentials"}</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* 8. Footer (Structured Multi-Column & Operational Indicator) */}
       <footer className="border-t border-slate-200 bg-slate-900 text-white py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">

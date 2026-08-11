@@ -74,63 +74,72 @@ export class LeadsService {
       await this.assertSourceExists(input.sourceId);
     }
 
-    const lead = await this.prisma.lead.create({
-      data: {
-        firstName,
-        lastName,
-        company: input.company?.trim() || null,
-        email: input.email?.trim() || null,
-        phone: input.phone?.trim() || null,
-        status,
-        sourceId: input.sourceId || null,
-        ownerId: input.ownerId || userId,
-      },
-      include: leadInclude,
-    });
-
-    // Smart Automation: Calculate AI Score & Trigger Auto-Tasks
-    const aiScore = this.aiScoring.scoreLead({
-      id: lead.id,
-      firstName: lead.firstName,
-      lastName: lead.lastName,
-      company: lead.company,
-      email: lead.email,
-      phone: lead.phone,
-      status: lead.status,
-      sourceName: lead.source?.name,
-      createdAt: lead.createdAt,
-    });
-
-    if (aiScore.score >= 75) {
-      // Auto-create urgent follow-up task
-      await this.prisma.task.create({
+    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const lead = await tx.lead.create({
         data: {
-          title: `🔥 AI Auto-Task: Immediate VIP outreach for ${lead.firstName} ${lead.lastName}`,
-          description: aiScore.suggestedNextAction,
-          dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Due in 24h
-          status: 'TODO',
-          assigneeId: lead.ownerId ?? userId,
+          firstName,
+          lastName,
+          company: input.company?.trim() || null,
+          email: input.email?.trim() || null,
+          phone: input.phone?.trim() || null,
+          status,
+          sourceId: input.sourceId || null,
+          ownerId: input.ownerId || userId,
+        },
+        include: leadInclude,
+      });
+
+      // Smart Automation: Calculate AI Score & Trigger Auto-Tasks
+      const aiScore = this.aiScoring.scoreLead({
+        id: lead.id,
+        firstName: lead.firstName,
+        lastName: lead.lastName,
+        company: lead.company,
+        email: lead.email,
+        phone: lead.phone,
+        status: lead.status,
+        sourceName: lead.source?.name,
+        createdAt: lead.createdAt,
+      });
+
+      if (aiScore.score >= 75) {
+        // Auto-create urgent follow-up task
+        await tx.task.create({
+          data: {
+            title: `🔥 AI Auto-Task: Immediate VIP outreach for ${lead.firstName} ${lead.lastName}`,
+            description: aiScore.suggestedNextAction,
+            dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Due in 24h
+            status: 'TODO',
+            assigneeId: lead.ownerId ?? userId,
+            entityType: 'Lead',
+            entityId: lead.id,
+          },
+        });
+
+        // Auto-create in-app notification
+        await tx.notification.create({
+          data: {
+            userId: lead.ownerId ?? userId,
+            title: `🔥 High-Intent Lead Alert (${aiScore.score}/100)`,
+            message: `Lead ${lead.firstName} ${lead.lastName} scored ${aiScore.score}/100. Action required: ${aiScore.suggestedNextAction}`,
+          },
+        });
+      }
+
+      await tx.auditLog.create({
+        data: {
+          userId,
+          action: 'lead.created',
           entityType: 'Lead',
           entityId: lead.id,
         },
       });
 
-      // Auto-create in-app notification
-      await this.prisma.notification.create({
-        data: {
-          userId: lead.ownerId ?? userId,
-          title: `🔥 High-Intent Lead Alert (${aiScore.score}/100)`,
-          message: `Lead ${lead.firstName} ${lead.lastName} scored ${aiScore.score}/100. Action required: ${aiScore.suggestedNextAction}`,
-        },
-      });
-    }
-
-    await this.recordAudit(userId, 'lead.created', lead.id);
-
-    return {
-      ...lead,
-      aiScore,
-    };
+      return {
+        ...lead,
+        aiScore,
+      };
+    });
   }
 
   async update(user: AuthenticatedUser | string, id: string, input: UpdateLeadInput) {
@@ -260,6 +269,12 @@ export class LeadsService {
     }
 
     return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const currentLead = await tx.lead.findUnique({ where: { id } });
+      if (!currentLead) throw new NotFoundException(`Lead ${id} was not found`);
+      if (currentLead.convertedAt) {
+        throw new BadRequestException('Lead has already been converted');
+      }
+
       // 1. Resolve or create the account.
       let account: { id: string; name: string } | null = null;
       if (input.accountId) {

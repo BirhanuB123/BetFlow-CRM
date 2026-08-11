@@ -176,6 +176,7 @@ model Lead {
 
   @@index([status, ownerId])
   @@index([convertedAt])
+  @@index([email, phone])
 }
 
 // Zoho-style company/organization accounts
@@ -409,6 +410,9 @@ model Payment {
   reservation   Reservation?     @relation(fields: [reservationId], references: [id])
   scheduleId    String?
   schedule      PaymentSchedule? @relation(fields: [scheduleId], references: [id])
+
+  @@index([contractId, status, date])
+  @@index([scheduleId])
 }
 
 model PaymentSchedule {
@@ -479,6 +483,9 @@ model Task {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([assigneeId, status, dueDate])
+  @@index([entityType, entityId])
 }
 
 model Note {
@@ -489,6 +496,8 @@ model Note {
   entityType String
   entityId   String
   createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
 }
 
 model Activity {
@@ -499,6 +508,8 @@ model Activity {
   entityType  String
   entityId    String
   date        DateTime @default(now())
+
+  @@index([entityType, entityId])
 }
 
 model Campaign {
@@ -520,6 +531,8 @@ model Notification {
   message   String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
 }
 
 model AuditLog {
@@ -532,6 +545,9 @@ model AuditLog {
   oldValues  Json?
   newValues  Json?
   createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([userId, createdAt])
 }
 
 model SignatureAudit {
