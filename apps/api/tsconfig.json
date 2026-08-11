@@ -1,7 +1,6 @@
 {
   "extends": "../../packages/config/typescript/nestjs.json",
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
     "target": "ES2022",
     "baseUrl": "./",
     "rootDir": "src",

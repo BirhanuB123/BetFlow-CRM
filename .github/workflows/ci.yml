@@ -1,41 +1,37 @@
-name: BetFlow CRM — CI Pipeline
+name: CI Workflow
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, develop ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, develop ]
 
 jobs:
   build-and-test:
-    name: Build & Test Monorepo
+    name: Build & Test Workspace
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
           cache: 'npm'
 
-      - name: Install Monorepo Dependencies
+      - name: Install Dependencies
         run: npm ci
 
-      - name: Generate Prisma Client
-        run: |
-          cd apps/api
-          npx prisma generate
+      - name: Validate Prisma Schema
+        run: npx prisma validate --schema=apps/api/prisma/schema.prisma
 
-      - name: Monorepo Type-Check & Production Build
-        run: npm run build
-        env:
-          JWT_SECRET: "ci-testing-super-secret-jwt-key-minimum-64-bits"
-          DATABASE_URL: "postgresql://betflow:betflowpassword@localhost:5432/betflow_db?schema=public"
+      - name: Generate Prisma Client
+        run: npx prisma generate --schema=apps/api/prisma/schema.prisma
+
+      - name: Type Check & Build API
+        run: npm run build --workspace=apps/api
 
       - name: Run Backend Unit & Integration Tests
-        run: |
-          cd apps/api
-          npm run test
+        run: npm run test --workspace=apps/api

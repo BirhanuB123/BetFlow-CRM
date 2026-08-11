@@ -14,14 +14,25 @@ export class HealthController {
       dbStatus = 'disconnected';
     }
 
+    let storageStatus = 'ready';
+    try {
+      const fs = await import('fs');
+      if (!fs.existsSync('./uploads')) {
+        fs.mkdirSync('./uploads', { recursive: true });
+      }
+    } catch {
+      storageStatus = 'error';
+    }
+
     const memoryUsage = process.memoryUsage();
 
     return {
-      status: dbStatus === 'connected' ? 'ok' : 'degraded',
+      status: dbStatus === 'connected' && storageStatus === 'ready' ? 'ok' : 'degraded',
       service: 'betflow-api',
       timestamp: new Date().toISOString(),
       uptimeSeconds: Math.floor(process.uptime()),
       database: dbStatus,
+      storage: storageStatus,
       memory: {
         rssMb: Math.round((memoryUsage.rss / 1024 / 1024) * 100) / 100,
         heapTotalMb: Math.round((memoryUsage.heapTotal / 1024 / 1024) * 100) / 100,
