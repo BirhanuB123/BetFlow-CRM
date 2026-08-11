@@ -514,36 +514,6 @@ export default function DashboardPage() {
         </>
       ) : (
         <div className="space-y-6">
-          <StatRow>
-            <StatCard
-              label="Pipeline Value"
-              value={money(totalPipelineValue)}
-              detail={`${deals.length} active opportunities`}
-              icon={WalletCards}
-              color="navy"
-            />
-            <StatCard
-              label="Today's Leads"
-              value={String(todaysLeads.length || leads.length)}
-              detail={`${leads.filter((l) => l.status === 'QUALIFIED').length} qualified`}
-              icon={UserRoundCheck}
-              color="indigo"
-            />
-            <StatCard
-              label="Today's Site Visits"
-              value={String(todayVisits || visits.length)}
-              detail={`${visits.filter((v) => v.status === 'SCHEDULED').length} scheduled`}
-              icon={CalendarDays}
-              color="blue"
-            />
-            <StatCard
-              label="Open Tasks"
-              value={String(openTasksCount)}
-              detail="Requiring attention"
-              icon={ClipboardList}
-              color={openTasksCount > 5 ? "amber" : "emerald"}
-            />
-          </StatRow>
 
           {/* Operational Grid Cards */}
           <OperationalGrid
