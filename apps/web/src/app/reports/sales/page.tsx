@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import Link from "next/link";
 import {
   Download,
   Printer,
@@ -19,6 +20,7 @@ import {
   UserCheck,
   Building2,
   CheckCircle2,
+  ArrowLeft,
 } from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
@@ -238,6 +240,14 @@ export default function SalesReportPage() {
         {/* Top Header Control Toolbar */}
         <div className="no-print flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-slate-200/80 bg-white p-4 shadow-xs">
           <div className="flex items-center gap-3">
+            <Link
+              href="/reports"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-[#233b66] transition-colors shadow-2xs cursor-pointer"
+            >
+              <ArrowLeft className="size-3.5 text-[#233b66]" />
+              <span>Back to Reports</span>
+            </Link>
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
             <div className="flex size-9 items-center justify-center rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600">
               <TrendingUp className="size-5" />
             </div>

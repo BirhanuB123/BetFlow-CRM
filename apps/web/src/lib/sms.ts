@@ -478,3 +478,38 @@ export async function updateRuleApi(
     };
   }
 }
+
+export async function deleteDripStepApi(
+  campaignId: string,
+  stepId: string,
+): Promise<DripCampaign> {
+  try {
+    return await apiFetch<DripCampaign>(
+      `/sms/drip-campaigns/${campaignId}/steps/${stepId}`,
+      { method: "DELETE" },
+    );
+  } catch {
+    const campaign = PRESEEDED_DRIP_CAMPAIGNS.find((c) => c.id === campaignId);
+    if (campaign) {
+      campaign.steps = campaign.steps.filter((s) => s.id !== stepId);
+      campaign.steps.forEach((s, idx) => {
+        s.stepNumber = idx + 1;
+      });
+    }
+    return campaign || PRESEEDED_DRIP_CAMPAIGNS[0];
+  }
+}
+
+export async function deleteDripCampaignApi(id: string): Promise<boolean> {
+  try {
+    await apiFetch(`/sms/drip-campaigns/${id}`, { method: "DELETE" });
+    return true;
+  } catch {
+    const idx = PRESEEDED_DRIP_CAMPAIGNS.findIndex((c) => c.id === id);
+    if (idx !== -1) {
+      PRESEEDED_DRIP_CAMPAIGNS.splice(idx, 1);
+    }
+    return true;
+  }
+}
+

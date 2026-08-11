@@ -42,6 +42,7 @@ import {
   Search,
   Settings,
   ShoppingBag,
+  Sparkles,
   SquareStack,
   UserCircle,
   UserRound,
@@ -407,8 +408,8 @@ function SearchRecords() {
 
   return (
     <div ref={ref} className="relative hidden xl:block">
-      <label className="flex h-8 w-[235px] items-center gap-2 rounded-md bg-[#edf1f8] px-3 text-[#6b7a94]">
-        <Search className="size-4" />
+      <label className="flex h-9 w-[250px] items-center gap-2 rounded-full border border-slate-200 bg-slate-100/90 px-3.5 text-slate-500 focus-within:bg-white focus-within:border-[#233b66] focus-within:ring-2 focus-within:ring-[#233b66]/10 transition-all shadow-2xs">
+        <Search className="size-3.5 text-slate-400 shrink-0" />
         <input
           aria-label="Search records"
           value={query}
@@ -420,12 +421,15 @@ function SearchRecords() {
           onKeyDown={(event) => {
             if (event.key === "Enter" && results[0]) go(results[0].href);
           }}
-          className="w-full bg-transparent text-sm text-[#1f2d45] outline-none placeholder:text-[#6b7a94]"
-          placeholder="Search records"
+          className="w-full bg-transparent text-xs text-slate-800 outline-none placeholder:text-slate-400 font-medium"
+          placeholder="Search records or modules..."
         />
+        <kbd className="hidden sm:inline-flex select-none items-center rounded border border-slate-200 bg-slate-50 px-1.5 font-mono text-[10px] font-semibold text-slate-400">
+          ⌘K
+        </kbd>
       </label>
       {open && results.length > 0 ? (
-        <div className="absolute right-0 top-full z-40 mt-2 w-[280px] rounded-lg border border-[#dbe2ee] bg-white p-1.5 shadow-[0_14px_34px_rgba(15,32,60,0.16)]">
+        <div className="absolute right-0 top-full z-40 mt-2 w-[280px] rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl animate-in fade-in duration-150">
           {results.map((item) => {
             const Icon = item.icon;
             return (
@@ -433,9 +437,9 @@ function SearchRecords() {
                 key={`${item.href}-${item.label}`}
                 type="button"
                 onClick={() => go(item.href)}
-                className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-sm text-[#243350] hover:bg-[#eef2fb]"
+                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-[#233b66] transition-colors"
               >
-                <Icon className="size-4 text-[#6a789a]" />
+                <Icon className="size-4 text-[#233b66]" />
                 {item.label}
               </button>
             );
@@ -769,26 +773,27 @@ export function DashboardShell({
           collapsed ? "lg:pl-14" : "lg:pl-[var(--sidebar-w,240px)]",
         )}
       >
-        <header className="sticky top-0 z-10 border-b border-[#d4dceb] bg-white">
-          <div className="flex h-12 items-center justify-between gap-4 px-4">
+        <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/90 backdrop-blur-md shadow-2xs">
+          <div className="flex h-13 items-center justify-between gap-4 px-4 sm:px-6">
             <div className="flex min-w-0 items-center gap-3">
               <Button
                 variant="ghost"
                 size="icon-sm"
-                className="text-[#314466] hover:bg-[#edf2fb]"
+                className="text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg"
                 aria-label="Toggle navigation"
                 onClick={toggleSidebar}
               >
                 <Menu className="size-4" />
               </Button>
-              <div className="min-w-0">
-                <h1 className="truncate text-xl font-medium tracking-normal text-[#071426]">
+              <div className="min-w-0 flex items-center gap-2.5">
+                <h1 className="truncate text-base sm:text-lg font-extrabold tracking-tight text-slate-900">
                   {displayTitle}
                 </h1>
-                {title !== "Dashboard" ? (
-                  <p className="hidden truncate text-xs text-[#71809a] sm:block">
-                    {description}
-                  </p>
+                {roleText ? (
+                  <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-600 border border-slate-200">
+                    <span className="size-1.5 rounded-full bg-emerald-500" />
+                    {roleText}
+                  </span>
                 ) : null}
               </div>
             </div>
@@ -796,20 +801,21 @@ export function DashboardShell({
             <div className="flex min-w-0 items-center justify-end gap-2">
               <SearchRecords />
 
+              {/* Quick Create Button with Text Label */}
               <Dropdown
                 trigger={
                   <Button
-                    variant="outline"
-                    size="icon"
-                    className="size-8 border-[#4569ff] text-[#4569ff]"
+                    type="button"
+                    className="h-8 bg-[#233b66] hover:bg-[#1a2d50] text-white font-bold text-xs px-3 rounded-lg shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
                     aria-label="Create record"
                   >
-                    <Plus className="size-4" />
+                    <Plus className="size-3.5" />
+                    <span className="hidden sm:inline">Create</span>
                   </Button>
                 }
               >
-                <p className="px-2.5 pb-1 pt-1 text-xs font-semibold uppercase tracking-wide text-[#8b98b1]">
-                  Create
+                <p className="px-2.5 pb-1 pt-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  Quick Create
                 </p>
                 {createItems.map((item) => (
                   <MenuLink key={item.label} href={item.href} icon={item.icon}>
@@ -818,12 +824,14 @@ export function DashboardShell({
                 ))}
               </Dropdown>
 
+              {/* Utility Nav Buttons */}
               <Link
                 href="/site-visits"
                 aria-label="Meetings"
+                title="Site Visits & Meetings"
                 className={cn(
                   buttonVariants({ variant: "ghost", size: "icon" }),
-                  "hidden text-[#53627b] hover:bg-[#edf2fb] sm:inline-flex",
+                  "hidden text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg sm:inline-flex relative",
                 )}
               >
                 <CalendarDays className="size-4" />
@@ -831,45 +839,49 @@ export function DashboardShell({
               <Link
                 href="/reservations"
                 aria-label="Reservations"
+                title="Property Reservations"
                 className={cn(
                   buttonVariants({ variant: "ghost", size: "icon" }),
-                  "hidden text-[#53627b] hover:bg-[#edf2fb] sm:inline-flex",
+                  "hidden text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg sm:inline-flex relative",
                 )}
               >
                 <ShoppingBag className="size-4" />
+                <span className="absolute top-1 right-1 size-1.5 rounded-full bg-emerald-500" />
               </Link>
               <Link
                 href="/settings"
                 aria-label="Settings"
+                title="System Settings"
                 className={cn(
                   buttonVariants({ variant: "ghost", size: "icon" }),
-                  "hidden text-[#53627b] hover:bg-[#edf2fb] md:inline-flex",
+                  "hidden text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg md:inline-flex",
                 )}
               >
                 <Settings className="size-4" />
               </Link>
 
+              {/* User Profile Avatar */}
               <Dropdown
                 trigger={
                   <button
                     type="button"
                     aria-label="Account"
-                    className="hidden size-8 items-center justify-center rounded-full bg-[#dce3ef] text-[#7a879b] sm:flex"
+                    className="hidden size-8 items-center justify-center rounded-full bg-gradient-to-tr from-[#233b66] to-[#3b5e9a] text-white font-extrabold text-xs shadow-xs border border-white ring-1 ring-slate-200 sm:flex hover:scale-105 transition-transform"
                   >
-                    <UserCircle className="size-7" />
+                    {initials}
                   </button>
                 }
               >
-                <div className="border-b border-[#eef1f7] px-2.5 pb-2 pt-1">
-                  <p className="truncate text-sm font-semibold text-[#1f2d45]">
+                <div className="border-b border-slate-100 px-3 py-2">
+                  <p className="truncate text-xs font-bold text-slate-900">
                     {displayName}
                   </p>
                   {roleText ? (
-                    <p className="truncate text-xs text-[#8b98b1]">
+                    <p className="truncate text-[11px] text-slate-500 font-medium">
                       {roleText}
                     </p>
                   ) : user.email ? (
-                    <p className="truncate text-xs text-[#8b98b1]">
+                    <p className="truncate text-[11px] text-slate-500 font-medium">
                       {user.email}
                     </p>
                   ) : null}
@@ -884,6 +896,7 @@ export function DashboardShell({
                 </div>
               </Dropdown>
 
+              {/* Modules Grid Dropdown */}
               <Dropdown
                 align="end"
                 panelClassName="w-[260px]"
@@ -891,13 +904,13 @@ export function DashboardShell({
                   <button
                     type="button"
                     aria-label="All modules"
-                    className="hidden size-8 items-center justify-center rounded-md text-[#3c485c] hover:bg-[#edf2fb] sm:flex"
+                    className="hidden size-8 items-center justify-center rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 sm:flex transition-colors"
                   >
-                    <Grip className="size-5" />
+                    <Grip className="size-4.5" />
                   </button>
                 }
               >
-                <p className="px-2.5 pb-1 pt-1 text-xs font-semibold uppercase tracking-wide text-[#8b98b1]">
+                <p className="px-2.5 pb-1 pt-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                   Modules
                 </p>
                 <div className="grid grid-cols-3 gap-1">
@@ -914,71 +927,90 @@ export function DashboardShell({
         </header>
 
         {active === "Dashboard" ? (
-          <div className="flex h-[72px] items-center justify-between gap-3 border-b border-[#d9e1ee] bg-gradient-to-r from-[#eef2f8] to-[#f5f8fc] px-5">
-            <div className="flex min-w-0 items-center gap-4">
-              <div className="min-w-0">
-                <p className="truncate text-[19px] font-bold tracking-tight text-slate-800">
-                  {greeting}, {displayName.split(" ")[0]}!
-                </p>
-                <p className="truncate text-[13px] font-medium text-slate-500">
-                  Here's what's happening with your pipeline today.
-                </p>
+          <div className="relative overflow-hidden bg-gradient-to-r from-[#172744] via-[#233b66] to-[#1e345b] text-white px-5 py-4 shadow-sm border-b border-[#2e477a]">
+            {/* Subtle visual glow accent */}
+            <div className="pointer-events-none absolute -right-10 -top-10 size-48 rounded-full bg-indigo-500/10 blur-2xl" />
+
+            <div className="relative z-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex min-w-0 items-center gap-3.5">
+                <div className="hidden sm:flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white border border-white/15 backdrop-blur-xs font-bold text-lg">
+                  {emoji}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="truncate text-lg sm:text-xl font-extrabold tracking-tight text-white">
+                      {greeting}, {displayName.split(" ")[0]}!
+                    </h2>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold text-emerald-300 border border-emerald-400/30">
+                      <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      Live Pipeline Active
+                    </span>
+                  </div>
+                  <p className="mt-0.5 truncate text-xs font-medium text-slate-300">
+                    Here&apos;s what&apos;s happening with your real estate pipeline today.
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-[#25354d] hover:bg-white"
-                aria-label="Refresh"
-                onClick={refresh}
-              >
-                <RotateCw
-                  className={cn("size-4", spinning && "animate-spin")}
-                />
-              </Button>
-              <Dropdown
-                align="end"
-                trigger={
-                  <button
-                    type="button"
-                    className="hidden h-9 items-center gap-3 rounded-md border border-[#c2cad8] bg-white px-4 text-sm text-[#071426] lg:flex"
-                  >
-                    {displayName}&apos;s Home
-                    <ChevronDown className="size-4 text-[#67758d]" />
-                  </button>
-                }
-              >
-                <MenuLink href="/dashboard" icon={Home}>
-                  Home
-                </MenuLink>
-                <MenuLink href="/reports/sales" icon={BarChart3}>
-                  Sales reports
-                </MenuLink>
-                <MenuLink href="/leads" icon={UserRoundCheck}>
-                  Leads pipeline
-                </MenuLink>
-              </Dropdown>
-              <Dropdown
-                align="end"
-                trigger={
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="size-9 border-[#cbd4e2] bg-[#f7f9fd]"
-                    aria-label="More actions"
-                  >
-                    <MoreHorizontal className="size-5" />
-                  </Button>
-                }
-              >
-                <MenuButton icon={RotateCw} onClick={refresh}>
-                  Refresh
-                </MenuButton>
-                <MenuLink href="/settings" icon={Settings}>
-                  Settings
-                </MenuLink>
-              </Dropdown>
+
+              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 px-3 text-xs font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/15 backdrop-blur-xs rounded-lg shadow-2xs flex items-center gap-1.5 transition-all cursor-pointer"
+                  aria-label="Refresh"
+                  onClick={refresh}
+                >
+                  <RotateCw
+                    className={cn("size-3.5", spinning && "animate-spin")}
+                  />
+                  <span className="hidden sm:inline">Refresh</span>
+                </Button>
+
+                <Dropdown
+                  align="end"
+                  trigger={
+                    <button
+                      type="button"
+                      className="h-9 items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3.5 text-xs font-bold text-white hover:bg-white/20 backdrop-blur-xs shadow-2xs flex transition-all cursor-pointer"
+                    >
+                      <Sparkles className="size-3.5 text-amber-300" />
+                      <span>{displayName.split(" ")[0]}&apos;s Command Center</span>
+                      <ChevronDown className="size-3.5 text-slate-300" />
+                    </button>
+                  }
+                >
+                  <MenuLink href="/dashboard" icon={Home}>
+                    Command Center Home
+                  </MenuLink>
+                  <MenuLink href="/reports/sales" icon={BarChart3}>
+                    Sales Reports
+                  </MenuLink>
+                  <MenuLink href="/leads" icon={UserRoundCheck}>
+                    Leads Pipeline
+                  </MenuLink>
+                </Dropdown>
+
+                <Dropdown
+                  align="end"
+                  trigger={
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="size-9 border-white/20 bg-white/10 text-white hover:bg-white/20 backdrop-blur-xs rounded-lg shadow-2xs cursor-pointer"
+                      aria-label="More actions"
+                    >
+                      <MoreHorizontal className="size-4" />
+                    </Button>
+                  }
+                >
+                  <MenuButton icon={RotateCw} onClick={refresh}>
+                    Refresh Dashboard Data
+                  </MenuButton>
+                  <MenuLink href="/settings" icon={Settings}>
+                    Settings
+                  </MenuLink>
+                </Dropdown>
+              </div>
             </div>
           </div>
         ) : null}
