@@ -18,6 +18,7 @@ import {
   Trash2,
   CheckCircle,
   ArrowRight,
+  Pencil,
 } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
@@ -86,6 +87,13 @@ export default function DealsPage() {
     customerId: "",
     stageId: "",
   });
+  const [editingDeal, setEditingDeal] = useState<{
+    id: string;
+    name: string;
+    value: string;
+    customerId: string;
+    stageId: string;
+  } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -176,6 +184,32 @@ export default function DealsPage() {
     }
   };
 
+  const handleUpdateDeal = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!editingDeal) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await apiFetch<ApiDeal>(`/deals/${editingDeal.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          name: editingDeal.name,
+          value: editingDeal.value,
+          customerId: editingDeal.customerId,
+          stageId: editingDeal.stageId,
+        }),
+      });
+      setEditingDeal(null);
+      success("Deal updated successfully");
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update deal");
+      toastError("Failed to update deal");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const moveStage = async (dealId: string, stageId: string) => {
     setError(null);
     // Optimistically update UI stage
@@ -230,37 +264,124 @@ export default function DealsPage() {
         onConfirm={confirmModal.onConfirm}
         onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
       />
+
+      {editingDeal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+          <div className="w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <Pencil className="size-4 text-indigo-600" />
+                Edit Deal Opportunity
+              </h3>
+              <button
+                type="button"
+                onClick={() => setEditingDeal(null)}
+                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateDeal} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Opportunity Name *
+                </label>
+                <input
+                  required
+                  value={editingDeal.name}
+                  onChange={(e) =>
+                    setEditingDeal({ ...editingDeal, name: e.target.value })
+                  }
+                  placeholder="e.g. Saron Taddesse - Penthouse Deal"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Deal Value Amount (ETB) *
+                </label>
+                <input
+                  required
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={editingDeal.value}
+                  onChange={(e) =>
+                    setEditingDeal({ ...editingDeal, value: e.target.value })
+                  }
+                  placeholder="Payment / deal value amount"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500 font-mono font-bold text-indigo-900"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Associated Client / Customer *
+                </label>
+                <select
+                  required
+                  aria-label="Customer option"
+                  value={editingDeal.customerId}
+                  onChange={(e) =>
+                    setEditingDeal({ ...editingDeal, customerId: e.target.value })
+                  }
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500"
+                >
+                  <option value="">Select customer…</option>
+                  {customers.map((customer) => (
+                    <option key={customer.id} value={customer.id}>
+                      {customer.firstName} {customer.lastName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Pipeline Stage *
+                </label>
+                <select
+                  required
+                  aria-label="Stage option"
+                  value={editingDeal.stageId}
+                  onChange={(e) =>
+                    setEditingDeal({ ...editingDeal, stageId: e.target.value })
+                  }
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500"
+                >
+                  <option value="">Select stage…</option>
+                  {stages.map((stage) => (
+                    <option key={stage.id} value={stage.id}>
+                      {stage.name} ({stage.probability}% win probability)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setEditingDeal(null)}
+                  className="h-9 text-xs font-semibold"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={saving}
+                  className="h-9 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white"
+                >
+                  {saving ? "Saving Changes…" : "Update Deal"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       <div className="space-y-6">
-        <StatRow>
-          <StatCard
-            label="Total Pipeline"
-            value={formatValue(totalPipelineVolume)}
-            detail={`${filteredDeals.length} opportunities`}
-            icon={BarChart3}
-            color="navy"
-          />
-          <StatCard
-            label="Weighted Forecast"
-            value={formatValue(weightedForecastVolume)}
-            detail="Probability-adjusted value"
-            icon={TrendingUp}
-            color="emerald"
-          />
-          <StatCard
-            label="Avg Deal Value"
-            value={formatValue(avgDealValue)}
-            detail="Per opportunity"
-            icon={DollarSign}
-            color="indigo"
-          />
-          <StatCard
-            label="Active Stages"
-            value={String(stages.length)}
-            detail={`${stages.filter(s => (dealsByStage.get(s.id) ?? []).length > 0).length} with deals`}
-            icon={CheckCircle}
-            color="blue"
-          />
-        </StatRow>
 
         {/* Toolbar: Search + Action */}
         <div className="flex flex-col gap-3 rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
@@ -435,14 +556,34 @@ export default function DealsPage() {
                                   {deal.name}
                                 </h3>
                               </div>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteDeal(deal.id)}
-                                className="text-slate-300 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition-opacity p-0.5"
-                                aria-label="Delete deal"
-                              >
-                                <Trash2 className="size-3.5" />
-                              </button>
+                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setEditingDeal({
+                                      id: deal.id,
+                                      name: deal.name,
+                                      value: deal.value,
+                                      customerId: deal.customer.id,
+                                      stageId: deal.stage.id,
+                                    })
+                                  }
+                                  className="text-slate-400 hover:text-indigo-600 p-0.5 cursor-pointer"
+                                  title="Edit deal details & payment amount"
+                                  aria-label="Edit deal"
+                                >
+                                  <Pencil className="size-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteDeal(deal.id)}
+                                  className="text-slate-400 hover:text-rose-600 p-0.5 cursor-pointer"
+                                  title="Delete deal"
+                                  aria-label="Delete deal"
+                                >
+                                  <Trash2 className="size-3.5" />
+                                </button>
+                              </div>
                             </div>
 
                             <p className="mt-2 text-xs text-slate-600 font-medium">
@@ -518,6 +659,7 @@ export default function DealsPage() {
                     "Stage",
                     "Win Prob %",
                     "Weighted Value",
+                    "Actions",
                   ]}
                   rows={filteredDeals.map((deal) => {
                     const val = Number(deal.value) || 0;
@@ -528,22 +670,47 @@ export default function DealsPage() {
                       <span key="name" className="font-bold text-indigo-600">
                         {deal.name}
                       </span>,
-                      `${deal.customer.firstName} ${deal.customer.lastName}`,
+                      `${deal.customer?.firstName ?? ""} ${deal.customer?.lastName ?? ""}`,
                       deal.unit ? `Unit ${deal.unit.unitNumber}` : "—",
                       formatValue(deal.value),
                       <span
                         key="stage"
                         className="inline-flex items-center rounded-md bg-indigo-50 border border-indigo-100 px-2 py-0.5 text-xs font-bold text-indigo-700"
                       >
-                        {deal.stage.name}
+                        {deal.stage?.name}
                       </span>,
-                      `${deal.stage.probability}%`,
+                      `${deal.stage?.probability ?? 0}%`,
                       <span
                         key="weighted"
                         className="font-bold text-emerald-600"
                       >
                         {formatValue(weighted)}
                       </span>,
+                      <div key="actions" className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setEditingDeal({
+                              id: deal.id,
+                              name: deal.name,
+                              value: deal.value,
+                              customerId: deal.customer?.id ?? "",
+                              stageId: deal.stage?.id ?? "",
+                            })
+                          }
+                          className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-bold text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 transition-colors cursor-pointer"
+                        >
+                          <Pencil className="size-3" />
+                          <span>Edit</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteDeal(deal.id)}
+                          className="inline-flex items-center gap-1 rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-xs font-bold text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="size-3" />
+                        </button>
+                      </div>,
                     ];
                   })}
                 />

@@ -432,39 +432,6 @@ export default function LeadsPage() {
       description="Capture, qualify, and assign incoming demand."
       active="Leads"
     >
-      {/* KPI Summary Row */}
-      <div className="mb-4">
-        <StatRow>
-          <StatCard
-            label="Total Leads"
-            value={String(kpiTotal)}
-            detail="All time"
-            icon={UserRoundCheck}
-            color="navy"
-          />
-          <StatCard
-            label="New"
-            value={String(kpiNew)}
-            detail="Awaiting contact"
-            icon={Plus}
-            color="blue"
-          />
-          <StatCard
-            label="Qualified"
-            value={String(kpiQualified)}
-            detail="Ready to convert"
-            icon={Check}
-            color="emerald"
-          />
-          <StatCard
-            label="Won"
-            value={String(kpiWon)}
-            detail="Successfully converted"
-            icon={CheckCircle2}
-            color="indigo"
-          />
-        </StatRow>
-      </div>
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-t-lg border border-zinc-200 bg-white px-4 py-3 h-[60px]">

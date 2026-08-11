@@ -261,36 +261,6 @@ export default function ContractsPage() {
       active="Contracts"
     >
       <div className="space-y-6">
-        <StatRow>
-          <StatCard
-            label="Total Contracts"
-            value={String(kpiTotal)}
-            detail={`ETB ${kpiTotalValue.toLocaleString()} total value`}
-            icon={ScrollText}
-            color="navy"
-          />
-          <StatCard
-            label="Active"
-            value={String(kpiActive)}
-            detail="Currently in force"
-            icon={FileCheck2}
-            color="blue"
-          />
-          <StatCard
-            label="Signed"
-            value={String(kpiSigned)}
-            detail="Fully executed"
-            icon={ShieldCheck}
-            color="emerald"
-          />
-          <StatCard
-            label="Pending Signature"
-            value={String(kpiPending)}
-            detail="Awaiting sign-off"
-            icon={Clock}
-            color="amber"
-          />
-        </StatRow>
 
         {/* Section Header & Creator Button */}
         <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">

@@ -155,38 +155,6 @@ export default function UnitsPage() {
       description="Interactive real estate unit visualizer & payment schedule calculator."
       active="Units"
     >
-      <div className="mb-6">
-        <StatRow>
-          <StatCard
-            label="Available Units"
-            value={String(kpiAvailable)}
-            detail="Ready for sale"
-            icon={Home}
-            color="emerald"
-          />
-          <StatCard
-            label="Reserved"
-            value={String(kpiReserved)}
-            detail="Pending contract"
-            icon={SquareStack}
-            color="amber"
-          />
-          <StatCard
-            label="Sold"
-            value={String(kpiSold)}
-            detail="Fully contracted"
-            icon={Banknote}
-            color="rose"
-          />
-          <StatCard
-            label="Available Inventory Value"
-            value={formatPrice(kpiTotalValue)}
-            detail="At listed prices"
-            icon={TrendingUp}
-            color="navy"
-          />
-        </StatRow>
-      </div>
 
       {/* Top Header & View Mode Selector */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
