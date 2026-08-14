@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, UserPlus, LogIn } from "lucide-react";
+import { ArrowRight, UserPlus, LogIn, KeyRound, Lock } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -10,7 +10,7 @@ import { clearSession, getSession } from "@/lib/api";
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
 
-type Mode = "login" | "register";
+type Mode = "login" | "register" | "forgot" | "reset";
 
 type LoginState = {
   email: string;
@@ -22,6 +22,17 @@ type RegisterState = {
   lastName: string;
   email: string;
   password: string;
+  inviteCode: string;
+};
+
+type ForgotState = {
+  email: string;
+};
+
+type ResetState = {
+  email: string;
+  token: string;
+  newPassword: string;
 };
 
 const labelClass = "text-[13px] font-medium text-zinc-600";
@@ -34,8 +45,8 @@ export default function AuthPage() {
   const [remember, setRemember] = useState(true);
 
   const [loginState, setLoginState] = useState<LoginState>({
-    email: "admin@betflow.example",
-    password: "admin123",
+    email: "",
+    password: "",
   });
 
   const [registerState, setRegisterState] = useState<RegisterState>({
@@ -43,6 +54,17 @@ export default function AuthPage() {
     lastName: "",
     email: "",
     password: "",
+    inviteCode: "",
+  });
+
+  const [forgotState, setForgotState] = useState<ForgotState>({
+    email: "",
+  });
+
+  const [resetState, setResetState] = useState<ResetState>({
+    email: "",
+    token: "",
+    newPassword: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -140,7 +162,10 @@ export default function AuthPage() {
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(registerState),
+        body: JSON.stringify({
+          ...registerState,
+          inviteCode: registerState.inviteCode.trim() || undefined,
+        }),
       });
 
       if (!response.ok) {
@@ -149,7 +174,25 @@ export default function AuthPage() {
         );
       }
 
-      // Automatically sign in after successful registration
+      const resData = (await response.json()) as {
+        requiresApproval?: boolean;
+        message?: string;
+      };
+
+      if (resData.requiresApproval) {
+        setFeedback(
+          resData.message ||
+            "Registration successful! Your account is pending manager approval before you can sign in.",
+        );
+        setMode("login");
+        setLoginState({
+          email: registerState.email,
+          password: registerState.password,
+        });
+        return;
+      }
+
+      // Automatically sign in if auto-approved via Invite Code
       const loginRes = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -161,10 +204,10 @@ export default function AuthPage() {
 
       if (loginRes.ok) {
         persistSession(await loginRes.json());
-        setFeedback("Account created! Redirecting to dashboard…");
+        setFeedback("Account activated! Redirecting to dashboard…");
         router.push("/dashboard");
       } else {
-        setFeedback("Account created successfully! Please sign in.");
+        setFeedback("Account registered! Please sign in.");
         setMode("login");
         setLoginState({
           email: registerState.email,
@@ -173,6 +216,91 @@ export default function AuthPage() {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+    setFeedback(null);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(forgotState),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          await readErrorMessage(
+            response,
+            "Unable to process password reset request.",
+          ),
+        );
+      }
+
+      const resData = (await response.json()) as {
+        message?: string;
+        resetToken?: string;
+      };
+
+      setResetState((prev) => ({
+        ...prev,
+        email: forgotState.email,
+        token: resData.resetToken || prev.token,
+      }));
+
+      setFeedback(
+        resData.message ||
+          "Reset code generated! Please enter your code below.",
+      );
+      setMode("reset");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Request failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+    setFeedback(null);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(resetState),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          await readErrorMessage(
+            response,
+            "Unable to reset password. Please check your reset code.",
+          ),
+        );
+      }
+
+      const resData = (await response.json()) as { message?: string };
+      setFeedback(
+        resData.message ||
+          "Password reset successfully! You can now sign in with your new password.",
+      );
+      setLoginState((prev) => ({
+        ...prev,
+        email: resetState.email,
+        password: "",
+      }));
+      setMode("login");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Password reset failed.");
     } finally {
       setLoading(false);
     }
@@ -288,10 +416,26 @@ export default function AuthPage() {
                   />
                   Remember me
                 </label>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("forgot");
+                    setError(null);
+                    setFeedback(null);
+                    setForgotState({ email: loginState.email });
+                  }}
+                  className="text-xs font-medium text-[#0E6E63] hover:underline"
+                >
+                  Forgot password?
+                </button>
+              </div>
+
+              <div className="pt-2">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#0E6E63] px-4 text-sm font-medium text-white transition hover:bg-[#0b5c52] disabled:opacity-60"
+                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#0E6E63] px-4 text-sm font-medium text-white transition hover:bg-[#0b5c52] disabled:opacity-60"
                 >
                   {loading ? "Signing in…" : "Sign in"}
                   {!loading && <ArrowRight className="size-4" />}
@@ -313,7 +457,7 @@ export default function AuthPage() {
                 </button>
               </p>
             </form>
-          ) : (
+          ) : mode === "register" ? (
             <form className="mt-5 grid gap-3.5" onSubmit={handleRegister}>
               <div className="grid grid-cols-2 gap-3">
                 <label className="block">
@@ -383,6 +527,25 @@ export default function AuthPage() {
                 />
               </label>
 
+              <label className="block">
+                <span className={labelClass}>Admin Invite Code (Optional)</span>
+                <input
+                  className={inputClass}
+                  type="text"
+                  placeholder="e.g. BETFLOW-VIP-2026 for auto-activation"
+                  value={registerState.inviteCode}
+                  onChange={(e) =>
+                    setRegisterState((s) => ({
+                      ...s,
+                      inviteCode: e.target.value,
+                    }))
+                  }
+                />
+                <span className="mt-1 block text-[10px] text-zinc-400 font-medium">
+                  Without a valid invite code, your account will require manager approval before you can sign in.
+                </span>
+              </label>
+
               <div className="pt-2">
                 <button
                   type="submit"
@@ -406,6 +569,133 @@ export default function AuthPage() {
                   className="font-medium text-[#0E6E63] hover:underline"
                 >
                   Sign in
+                </button>
+              </p>
+            </form>
+          ) : mode === "forgot" ? (
+            <form className="mt-5 grid gap-4" onSubmit={handleForgotPassword}>
+              <div className="rounded-xl bg-[#0E6E63]/10 p-3.5 text-xs text-[#0E6E63]">
+                <p className="font-semibold flex items-center gap-1.5">
+                  <KeyRound className="size-4" /> Forgot your password?
+                </p>
+                <p className="mt-1 text-zinc-600">
+                  Enter your account email address below to generate a 6-digit password verification code.
+                </p>
+              </div>
+
+              <label className="block">
+                <span className={labelClass}>Registered Email</span>
+                <input
+                  className={inputClass}
+                  type="email"
+                  placeholder="you@betflow.com"
+                  value={forgotState.email}
+                  onChange={(e) => setForgotState({ email: e.target.value })}
+                  required
+                />
+              </label>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#0E6E63] px-4 text-sm font-medium text-white transition hover:bg-[#0b5c52] disabled:opacity-60"
+              >
+                {loading ? "Requesting code…" : "Send Verification Code"}
+                {!loading && <ArrowRight className="size-4" />}
+              </button>
+
+              <p className="pt-2 text-center text-[13px] text-zinc-500">
+                Remember your password?{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("login");
+                    setError(null);
+                    setFeedback(null);
+                  }}
+                  className="font-medium text-[#0E6E63] hover:underline"
+                >
+                  Back to Sign in
+                </button>
+              </p>
+            </form>
+          ) : (
+            <form className="mt-5 grid gap-4" onSubmit={handleResetPassword}>
+              <div className="rounded-xl bg-amber-50 p-3.5 text-xs text-amber-900 border border-amber-200">
+                <p className="font-semibold flex items-center gap-1.5 text-amber-800">
+                  <Lock className="size-4" /> Reset Password Verification
+                </p>
+                <p className="mt-1 text-amber-700">
+                  Enter the 6-digit code sent to your email along with your new password.
+                </p>
+              </div>
+
+              <label className="block">
+                <span className={labelClass}>Account Email</span>
+                <input
+                  className={inputClass}
+                  type="email"
+                  placeholder="you@betflow.com"
+                  value={resetState.email}
+                  onChange={(e) =>
+                    setResetState((s) => ({ ...s, email: e.target.value }))
+                  }
+                  required
+                />
+              </label>
+
+              <label className="block">
+                <span className={labelClass}>6-Digit Verification Code</span>
+                <input
+                  className={inputClass}
+                  type="text"
+                  placeholder="e.g. 849201"
+                  value={resetState.token}
+                  onChange={(e) =>
+                    setResetState((s) => ({ ...s, token: e.target.value }))
+                  }
+                  required
+                />
+              </label>
+
+              <label className="block">
+                <span className={labelClass}>New Password</span>
+                <input
+                  className={inputClass}
+                  type="password"
+                  placeholder="••••••••"
+                  value={resetState.newPassword}
+                  onChange={(e) =>
+                    setResetState((s) => ({ ...s, newPassword: e.target.value }))
+                  }
+                  required
+                />
+                <span className="mt-1 block text-[10px] text-zinc-400">
+                  Must be at least 8 characters with uppercase, lowercase, and a number or symbol.
+                </span>
+              </label>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#0E6E63] px-4 text-sm font-medium text-white transition hover:bg-[#0b5c52] disabled:opacity-60"
+              >
+                {loading ? "Resetting password…" : "Reset Password & Sign In"}
+                {!loading && <ArrowRight className="size-4" />}
+              </button>
+
+              <p className="pt-2 text-center text-[13px] text-zinc-500">
+                Cancel reset?{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("login");
+                    setError(null);
+                    setFeedback(null);
+                  }}
+                  className="font-medium text-[#0E6E63] hover:underline"
+                >
+                  Back to Sign in
                 </button>
               </p>
             </form>

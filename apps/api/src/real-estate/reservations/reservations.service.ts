@@ -292,10 +292,13 @@ export class ReservationsService {
   async processExpiredReservations(): Promise<number> {
     const now = new Date();
 
+    // 1. Truly abandoned reservations (no bank receipt reference AND no linked payments) -> safe to auto-expire & release unit
     const expiredReservations = await this.prisma.reservation.findMany({
       where: {
         status: { in: ACTIVE_RESERVATION_STATUSES },
         expiryDate: { lte: now },
+        OR: [{ receiptNumber: null }, { receiptNumber: '' }],
+        payments: { none: {} },
       },
       include: {
         unit: true,
@@ -335,6 +338,65 @@ export class ReservationsService {
       });
 
       processedCount++;
+    }
+
+    // 2. Pending Verification Holds: expired reservations with a bank receipt ref or payment attached -> retain unit lock & flag for finance verification
+    const pendingVerificationReservations = await this.prisma.reservation.findMany({
+      where: {
+        status: { in: ACTIVE_RESERVATION_STATUSES },
+        expiryDate: { lte: now },
+        NOT: {
+          AND: [
+            { OR: [{ receiptNumber: null }, { receiptNumber: '' }] },
+            { payments: { none: {} } },
+          ],
+        },
+      },
+      include: {
+        unit: true,
+        customer: true,
+      },
+    });
+
+    if (pendingVerificationReservations.length > 0) {
+      const activeUsers = await this.prisma.user.findMany({
+        where: { isActive: true },
+        take: 5,
+      });
+
+      for (const res of pendingVerificationReservations) {
+        const refCode = res.reservationNumber || res.id;
+        for (const user of activeUsers) {
+          const existingNotif = await this.prisma.notification.findFirst({
+            where: {
+              userId: user.id,
+              title: { contains: refCode },
+            },
+          });
+
+          if (!existingNotif) {
+            await this.prisma.notification.create({
+              data: {
+                userId: user.id,
+                title: `⚠️ Pending Receipt Verification for Expiring Hold (${refCode})`,
+                message: `Reservation for Unit ${res.unit.unitNumber} (${res.customer.firstName} ${res.customer.lastName}) reached expiry but has a bank receipt reference (${res.receiptNumber || 'Payment Linked'}). Unit lock retained for finance verification.`,
+              },
+            });
+          }
+        }
+
+        await this.prisma.auditLog.create({
+          data: {
+            action: 'reservation.expiry_held_for_receipt_verification',
+            entityType: 'Reservation',
+            entityId: res.id,
+            newValues: {
+              receiptNumber: res.receiptNumber,
+              unitStatus: 'RESERVED (Lock Retained)',
+            },
+          },
+        });
+      }
     }
 
     return processedCount;

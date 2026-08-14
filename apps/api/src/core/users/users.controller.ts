@@ -32,6 +32,16 @@ export class UsersController {
     return this.users.inviteUser({ ...body });
   }
 
+  @Patch(':id/status')
+  @Roles('Owner', 'Admin')
+  updateStatus(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() body: { isActive: boolean },
+  ) {
+    return this.users.updateUserStatus(id, body.isActive);
+  }
+
   @Patch(':id/role')
   @Roles('Owner', 'Admin')
   updateRole(

@@ -20,6 +20,7 @@ export type CreateContractInput = {
   contractType?: string;
   customerId: string;
   unitId: string;
+  reservationId?: string | null;
   dealId?: string | null;
   startDate: string;
   endDate?: string | null;

@@ -162,16 +162,35 @@ export class ContractsService {
       },
     });
 
-    // Mark contract as SIGNED and unit as SOLD
-    await this.prisma.contract.update({
-      where: { id },
-      data: { status: 'SIGNED' },
+    // Check if all designated required roles (BUYER and SELLER_REP) have submitted signatures
+    const requiredRoles = ['BUYER', 'SELLER_REP'];
+    const existingSignatures = await this.prisma.signatureAudit.findMany({
+      where: { contractId: id },
     });
+    const signedRoles = new Set(
+      existingSignatures.map((s: { signerRole: string }) => s.signerRole),
+    );
 
-    await this.prisma.unit.update({
-      where: { id: contract.unitId },
-      data: { status: 'SOLD' },
-    });
+    const isFullySigned = requiredRoles.every((role) => signedRoles.has(role));
+
+    if (isFullySigned) {
+      // Mark contract as SIGNED and unit as SOLD only when all required signatures are present
+      await this.prisma.contract.update({
+        where: { id },
+        data: { status: 'SIGNED' },
+      });
+
+      await this.prisma.unit.update({
+        where: { id: contract.unitId },
+        data: { status: 'SOLD' },
+      });
+    } else {
+      // Retain or set status to PENDING_SIGNATURE until all signatures are complete
+      await this.prisma.contract.update({
+        where: { id },
+        data: { status: 'PENDING_SIGNATURE' },
+      });
+    }
 
     return signature;
   }
@@ -326,6 +345,32 @@ export class ContractsService {
           entityId: contract.id,
         },
       });
+
+      if (input.reservationId) {
+        const reservation = await tx.reservation.findFirst({
+          where: { id: input.reservationId },
+        });
+
+        if (reservation) {
+          await tx.reservation.update({
+            where: { id: input.reservationId },
+            data: { status: 'CONVERTED_TO_CONTRACT' },
+          });
+
+          await tx.auditLog.create({
+            data: {
+              userId,
+              action: 'reservation.converted_to_contract',
+              entityType: 'Reservation',
+              entityId: input.reservationId,
+              newValues: {
+                contractId: contract.id,
+                status: 'CONVERTED_TO_CONTRACT',
+              },
+            },
+          });
+        }
+      }
 
       return contract;
     });

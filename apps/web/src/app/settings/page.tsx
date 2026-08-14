@@ -18,6 +18,7 @@ import {
   Trash2,
   X,
   User as UserIcon,
+  UserCheck,
   Settings2,
   Building2,
   KeyRound,
@@ -92,6 +93,7 @@ export default function SettingsPage() {
     firstName: "",
     lastName: "",
     email: "",
+    avatarUrl: "",
   });
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
@@ -169,6 +171,7 @@ export default function SettingsPage() {
       firstName?: string;
       lastName?: string;
       email?: string;
+      avatarUrl?: string;
     } | null = null;
 
     if (raw) {
@@ -180,6 +183,7 @@ export default function SettingsPage() {
             firstName: initialUser.firstName || "",
             lastName: initialUser.lastName || "",
             email: initialUser.email || "",
+            avatarUrl: initialUser.avatarUrl || "",
           });
         }
         const token = parsed.accessToken;
@@ -257,11 +261,13 @@ export default function SettingsPage() {
         email: string;
         firstName: string;
         lastName: string;
+        avatarUrl?: string;
       }>("/auth/profile", {
         method: "PATCH",
         body: JSON.stringify({
           firstName: profileForm.firstName.trim(),
           lastName: profileForm.lastName.trim(),
+          avatarUrl: profileForm.avatarUrl.trim() || undefined,
         }),
       });
 
@@ -274,6 +280,7 @@ export default function SettingsPage() {
           ...parsed.user,
           firstName: updatedUser.firstName,
           lastName: updatedUser.lastName,
+          avatarUrl: updatedUser.avatarUrl,
         };
         const store = window.localStorage.getItem("betflow-auth")
           ? window.localStorage
@@ -478,6 +485,27 @@ export default function SettingsPage() {
     }
   };
 
+  const [updatingUserStatusId, setUpdatingUserStatusId] = useState<string | null>(null);
+
+  const handleToggleUserStatus = async (userId: string, currentStatus: string) => {
+    setUpdatingUserStatusId(userId);
+    setError(null);
+    try {
+      const newIsActive = currentStatus !== "active";
+      await apiFetch(`/users/${userId}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ isActive: newIsActive }),
+      });
+      await load();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to update user status",
+      );
+    } finally {
+      setUpdatingUserStatusId(null);
+    }
+  };
+
   const handleDeleteUser = (id: string) => {
     setConfirmModal({
       isOpen: true,
@@ -656,9 +684,17 @@ export default function SettingsPage() {
               {/* Profile Summary Card */}
               <div className="xl:col-span-1 space-y-6">
                 <div className="rounded-xl border border-slate-200/80 bg-white p-6 shadow-xs text-center">
-                  <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[#233b66] to-[#162744] text-2xl font-extrabold text-white shadow-md">
-                    {initials}
-                  </div>
+                  {profileForm.avatarUrl ? (
+                    <img
+                      src={profileForm.avatarUrl}
+                      alt={profileForm.firstName}
+                      className="mx-auto mb-4 size-20 rounded-2xl object-cover border-2 border-slate-200 shadow-md"
+                    />
+                  ) : (
+                    <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[#233b66] to-[#162744] text-2xl font-extrabold text-white shadow-md">
+                      {initials}
+                    </div>
+                  )}
                   <h3 className="text-lg font-extrabold text-slate-900">
                     {profileForm.firstName || "User"} {profileForm.lastName}
                   </h3>
@@ -737,6 +773,76 @@ export default function SettingsPage() {
                   </div>
 
                   <form onSubmit={saveProfile} className="grid gap-4">
+                    {/* Profile Picture Uploader & Presets */}
+                    <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-4">
+                      <label className="block text-xs font-bold text-slate-800 mb-2">
+                        Profile Picture / Avatar
+                      </label>
+                      <div className="flex flex-wrap items-center gap-4">
+                        {profileForm.avatarUrl ? (
+                          <img
+                            src={profileForm.avatarUrl}
+                            alt="Avatar Preview"
+                            className="size-16 rounded-xl object-cover border border-slate-300 shadow-xs"
+                          />
+                        ) : (
+                          <div className="flex size-16 items-center justify-center rounded-xl bg-gradient-to-br from-[#233b66] to-[#162744] text-xl font-bold text-white shadow-xs">
+                            {initials}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-[220px] space-y-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <label className="flex h-8 items-center gap-1.5 rounded-lg bg-white border border-slate-300 px-3 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-100 cursor-pointer transition">
+                              <UploadCloud className="size-3.5 text-[#233b66]" />
+                              Upload Image
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+                                  if (file.size > 3 * 1024 * 1024) {
+                                    setError("Profile picture size should be less than 3MB");
+                                    return;
+                                  }
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    if (typeof reader.result === "string") {
+                                      setProfileForm((prev) => ({
+                                        ...prev,
+                                        avatarUrl: reader.result as string,
+                                      }));
+                                    }
+                                  };
+                                  reader.readAsDataURL(file);
+                                }}
+                              />
+                            </label>
+                            {profileForm.avatarUrl ? (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setProfileForm((prev) => ({ ...prev, avatarUrl: "" }))
+                                }
+                                className="h-8 rounded-lg border border-red-200 bg-red-50 px-3 text-xs font-bold text-red-600 hover:bg-red-100 transition cursor-pointer"
+                              >
+                                Revert to Default Avatar
+                              </button>
+                            ) : null}
+                          </div>
+                          <input
+                            type="url"
+                            className="h-8 w-full rounded-lg border border-slate-200 bg-white px-2.5 text-xs text-slate-800 outline-none focus:border-[#233b66]"
+                            placeholder="Or paste profile image URL..."
+                            value={profileForm.avatarUrl}
+                            onChange={(e) =>
+                              setProfileForm({ ...profileForm, avatarUrl: e.target.value })
+                            }
+                          />
+                        </div>
+                      </div>
+                    </div>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <label className="grid gap-1.5 text-xs font-bold text-slate-700">
                         First name
@@ -1380,37 +1486,81 @@ export default function SettingsPage() {
                             )}
                           </td>
                           <td className="px-5 py-3.5">
-                            <span
-                              className={cn(
-                                "inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-bold uppercase tracking-wider shadow-2xs",
-                                user.status === "active"
-                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                                  : "bg-slate-100 text-slate-600 border-slate-200",
-                              )}
-                            >
-                              {user.status === "active" && (
-                                <CheckCircle2 className="size-3 text-emerald-600" />
-                              )}
-                              {user.status}
-                            </span>
+                            {user.status === "active" ? (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleToggleUserStatus(user.id, user.status)
+                                }
+                                disabled={updatingUserStatusId === user.id}
+                                className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 border border-emerald-200 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 transition-colors cursor-pointer"
+                                title="Click to deactivate user account"
+                              >
+                                {updatingUserStatusId === user.id ? (
+                                  <RotateCw className="size-3 animate-spin text-emerald-600" />
+                                ) : (
+                                  <CheckCircle2 className="size-3 text-emerald-600" />
+                                )}
+                                <span>ACTIVE</span>
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleToggleUserStatus(user.id, user.status)
+                                }
+                                disabled={updatingUserStatusId === user.id}
+                                className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-800 border border-amber-300 hover:bg-emerald-600 hover:text-white transition-colors cursor-pointer shadow-2xs group"
+                                title="Click to approve & activate this user account"
+                              >
+                                {updatingUserStatusId === user.id ? (
+                                  <RotateCw className="size-3 animate-spin text-amber-600" />
+                                ) : (
+                                  <ShieldAlert className="size-3 text-amber-600 group-hover:text-white" />
+                                )}
+                                <span>INACTIVE (Click to Activate)</span>
+                              </button>
+                            )}
                           </td>
                           <td className="px-5 py-3.5 text-slate-500 font-medium">
                             {new Date(user.createdAt).toLocaleDateString()}
                           </td>
                           <td className="px-5 py-3.5 text-right">
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              className="text-rose-500 hover:text-rose-700 hover:bg-rose-50"
-                              onClick={() => handleDeleteUser(user.id)}
-                              disabled={deletingUserId === user.id}
-                            >
-                              {deletingUserId === user.id ? (
-                                <RotateCw className="size-3.5 animate-spin" />
-                              ) : (
-                                <Trash2 className="size-3.5" />
+                            <div className="flex items-center justify-end gap-2">
+                              {user.status !== "active" && (
+                                <Button
+                                  size="xs"
+                                  onClick={() =>
+                                    handleToggleUserStatus(user.id, user.status)
+                                  }
+                                  disabled={updatingUserStatusId === user.id}
+                                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-7 px-2.5 gap-1 shadow-2xs cursor-pointer"
+                                  title="Approve and activate this user"
+                                >
+                                  {updatingUserStatusId === user.id ? (
+                                    <RotateCw className="size-3 animate-spin" />
+                                  ) : (
+                                    <UserCheck className="size-3.5" />
+                                  )}
+                                  Approve
+                                </Button>
                               )}
-                            </Button>
+
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                className="text-rose-500 hover:text-rose-700 hover:bg-rose-50"
+                                onClick={() => handleDeleteUser(user.id)}
+                                disabled={deletingUserId === user.id}
+                                title="Delete or deactivate user"
+                              >
+                                {deletingUserId === user.id ? (
+                                  <RotateCw className="size-3.5 animate-spin" />
+                                ) : (
+                                  <Trash2 className="size-3.5" />
+                                )}
+                              </Button>
+                            </div>
                           </td>
                         </tr>
                       );

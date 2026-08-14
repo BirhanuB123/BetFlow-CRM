@@ -9,6 +9,8 @@ import type {
 export class PaymentPlanService {
   /**
    * Calculates a dynamic real estate payment installment schedule.
+   * Guarantees 100% exact cent allocation by using residual balance allocation
+   * on the final milestone schedule item to absorb any floating-point rounding drift.
    */
   calculatePaymentPlan(input: PaymentPlanInput): PaymentPlanCalculation {
     const {
@@ -44,9 +46,11 @@ export class PaymentPlanService {
     const remainingPercent = 100 - (downPaymentPercent + handoverPercent);
     const installmentPercent = remainingPercent / installmentsCount;
 
-    const downPaymentAmount = (unitPrice * downPaymentPercent) / 100;
-    const handoverAmount = (unitPrice * handoverPercent) / 100;
-    const installmentAmount = (unitPrice * installmentPercent) / 100;
+    const round2 = (val: number) => Math.round(val * 100) / 100;
+
+    const downPaymentAmount = round2((unitPrice * downPaymentPercent) / 100);
+    const handoverAmount = round2((unitPrice * handoverPercent) / 100);
+    const installmentAmount = round2((unitPrice * installmentPercent) / 100);
 
     const baseDate = inputStartDate ? new Date(inputStartDate) : new Date();
     const schedule: PaymentScheduleItem[] = [];
@@ -56,7 +60,7 @@ export class PaymentPlanService {
       installmentNumber: 1,
       label: `Booking / Down Payment (${downPaymentPercent}%)`,
       dueDate: baseDate.toISOString(),
-      amount: Math.round(downPaymentAmount * 100) / 100,
+      amount: downPaymentAmount,
       percentage: downPaymentPercent,
       status: 'PENDING',
     });
@@ -70,7 +74,7 @@ export class PaymentPlanService {
         installmentNumber: i + 1,
         label: `Milestone Installment #${i} (${installmentPercent.toFixed(1)}%)`,
         dueDate: dueDate.toISOString(),
-        amount: Math.round(installmentAmount * 100) / 100,
+        amount: installmentAmount,
         percentage: Math.round(installmentPercent * 10) / 10,
         status: 'PENDING',
       });
@@ -87,18 +91,33 @@ export class PaymentPlanService {
         installmentNumber: installmentsCount + 2,
         label: `Handover & Key Delivery (${handoverPercent}%)`,
         dueDate: handoverDate.toISOString(),
-        amount: Math.round(handoverAmount * 100) / 100,
+        amount: handoverAmount,
         percentage: handoverPercent,
         status: 'PENDING',
       });
     }
 
+    // Residual Allocation: Sum preceding schedule items and assign the exact remaining balance to the final item
+    let allocatedSum = 0;
+    for (let i = 0; i < schedule.length - 1; i++) {
+      allocatedSum += schedule[i].amount;
+    }
+    allocatedSum = round2(allocatedSum);
+
+    const lastIndex = schedule.length - 1;
+    const exactResidualAmount = round2(unitPrice - allocatedSum);
+    schedule[lastIndex].amount = Math.max(0, exactResidualAmount);
+
+    const finalHandoverAmount =
+      handoverPercent > 0 ? schedule[lastIndex].amount : handoverAmount;
+
     return {
-      unitPrice,
-      downPaymentAmount: Math.round(downPaymentAmount * 100) / 100,
-      handoverAmount: Math.round(handoverAmount * 100) / 100,
-      installmentAmount: Math.round(installmentAmount * 100) / 100,
+      unitPrice: round2(unitPrice),
+      downPaymentAmount,
+      handoverAmount: finalHandoverAmount,
+      installmentAmount,
       schedule,
     };
   }
 }
+

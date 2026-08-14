@@ -52,6 +52,8 @@ import {
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/language-context";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
 
 const SIDEBAR_MIN = 200;
 const SIDEBAR_MAX = 460;
@@ -200,6 +202,56 @@ function isActiveItem(item: NavItem, active: string) {
   return item.label === active || item.aliases?.includes(active);
 }
 
+const navKeyMap: Record<string, string> = {
+  "Home": "dashboard.home",
+  "Dashboard": "nav.dashboard",
+  "Reports": "nav.reports",
+  "Leads": "nav.leads",
+  "Customers": "nav.customers",
+  "Deals": "nav.deals",
+  "Tasks": "nav.tasks",
+  "Meetings": "nav.meetings",
+  "Calls": "nav.calls",
+  "Visits": "nav.siteVisits",
+  "Projects": "nav.projects",
+  "Units": "nav.units",
+  "Reservations": "nav.reservations",
+  "Contracts": "nav.contracts",
+  "Payment Schedules": "nav.paymentSchedules",
+  "Social Outreach": "nav.campaigns",
+  "SMS & Drip Automation": "nav.sms",
+  "Documents": "nav.documents",
+  "Settings": "nav.settings",
+};
+
+const sectionTitleMap: Record<string, string> = {
+  "Sales & Pipeline": "የሽያጭና የሂደት መስመር",
+  "Activities & Engagement": "እንቅስቃሴዎች እና ቀጠሮዎች",
+  "Property Inventory": "የህንፃ ክፍሎች ዝርዝር",
+  "Transactions & Finance": "ክፍያዎች እና ፋይናንስ",
+  "Marketing & Automation": "ማርኬቲንግ እና አውቶሜሽን",
+  "System & Assets": "ሲስተም እና ሰነዶች",
+};
+
+const itemBadges: Record<string, { label: string; cls: string }> = {
+  Leads: {
+    label: "12",
+    cls: "bg-emerald-500/25 text-emerald-300 border-emerald-400/40",
+  },
+  Tasks: {
+    label: "5",
+    cls: "bg-amber-500/25 text-amber-300 border-amber-400/40",
+  },
+  Deals: {
+    label: "New",
+    cls: "bg-blue-500/25 text-blue-300 border-blue-400/40",
+  },
+  "Social Outreach": {
+    label: "Live",
+    cls: "bg-purple-500/25 text-purple-300 border-purple-400/40",
+  },
+};
+
 function SidebarLink({
   item,
   active,
@@ -209,30 +261,128 @@ function SidebarLink({
   active: string;
   onNavigate?: () => void;
 }) {
+  const { t } = useTranslation();
   const Icon = item.icon;
   const isActive = isActiveItem(item, active);
+  const displayLabel = navKeyMap[item.label] ? t(navKeyMap[item.label]) : item.label;
+  const badge = itemBadges[item.label];
 
   return (
-    <Link
-      href={item.href}
-      onClick={onNavigate}
-      title={item.label}
-      className={cn(
-        "flex h-[30px] items-center gap-3 rounded px-2.5 text-[14px] font-medium text-[#e8efff] transition hover:bg-white/10",
-        "group-data-[collapsed=true]/side:lg:justify-center group-data-[collapsed=true]/side:lg:px-0",
-        isActive && "bg-white/10 text-white",
-      )}
-    >
-      <Icon
+    <div className="relative group/link">
+      <Link
+        href={item.href}
+        onClick={onNavigate}
+        title={displayLabel}
         className={cn(
-          "size-4 shrink-0 text-[#91a1bd]",
-          isActive && "text-[#70a0ff]",
+          "relative flex h-[36px] items-center gap-3 rounded-lg px-2.5 text-[14.5px] sm:text-[15px] font-semibold text-[#d4e2f7] transition-all duration-150",
+          "hover:bg-white/10 hover:text-white",
+          "group-data-[collapsed=true]/side:lg:justify-center group-data-[collapsed=true]/side:lg:px-0",
+          isActive && "bg-white/15 text-white font-bold shadow-xs",
         )}
-      />
-      <span className="truncate group-data-[collapsed=true]/side:lg:hidden">
-        {item.label}
-      </span>
-    </Link>
+      >
+        {isActive ? (
+          <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-[#70a0ff] shadow-[0_0_10px_#70a0ff] group-data-[collapsed=true]/side:lg:left-0" />
+        ) : null}
+        <Icon
+          className={cn(
+            "size-[18px] shrink-0 text-[#96accf] transition-transform duration-150 group-hover/link:scale-110",
+            isActive && "text-[#70a0ff] scale-105",
+          )}
+        />
+        <span className="truncate flex-1 group-data-[collapsed=true]/side:lg:hidden">
+          {displayLabel}
+        </span>
+        {badge ? (
+          <span
+            className={cn(
+              "hidden sm:inline-flex items-center justify-center rounded-full px-2 py-0.5 text-[11px] font-bold border leading-tight group-data-[collapsed=true]/side:lg:hidden",
+              badge.cls,
+            )}
+          >
+            {badge.label}
+          </span>
+        ) : null}
+      </Link>
+
+      {/* Floating Tooltip popover for collapsed rail view */}
+      <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-2.5 z-50 hidden rounded-md bg-[#162744] px-3 py-1.5 text-xs font-semibold text-white shadow-xl border border-white/20 whitespace-nowrap opacity-0 group-hover/link:opacity-100 group-hover/link:flex items-center gap-2 group-data-[collapsed=true]/side:lg:group-hover/link:flex transition-opacity duration-150">
+        <span>{displayLabel}</span>
+        {badge ? (
+          <span className={cn("rounded-full px-1.5 py-0.2 text-[9.5px] font-bold border", badge.cls)}>
+            {badge.label}
+          </span>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function SidebarSection({
+  section,
+  active,
+  onNavigate,
+}: {
+  section: { title: string; items: NavItem[] };
+  active: string;
+  onNavigate?: () => void;
+}) {
+  const { t } = useTranslation();
+  const hasActiveChild = useMemo(
+    () => section.items.some((item) => isActiveItem(item, active)),
+    [section.items, active],
+  );
+
+  const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    if (hasActiveChild) {
+      setOpen(true);
+    }
+  }, [hasActiveChild]);
+
+  const sectionTitle =
+    sectionTitleMap[section.title] && t("actions.signOut") !== "Sign Out"
+      ? sectionTitleMap[section.title]
+      : section.title;
+
+  return (
+    <div className="space-y-0.5">
+      <div className="group/sec flex items-center justify-between px-2.5 pt-3 pb-1.5 text-[13px] sm:text-[13.5px] font-bold uppercase tracking-wider text-[#b4c8e8] group-data-[collapsed=true]/side:lg:hidden">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="flex w-full items-center justify-between gap-1 text-left hover:text-white transition-colors cursor-pointer"
+        >
+          <span className="truncate">{sectionTitle}</span>
+          <ChevronDown
+            className={cn(
+              "size-4 shrink-0 text-[#b4c8e8] transition-transform duration-200 group-hover/sec:text-white",
+              !open && "-rotate-90",
+            )}
+          />
+        </button>
+      </div>
+
+      <div
+        className={cn(
+          "grid transition-all duration-200 ease-in-out",
+          open
+            ? "grid-rows-[1fr] opacity-100"
+            : "grid-rows-[0fr] opacity-0 group-data-[collapsed=true]/side:lg:grid-rows-[1fr] group-data-[collapsed=true]/side:lg:opacity-100",
+        )}
+      >
+        <div className="overflow-hidden space-y-0.5">
+          {section.items.map((item) => (
+            <SidebarLink
+              key={`${item.href}-${item.label}`}
+              item={item}
+              active={active}
+              onNavigate={onNavigate}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -473,6 +623,7 @@ export function DashboardShell({
     lastName?: string;
     name?: string;
     email?: string;
+    avatarUrl?: string;
   };
 
   const roleText = useMemo(() => {
@@ -513,14 +664,15 @@ export function DashboardShell({
       .join("")
       .toUpperCase() || "U";
 
+  const { t } = useTranslation();
   const hour = new Date().getHours();
-  let greeting = "Good evening";
+  let greeting = t("dashboard.greetingEvening");
   let emoji = "🌙";
   if (hour < 12) {
-    greeting = "Good morning";
+    greeting = t("dashboard.greetingMorning");
     emoji = "🌅";
   } else if (hour < 18) {
-    greeting = "Good afternoon";
+    greeting = t("dashboard.greetingAfternoon");
     emoji = "☀️";
   }
 
@@ -644,7 +796,7 @@ export function DashboardShell({
           </Link>
         </div>
 
-        <nav className="space-y-1 px-2 pb-3">
+        <nav className="space-y-1 px-2 pb-2">
           {primaryNavItems.map((item) => (
             <SidebarLink
               key={item.href}
@@ -655,8 +807,36 @@ export function DashboardShell({
           ))}
         </nav>
 
+        {/* Quick Create Shortcut Dropdown directly inside Sidebar */}
+        <div className="px-2 pb-2 group-data-[collapsed=true]/side:lg:px-1">
+          <Dropdown
+            trigger={
+              <button
+                type="button"
+                className="flex h-9 w-full items-center justify-center gap-2 rounded-lg bg-white/10 border border-white/15 px-2.5 text-xs sm:text-[13.5px] font-bold text-white transition-all duration-150 hover:bg-white/20 hover:border-white/30 group-data-[collapsed=true]/side:lg:px-0 cursor-pointer shadow-2xs"
+                title="Quick Create"
+              >
+                <Plus className="size-4.5 shrink-0 text-[#70a0ff]" />
+                <span className="truncate group-data-[collapsed=true]/side:lg:hidden">
+                  Quick Create
+                </span>
+              </button>
+            }
+            align="start"
+            panelClassName="w-[200px]"
+          >
+            <div className="p-1 space-y-0.5">
+              {createItems.map((item) => (
+                <MenuLink key={item.label} href={item.href} icon={item.icon}>
+                  {item.label}
+                </MenuLink>
+              ))}
+            </div>
+          </Dropdown>
+        </div>
+
         <div className="flex min-h-0 flex-1 flex-col border-t border-white/14 px-2 pt-3">
-          <div className="mb-2 flex items-center gap-2 px-1 text-[15px] font-semibold text-white group-data-[collapsed=true]/side:lg:justify-center group-data-[collapsed=true]/side:lg:px-0">
+          <div className="mb-2.5 flex items-center gap-2 px-1 text-[16px] font-bold text-white group-data-[collapsed=true]/side:lg:justify-center group-data-[collapsed=true]/side:lg:px-0">
             <div className="grid size-5 grid-cols-2 gap-0.5 rounded bg-[#ff4e96] p-0.5">
               <span className="rounded-sm bg-white/70" />
               <span className="rounded-sm bg-white/70" />
@@ -664,35 +844,37 @@ export function DashboardShell({
               <span className="rounded-sm bg-white/70" />
             </div>
             <span className="group-data-[collapsed=true]/side:lg:hidden">
-              Modules
+              {t("nav.modules")}
             </span>
           </div>
-          <label className="mb-3 flex h-8 items-center gap-2 rounded-md border border-white/18 px-2 text-[#b7c5dd] group-data-[collapsed=true]/side:lg:hidden">
-            <Search className="size-4" />
+          <label className="mb-3 flex h-9 items-center gap-2 rounded-lg border border-white/18 bg-white/5 px-2.5 text-[#b7c5dd] focus-within:bg-white/10 focus-within:border-[#70a0ff]/50 focus-within:ring-2 focus-within:ring-[#70a0ff]/20 transition-all group-data-[collapsed=true]/side:lg:hidden">
+            <Search className="size-4 shrink-0 text-[#91a1bd]" />
             <input
               aria-label="Search modules"
               value={moduleQuery}
               onChange={(event) => setModuleQuery(event.target.value)}
-              className="w-full bg-transparent text-sm outline-none placeholder:text-[#b7c5dd]"
-              placeholder="Search"
+              className="w-full bg-transparent text-xs sm:text-[13px] text-white outline-none placeholder:text-[#91a1bd]"
+              placeholder={t("actions.searchModules")}
             />
+            {moduleQuery ? (
+              <button
+                type="button"
+                onClick={() => setModuleQuery("")}
+                className="text-xs text-[#91a1bd] hover:text-white"
+              >
+                ✕
+              </button>
+            ) : null}
           </label>
-          <nav className="flex-1 space-y-3 overflow-y-auto pr-1">
+          <nav className="flex-1 space-y-2 overflow-y-auto pr-1">
             {moduleQuery.trim() === "" ? (
               navSections.map((section) => (
-                <div key={section.title} className="space-y-0.5">
-                  <p className="px-2.5 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-[#8fa0c0] group-data-[collapsed=true]/side:lg:hidden">
-                    {section.title}
-                  </p>
-                  {section.items.map((item) => (
-                    <SidebarLink
-                      key={`${item.href}-${item.label}`}
-                      item={item}
-                      active={active}
-                      onNavigate={() => setNavOpen(false)}
-                    />
-                  ))}
-                </div>
+                <SidebarSection
+                  key={section.title}
+                  section={section}
+                  active={active}
+                  onNavigate={() => setNavOpen(false)}
+                />
               ))
             ) : (
               <div className="space-y-1">
@@ -717,29 +899,37 @@ export function DashboardShell({
         {/* Account + sign out, pinned to the bottom of the sidebar */}
         <div className="mt-auto shrink-0 border-t border-white/14 p-2">
           <div className="flex items-center gap-2.5 px-1 py-1 group-data-[collapsed=true]/side:lg:justify-center group-data-[collapsed=true]/side:lg:px-0">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-xs font-semibold text-white">
-              {initials}
-            </span>
+            {user.avatarUrl ? (
+              <img
+                src={user.avatarUrl}
+                alt={displayName}
+                className="size-9 shrink-0 rounded-full object-cover border-2 border-white/20 shadow-xs"
+              />
+            ) : (
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#3b82f6]/30 border border-[#70a0ff]/40 text-xs font-bold text-white shadow-xs">
+                {initials}
+              </span>
+            )}
             <div className="min-w-0 group-data-[collapsed=true]/side:lg:hidden">
-              <p className="truncate text-sm font-medium text-white">
+              <p className="truncate text-[14.5px] font-bold text-white">
                 {displayName}
               </p>
               {roleText ? (
-                <p className="truncate text-xs text-[#9fb0cd]">{roleText}</p>
+                <p className="truncate text-[12px] text-[#9fb0cd]">{roleText}</p>
               ) : user.email ? (
-                <p className="truncate text-xs text-[#9fb0cd]">{user.email}</p>
+                <p className="truncate text-[12px] text-[#9fb0cd]">{user.email}</p>
               ) : null}
             </div>
           </div>
           <button
             type="button"
             onClick={signOut}
-            title="Sign out"
-            className="mt-1 flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-[#f3adba] transition hover:bg-white/10 hover:text-white group-data-[collapsed=true]/side:lg:justify-center group-data-[collapsed=true]/side:lg:px-0"
+            title={t("actions.signOut")}
+            className="mt-1 flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-[14px] font-semibold text-[#f3adba] transition hover:bg-white/10 hover:text-white group-data-[collapsed=true]/side:lg:justify-center group-data-[collapsed=true]/side:lg:px-0 cursor-pointer"
           >
             <LogOut className="size-4 shrink-0" />
             <span className="group-data-[collapsed=true]/side:lg:hidden">
-              Sign out
+              {t("actions.signOut")}
             </span>
           </button>
         </div>
@@ -800,6 +990,7 @@ export function DashboardShell({
 
             <div className="flex min-w-0 items-center justify-end gap-2">
               <SearchRecords />
+              <LanguageSwitcher variant="light" />
 
               {/* Quick Create Button with Text Label */}
               <Dropdown
@@ -866,9 +1057,17 @@ export function DashboardShell({
                   <button
                     type="button"
                     aria-label="Account"
-                    className="hidden size-8 items-center justify-center rounded-full bg-gradient-to-tr from-[#233b66] to-[#3b5e9a] text-white font-extrabold text-xs shadow-xs border border-white ring-1 ring-slate-200 sm:flex hover:scale-105 transition-transform"
+                    className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-[#233b66] to-[#3b5e9a] text-white font-extrabold text-xs shadow-xs border border-white ring-1 ring-slate-200 hover:scale-105 transition-transform overflow-hidden"
                   >
-                    {initials}
+                    {user.avatarUrl ? (
+                      <img
+                        src={user.avatarUrl}
+                        alt={displayName}
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      initials
+                    )}
                   </button>
                 }
               >
@@ -927,7 +1126,7 @@ export function DashboardShell({
         </header>
 
         {active === "Dashboard" ? (
-          <div className="relative overflow-hidden bg-gradient-to-r from-[#172744] via-[#233b66] to-[#1e345b] text-white px-5 py-4 shadow-sm border-b border-[#2e477a]">
+          <div className="relative overflow-hidden bg-gradient-to-r from-[#172744] via-[#233b66] to-[#1e345b] text-white px-4 py-4 sm:px-6 shadow-sm border-b border-[#2e477a]">
             {/* Subtle visual glow accent */}
             <div className="pointer-events-none absolute -right-10 -top-10 size-48 rounded-full bg-indigo-500/10 blur-2xl" />
 
@@ -974,7 +1173,7 @@ export function DashboardShell({
                       className="h-9 items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3.5 text-xs font-bold text-white hover:bg-white/20 backdrop-blur-xs shadow-2xs flex transition-all cursor-pointer"
                     >
                       <Sparkles className="size-3.5 text-amber-300" />
-                      <span>{displayName.split(" ")[0]}&apos;s Command Center</span>
+                      <span className="truncate max-w-[130px] sm:max-w-none">{displayName.split(" ")[0]}&apos;s Command Center</span>
                       <ChevronDown className="size-3.5 text-slate-300" />
                     </button>
                   }
@@ -1015,7 +1214,7 @@ export function DashboardShell({
           </div>
         ) : null}
 
-        <main className="px-3 py-3 sm:px-4">{children}</main>
+        <main className="px-3 py-4 sm:px-6 lg:px-8 w-full max-w-full overflow-x-hidden">{children}</main>
       </div>
     </div>
   );
