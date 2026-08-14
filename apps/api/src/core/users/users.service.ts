@@ -132,6 +132,33 @@ export class UsersService {
     return { firstName, lastName };
   }
 
+  async updateUserStatus(id: string, isActive: boolean) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`User ${id} was not found`);
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id },
+      data: {
+        isActive,
+        failedLoginAttempts: 0,
+        lockoutUntil: null,
+      },
+    });
+
+    await this.prisma.auditLog.create({
+      data: {
+        action: isActive ? 'user.activated' : 'user.deactivated',
+        entityType: 'User',
+        entityId: id,
+        newValues: { isActive },
+      },
+    });
+
+    return { id: updated.id, email: updated.email, isActive: updated.isActive };
+  }
+
   async updateUserRole(id: string, roleId: string) {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) {

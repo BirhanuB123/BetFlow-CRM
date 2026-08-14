@@ -14,7 +14,8 @@ export type AuthenticatedUser = {
 export type JwtPayload = {
   sub: string;
   email: string;
-  roles: string[];
+  roles?: string[];
+  type?: "access" | "refresh";
   iat: number;
   exp: number;
 };

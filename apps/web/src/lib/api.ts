@@ -3,13 +3,14 @@ export const API_BASE_URL =
 
 type Session = {
   accessToken: string;
+  refreshToken?: string;
   tenant?: { currency?: string };
   user?: unknown;
 };
 
 export function getSession(): Session | null {
   if (typeof window === "undefined") return null;
-  // Rembeber me
+  // Remember me
   const saved =
     window.localStorage.getItem("betflow-auth") ??
     window.sessionStorage.getItem("betflow-auth");
@@ -18,6 +19,48 @@ export function getSession(): Session | null {
     return JSON.parse(saved) as Session;
   } catch {
     return null;
+  }
+}
+
+let isRefreshing = false;
+
+async function refreshAccessToken(refreshToken: string): Promise<string | null> {
+  if (isRefreshing) return null;
+  isRefreshing = true;
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refreshToken }),
+    });
+
+    if (!res.ok) return null;
+
+    const data = (await res.json()) as { accessToken: string; refreshToken?: string };
+    if (!data.accessToken) return null;
+
+    if (typeof window !== "undefined") {
+      const storage = window.localStorage.getItem("betflow-auth")
+        ? window.localStorage
+        : window.sessionStorage;
+      const existing = getSession();
+      if (existing) {
+        storage.setItem(
+          "betflow-auth",
+          JSON.stringify({
+            ...existing,
+            accessToken: data.accessToken,
+            refreshToken: data.refreshToken ?? existing.refreshToken,
+          }),
+        );
+      }
+    }
+
+    return data.accessToken;
+  } catch {
+    return null;
+  } finally {
+    isRefreshing = false;
   }
 }
 
@@ -37,13 +80,32 @@ export async function apiFetch<T>(
     headers.set("Authorization", `Bearer ${session.accessToken}`);
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  let response = await fetch(`${API_BASE_URL}${path}`, {
     ...fetchOptions,
     headers,
   });
 
-  if (response.status === 401 && typeof window !== "undefined") {
-    if (!suppressAuthRedirect) {
+  if (
+    response.status === 401 &&
+    typeof window !== "undefined" &&
+    !path.startsWith("/auth/")
+  ) {
+    const currentSession = getSession();
+    if (currentSession?.refreshToken) {
+      const newAccessToken = await refreshAccessToken(currentSession.refreshToken);
+      if (newAccessToken) {
+        const retryHeaders = new Headers(fetchOptions.headers);
+        retryHeaders.set("Content-Type", "application/json");
+        retryHeaders.set("Authorization", `Bearer ${newAccessToken}`);
+
+        response = await fetch(`${API_BASE_URL}${path}`, {
+          ...fetchOptions,
+          headers: retryHeaders,
+        });
+      }
+    }
+
+    if (response.status === 401 && !suppressAuthRedirect) {
       clearSession();
       if (!window.location.pathname.startsWith("/auth")) {
         window.location.href = "/auth";

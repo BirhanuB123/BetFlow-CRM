@@ -29,6 +29,10 @@ describe('ContractsService — E-Signature & Audit Hash', () => {
           ...data,
           signedAt: new Date(),
         })),
+        findMany: jest.fn().mockResolvedValue([
+          { signerRole: 'BUYER' },
+          { signerRole: 'SELLER_REP' },
+        ]),
       },
       unit: {
         update: jest.fn().mockResolvedValue({ id: mockUnitId, status: 'SOLD' }),

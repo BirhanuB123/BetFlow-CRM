@@ -38,6 +38,7 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import { useDebounce } from "@/hooks/use-debounce";
 
 type ApiContract = {
   id: string;
@@ -96,6 +97,7 @@ function fmtDate(iso: string | null) {
 export default function ContractsPage() {
   const { success, error: toastError } = useToast();
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 200);
   const [contracts, setContracts] = useState<ApiContract[]>([]);
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
   const [units, setUnits] = useState<UnitOption[]>([]);
@@ -114,6 +116,7 @@ export default function ContractsPage() {
     contractType: "SALES_AGREEMENT",
     customerId: "",
     unitId: "",
+    reservationId: "",
     startDate: "",
     endDate: "",
     totalAmt: "",
@@ -129,7 +132,7 @@ export default function ContractsPage() {
       const [contractsData, customersData, unitsData] = await Promise.all([
         apiFetch<ApiContract[]>("/contracts"),
         apiFetch<CustomerOption[]>("/customers"),
-        apiFetch<UnitOption[]>("/units?status=AVAILABLE"),
+        apiFetch<UnitOption[]>("/units"),
       ]);
       setContracts(contractsData);
       setCustomers(customersData);
@@ -147,16 +150,35 @@ export default function ContractsPage() {
     });
   }, [load]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const uId = params.get("unitId");
+      const cId = params.get("customerId");
+      const rId = params.get("reservationId");
+
+      if (uId || cId || rId) {
+        setForm((prev) => ({
+          ...prev,
+          unitId: uId || prev.unitId,
+          customerId: cId || prev.customerId,
+          reservationId: rId || prev.reservationId,
+        }));
+        setShowForm(true);
+      }
+    }
+  }, []);
+
   const filteredContracts = useMemo(() => {
-    if (!search.trim()) return contracts;
-    const term = search.trim().toLowerCase();
+    if (!debouncedSearch.trim()) return contracts;
+    const term = debouncedSearch.trim().toLowerCase();
     return contracts.filter((c) => {
       const buyer = `${c.customer.firstName} ${c.customer.lastName}`.toLowerCase();
       const unit = c.unit.unitNumber.toLowerCase();
       const num = (c.contractNumber ?? "").toLowerCase();
       return buyer.includes(term) || unit.includes(term) || num.includes(term);
     });
-  }, [contracts, search]);
+  }, [contracts, debouncedSearch]);
 
   const visible = useMemo(() => {
     if (filter === "ALL") return filteredContracts;
@@ -176,6 +198,7 @@ export default function ContractsPage() {
           downPaymentAmt: form.downPaymentAmt
             ? Number(form.downPaymentAmt)
             : undefined,
+          reservationId: form.reservationId || undefined,
           status: "PENDING_SIGNATURE",
         }),
       });
@@ -184,6 +207,7 @@ export default function ContractsPage() {
         contractType: "SALES_AGREEMENT",
         customerId: "",
         unitId: "",
+        reservationId: "",
         startDate: "",
         endDate: "",
         totalAmt: "",
@@ -192,7 +216,7 @@ export default function ContractsPage() {
         notes: "",
       });
       setShowForm(false);
-      success("Contract created");
+      success("Contract created successfully!");
       await load();
     } catch (err) {
       toastError("Failed to create contract");

@@ -29,7 +29,6 @@ import {
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
-import { StatCard, StatRow } from "@/components/ui/stat-card";
 import { TableSkeleton } from "@/components/ui/skeleton-loaders";
 import { useToast } from "@/components/ui/toast";
 import { apiFetch } from "@/lib/api";
@@ -278,11 +277,6 @@ export default function SiteVisitsPage() {
 
   const withOptions = form.withType === "customer" ? customers : leads;
 
-  // KPI stats
-  const kpiScheduled = visits.filter((v) => v.status === "SCHEDULED").length;
-  const kpiCompleted = visits.filter((v) => v.status === "COMPLETED").length;
-  const kpiNoShow = visits.filter((v) => v.status === "NO_SHOW").length;
-
   // ── Calendar helpers ────────────────────────────────────────────────────────
   // Build the 6-row × 7-col grid for the current calendar month.
   const calendarGrid = useMemo(() => {
@@ -345,38 +339,6 @@ export default function SiteVisitsPage() {
       active="Site visits"
     >
       <div className="space-y-6">
-        {/* KPI Stat Row */}
-        <StatRow>
-          <StatCard
-            label="Total Visits"
-            value={String(visits.length)}
-            detail="All recorded visits"
-            icon={CalendarDays}
-            color="navy"
-          />
-          <StatCard
-            label="Scheduled"
-            value={String(kpiScheduled)}
-            detail="Upcoming appointments"
-            icon={Clock}
-            color="blue"
-          />
-          <StatCard
-            label="Completed"
-            value={String(kpiCompleted)}
-            detail="Successfully toured"
-            icon={ClipboardCheck}
-            color="emerald"
-          />
-          <StatCard
-            label="No Shows"
-            value={String(kpiNoShow)}
-            detail="Follow-up needed"
-            icon={AlertTriangle}
-            color={kpiNoShow > 0 ? "amber" : "emerald"}
-          />
-        </StatRow>
-
         {/* Main Header & Schedule Button */}
         <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
