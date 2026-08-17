@@ -23,23 +23,8 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import type { ApiCustomer, NewCustomer } from "@betflow/shared";
 
-type ApiCustomer = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string | null;
-  phone: string | null;
-  createdAt: string;
-  _count: { deals: number; contracts: number; reservations: number };
-};
-
-type NewCustomer = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-};
 
 const EMPTY_FORM: NewCustomer = {
   firstName: "",
@@ -304,9 +289,9 @@ export default function ContactsPage() {
           switch (filter) {
             case "Activities":
               if (
-                customer._count.deals === 0 &&
-                customer._count.contracts === 0 &&
-                customer._count.reservations === 0
+                (customer._count?.deals ?? 0) === 0 &&
+                (customer._count?.contracts ?? 0) === 0 &&
+                (customer._count?.reservations ?? 0) === 0
               )
                 return false;
               break;
@@ -340,13 +325,13 @@ export default function ContactsPage() {
               break;
             case "Deals":
             case "Deal Contact Role (Contact Roles)":
-              if (customer._count.deals === 0) return false;
+              if ((customer._count?.deals ?? 0) === 0) return false;
               break;
             case "Contracts":
-              if (customer._count.contracts === 0) return false;
+              if ((customer._count?.contracts ?? 0) === 0) return false;
               break;
             case "Reservations":
-              if (customer._count.reservations === 0) return false;
+              if ((customer._count?.reservations ?? 0) === 0) return false;
               break;
             default:
               break;

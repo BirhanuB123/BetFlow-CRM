@@ -164,3 +164,58 @@ export type SignatureAuditItem = {
   verificationHash: string;
   signedAt: string;
 };
+
+// ─── Additional UI & Document Types ────────────────────────────────────────────
+
+export type ApiContract = {
+  id: string;
+  contractNumber?: string | null;
+  contractType: string;
+  startDate: string;
+  endDate?: string | null;
+  totalAmt?: string;
+  totalPrice?: number;
+  downPaymentAmt?: string | null;
+  downpaymentAmount?: number;
+  paymentPlan?: string | null;
+  status: string;
+  notes?: string | null;
+  customer: { id: string; firstName: string; lastName: string };
+  unit: { id: string; unitNumber: string; type: string; status: string };
+  deal?: { id: string; name: string } | null;
+  _count?: { payments: number; schedules: number };
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type DocumentStatus = "PENDING_REVIEW" | "VERIFIED" | "REJECTED" | "EXPIRED";
+export type EntityType = "CUSTOMER" | "RESERVATION" | "CONTRACT" | "PAYMENT";
+
+export type DocumentRecord = {
+  id: string;
+  name: string;
+  title?: string;
+  fileName?: string;
+  fileUrl?: string;
+  fileSize?: number;
+  sizeBytes?: number | null;
+  mimeType: string | null;
+  category: string;
+  status: DocumentStatus;
+  entityType: string;
+  entityId: string;
+  uploadedAt: string;
+  expiresAt?: string | null;
+  rejectionReason?: string | null;
+  uploadedBy?: { id: string; name: string } | null;
+  reviewedBy?: { id: string; name: string } | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type PaymentAgingRow = {
+  agingCategory: string;
+  invoiceCount: number;
+  totalOutstandingETB: number;
+};
+

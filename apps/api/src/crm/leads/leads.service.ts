@@ -142,7 +142,11 @@ export class LeadsService {
     });
   }
 
-  async update(user: AuthenticatedUser | string, id: string, input: UpdateLeadInput) {
+  async update(
+    user: AuthenticatedUser | string,
+    id: string,
+    input: UpdateLeadInput,
+  ) {
     const userId = typeof user === 'string' ? user : user.id;
     const existing = await this.prisma.lead.findFirst({
       where: { id },
@@ -199,7 +203,11 @@ export class LeadsService {
     return { id, deleted: true };
   }
 
-  async updateStatus(user: AuthenticatedUser | string, id: string, status: string) {
+  async updateStatus(
+    user: AuthenticatedUser | string,
+    id: string,
+    status: string,
+  ) {
     const userId = typeof user === 'string' ? user : user.id;
     const normalized = this.normalizeStatus(status);
     const existing = await this.prisma.lead.findFirst({
@@ -226,7 +234,11 @@ export class LeadsService {
     return lead;
   }
 
-  async convert(user: AuthenticatedUser | string, id: string, input: ConvertLeadInput) {
+  async convert(
+    user: AuthenticatedUser | string,
+    id: string,
+    input: ConvertLeadInput,
+  ) {
     const userId = typeof user === 'string' ? user : user.id;
     const lead = await this.prisma.lead.findFirst({ where: { id } });
     if (!lead) throw new NotFoundException(`Lead ${id} was not found`);

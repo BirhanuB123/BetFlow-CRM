@@ -34,4 +34,3 @@ export class WebsiteLeadsController {
     return this.service.stats();
   }
 }
-

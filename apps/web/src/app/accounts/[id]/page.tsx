@@ -22,6 +22,7 @@ import { NotesPanel } from "@/components/notes/notes-panel";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import type { AccountDetail, AccountOwner as Owner } from "@betflow/shared";
 
 const ACCOUNT_TYPES = [
   "CUSTOMER",
@@ -33,64 +34,7 @@ const ACCOUNT_TYPES = [
 ] as const;
 const ACCOUNT_RATINGS = ["HOT", "WARM", "COLD"] as const;
 
-type Owner = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-} | null;
-
-type AccountDetail = {
-  id: string;
-  name: string;
-  accountType: string | null;
-  industry: string | null;
-  rating: string | null;
-  phone: string | null;
-  email: string | null;
-  website: string | null;
-  billingStreet: string | null;
-  billingCity: string | null;
-  billingState: string | null;
-  billingCountry: string | null;
-  billingZip: string | null;
-  shippingStreet: string | null;
-  shippingCity: string | null;
-  shippingState: string | null;
-  shippingCountry: string | null;
-  shippingZip: string | null;
-  annualRevenue: string | null;
-  employees: number | null;
-  description: string | null;
-  owner: Owner;
-  parentAccount: { id: string; name: string } | null;
-  childAccounts: {
-    id: string;
-    name: string;
-    accountType: string | null;
-    rating: string | null;
-  }[];
-  customers: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string | null;
-    phone: string | null;
-    title: string | null;
-    _count: { deals: number };
-  }[];
-  deals: {
-    id: string;
-    name: string;
-    value: string;
-    stage: { id: string; name: string; probability: number };
-    customer: { id: string; firstName: string; lastName: string } | null;
-    unit: { id: string; unitNumber: string } | null;
-  }[];
-  _count: { customers: number; deals: number };
-};
-
-function money(value: string | null) {
+function money(value?: string | null) {
   if (value == null) return "—";
   return formatCurrency(value);
 }
@@ -124,7 +68,7 @@ function Field({
   );
 }
 
-function address(parts: (string | null)[]) {
+function address(parts: (string | null | undefined)[]) {
   const joined = parts.filter(Boolean).join(", ");
   return joined || "—";
 }

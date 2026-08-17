@@ -148,7 +148,11 @@ export class AccountsService {
     return account;
   }
 
-  async update(user: AuthenticatedUser | string, id: string, input: UpdateAccountInput) {
+  async update(
+    user: AuthenticatedUser | string,
+    id: string,
+    input: UpdateAccountInput,
+  ) {
     const userId = typeof user === 'string' ? user : user.id;
     const existing = await this.prisma.account.findFirst({
       where: { id },

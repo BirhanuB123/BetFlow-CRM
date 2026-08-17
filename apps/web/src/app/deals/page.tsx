@@ -31,29 +31,14 @@ import { useToast } from "@/components/ui/toast";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
-
-type Stage = { id: string; name: string; order: number; probability: number };
-type DealCustomer = { id: string; firstName: string; lastName: string };
-type DealUnit = { id: string; unitNumber: string; type: string } | null;
-
-type ApiDeal = {
-  id: string;
-  name: string;
-  value: string;
-  stage: Stage;
-  customer: DealCustomer;
-  unit: DealUnit;
-  createdAt: string;
-};
-
-type CustomerOption = { id: string; firstName: string; lastName: string };
-
-type NewDeal = {
-  name: string;
-  value: string;
-  customerId: string;
-  stageId: string;
-};
+import type {
+  DealStage as Stage,
+  DealCustomer,
+  DealUnit,
+  ApiDeal,
+  CustomerOption,
+  NewDeal,
+} from "@betflow/shared";
 
 function formatValue(value: string | number) {
   return formatCurrency(value);

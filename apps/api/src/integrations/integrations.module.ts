@@ -17,12 +17,7 @@ import { CampaignsService } from './campaigns.service';
     SmsController,
     CampaignsController,
   ],
-  providers: [
-    IntegrationsService,
-    EthioTelecomSmsService,
-    CampaignsService,
-  ],
+  providers: [IntegrationsService, EthioTelecomSmsService, CampaignsService],
   exports: [IntegrationsService, EthioTelecomSmsService, CampaignsService],
 })
 export class IntegrationsModule {}
-

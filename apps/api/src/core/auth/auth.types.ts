@@ -1,7 +1,4 @@
-export type {
-  AuthenticatedUser,
-  AuthenticatedRequest,
-} from '@betflow/shared';
+export type { AuthenticatedUser, AuthenticatedRequest } from '@betflow/shared';
 
 export type JwtPayload = {
   sub: string;

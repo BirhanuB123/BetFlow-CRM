@@ -27,7 +27,10 @@ export class HealthController {
     const memoryUsage = process.memoryUsage();
 
     return {
-      status: dbStatus === 'connected' && storageStatus === 'ready' ? 'ok' : 'degraded',
+      status:
+        dbStatus === 'connected' && storageStatus === 'ready'
+          ? 'ok'
+          : 'degraded',
       service: 'betflow-api',
       timestamp: new Date().toISOString(),
       uptimeSeconds: Math.floor(process.uptime()),
@@ -35,8 +38,10 @@ export class HealthController {
       storage: storageStatus,
       memory: {
         rssMb: Math.round((memoryUsage.rss / 1024 / 1024) * 100) / 100,
-        heapTotalMb: Math.round((memoryUsage.heapTotal / 1024 / 1024) * 100) / 100,
-        heapUsedMb: Math.round((memoryUsage.heapUsed / 1024 / 1024) * 100) / 100,
+        heapTotalMb:
+          Math.round((memoryUsage.heapTotal / 1024 / 1024) * 100) / 100,
+        heapUsedMb:
+          Math.round((memoryUsage.heapUsed / 1024 / 1024) * 100) / 100,
       },
     };
   }

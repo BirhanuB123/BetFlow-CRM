@@ -45,6 +45,52 @@ export type Deal = {
   owner: string;
 };
 
+export type DealStage = {
+  id: string;
+  name: string;
+  order: number;
+  probability: number;
+};
+
+export type DealCustomer = {
+  id: string;
+  firstName: string;
+  lastName: string;
+};
+
+export type DealUnit = {
+  id: string;
+  unitNumber: string;
+  type: string;
+};
+
+export type ApiDeal = {
+  id: string;
+  name: string;
+  value: string;
+  title?: string;
+  amount?: number;
+  status?: string;
+  expectedCloseDate?: string | null;
+  stage: DealStage;
+  customer: DealCustomer;
+  unit?: DealUnit | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type NewDeal = {
+  name: string;
+  value: string;
+  customerId: string;
+  stageId: string;
+  unitId?: string;
+  expectedCloseDate?: string;
+  title?: string;
+  amount?: string;
+};
+
+
 // ─── Revenue Forecasting Types ────────────────────────────────────────────────
 
 export type ForecastingStageBucket = {

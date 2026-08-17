@@ -69,9 +69,10 @@ export class AuthService {
     // Admin Invite Code Validation (defaults to BETFLOW-VIP-2026 if env not specified)
     const submittedCode = input.inviteCode?.trim().toUpperCase();
     const validCode =
-      process.env.ADMIN_INVITE_CODE?.trim().toUpperCase() ||
-      'BETFLOW-VIP-2026';
-    const isAutoApproved = Boolean(submittedCode && submittedCode === validCode);
+      process.env.ADMIN_INVITE_CODE?.trim().toUpperCase() || 'BETFLOW-VIP-2026';
+    const isAutoApproved = Boolean(
+      submittedCode && submittedCode === validCode,
+    );
 
     const defaultRole = await this.prisma.role.findFirst({
       where: {
@@ -415,7 +416,8 @@ export class AuthService {
       throw new BadRequestException('firstName and lastName are required');
     }
 
-    const avatarUrl = body?.avatarUrl !== undefined ? body.avatarUrl : user.avatarUrl;
+    const avatarUrl =
+      body?.avatarUrl !== undefined ? body.avatarUrl : user.avatarUrl;
 
     const updated = await this.prisma.user.update({
       where: { id: userId },

@@ -14,6 +14,8 @@ import {
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
+import { CardSkeleton } from "@/components/ui/skeleton-loaders";
+import { EmptyState } from "@/components/ui/empty-state";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type {
@@ -196,13 +198,17 @@ export default function PropertiesPage() {
         </div>
 
         {loading ? (
-          <p className="p-6 text-sm text-zinc-500">
-            Loading construction progress…
-          </p>
+          <div className="p-2">
+            <CardSkeleton count={5} />
+          </div>
         ) : milestones.length === 0 ? (
-          <p className="p-6 text-sm text-zinc-500">
-            No milestone data for this building.
-          </p>
+          <div className="p-6">
+            <EmptyState
+              title="No construction milestones found"
+              description="Select a valid building project site to view or update Ethiopian construction stage progress."
+              icon={HardHat}
+            />
+          </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-5">
             {milestones.map((m, idx) => {

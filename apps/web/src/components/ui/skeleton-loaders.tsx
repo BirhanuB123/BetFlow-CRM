@@ -11,7 +11,7 @@ export function CardSkeleton({ count = 3 }: { count?: number }) {
       {Array.from({ length: count }).map((_, idx) => (
         <div
           key={idx}
-          className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+          className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900"
         >
           <div className="flex items-center justify-between">
             <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
@@ -34,7 +34,7 @@ export function CardSkeleton({ count = 3 }: { count?: number }) {
  */
 export function TableSkeleton({ rows = 5, cols = 5 }: { rows?: number; cols?: number }) {
   return (
-    <div className="w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div className="w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900">
       <div className="border-b border-slate-100 bg-slate-50/50 p-4 dark:border-slate-800 dark:bg-slate-800/30">
         <div className="flex items-center justify-between">
           <div className="h-5 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
@@ -76,11 +76,62 @@ export function PipelineSkeleton({ columns = 4 }: { columns?: number }) {
           {Array.from({ length: 3 }).map((_, cardIdx) => (
             <div
               key={cardIdx}
-              className="h-28 w-full animate-pulse rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+              className="h-28 w-full animate-pulse rounded-xl border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900"
             />
           ))}
         </div>
       ))}
+    </div>
+  );
+}
+
+/**
+ * Shimmer Form Skeleton for loading edit/create modal forms.
+ */
+export function FormSkeleton({ fields = 4 }: { fields?: number }) {
+  return (
+    <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+      <div className="h-6 w-1/3 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {Array.from({ length: fields }).map((_, idx) => (
+          <div key={idx} className="space-y-2">
+            <div className="h-4 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+            <div className="h-10 w-full animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800/60" />
+          </div>
+        ))}
+      </div>
+      <div className="flex justify-end gap-3 pt-4">
+        <div className="h-9 w-20 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
+        <div className="h-9 w-28 animate-pulse rounded-lg bg-slate-300 dark:bg-slate-700" />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Shimmer Detail Skeleton for record details (Accounts, Customers, Leads).
+ */
+export function DetailSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+        <div className="flex items-center gap-4">
+          <div className="h-12 w-12 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+          <div className="space-y-2">
+            <div className="h-6 w-44 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+            <div className="h-4 w-28 animate-pulse rounded bg-slate-100 dark:bg-slate-800/60" />
+          </div>
+        </div>
+        <div className="h-9 w-24 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
+      </div>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="space-y-4 lg:col-span-2">
+          <TableSkeleton rows={4} cols={4} />
+        </div>
+        <div className="space-y-4">
+          <CardSkeleton count={2} />
+        </div>
+      </div>
     </div>
   );
 }
