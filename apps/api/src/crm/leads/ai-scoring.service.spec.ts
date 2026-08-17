@@ -27,7 +27,9 @@ describe('AiScoringService', () => {
     expect(result.intent).toBe('HOT');
     expect(result.recommendedPriority).toBe('High');
     expect(result.factors).toContain('High-conversion referral source (+30)');
-    expect(result.factors).toContain('Complete dual-channel contact info (+20)');
+    expect(result.factors).toContain(
+      'Complete dual-channel contact info (+20)',
+    );
   });
 
   it('should score a lead with minimal data as COLD (score < 40)', () => {

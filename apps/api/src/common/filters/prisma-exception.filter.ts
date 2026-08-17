@@ -24,7 +24,8 @@ export class PrismaExceptionFilter implements ExceptionFilter {
     switch (exception.code) {
       case 'P2002': {
         status = HttpStatus.CONFLICT;
-        const target = (exception.meta?.target as string[])?.join(', ') || 'field';
+        const target =
+          (exception.meta?.target as string[])?.join(', ') || 'field';
         message = `A record with this ${target} already exists.`;
         error = 'Conflict';
         break;
@@ -37,7 +38,8 @@ export class PrismaExceptionFilter implements ExceptionFilter {
       }
       case 'P2003': {
         status = HttpStatus.BAD_REQUEST;
-        const fieldName = (exception.meta?.field_name as string) || 'related entity';
+        const fieldName =
+          (exception.meta?.field_name as string) || 'related entity';
         message = `Invalid reference for ${fieldName}. Referenced record does not exist.`;
         error = 'Bad Request';
         break;

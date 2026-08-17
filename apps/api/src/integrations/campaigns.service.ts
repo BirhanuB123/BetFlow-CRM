@@ -30,10 +30,7 @@ export class CampaignsService {
 
     return campaigns.map((c) => {
       const channel = (c.type || 'TELEGRAM') as
-        | 'TELEGRAM'
-        | 'FACEBOOK'
-        | 'SMS'
-        | 'WHATSAPP';
+        'TELEGRAM' | 'FACEBOOK' | 'SMS' | 'WHATSAPP';
 
       const recipients =
         channel === 'TELEGRAM'
@@ -46,7 +43,9 @@ export class CampaignsService {
         channel,
         segment: `${channel === 'TELEGRAM' ? 'All Telegram Channel Subscribers' : 'Targeted Leads & Buyers'} (${recipients.toLocaleString()})`,
         recipients,
-        sentAt: c.startDate ? c.startDate.toISOString() : new Date().toISOString(),
+        sentAt: c.startDate
+          ? c.startDate.toISOString()
+          : new Date().toISOString(),
         clicks: Math.floor(recipients * 0.28),
         status: (c.status || 'SENT') as 'SENT' | 'SCHEDULED' | 'DRAFT',
         messagePreview: c.name,
@@ -54,10 +53,7 @@ export class CampaignsService {
     });
   }
 
-  async createCampaign(
-    userId: string | undefined,
-    input: CreateCampaignInput,
-  ) {
+  async createCampaign(userId: string | undefined, input: CreateCampaignInput) {
     if (!input.title?.trim()) {
       throw new BadRequestException('title is required');
     }
@@ -104,8 +100,7 @@ export class CampaignsService {
       title: campaign.name,
       channel,
       segment:
-        input.segment ||
-        `${channel} Audience (${recipients.toLocaleString()})`,
+        input.segment || `${channel} Audience (${recipients.toLocaleString()})`,
       recipients,
       sentAt: campaign.startDate?.toISOString() || new Date().toISOString(),
       clicks: 0,

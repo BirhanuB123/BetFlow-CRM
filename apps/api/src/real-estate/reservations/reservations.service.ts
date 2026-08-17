@@ -341,22 +341,23 @@ export class ReservationsService {
     }
 
     // 2. Pending Verification Holds: expired reservations with a bank receipt ref or payment attached -> retain unit lock & flag for finance verification
-    const pendingVerificationReservations = await this.prisma.reservation.findMany({
-      where: {
-        status: { in: ACTIVE_RESERVATION_STATUSES },
-        expiryDate: { lte: now },
-        NOT: {
-          AND: [
-            { OR: [{ receiptNumber: null }, { receiptNumber: '' }] },
-            { payments: { none: {} } },
-          ],
+    const pendingVerificationReservations =
+      await this.prisma.reservation.findMany({
+        where: {
+          status: { in: ACTIVE_RESERVATION_STATUSES },
+          expiryDate: { lte: now },
+          NOT: {
+            AND: [
+              { OR: [{ receiptNumber: null }, { receiptNumber: '' }] },
+              { payments: { none: {} } },
+            ],
+          },
         },
-      },
-      include: {
-        unit: true,
-        customer: true,
-      },
-    });
+        include: {
+          unit: true,
+          customer: true,
+        },
+      });
 
     if (pendingVerificationReservations.length > 0) {
       const activeUsers = await this.prisma.user.findMany({

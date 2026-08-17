@@ -4,18 +4,21 @@ export const envSchema = z.object({
   DATABASE_URL: z
     .string()
     .min(1, 'DATABASE_URL is required')
-    .default('postgresql://betflow:betflowpassword@localhost:5432/betflow_db?schema=public'),
+    .default(
+      'postgresql://betflow:betflowpassword@localhost:5432/betflow_db?schema=public',
+    ),
   PORT: z.coerce.number().default(4000),
   JWT_SECRET: z
     .string()
     .min(16, 'JWT_SECRET must be at least 16 characters long')
     .default('super-secret-betflow-jwt-key'),
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
   DOCUMENTS_STORAGE_PATH: z.string().default('./uploads/documents'),
   ALLOWED_ORIGINS: z.string().optional(),
   NEXT_PUBLIC_APP_URL: z.string().optional().default('http://localhost:3000'),
 });
-
 
 export type EnvConfig = z.infer<typeof envSchema>;
 
@@ -41,4 +44,3 @@ export function validateEnv(config: Record<string, unknown>): EnvConfig {
 
   return result.data;
 }
-

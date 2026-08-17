@@ -7,6 +7,7 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
 import { CardSkeleton, TableSkeleton } from "@/components/ui/skeleton-loaders";
+import { EmptyState } from "@/components/ui/empty-state";
 import { StatCard, StatRow } from "@/components/ui/stat-card";
 import { useToast } from "@/components/ui/toast";
 import { apiFetch } from "@/lib/api";
@@ -316,11 +317,23 @@ export default function UnitsPage() {
           </div>
 
           {loading ? (
-            <p className="p-6 text-sm text-zinc-500">Loading units…</p>
+            <div className="p-4">
+              <TableSkeleton rows={6} cols={6} />
+            </div>
           ) : visible.length === 0 ? (
-            <p className="p-6 text-sm text-zinc-500">
-              No units match this filter.
-            </p>
+            <div className="p-6">
+              <EmptyState
+                title="No units found"
+                description={
+                  filter === "ALL"
+                    ? "No building property units found in inventory database."
+                    : `No units currently match the "${filter}" filter.`
+                }
+                actionText={filter !== "ALL" ? "Reset Filter" : undefined}
+                onAction={() => setFilter("ALL")}
+                icon={SquareStack}
+              />
+            </div>
           ) : (
             <CrmTable
               columns={[

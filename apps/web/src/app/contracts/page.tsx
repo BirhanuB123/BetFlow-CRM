@@ -39,25 +39,8 @@ import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import { useDebounce } from "@/hooks/use-debounce";
+import type { ApiContract, CustomerOption } from "@betflow/shared";
 
-type ApiContract = {
-  id: string;
-  contractNumber: string | null;
-  contractType: string;
-  startDate: string;
-  endDate: string | null;
-  totalAmt: string;
-  downPaymentAmt: string | null;
-  paymentPlan: string | null;
-  status: string;
-  notes: string | null;
-  customer: { id: string; firstName: string; lastName: string };
-  unit: { id: string; unitNumber: string; type: string; status: string };
-  deal: { id: string; name: string } | null;
-  _count: { payments: number; schedules: number };
-};
-
-type CustomerOption = { id: string; firstName: string; lastName: string };
 type UnitOption = {
   id: string;
   unitNumber: string;
@@ -173,8 +156,8 @@ export default function ContractsPage() {
     if (!debouncedSearch.trim()) return contracts;
     const term = debouncedSearch.trim().toLowerCase();
     return contracts.filter((c) => {
-      const buyer = `${c.customer.firstName} ${c.customer.lastName}`.toLowerCase();
-      const unit = c.unit.unitNumber.toLowerCase();
+      const buyer = `${c.customer?.firstName ?? ""} ${c.customer?.lastName ?? ""}`.toLowerCase();
+      const unit = (c.unit?.unitNumber ?? "").toLowerCase();
       const num = (c.contractNumber ?? "").toLowerCase();
       return buyer.includes(term) || unit.includes(term) || num.includes(term);
     });

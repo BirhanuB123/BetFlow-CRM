@@ -29,9 +29,13 @@ import {
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { TableSkeleton } from "@/components/ui/skeleton-loaders";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import { formatDate as fmtDate } from "@/lib/date";
+import { CONSTRUCTION_MILESTONES } from "@betflow/shared";
 
 type ApiPayment = {
   id: string;
@@ -99,15 +103,6 @@ const statusClass: Record<string, string> = {
   PENDING: "bg-amber-50 text-amber-700 border-amber-200",
   OVERDUE: "bg-rose-50 text-rose-700 border-rose-200 font-bold",
 };
-
-function fmtDate(iso: string | null) {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 
 export default function RealEstatePaymentsPage() {
   const { success, error: toastError } = useToast();
@@ -431,25 +426,20 @@ export default function RealEstatePaymentsPage() {
           </div>
 
           {loading ? (
-            <div className="flex h-36 items-center justify-center">
-              <p className="text-sm text-slate-500">
-                Loading milestone schedules…
-              </p>
+            <div className="p-4">
+              <TableSkeleton rows={5} cols={6} />
             </div>
           ) : activeTab === "SCHEDULES" ? (
             /* Milestone Schedules View */
             schedules.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-8 text-center">
-                <div className="rounded-full bg-slate-50 p-4 border border-slate-100 mb-2">
-                  <Layers className="size-6 text-slate-400" />
-                </div>
-                <p className="text-sm font-semibold text-slate-800">
-                  No milestone schedules found
-                </p>
-                <p className="text-xs text-slate-500 max-w-sm mt-1">
-                  Create a sales contract to automatically generate standard
-                  30/20/20/20/10 milestone schedules.
-                </p>
+              <div className="p-6">
+                <EmptyState
+                  title="No milestone schedules found"
+                  description="Create a sales contract to automatically generate standard 30/20/20/20/10 milestone payment schedules."
+                  actionText="Log Deposit Receipt"
+                  onAction={() => setShowPaymentForm(true)}
+                  icon={Layers}
+                />
               </div>
             ) : (
               <div className="overflow-x-auto">

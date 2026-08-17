@@ -37,6 +37,7 @@ import {
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/toast";
 import { StatCard, StatRow } from "@/components/ui/stat-card";
 import { CardSkeleton } from "@/components/ui/skeleton-loaders";
 import {
@@ -63,9 +64,11 @@ import {
   fetchRulesApi,
   updateRuleApi,
 } from "@/lib/sms";
+import { SmsCampaignModal } from "@/features/automation/sms-campaign-modal";
 import { cn } from "@/lib/utils";
 
 export default function SmsAutomationPage() {
+  const { success } = useToast();
   // Active Tab: "rules" | "drip" | "outbox"
   const [activeTab, setActiveTab] = useState<"rules" | "drip" | "outbox">(
     "rules",
@@ -74,7 +77,6 @@ export default function SmsAutomationPage() {
   // Loading & Refresh State
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // System Stats State
   const [stats, setStats] = useState<SmsStats>({
@@ -199,8 +201,7 @@ export default function SmsAutomationPage() {
   }, []);
 
   const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
+    success("SMS Automation", msg);
   };
 
   // Helper to insert variable tags into target text area
@@ -456,14 +457,6 @@ export default function SmsAutomationPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Toast Notification Alert */}
-          {toastMessage && (
-            <div className="fixed bottom-5 right-5 z-50 flex items-center gap-3 rounded-xl bg-[#233b66] text-white px-5 py-3 shadow-xl border border-sky-400/30 animate-in fade-in slide-in-from-bottom-5">
-              <CheckCircle2 className="size-4 text-emerald-400 shrink-0" />
-              <span className="text-xs font-semibold">{toastMessage}</span>
-            </div>
-          )}
-
           {/* Top Section Header & Actions */}
           <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -1161,187 +1154,24 @@ export default function SmsAutomationPage() {
 
           {/* MODAL 1: QUICK SMS COMPOSER WITH CRM SELECTOR & VARIABLE CHIPS */}
           {showComposer && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-xs animate-in fade-in duration-150">
-              <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl border border-slate-200 relative">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-                  <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                    <Send className="size-4 text-[#233b66]" />
-                    Compose Ethio Telecom SMS Alert
-                  </h3>
-                  <button
-                    type="button"
-                    onClick={() => setShowComposer(false)}
-                    className="rounded-lg p-1 text-slate-400 hover:bg-slate-100"
-                  >
-                    <X className="size-4" />
-                  </button>
-                </div>
-
-                <form onSubmit={handleSendSms} className="space-y-4 text-xs">
-                  {/* Select CRM Contact */}
-                  <div>
-                    <label className="font-bold text-[#233b66] block mb-1 flex items-center gap-1.5">
-                      <UserCheck className="size-3.5 text-[#233b66]" />
-                      Select CRM Lead / Customer (Real Database Contact)
-                    </label>
-                    <select
-                      value={composerForm.selectedContactId}
-                      onChange={(e) =>
-                        handleSelectContactForComposer(e.target.value)
-                      }
-                      className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66] bg-slate-50 font-medium text-slate-900"
-                    >
-                      <option value="">-- Choose from CRM Database --</option>
-                      {contacts.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name} (+{c.phone}) - {c.details}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div>
-                      <label className="font-semibold text-slate-700 block mb-1">
-                        Recipient Name
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Ari Kaplan"
-                        value={composerForm.recipientName}
-                        onChange={(e) =>
-                          setComposerForm({
-                            ...composerForm,
-                            recipientName: e.target.value,
-                          })
-                        }
-                        className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66]"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="font-semibold text-slate-700 block mb-1">
-                        Ethio Phone Number
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="0911234567 or +251911..."
-                        value={composerForm.recipientPhone}
-                        onChange={(e) =>
-                          setComposerForm({
-                            ...composerForm,
-                            recipientPhone: e.target.value,
-                          })
-                        }
-                        className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66] font-mono"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="font-semibold text-slate-700 block mb-1">
-                      Template Preset
-                    </label>
-                    <select
-                      value={composerForm.templateKey}
-                      onChange={(e) => handleTemplateSelect(e.target.value)}
-                      className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66] bg-white"
-                    >
-                      <option value="CUSTOM">Custom Message Text</option>
-                      <option value="SITE_VISIT_REMINDER">
-                        Site Visit Reminder Preset
-                      </option>
-                      <option value="HOLD_EXPIRY_ALERT">
-                        14-Day Hold Expiry Alert Preset
-                      </option>
-                      <option value="PAYMENT_DUE_ALERT">
-                        Installment Due Alert Preset
-                      </option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="font-semibold text-slate-700">
-                        SMS Body Text
-                      </label>
-                      <span className="text-[11px] font-semibold text-slate-500">
-                        {charCount} chars ·{" "}
-                        <strong className="text-[#233b66]">
-                          {segmentCount} segment(s)
-                        </strong>
-                      </span>
-                    </div>
-
-                    {/* Variable Insertion Chips */}
-                    <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                      <span className="text-[10px] text-slate-400 font-semibold">
-                        Insert Tag:
-                      </span>
-                      {[
-                        "{clientName}",
-                        "{projectName}",
-                        "{unitNumber}",
-                        "{agentPhone}",
-                      ].map((tag) => (
-                        <button
-                          key={tag}
-                          type="button"
-                          onClick={() =>
-                            insertVariableTag(tag, (val) =>
-                              setComposerForm((prev) => ({
-                                ...prev,
-                                body: typeof val === "function" ? val(prev.body) : val,
-                              })),
-                            )
-                          }
-                          className="rounded bg-sky-50 px-2 py-0.5 text-[10px] font-mono font-semibold text-sky-700 border border-sky-200 hover:bg-sky-100 transition-colors"
-                        >
-                          + {tag}
-                        </button>
-                      ))}
-                    </div>
-
-                    <textarea
-                      rows={4}
-                      placeholder="Type your SMS alert message..."
-                      value={composerForm.body}
-                      onChange={(e) =>
-                        setComposerForm({
-                          ...composerForm,
-                          body: e.target.value,
-                        })
-                      }
-                      className="w-full rounded-lg border border-slate-300 p-3 text-xs outline-none focus:border-[#233b66] focus:ring-1 focus:ring-[#233b66] font-mono leading-relaxed"
-                      required
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-end gap-2.5 border-t border-slate-100 pt-3">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setShowComposer(false)}
-                      className="h-9 px-4 text-xs font-semibold text-slate-700"
-                    >
-                      Cancel
-                    </Button>
-
-                    <Button
-                      type="submit"
-                      disabled={sendingSms}
-                      className="h-9 px-5 bg-[#233b66] hover:bg-[#1d3257] text-white font-bold text-xs"
-                    >
-                      {sendingSms
-                        ? "Dispatching..."
-                        : "Send via Shortcode 8844"}
-                    </Button>
-                  </div>
-                </form>
-              </div>
-            </div>
+            <SmsCampaignModal
+              composerForm={composerForm}
+              setComposerForm={setComposerForm}
+              onSubmit={handleSendSms}
+              onClose={() => setShowComposer(false)}
+              contacts={contacts.map((c) => ({
+                id: c.id,
+                firstName: c.name.split(" ")[0] || c.name,
+                lastName: c.name.split(" ").slice(1).join(" "),
+                phone: c.phone,
+                leadStage: c.details,
+              }))}
+              handleTemplateSelect={handleTemplateSelect}
+              insertVariableTag={insertVariableTag}
+              sendingSms={sendingSms}
+              charCount={charCount}
+              segmentCount={segmentCount}
+            />
           )}
 
           {/* MODAL 2: CREATE NEW DRIP CAMPAIGN */}

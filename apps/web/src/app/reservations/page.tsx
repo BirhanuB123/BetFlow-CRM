@@ -47,6 +47,9 @@ import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import { useDebounce } from "@/hooks/use-debounce";
+import { formatDate as fmtDate, daysRemaining } from "@/lib/date";
+import { CreateReservationModal } from "@/features/reservations/create-reservation-modal";
+import { ReservationVoucherModal } from "@/features/reservations/reservation-voucher-modal";
 
 type ApiReservation = {
   id: string;
@@ -94,23 +97,6 @@ const paymentMethodLabels: Record<string, string> = {
   CASH_DEPOSIT: "Cash Deposit (በጥሬ ገንዘብ)",
   CHECK: "Check (በቼክ)",
 };
-
-function fmtDate(iso: string | null) {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-function daysRemaining(iso: string | null) {
-  if (!iso) return null;
-  const target = new Date(iso).getTime();
-  const now = new Date().getTime();
-  const diff = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
-  return diff;
-}
 
 function getInitials(firstName?: string, lastName?: string) {
   const f = firstName?.[0] ?? "";
@@ -390,220 +376,15 @@ export default function ReservationsPage() {
 
           {/* New Reservation Intake Form */}
           {showForm && (
-            <form
+            <CreateReservationModal
+              form={form}
+              setForm={setForm}
               onSubmit={handleCreate}
-              className="mt-6 rounded-xl border border-[#233b66]/20 bg-gradient-to-br from-[#233b66]/5 via-indigo-50/30 to-slate-50/50 p-5 shadow-inner transition-all"
-            >
-              <div className="flex items-center justify-between border-b border-[#233b66]/10 pb-3 mb-4">
-                <h3 className="text-xs font-bold text-[#233b66] uppercase tracking-wider flex items-center gap-2">
-                  <Sparkles className="size-4 text-[#233b66]" />
-                  Unit Lock & Holding Deposit Details
-                </h3>
-                {selectedUnitDetails && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-bold text-emerald-800 border border-emerald-200">
-                    <Building className="size-3" />
-                    Unit {selectedUnitDetails.unitNumber} ({selectedUnitDetails.type}) · {formatCurrency(selectedUnitDetails.price)}
-                  </span>
-                )}
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
-                    <Receipt className="size-3.5 text-slate-400" />
-                    Reservation Code (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. BF-RES-2026-015 (Auto-generated)"
-                    value={form.reservationNumber}
-                    onChange={(e) =>
-                      setForm({ ...form, reservationNumber: e.target.value })
-                    }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-2xs"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
-                    <User className="size-3.5 text-slate-400" />
-                    Select Buyer / Customer *
-                  </label>
-                  <select
-                    required
-                    value={form.customerId}
-                    onChange={(e) =>
-                      setForm({ ...form, customerId: e.target.value })
-                    }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-2xs"
-                  >
-                    <option value="">Select customer…</option>
-                    {customers.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.firstName} {c.lastName}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
-                    <Building className="size-3.5 text-slate-400" />
-                    Select Available Unit *
-                  </label>
-                  <select
-                    required
-                    value={form.unitId}
-                    onChange={(e) => {
-                      const unit = availableUnits.find(
-                        (u) => u.id === e.target.value,
-                      );
-                      const suggestedDeposit =
-                        unit && unit.price
-                          ? Math.round(Number(unit.price) * 0.05)
-                          : "";
-                      setForm({
-                        ...form,
-                        unitId: e.target.value,
-                        amount: suggestedDeposit
-                          ? String(suggestedDeposit)
-                          : form.amount,
-                      });
-                    }}
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-2xs"
-                  >
-                    <option value="">Select available unit…</option>
-                    {availableUnits.map((u) => (
-                      <option key={u.id} value={u.id}>
-                        Unit {u.unitNumber} · {u.type} ·{" "}
-                        {formatCurrency(u.price)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
-                    <Coins className="size-3.5 text-slate-400" />
-                    Reservation Deposit Amount (ETB) *
-                  </label>
-                  <input
-                    required
-                    type="number"
-                    min="0"
-                    placeholder="e.g. 250000"
-                    value={form.amount}
-                    onChange={(e) =>
-                      setForm({ ...form, amount: e.target.value })
-                    }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-2xs font-semibold"
-                  />
-                  {selectedUnitDetails && form.amount && (
-                    <p className="mt-1 text-[11px] text-[#233b66] font-medium">
-                      {(
-                        (Number(form.amount) /
-                          Number(selectedUnitDetails.price)) *
-                        100
-                      ).toFixed(1)}
-                      % of total unit price
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
-                    <CalendarDays className="size-3.5 text-slate-400" />
-                    Hold Expiration Window
-                  </label>
-                  <select
-                    value={form.holdPeriodDays}
-                    onChange={(e) =>
-                      setForm({ ...form, holdPeriodDays: e.target.value })
-                    }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-2xs"
-                  >
-                    <option value="7">7 Days Standard Hold</option>
-                    <option value="14">
-                      14 Days Extended Hold (Recommended)
-                    </option>
-                    <option value="30">30 Days Diaspora Buyer Window</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
-                    <Banknote className="size-3.5 text-slate-400" />
-                    Deposit Payment Method
-                  </label>
-                  <select
-                    value={form.paymentMethod}
-                    onChange={(e) =>
-                      setForm({ ...form, paymentMethod: e.target.value })
-                    }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-2xs"
-                  >
-                    <option value="BANK_TRANSFER">
-                      CBE / Bank Transfer (የባንክ ሐዋላ)
-                    </option>
-                    <option value="TELEBIRR">Telebirr (ቴሌብር)</option>
-                    <option value="CBE_BIRR">CBE Birr (ሲቢኢ ብር)</option>
-                    <option value="CASH_DEPOSIT">
-                      Cash Deposit (በጥሬ ገንዘብ)
-                    </option>
-                    <option value="CHECK">Check (በቼክ)</option>
-                  </select>
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
-                    <Receipt className="size-3.5 text-slate-400" />
-                    Bank Receipt / Transaction Ref Number
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. CBE Transaction Ref FT2620689431..."
-                    value={form.receiptNumber}
-                    onChange={(e) =>
-                      setForm({ ...form, receiptNumber: e.target.value })
-                    }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-2xs font-mono"
-                  />
-                </div>
-
-                <div className="sm:col-span-2 lg:col-span-1">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Special Reservation Notes
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Buyer bank loan pre-approval pending..."
-                    value={form.notes}
-                    onChange={(e) =>
-                      setForm({ ...form, notes: e.target.value })
-                    }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-2xs"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-5 flex justify-end gap-3 border-t border-indigo-100/80 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setShowForm(false)}
-                  className="border-slate-300 text-slate-700 hover:bg-slate-100 text-xs"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={saving}
-                  className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium text-xs shadow-sm"
-                >
-                  {saving ? "Reserving…" : "Reserve & Lock Unit Inventory"}
-                </Button>
-              </div>
-            </form>
+              customers={customers}
+              availableUnits={availableUnits}
+              saving={saving}
+              selectedUnitDetails={selectedUnitDetails}
+            />
           )}
 
           {error && (
@@ -977,162 +758,10 @@ export default function ReservationsPage() {
 
         {/* Hold Voucher Modal */}
         {activeVoucher && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-xs">
-            <div className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl transition-all">
-              {/* Voucher Top Header */}
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-10 items-center justify-center rounded-xl bg-[#233b66] text-white shadow-sm">
-                    <Building2 className="size-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900">
-                      Unit Reservation Voucher
-                    </h3>
-                    <p className="text-xs text-slate-400">
-                      Official BetFlow Holding Deposit & Inventory Lock
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setActiveVoucher(null)}
-                  className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
-                >
-                  <X className="size-5" />
-                </button>
-              </div>
-
-              {/* Voucher Content */}
-              <div className="mt-5 space-y-4 text-xs">
-                {/* Header Banner */}
-                <div className="flex items-center justify-between rounded-xl bg-gradient-to-r from-[#233b66]/10 via-indigo-50/50 to-slate-50 p-4 border border-[#233b66]/10">
-                  <div>
-                    <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                      Reservation Reference
-                    </p>
-                    <p className="text-base font-bold text-[#233b66] font-mono">
-                      {activeVoucher.reservationNumber ??
-                        `BF-RES-${activeVoucher.id.slice(0, 8).toUpperCase()}`}
-                    </p>
-                  </div>
-                  <span
-                    className={cn(
-                      "px-3 py-1 rounded-full text-xs font-bold border shadow-2xs",
-                      statusClass[activeVoucher.status],
-                    )}
-                  >
-                    {activeVoucher.status}
-                  </span>
-                </div>
-
-                {/* Details Grid */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-xl border border-slate-100 p-3.5 bg-slate-50/60">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                      <User className="size-3 text-slate-400" />
-                      Buyer / Customer
-                    </p>
-                    <p className="mt-1 text-xs font-bold text-slate-900">
-                      {activeVoucher.customer.firstName}{" "}
-                      {activeVoucher.customer.lastName}
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl border border-slate-100 p-3.5 bg-slate-50/60">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                      <Building className="size-3 text-slate-400" />
-                      Reserved Inventory
-                    </p>
-                    <p className="mt-1 text-xs font-bold text-slate-900">
-                      Unit {activeVoucher.unit.unitNumber} ({activeVoucher.unit.type})
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl border border-slate-100 p-3.5 bg-slate-50/60">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                      <Coins className="size-3 text-emerald-600" />
-                      Deposit Paid (ETB)
-                    </p>
-                    <p className="mt-1 text-sm font-bold text-emerald-700">
-                      {formatCurrency(activeVoucher.amount)}
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl border border-slate-100 p-3.5 bg-slate-50/60">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                      <CalendarDays className="size-3 text-amber-500" />
-                      Hold Expiration
-                    </p>
-                    <p className="mt-1 text-xs font-bold text-slate-900">
-                      {fmtDate(activeVoucher.expiryDate)} ({activeVoucher.holdPeriodDays} Days)
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl border border-slate-100 p-3.5 bg-slate-50/60">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                      <Banknote className="size-3 text-slate-400" />
-                      Payment Method
-                    </p>
-                    <p className="mt-1 text-xs font-semibold text-slate-800">
-                      {paymentMethodLabels[activeVoucher.paymentMethod ?? ""] ??
-                        "Bank Transfer"}
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl border border-slate-100 p-3.5 bg-slate-50/60">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                      <Receipt className="size-3 text-slate-400" />
-                      Bank Receipt Ref
-                    </p>
-                    <p className="mt-1 text-xs font-mono font-bold text-slate-800">
-                      {activeVoucher.receiptNumber ?? "N/A"}
-                    </p>
-                  </div>
-                </div>
-
-                {activeVoucher.notes && (
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
-                    <p className="text-[11px] font-bold text-slate-700 mb-1">
-                      Reservation Terms & Special Notes
-                    </p>
-                    <p className="text-xs text-slate-600 leading-relaxed">
-                      {activeVoucher.notes}
-                    </p>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between rounded-xl bg-slate-100/70 px-4 py-2 text-[11px] text-slate-500">
-                  <span className="flex items-center gap-1">
-                    <ShieldCheck className="size-3.5 text-emerald-600" />
-                    Official BetFlow CRM Property Lock Record
-                  </span>
-                  <span className="font-mono">
-                    Issued: {fmtDate(activeVoucher.date)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Modal Actions */}
-              <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => window.print()}
-                  className="gap-1.5 text-xs text-slate-700 border-slate-300 hover:bg-slate-100"
-                >
-                  <Printer className="size-3.5" />
-                  Print / Export Voucher
-                </Button>
-
-                <Button
-                  onClick={() => setActiveVoucher(null)}
-                  className="bg-[#233b66] hover:bg-[#1a2d50] text-white text-xs px-5"
-                >
-                  Close Voucher
-                </Button>
-              </div>
-            </div>
-          </div>
+          <ReservationVoucherModal
+            voucher={activeVoucher}
+            onClose={() => setActiveVoucher(null)}
+          />
         )}
       </div>
     </DashboardShell>

@@ -54,6 +54,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       ...(correlationId ? { correlationId } : {}),
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
     if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
       this.logger.error(
         `[${request.method}] ${request.url} - ${status} ${errorName}`,

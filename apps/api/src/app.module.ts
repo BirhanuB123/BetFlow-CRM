@@ -17,7 +17,6 @@ import { AuditLogsModule } from './core/audit-logs/audit-logs.module';
 import { HealthController } from './platform/health/health.controller';
 import { validateEnv } from './config/env.config';
 
-
 @Module({
   imports: [
     ThrottlerModule.forRoot([
@@ -58,4 +57,3 @@ export class AppModule implements OnModuleInit {
     validateEnv(process.env);
   }
 }
-

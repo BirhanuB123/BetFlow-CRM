@@ -29,23 +29,8 @@ import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
 import { apiDownload, apiFetch, apiUpload } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import type { DocumentStatus, DocumentRecord } from "@betflow/shared";
 
-type DocumentStatus = "PENDING_REVIEW" | "VERIFIED" | "REJECTED" | "EXPIRED";
-type DocumentRecord = {
-  id: string;
-  name: string;
-  mimeType: string | null;
-  sizeBytes: number | null;
-  category: string;
-  status: DocumentStatus;
-  entityType: string;
-  entityId: string;
-  uploadedAt: string;
-  expiresAt: string | null;
-  rejectionReason: string | null;
-  uploadedBy: { id: string; name: string } | null;
-  reviewedBy: { id: string; name: string } | null;
-};
 
 type Customer = { id: string; firstName: string; lastName: string };
 type Reservation = {
@@ -81,7 +66,7 @@ const statusClass: Record<DocumentStatus, string> = {
 const inputClass =
   "h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500 font-medium";
 
-function documentSize(bytes: number | null) {
+function documentSize(bytes?: number | null) {
   if (bytes == null) return "—";
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
