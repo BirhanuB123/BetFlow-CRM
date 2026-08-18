@@ -5,14 +5,16 @@ services:
     image: postgres:16-alpine
     container_name: betflow_db
     restart: always
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-betflow}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-betflow_secret_pass}
-      POSTGRES_DB: ${POSTGRES_DB:-betflow_crm}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-betflowpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-betflow_db}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-betflow} -d ${POSTGRES_DB:-betflow_crm}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-betflow} -d ${POSTGRES_DB:-betflow_db}"]
       interval: 5s
       timeout: 5s
       retries: 5

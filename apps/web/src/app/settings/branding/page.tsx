@@ -7,6 +7,7 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
 import { apiFetch } from "@/lib/api";
+import { useBranding } from "@/lib/branding-context";
 
 type BrandingSetting = {
   id: string;
@@ -21,6 +22,7 @@ const statusClass = {
 };
 
 export default function BrandingPage() {
+  const { updateSystemName } = useBranding();
   const [settings, setSettings] = useState<BrandingSetting[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,6 +65,9 @@ export default function BrandingPage() {
         body: JSON.stringify({ value: editValue.trim(), status: "draft" }),
       });
       setSettings((prev) => prev.map((s) => (s.id === id ? updated : s)));
+      if (id === "brand_name") {
+        updateSystemName(updated.value);
+      }
       setEditingId(null);
       showSuccess("Branding setting updated as draft");
     } catch (err) {
@@ -87,6 +92,10 @@ export default function BrandingPage() {
         },
       );
       setSettings(published);
+      const nameSetting = published.find((s) => s.id === "brand_name");
+      if (nameSetting) {
+        updateSystemName(nameSetting.value);
+      }
       showSuccess("All branding changes published to live");
     } catch (err) {
       setError(

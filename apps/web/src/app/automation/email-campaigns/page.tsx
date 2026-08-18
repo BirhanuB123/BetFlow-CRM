@@ -132,9 +132,29 @@ export default function SocialBroadcastsPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiFetch<BroadcastCampaign[]>("/campaigns");
+      const data = await apiFetch<any[]>("/campaigns");
       if (Array.isArray(data) && data.length > 0) {
-        setCampaigns(data);
+        const normalized = data.map((item, idx): BroadcastCampaign => {
+          const rawChannel = String(item.channel || item.type || "TELEGRAM").toUpperCase();
+          const validChannel: BroadcastCampaign["channel"] = (
+            ["TELEGRAM", "SMS", "FACEBOOK", "WHATSAPP"] as const
+          ).includes(rawChannel as any)
+            ? (rawChannel as BroadcastCampaign["channel"])
+            : "TELEGRAM";
+
+          return {
+            id: item.id || `bc-api-${idx}`,
+            title: item.title || item.name || "Untitled Broadcast",
+            channel: validChannel,
+            segment: item.segment || "All Subscribers",
+            recipients: typeof item.recipients === "number" ? item.recipients : 0,
+            sentAt: item.sentAt || item.createdAt || new Date().toISOString(),
+            clicks: typeof item.clicks === "number" ? item.clicks : 0,
+            status: item.status || "SENT",
+            messagePreview: item.messagePreview || item.description || "",
+          };
+        });
+        setCampaigns(normalized);
       }
     } catch {
       // Retain fallback campaigns if API is unreachable
@@ -203,7 +223,7 @@ export default function SocialBroadcastsPage() {
 
   return (
     <DashboardShell
-      title="Social Outreach & Channel Broadcasts (የሶሻል ሚዲያ መገናኛ)"
+      title="Social Outreach Broadcasts"
       description="Connect real estate Telegram channels, Meta Lead Ads, and launch broadcast updates directly to property buyers."
       active="Social Outreach"
     >
@@ -561,9 +581,11 @@ export default function SocialBroadcastsPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filteredCampaigns.map((c) => {
-                    const ChannelIcon = channelConfig[c.channel].icon;
+                    const channelCfg =
+                      channelConfig[c.channel] || channelConfig.TELEGRAM;
+                    const ChannelIcon = channelCfg.icon;
                     const ctrPercent = Math.round(
-                      (c.clicks / Math.max(1, c.recipients)) * 100,
+                      ((c.clicks || 0) / Math.max(1, c.recipients || 0)) * 100,
                     );
 
                     return (
@@ -588,11 +610,11 @@ export default function SocialBroadcastsPage() {
                           <span
                             className={cn(
                               "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] border shadow-2xs",
-                              channelConfig[c.channel].badge,
+                              channelCfg.badge,
                             )}
                           >
                             <ChannelIcon className="size-3.5 shrink-0" />
-                            {c.channel}
+                            {c.channel || "TELEGRAM"}
                           </span>
                         </td>
 

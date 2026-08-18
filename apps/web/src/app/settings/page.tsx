@@ -43,6 +43,7 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { apiFetch, updateSessionCurrency } from "@/lib/api";
+import { useBranding } from "@/lib/branding-context";
 import { CURRENCIES } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
@@ -78,6 +79,7 @@ const inputClass =
   "h-10 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#233b66] focus:ring-2 focus:ring-[#233b66]/20";
 
 export default function SettingsPage() {
+  const { updateSystemName } = useBranding();
   const [activeTab, setActiveTab] = useState<
     "profile" | "tenant" | "rbac" | "users"
   >("profile");
@@ -363,6 +365,7 @@ export default function SettingsPage() {
       setTenantName(updated.name);
       setTenantCurrency(updated.currency);
       updateSessionCurrency(updated.currency);
+      updateSystemName(updated.name);
       setTenantSaved(true);
       setTimeout(() => setTenantSaved(false), 2500);
     } catch (err) {

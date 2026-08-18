@@ -204,29 +204,44 @@ export class UsersService {
     }
 
     try {
+      // Disassociate or clean up child relations to avoid Foreign Key constraint errors
       await this.prisma.userRole.deleteMany({ where: { userId: id } });
+      await this.prisma.task.updateMany({
+        where: { assigneeId: id },
+        data: { assigneeId: null },
+      });
+      await this.prisma.lead.updateMany({
+        where: { ownerId: id },
+        data: { ownerId: null },
+      });
+      await this.prisma.account.updateMany({
+        where: { ownerId: id },
+        data: { ownerId: null },
+      });
+      await this.prisma.document.updateMany({
+        where: { uploadedById: id },
+        data: { uploadedById: null },
+      });
+      await this.prisma.document.updateMany({
+        where: { reviewedById: id },
+        data: { reviewedById: null },
+      });
+      await this.prisma.auditLog.updateMany({
+        where: { userId: id },
+        data: { userId: null },
+      });
+      await this.prisma.notification.deleteMany({ where: { userId: id } });
+      await this.prisma.note.deleteMany({ where: { authorId: id } });
+
+      // Permanently delete user record
       await this.prisma.user.delete({ where: { id } });
 
-      await this.prisma.auditLog.create({
-        data: {
-          action: 'user.deleted',
-          entityType: 'User',
-          entityId: id,
-        },
-      });
       return { id, deleted: true };
     } catch (err) {
+      // Fallback: set isActive to false if foreign key constraints still prevent hard deletion
       await this.prisma.user.update({
         where: { id },
         data: { isActive: false },
-      });
-
-      await this.prisma.auditLog.create({
-        data: {
-          action: 'user.deactivated',
-          entityType: 'User',
-          entityId: id,
-        },
       });
 
       return { id, deleted: false, isActive: false };

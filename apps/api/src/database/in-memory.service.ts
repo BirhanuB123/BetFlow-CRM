@@ -1671,6 +1671,28 @@ export class InMemoryService {
     return user;
   }
 
+  deleteUser(id: string) {
+    const index = this.users.findIndex((u) => u.id === id);
+    if (index !== -1) {
+      const [deleted] = this.users.splice(index, 1);
+      this.recordAudit({
+        actor: 'System',
+        action: 'Deleted user',
+        target: deleted.email,
+        severity: 'warning',
+      });
+    }
+    return { id, deleted: true };
+  }
+
+  updateUserStatus(id: string, isActive: boolean) {
+    const user = this.users.find((u) => u.id === id);
+    if (user) {
+      user.status = isActive ? 'active' : 'suspended';
+    }
+    return user;
+  }
+
   listRoles() {
     return this.roles;
   }

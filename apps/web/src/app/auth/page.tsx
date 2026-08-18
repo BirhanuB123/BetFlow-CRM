@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 import { clearSession, getSession } from "@/lib/api";
+import { useBranding } from "@/lib/branding-context";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
@@ -41,6 +42,7 @@ const inputClass =
 
 export default function AuthPage() {
   const router = useRouter();
+  const { systemName } = useBranding();
   const [mode, setMode] = useState<Mode>("login");
   const [remember, setRemember] = useState(true);
 
@@ -318,14 +320,17 @@ export default function AuthPage() {
           <div className="flex flex-col items-center">
             <Image
               src="/betflow-logo.svg"
-              alt="BetFlow"
+              alt={systemName}
               width={168}
               height={44}
               priority
               className="h-11 w-auto"
             />
-            <p className="mt-2 text-[13px] font-medium tracking-wide text-zinc-400">
-              Corporate CRM Portal
+            <h1 className="mt-2 text-base font-extrabold text-slate-800 tracking-tight">
+              {systemName}
+            </h1>
+            <p className="mt-0.5 text-[12px] font-medium tracking-wide text-zinc-400">
+              Corporate Portal Access
             </p>
           </div>
 
