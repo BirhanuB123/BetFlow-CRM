@@ -42,7 +42,6 @@ import {
   Search,
   Settings,
   ShoppingBag,
-  Sparkles,
   SquareStack,
   UserCircle,
   UserRound,
@@ -54,6 +53,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/i18n/language-context";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { useBranding } from "@/lib/branding-context";
 
 const SIDEBAR_MIN = 200;
 const SIDEBAR_MAX = 460;
@@ -607,6 +607,7 @@ export function DashboardShell({
   active = "Dashboard",
 }: DashboardShellProps) {
   const router = useRouter();
+  const { systemName } = useBranding();
   const displayTitle = title === "Dashboard" ? "Home" : title;
 
   const [navOpen, setNavOpen] = useState(false);
@@ -667,13 +668,10 @@ export function DashboardShell({
   const { t } = useTranslation();
   const hour = new Date().getHours();
   let greeting = t("dashboard.greetingEvening");
-  let emoji = "🌙";
   if (hour < 12) {
     greeting = t("dashboard.greetingMorning");
-    emoji = "🌅";
   } else if (hour < 18) {
     greeting = t("dashboard.greetingAfternoon");
-    emoji = "☀️";
   }
 
   const filteredModules = useMemo(() => {
@@ -791,7 +789,7 @@ export function DashboardShell({
               priority
             />
             <span className="truncate text-[16px] font-semibold group-data-[collapsed=true]/side:lg:hidden">
-              BetFlow CRM
+              {systemName}
             </span>
           </Link>
         </div>
@@ -897,41 +895,38 @@ export function DashboardShell({
         </div>
 
         {/* Account + sign out, pinned to the bottom of the sidebar */}
-        <div className="mt-auto shrink-0 border-t border-white/14 p-2">
-          <div className="flex items-center gap-2.5 px-1 py-1 group-data-[collapsed=true]/side:lg:justify-center group-data-[collapsed=true]/side:lg:px-0">
-            {user.avatarUrl ? (
-              <img
-                src={user.avatarUrl}
-                alt={displayName}
-                className="size-9 shrink-0 rounded-full object-cover border-2 border-white/20 shadow-xs"
-              />
-            ) : (
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#3b82f6]/30 border border-[#70a0ff]/40 text-xs font-bold text-white shadow-xs">
-                {initials}
-              </span>
-            )}
-            <div className="min-w-0 group-data-[collapsed=true]/side:lg:hidden">
-              <p className="truncate text-[14.5px] font-bold text-white">
-                {displayName}
-              </p>
-              {roleText ? (
-                <p className="truncate text-[12px] text-[#9fb0cd]">{roleText}</p>
-              ) : user.email ? (
-                <p className="truncate text-[12px] text-[#9fb0cd]">{user.email}</p>
-              ) : null}
+        <div className="mt-auto shrink-0 border-t border-white/14 p-2.5">
+          <div className="flex items-center justify-between gap-2 group-data-[collapsed=true]/side:lg:flex-col group-data-[collapsed=true]/side:lg:gap-2">
+            <div className="flex min-w-0 items-center gap-2.5 group-data-[collapsed=true]/side:lg:justify-center">
+              {user.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt={displayName}
+                  className="size-9 shrink-0 rounded-full object-cover border border-white/20 shadow-xs"
+                />
+              ) : (
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#2563eb] text-xs font-bold text-white shadow-xs">
+                  {initials}
+                </span>
+              )}
+              <div className="min-w-0 group-data-[collapsed=true]/side:lg:hidden">
+                <p className="truncate text-[14px] font-bold text-white leading-tight">
+                  {displayName}
+                </p>
+                <p className="truncate text-[12px] font-medium text-[#9fb0cd] mt-0.5">
+                  {roleText || user.email || "Agent"}
+                </p>
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={signOut}
+              title={t("actions.signOut")}
+              className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-[#f472b6] hover:bg-white/15 hover:border-white/30 hover:text-white transition-all duration-150 cursor-pointer shadow-2xs"
+            >
+              <LogOut className="size-4.5 shrink-0" />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={signOut}
-            title={t("actions.signOut")}
-            className="mt-1 flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-[14px] font-semibold text-[#f3adba] transition hover:bg-white/10 hover:text-white group-data-[collapsed=true]/side:lg:justify-center group-data-[collapsed=true]/side:lg:px-0 cursor-pointer"
-          >
-            <LogOut className="size-4 shrink-0" />
-            <span className="group-data-[collapsed=true]/side:lg:hidden">
-              {t("actions.signOut")}
-            </span>
-          </button>
         </div>
 
         {/* Drag handle: resize the docked sidebar left/right (desktop only) */}
@@ -1132,9 +1127,6 @@ export function DashboardShell({
 
             <div className="relative z-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex min-w-0 items-center gap-3.5">
-                <div className="hidden sm:flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white border border-white/15 backdrop-blur-xs font-bold text-lg">
-                  {emoji}
-                </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <h2 className="truncate text-lg sm:text-xl font-extrabold tracking-tight text-white">
@@ -1172,7 +1164,6 @@ export function DashboardShell({
                       type="button"
                       className="h-9 items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3.5 text-xs font-bold text-white hover:bg-white/20 backdrop-blur-xs shadow-2xs flex transition-all cursor-pointer"
                     >
-                      <Sparkles className="size-3.5 text-amber-300" />
                       <span className="truncate max-w-[130px] sm:max-w-none">{displayName.split(" ")[0]}&apos;s Command Center</span>
                       <ChevronDown className="size-3.5 text-slate-300" />
                     </button>

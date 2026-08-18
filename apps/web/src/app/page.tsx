@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
+import { useBranding } from "@/lib/branding-context";
 import {
   ArrowRight,
   Building2,
@@ -146,6 +147,7 @@ function fmtDate(iso: string | null) {
 
 export default function Home() {
   const { t } = useTranslation();
+  const { systemName } = useBranding();
   const [copied, setCopied] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<
@@ -282,7 +284,7 @@ export default function Home() {
           <Link href="/" className="flex shrink-0 items-center gap-2.5 group">
             <Image
               src="/betflow-mark.svg"
-              alt="BetFlow CRM"
+              alt={systemName}
               width={34}
               height={34}
               className="rounded-lg shadow-sm transition-transform group-hover:scale-105 bg-white p-0.5"
@@ -290,7 +292,7 @@ export default function Home() {
             />
             <div className="flex shrink-0 items-center gap-2">
               <span className="text-xl font-black text-white tracking-tight">
-                betflow
+                {systemName}
               </span>
               <span className="shrink-0 rounded-md bg-indigo-600/30 border border-indigo-500/40 px-2 py-0.5 text-[10px] font-extrabold text-indigo-300 uppercase tracking-wider">
                 CRM OS

@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, Noto_Sans_Ethiopic } from "next/font/google";
 import { ToastProvider } from "@/components/ui/toast";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { LanguageProvider } from "@/lib/i18n/language-context";
+import { BrandingProvider } from "@/lib/branding-context";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -35,7 +36,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col font-sans">
         <ErrorBoundary>
           <LanguageProvider>
-            <ToastProvider>{children}</ToastProvider>
+            <BrandingProvider>
+              <ToastProvider>{children}</ToastProvider>
+            </BrandingProvider>
           </LanguageProvider>
         </ErrorBoundary>
       </body>

@@ -459,7 +459,7 @@ export default function SmsAutomationPage() {
 
   return (
     <DashboardShell
-      title="SMS & Drip Automation (የኢትዮ ቴሌኮም SMS መገናኛ)"
+      title="SMS & Drip Automation"
       description="Configure automated site visit reminders, 14-day hold expiration alerts, installment due notices, and multi-step SMS drip sequences."
       active="SMS & Drip Automation"
     >
