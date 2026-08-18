@@ -48,6 +48,12 @@ type EntityType = "CUSTOMER" | "RESERVATION" | "CONTRACT" | "PAYMENT";
 type EntityOption = { id: string; label: string };
 
 const CATEGORIES = [
+  "KEBELE_ID",
+  "PASSPORT",
+  "TIN_CERTIFICATE",
+  "YELLOW_CARD",
+  "FOREIGN_PASSPORT",
+  "POWER_OF_ATTORNEY_MOFA",
   "ID",
   "KYC",
   "CONTRACT",
@@ -65,6 +71,24 @@ const statusClass: Record<DocumentStatus, string> = {
 
 const inputClass =
   "h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500 font-medium";
+
+type KycRequirement = {
+  category: string;
+  label: string;
+  status: "VERIFIED" | "PENDING_REVIEW" | "EXPIRED" | "MISSING";
+  document: DocumentRecord | null;
+};
+
+type KycStatusResult = {
+  customerId: string;
+  customerName: string;
+  buyerType: "LOCAL" | "DIASPORA";
+  isKycComplete: boolean;
+  completionPercentage: number;
+  verifiedCount: number;
+  totalRequired: number;
+  requirements: KycRequirement[];
+};
 
 function documentSize(bytes?: number | null) {
   if (bytes == null) return "—";
@@ -87,6 +111,10 @@ export default function DocumentsPage() {
   const [saving, setSaving] = useState(false);
   const [filter, setFilter] = useState<DocumentStatus | "ALL">("ALL");
   const [previewDoc, setPreviewDoc] = useState<DocumentRecord | null>(null);
+  const [selectedKycCustomerId, setSelectedKycCustomerId] = useState<string>("");
+  const [kycStatus, setKycStatus] = useState<KycStatusResult | null>(null);
+  const [loadingKyc, setLoadingKyc] = useState(false);
+
   const [form, setForm] = useState({
     file: null as File | null,
     category: "OTHER",
@@ -230,13 +258,159 @@ export default function DocumentsPage() {
     }
   };
 
+  const fetchKycStatus = async (customerId: string) => {
+    setSelectedKycCustomerId(customerId);
+    if (!customerId) {
+      setKycStatus(null);
+      return;
+    }
+    setLoadingKyc(true);
+    try {
+      const res = await apiFetch<KycStatusResult>(`/documents/kyc-status/${customerId}`);
+      setKycStatus(res);
+    } catch {
+      setKycStatus(null);
+    } finally {
+      setLoadingKyc(false);
+    }
+  };
+
   return (
     <DashboardShell
-      title="Document Management Center"
-      description="Securely upload, store, categorize, and verify real estate contracts, KYC records, payment receipts, and floor plans."
+      title="Document Management Center & Ethiopian KYC Vault"
+      description="Securely upload, store, categorize, and verify real estate contracts, Ethiopian KYC records, payment receipts, and floor plans."
       active="Documents"
     >
       <div className="space-y-6">
+        {/* Ethiopian KYC Compliance Presets Widget */}
+        <section className="rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-950 p-5 shadow-lg text-white">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-indigo-800/60 pb-4">
+            <div>
+              <h2 className="text-sm font-bold tracking-wide flex items-center gap-2 text-indigo-300">
+                <UserCheck className="size-4 text-indigo-400" />
+                Ethiopian KYC Compliance Presets (Local vs Diaspora Verification Flow)
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Select a buyer to verify mandatory Kebele ID, Passport, TIN, or MoFA-verified Power of Attorney (ውክልና).
+              </p>
+            </div>
+
+            <select
+              value={selectedKycCustomerId}
+              onChange={(e) => fetchKycStatus(e.target.value)}
+              className="h-9 rounded-lg border border-indigo-700 bg-slate-900 px-3 text-xs font-semibold text-white focus:outline-none focus:border-indigo-400"
+            >
+              <option value="">-- Inspect Customer KYC Compliance --</option>
+              {options.CUSTOMER.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {loadingKyc ? (
+            <p className="py-4 text-center text-xs text-slate-400 animate-pulse">
+              Evaluating buyer KYC presets and document validity...
+            </p>
+          ) : kycStatus ? (
+            <div className="mt-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-white">
+                    {kycStatus.customerName}
+                  </span>
+                  <span className="rounded-full bg-indigo-500/20 px-2.5 py-0.5 text-[10px] font-extrabold text-indigo-300 border border-indigo-500/40">
+                    {kycStatus.buyerType === "DIASPORA"
+                      ? "✈️ DIASPORA BUYER PRESET"
+                      : "🇪🇹 LOCAL BUYER PRESET"}
+                  </span>
+                </div>
+
+                <span
+                  className={cn(
+                    "text-xs font-extrabold px-3 py-1 rounded-full border",
+                    kycStatus.isKycComplete
+                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                      : "bg-amber-500/20 text-amber-300 border-amber-500/40",
+                  )}
+                >
+                  {kycStatus.isKycComplete
+                    ? "✓ 100% KYC Complete"
+                    : `${kycStatus.completionPercentage}% KYC Complete (${kycStatus.verifiedCount}/${kycStatus.totalRequired} Verified)`}
+                </span>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
+                <div
+                  className={cn(
+                    "h-full transition-all",
+                    kycStatus.isKycComplete ? "bg-emerald-500" : "bg-indigo-500",
+                  )}
+                  style={{ width: `${kycStatus.completionPercentage}%` }}
+                />
+              </div>
+
+              {/* Mandatory Checklist Items Grid */}
+              <div className="grid gap-3 sm:grid-cols-3">
+                {kycStatus.requirements.map((req) => (
+                  <div
+                    key={req.category}
+                    className="rounded-xl border border-slate-800 bg-slate-900/80 p-3 flex flex-col justify-between"
+                  >
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-300">
+                        {req.label}
+                      </p>
+                      <p className="text-[10px] text-slate-500 font-mono mt-0.5">
+                        Category: {req.category}
+                      </p>
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between border-t border-slate-800/80 pt-2">
+                      <span
+                        className={cn(
+                          "text-[10px] font-bold px-2 py-0.5 rounded border",
+                          req.status === "VERIFIED" &&
+                            "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+                          req.status === "PENDING_REVIEW" &&
+                            "bg-amber-500/20 text-amber-300 border-amber-500/40",
+                          req.status === "EXPIRED" &&
+                            "bg-rose-500/20 text-rose-300 border-rose-500/40",
+                          req.status === "MISSING" &&
+                            "bg-slate-800 text-slate-400 border-slate-700",
+                        )}
+                      >
+                        {req.status === "VERIFIED"
+                          ? "✓ Verified"
+                          : req.status === "PENDING_REVIEW"
+                            ? "⏳ Pending Review"
+                            : req.status === "EXPIRED"
+                              ? "🚨 Expired"
+                              : "✕ Missing"}
+                      </span>
+
+                      {req.document && (
+                        <button
+                          type="button"
+                          onClick={() => setPreviewDoc(req.document)}
+                          className="text-[10px] font-semibold text-indigo-400 hover:text-indigo-300 underline"
+                        >
+                          View File
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p className="mt-3 text-xs text-slate-400 italic">
+              Select a customer above to view their mandatory Ethiopian KYC document checklist and Ministry of Foreign Affairs (MoFA) verification status.
+            </p>
+          )}
+        </section>
         {/* Toolbar Header */}
         <div className="flex flex-col gap-3 rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <label className="flex h-9 w-full items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-slate-500 sm:w-80">

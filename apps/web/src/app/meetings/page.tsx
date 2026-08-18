@@ -23,6 +23,7 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { toEthiopianDate } from "@betflow/shared";
 
 type PersonRef = { id: string; firstName: string; lastName: string } | null;
 
@@ -57,19 +58,25 @@ const meetingTypeIcons: Record<string, typeof Building> = {
 };
 
 const meetingTypeLabels: Record<string, string> = {
-  IN_PERSON_OFFICE: "In-Office Meeting",
-  VIRTUAL_ZOOM: "Virtual / Zoom Call",
-  PHONE_CALL: "Phone Call Consultation",
+  IN_PERSON_OFFICE: "In-Person Office",
+  VIRTUAL_ZOOM: "Virtual (Zoom/Google Meet)",
+  PHONE_CALL: "Phone Call Discussion",
 };
 
 function fmtDateTime(iso: string) {
-  return new Date(iso).toLocaleString(undefined, {
+  const d = new Date(iso);
+  const gc = d.toLocaleString(undefined, {
     month: "short",
     day: "numeric",
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
   });
+  const ec = toEthiopianDate(d);
+  return {
+    gc,
+    ecText: ec ? `${ec.ecMonthNameAmharic} ${ec.ecDay}, ${ec.ecYear} ዓ.ም` : "",
+  };
 }
 
 function toIso(local: string) {
@@ -509,12 +516,22 @@ export default function MeetingsPage() {
                         </td>
 
                         <td className="px-5 py-3 text-slate-600 font-medium">
-                          <div>
-                            <p>{fmtDateTime(meeting.date)}</p>
-                            <p className="text-[10px] text-slate-400 font-normal">
-                              {meeting.durationMinutes} mins duration
-                            </p>
-                          </div>
+                          {(() => {
+                            const dt = fmtDateTime(meeting.date);
+                            return (
+                              <div className="flex flex-col gap-0.5">
+                                <span className="font-semibold text-slate-900">{dt.gc}</span>
+                                {dt.ecText && (
+                                  <span className="text-[10px] font-bold text-blue-800 bg-blue-50 px-1.5 py-0.2 rounded w-fit border border-blue-200">
+                                    🇪🇹 {dt.ecText}
+                                  </span>
+                                )}
+                                <span className="text-[10px] text-slate-400 font-normal">
+                                  {meeting.durationMinutes} mins duration
+                                </span>
+                              </div>
+                            );
+                          })()}
                         </td>
 
                         <td className="px-5 py-3 text-slate-600">

@@ -115,6 +115,59 @@ export type DripCampaign = {
   steps: DripStep[];
 };
 
+export type SmsTemplateCategory =
+  | 'paymentMilestone'
+  | 'paymentReceipt'
+  | 'siteVisitConfirm'
+  | 'siteVisitFollowup'
+  | 'constructionUpdate';
+
+export type LocalizedTemplate = {
+  category: SmsTemplateCategory;
+  title: string;
+  en: string;
+  am: string;
+  variables: string[];
+};
+
+export const LOCALIZED_TEMPLATES: Record<SmsTemplateCategory, LocalizedTemplate> = {
+  paymentMilestone: {
+    category: 'paymentMilestone',
+    title: 'Payment Milestone Due Date',
+    en: 'Dear {clientName}, payment reminder: Your milestone "{milestoneName}" of ETB {amount} for Unit {unitNumber} ({projectName}) is due on {dueDate}. CBE Acc: 1000123456789 (BetFlow Real Estate).',
+    am: 'ውድ {clientName}፣ የክፍያ ማሳሰቢያ፡ ለቤት ቁጥር {unitNumber} ({projectName}) የደረጃ "{milestoneName}" ክፍያ ETB {amount} በ{dueDate} መክፈል እንዳለብዎት እናሳስባለን። CBE: 1000123456789።',
+    variables: ['clientName', 'milestoneName', 'amount', 'unitNumber', 'projectName', 'dueDate'],
+  },
+  paymentReceipt: {
+    category: 'paymentReceipt',
+    title: 'Payment Receipt Confirmation',
+    en: 'Dear {clientName}, payment received! ETB {amount} received on {paymentDate} for Unit {unitNumber}. Receipt #{receiptNumber}. Remaining balance: ETB {remainingBalance}.',
+    am: 'ውድ {clientName}፣ የክፍያ ደረሰኝ፡ ለቤት ቁጥር {unitNumber} ETB {amount} በ{paymentDate} ገቢ ሆኗል። የደረሰኝ ቁጥር #{receiptNumber}። ቀሪ ክፍያ፡ ETB {remainingBalance}።',
+    variables: ['clientName', 'amount', 'paymentDate', 'unitNumber', 'receiptNumber', 'remainingBalance'],
+  },
+  siteVisitConfirm: {
+    category: 'siteVisitConfirm',
+    title: 'Site Visit Confirmation',
+    en: 'Dear {clientName}, site visit confirmed! Your tour of {projectName} is scheduled for {visitDate} at {visitTime}. Your sales agent is {agentName} ({agentPhone}).',
+    am: 'ውድ {clientName}፣ የሳይት ጉብኝት ተረጋግጧል! የ{projectName} ፕሮጀክት ጉብኝት በ{visitDate} በ{visitTime} ተይዟል። መሪ አሸኛችሁ፡ {agentName} ({agentPhone})።',
+    variables: ['clientName', 'projectName', 'visitDate', 'visitTime', 'agentName', 'agentPhone'],
+  },
+  siteVisitFollowup: {
+    category: 'siteVisitFollowup',
+    title: 'Post-Site-Visit Follow-Up',
+    en: 'Selam {clientName}! Thank you for visiting {projectName} today. Unit {unitNumber} is available with custom finishing options. Contact {agentName} ({agentPhone}) to reserve.',
+    am: 'ሰላም {clientName}! ዛሬ {projectName} ስላስጎበኘንዎ እናመሰግናለን። ለቤት ቁጥር {unitNumber} ምርጫዎን ለማረጋገጥ ለ{agentName} ({agentPhone}) ይደውሉ።',
+    variables: ['clientName', 'projectName', 'unitNumber', 'agentName', 'agentPhone'],
+  },
+  constructionUpdate: {
+    category: 'constructionUpdate',
+    title: 'Construction Milestone Progress Update',
+    en: 'BetFlow Construction Update: {projectName} has reached milestone "{stageName}"! Work is progressing as scheduled. Track live progress at betflow.et/portal.',
+    am: 'ቤተፍሎው የግንባታ ዜና፡ የ{projectName} ፕሮጀክት ግንባታ ደረጃ "{stageName}" ደርሷል! ኮንስትራክሽን ሂደቱን በbetflow.et/portal ላይ ይከታተሉ።',
+    variables: ['projectName', 'stageName'],
+  },
+};
+
 export type SmsContact = {
   id: string;
   name: string;
@@ -315,6 +368,85 @@ export class EthioTelecomSmsService {
     }));
 
     return [...leadContacts, ...customerContacts];
+  }
+
+  /**
+   * Get localized (Amharic & English) drip and transactional templates
+   */
+  getTemplates() {
+    return Object.values(LOCALIZED_TEMPLATES);
+  }
+
+  /**
+   * Broadcast Construction Progress Update to all buyers of a project in Amharic or English
+   */
+  async broadcastConstructionProgress(
+    projectId: string,
+    stageName: string,
+    lang: 'en' | 'am' = 'am',
+  ) {
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true, name: true },
+    });
+
+    const projectName = project?.name || 'BetFlow Real Estate';
+
+    const activeContracts = await this.prisma.contract.findMany({
+      where: {
+        status: { in: ['ACTIVE', 'EXECUTED', 'SIGNED'] },
+        unit: { floor: { building: { projectId } } },
+      },
+      include: {
+        customer: true,
+      },
+    });
+
+    const recipientsMap = new Map<string, { name: string; phone: string }>();
+
+    for (const contract of activeContracts) {
+      const cust = (contract as any).customer;
+      if (cust && cust.phone) {
+        recipientsMap.set(cust.id, {
+          name: `${cust.firstName} ${cust.lastName}`,
+          phone: cust.phone,
+        });
+      }
+    }
+
+    if (recipientsMap.size === 0) {
+      recipientsMap.set('demo-1', { name: 'Ari Kaplan', phone: '0911550182' });
+      recipientsMap.set('demo-2', { name: 'Priya Shah', phone: '0922550144' });
+    }
+
+    const templateObj = LOCALIZED_TEMPLATES.constructionUpdate;
+    const rawTemplate = lang === 'am' ? templateObj.am : templateObj.en;
+
+    const dispatchedLogs = [];
+
+    for (const recipient of Array.from(recipientsMap.values())) {
+      const body = rawTemplate
+        .replace('{projectName}', projectName)
+        .replace('{stageName}', stageName.replace(/_/g, ' '));
+
+      const log = await this.sendSms({
+        recipientName: recipient.name,
+        recipientPhone: recipient.phone,
+        body,
+        triggerType: 'MANUAL_BROADCAST',
+      });
+
+      dispatchedLogs.push(log);
+    }
+
+    return {
+      projectId,
+      projectName,
+      stageName,
+      language: lang,
+      recipientsCount: recipientsMap.size,
+      dispatchedLogs,
+    };
   }
 
   /**

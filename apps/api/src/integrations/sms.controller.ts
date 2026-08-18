@@ -38,6 +38,27 @@ export class SmsController {
     return this.smsService.getOutboxLogs();
   }
 
+  @Get('templates')
+  async getTemplates() {
+    return this.smsService.getTemplates();
+  }
+
+  @Post('broadcast-construction')
+  async broadcastConstruction(
+    @Body()
+    dto: {
+      projectId: string;
+      stageName: string;
+      language?: 'en' | 'am';
+    },
+  ) {
+    return this.smsService.broadcastConstructionProgress(
+      dto.projectId,
+      dto.stageName,
+      dto.language || 'am',
+    );
+  }
+
   @Post('send')
   async sendSms(@Body() dto: SmsSendDto) {
     return this.smsService.sendSms(dto);

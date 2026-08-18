@@ -202,6 +202,60 @@ export class ContractsService {
     });
   }
 
+  async verifyContract(id: string) {
+    const contract = await this.prisma.contract.findFirst({
+      where: { id },
+      include: {
+        customer: { select: { firstName: true, lastName: true, email: true, phone: true } },
+        unit: {
+          select: {
+            unitNumber: true,
+            type: true,
+            floor: {
+              select: {
+                name: true,
+                building: { select: { name: true, project: { select: { name: true } } } },
+              },
+            },
+          },
+        },
+        signatures: true,
+      },
+    });
+
+    if (!contract) {
+      throw new NotFoundException(`Contract with ID ${id} was not found for audit verification.`);
+    }
+
+    const signatures = contract.signatures || [];
+    const isAuthentic =
+      signatures.length > 0 || contract.status === 'SIGNED' || contract.status === 'ACTIVE';
+
+    return {
+      contractId: contract.id,
+      contractNumber: contract.contractNumber || `BF-CON-${contract.id.slice(0, 8).toUpperCase()}`,
+      status: contract.status,
+      isAuthentic,
+      projectName: contract.unit.floor.building.project.name,
+      buildingName: contract.unit.floor.building.name,
+      unitNumber: contract.unit.unitNumber,
+      buyerName: `${contract.customer.firstName} ${contract.customer.lastName}`,
+      totalAmt: contract.totalAmt,
+      createdAt: contract.createdAt,
+      signaturesCount: signatures.length,
+      signatures: signatures.map((sig) => ({
+        id: sig.id,
+        signerName: sig.signerName,
+        signerRole: sig.signerRole,
+        signedAt: sig.signedAt,
+        ipAddress: sig.ipAddress,
+        verificationHash: sig.verificationHash,
+      })),
+      verificationTimestamp: new Date().toISOString(),
+      issuer: 'BetFlow Real Estate CRM Digital Audit Engine',
+    };
+  }
+
   async list() {
     return this.prisma.contract.findMany({
       where: {},

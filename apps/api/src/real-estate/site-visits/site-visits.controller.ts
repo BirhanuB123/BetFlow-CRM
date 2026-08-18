@@ -41,6 +41,15 @@ export class SiteVisitsController {
     return this.siteVisits.get(id);
   }
 
+  @Get(':id/recommended-units')
+  async recommendedUnits(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
+    const visit = await this.siteVisits.get(id);
+    return this.siteVisits.calculateUnitRecommendations(visit);
+  }
+
   @Post()
   create(
     @CurrentUser() user: AuthenticatedUser,

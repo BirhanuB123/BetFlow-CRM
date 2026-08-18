@@ -18,6 +18,14 @@ import type { PaymentPlanCalculation } from "@betflow/shared";
 const UNIT_STATUSES = ["AVAILABLE", "RESERVED", "SOLD"] as const;
 type UnitStatus = (typeof UNIT_STATUSES)[number];
 
+type StageInfo = {
+  stageKey: string;
+  label: string;
+  badge: string;
+  isMilestoneReady: boolean;
+  progressPercentage: number;
+};
+
 type ApiUnit = {
   id: string;
   unitNumber: string;
@@ -25,6 +33,7 @@ type ApiUnit = {
   status: string;
   price: string;
   area: number | null;
+  stageInfo?: StageInfo;
   floor: {
     id: string;
     floorNumber: number;
@@ -32,7 +41,12 @@ type ApiUnit = {
     building: {
       id: string;
       name: string;
-      project: { id: string; name: string };
+      project: {
+        id: string;
+        name: string;
+        constructionStage?: string;
+        progressPercentage?: number;
+      };
     };
   };
   _count: { deals: number; reservations: number; contracts: number };
@@ -45,6 +59,7 @@ type StackingUnit = {
   status: string;
   price: string;
   area: number | null;
+  stageInfo?: StageInfo;
 };
 
 type StackingFloor = {
@@ -57,6 +72,13 @@ type StackingFloor = {
 type StackingBuilding = {
   id: string;
   name: string;
+  project?: {
+    id: string;
+    name: string;
+    constructionStage?: string;
+    progressPercentage?: number;
+    stageInfo?: StageInfo;
+  } | null;
   floors: StackingFloor[];
 };
 
@@ -218,13 +240,20 @@ export default function UnitsPage() {
                 key={b.id}
                 className="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs"
               >
-                <div className="mb-4 flex items-center justify-between border-b border-zinc-100 pb-3">
+                <div className="mb-4 flex flex-col gap-2 border-b border-zinc-100 pb-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h2 className="text-lg font-bold text-zinc-900">
-                      {b.name}
-                    </h2>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-lg font-bold text-zinc-900">
+                        {b.name}
+                      </h2>
+                      {b.project?.stageInfo && (
+                        <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 border border-blue-200">
+                          {b.project.stageInfo.badge} ({b.project.stageInfo.progressPercentage}%)
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-zinc-500">
-                      Floor-by-Floor Unit Elevation Matrix
+                      Project: {b.project?.name || "Main Tower"} · Floor-by-Floor Unit Elevation Matrix
                     </p>
                   </div>
                   <span className="rounded-md bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-700">
@@ -248,7 +277,7 @@ export default function UnitsPage() {
                             type="button"
                             key={u.id}
                             className={cn(
-                              "group relative flex cursor-pointer flex-col justify-between rounded-lg border p-2.5 shadow-2xs transition-all hover:scale-105 min-w-[120px] text-left",
+                              "group relative flex cursor-pointer flex-col justify-between rounded-lg border p-2.5 shadow-2xs transition-all hover:scale-105 min-w-[125px] text-left",
                               statusTileBg[u.status] ??
                                 "bg-white border-zinc-200",
                             )}
@@ -266,7 +295,14 @@ export default function UnitsPage() {
                             <div className="mt-2 text-xs font-extrabold">
                               {formatPrice(u.price)}
                             </div>
-                            <div className="mt-1 flex items-center justify-between text-[10px] text-zinc-500">
+                            {u.stageInfo && (
+                              <div className="mt-1">
+                                <span className="inline-block rounded bg-blue-100/80 px-1.5 py-0.5 text-[9px] font-semibold text-blue-800">
+                                  {u.stageInfo.badge}
+                                </span>
+                              </div>
+                            )}
+                            <div className="mt-1.5 flex items-center justify-between text-[10px] text-zinc-500">
                               <span>{u.area ? `${u.area} m²` : "—"}</span>
                               <span 
                                 className="font-semibold text-indigo-600 group-hover:underline flex items-center gap-0.5"
@@ -295,7 +331,7 @@ export default function UnitsPage() {
             <div>
               <h2 className="text-base font-semibold">Unit availability</h2>
               <p className="text-sm text-zinc-500">
-                Live inventory synced with reservations and contracts.
+                Live inventory synced with reservations, construction stages, and contracts.
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -338,7 +374,7 @@ export default function UnitsPage() {
             <CrmTable
               columns={[
                 "Unit",
-                "Project",
+                "Project & Construction Stage",
                 "Building",
                 "Floor",
                 "Type",
@@ -352,7 +388,14 @@ export default function UnitsPage() {
                 <span key="unit" className="font-medium">
                   {unit.unitNumber}
                 </span>,
-                unit.floor.building.project.name,
+                <div key="project-stage">
+                  <div className="font-medium">{unit.floor.building.project.name}</div>
+                  {unit.stageInfo && (
+                    <div className="text-[10px] font-semibold text-blue-600">
+                      {unit.stageInfo.badge} ({unit.stageInfo.progressPercentage}%)
+                    </div>
+                  )}
+                </div>,
                 unit.floor.building.name,
                 unit.floor.name ?? `Floor ${unit.floor.floorNumber}`,
                 unit.type,

@@ -40,17 +40,57 @@ export class PaymentsService {
   }
 
   async listSchedules() {
-    return this.prisma.paymentSchedule.findMany({
+    const schedules = await this.prisma.paymentSchedule.findMany({
       include: {
         contract: {
           include: {
-            customer: { select: { id: true, firstName: true, lastName: true } },
+            customer: { select: { id: true, firstName: true, lastName: true, phone: true } },
             unit: { select: { id: true, unitNumber: true, type: true } },
           },
         },
         payments: true,
       },
       orderBy: { dueDate: 'asc' },
+    });
+
+    const now = new Date();
+
+    return schedules.map((schedule) => {
+      const contract = schedule.contract;
+      const graceDays = contract?.gracePeriodDays ?? 15;
+      const penaltyRate = (contract?.penaltyRatePercent ?? 2.0) / 100;
+
+      const graceCutoff = new Date(schedule.dueDate);
+      graceCutoff.setDate(graceCutoff.getDate() + graceDays);
+
+      const isOverGrace = now > graceCutoff && schedule.status !== 'PAID';
+      let computedPenalty = Number(schedule.penaltyAmount) || 0;
+      let lateDaysAfterGrace = 0;
+      let isWithinGrace = false;
+
+      if (now > schedule.dueDate && now <= graceCutoff && schedule.status !== 'PAID') {
+        isWithinGrace = true;
+      }
+
+      if (isOverGrace) {
+        const msLate = now.getTime() - graceCutoff.getTime();
+        lateDaysAfterGrace = Math.floor(msLate / (1000 * 60 * 60 * 24)) + 1;
+        const unpaidAmount = Math.max(0, Number(schedule.amount) - Number(schedule.paidAmount));
+
+        const penaltyMonths = Math.max(1, Math.ceil(lateDaysAfterGrace / 30));
+        computedPenalty = Math.round(unpaidAmount * penaltyRate * penaltyMonths);
+      }
+
+      return {
+        ...schedule,
+        gracePeriodDays: graceDays,
+        penaltyRatePercent: contract?.penaltyRatePercent ?? 2.0,
+        graceCutoffDate: graceCutoff.toISOString(),
+        isWithinGrace,
+        isOverGrace,
+        lateDaysAfterGrace,
+        computedPenaltyAmount: computedPenalty,
+      };
     });
   }
 

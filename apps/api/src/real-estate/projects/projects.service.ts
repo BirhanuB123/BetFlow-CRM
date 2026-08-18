@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { EthioTelecomSmsService } from '../../integrations/sms.service';
 import {
   CreateProjectInput,
   PROJECT_STATUSES,
@@ -13,7 +14,10 @@ import {
 
 @Injectable()
 export class ProjectsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly smsService: EthioTelecomSmsService,
+  ) {}
 
   async list() {
     const projects = await this.prisma.project.findMany({
@@ -188,7 +192,86 @@ export class ProjectsService {
       include: { _count: { select: { buildings: true } } },
     });
 
-    await this.recordAudit(userId, 'project.updated', project.id);
+    if (
+      existing.constructionStage !== project.constructionStage &&
+      project.constructionStage
+    ) {
+      try {
+        const units = await this.prisma.unit.findMany({
+          where: { floor: { building: { projectId: project.id } } },
+          select: { id: true, unitNumber: true },
+        });
+
+        const unitIds = units.map((u) => u.id);
+        const activeContracts = await this.prisma.contract.findMany({
+          where: { unitId: { in: unitIds }, status: 'ACTIVE' },
+          include: {
+            customer: true,
+            unit: true,
+            schedules: { where: { status: 'PENDING' } },
+          },
+        });
+
+        const newDueDate = new Date();
+        newDueDate.setDate(newDueDate.getDate() + 30); // 30-day milestone payment window
+
+        for (const contract of activeContracts) {
+          const matchingSchedule =
+            contract.schedules.find((s) =>
+              s.milestoneName
+                .toLowerCase()
+                .includes(project.constructionStage.toLowerCase().slice(0, 5)),
+            ) || contract.schedules[0];
+
+          if (matchingSchedule) {
+            await this.prisma.paymentSchedule.update({
+              where: { id: matchingSchedule.id },
+              data: {
+                dueDate: newDueDate,
+                status: 'PENDING',
+              },
+            });
+
+            const customerName = `${contract.customer.firstName} ${contract.customer.lastName}`;
+            const customerPhone = contract.customer.phone || '0911000000';
+            const smsBody = `Selam ${customerName}! Construction on ${project.name} reached milestone '${project.constructionStage.replace(/_/g, ' ')}'. Milestone payment for Unit ${contract.unit.unitNumber} is due on ${newDueDate.toLocaleDateString()}. CBE Acc: 1000123456789.`;
+
+            await this.smsService.sendSms({
+              recipientName: customerName,
+              recipientPhone: customerPhone,
+              body: smsBody,
+              triggerType: 'PAYMENT_DUE_ALERT',
+              customerId: contract.customerId,
+            });
+
+            await this.prisma.notification.create({
+              data: {
+                userId: userId,
+                title: `🏗️ Construction Milestone Payment Triggered (${project.name})`,
+                message: `Milestone '${project.constructionStage}' reached. Customer ${customerName} (Unit ${contract.unit.unitNumber}) notified of payment due date ${newDueDate.toLocaleDateString()}.`,
+              },
+            });
+          }
+        }
+      } catch {
+        // Non-blocking trigger
+      }
+    }
+
+    await this.recordAudit(userId, 'project.updated', project.id, {
+      ...(existing.constructionStage !== project.constructionStage
+        ? {
+            stageChangedFrom: existing.constructionStage,
+            stageChangedTo: project.constructionStage,
+          }
+        : {}),
+      ...(existing.progressPercentage !== project.progressPercentage
+        ? {
+            progressChangedFrom: String(existing.progressPercentage),
+            progressChangedTo: String(project.progressPercentage),
+          }
+        : {}),
+    });
 
     return project;
   }
@@ -231,9 +314,14 @@ export class ProjectsService {
     return upper as ProjectStatus;
   }
 
-  private recordAudit(userId: string, action: string, entityId: string) {
+  private recordAudit(
+    userId: string,
+    action: string,
+    entityId: string,
+    newValues?: Record<string, string>,
+  ) {
     return this.prisma.auditLog.create({
-      data: { userId, action, entityType: 'Project', entityId },
+      data: { userId, action, entityType: 'Project', entityId, newValues },
     });
   }
 }

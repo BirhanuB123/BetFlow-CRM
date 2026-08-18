@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
+import { EthioTelecomSmsService } from '../../integrations/sms.service';
 import {
   ACTIVE_RESERVATION_STATUSES,
   CreateReservationInput,
@@ -14,14 +15,17 @@ import {
 } from './reservations.types';
 
 const reservationInclude = {
-  customer: { select: { id: true, firstName: true, lastName: true } },
+  customer: { select: { id: true, firstName: true, lastName: true, phone: true } },
   unit: { select: { id: true, unitNumber: true, type: true, status: true } },
   _count: { select: { payments: true } },
 } as const;
 
 @Injectable()
 export class ReservationsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly smsService: EthioTelecomSmsService,
+  ) {}
 
   list() {
     return this.prisma.reservation.findMany({
@@ -61,30 +65,28 @@ export class ReservationsService {
     await this.assertCustomerExists(input.customerId);
 
     return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      // Atomic conditional update to prevent double-booking race conditions.
-      // SQL row-level check ensures only ONE concurrent transaction succeeds in transitioning AVAILABLE -> RESERVED.
-      const updateResult = await tx.unit.updateMany({
-        where: {
-          id: input.unitId,
-          status: 'AVAILABLE',
-        },
-        data: {
-          status: 'RESERVED',
-        },
-      });
+      // Explicit SQL row-level lock (SELECT FOR UPDATE) ensures only ONE concurrent transaction
+      // can lock and transition an AVAILABLE unit to RESERVED during peak launches.
+      const lockedUnits = await tx.$queryRaw<
+        Array<{ id: string; status: string; unitNumber: string }>
+      >`SELECT id, status, "unitNumber" FROM "Unit" WHERE id = ${input.unitId} FOR UPDATE`;
 
-      if (updateResult.count === 0) {
-        const unit = await tx.unit.findFirst({
-          where: { id: input.unitId },
-        });
+      const unit = lockedUnits[0];
 
-        if (!unit) {
-          throw new BadRequestException(`Unit ${input.unitId} was not found`);
-        }
+      if (!unit) {
+        throw new BadRequestException(`Unit ${input.unitId} was not found`);
+      }
+
+      if (unit.status !== 'AVAILABLE') {
         throw new BadRequestException(
           `Unit ${unit.unitNumber} is ${unit.status.toLowerCase()}, not available`,
         );
       }
+
+      await tx.unit.update({
+        where: { id: input.unitId },
+        data: { status: 'RESERVED' },
+      });
 
       const reservationDate = input.date
         ? this.normalizeDate(input.date)
@@ -204,22 +206,27 @@ export class ReservationsService {
       }
 
       if (!wasActive && willBeActive) {
-        // Re-activating requires an atomic conditional transition AVAILABLE -> RESERVED
-        const updateResult = await tx.unit.updateMany({
-          where: {
-            id: existing.unitId,
-            status: 'AVAILABLE',
-          },
-          data: {
-            status: 'RESERVED',
-          },
-        });
+        // Re-activating requires row-locking AVAILABLE -> RESERVED
+        const lockedUnits = await tx.$queryRaw<
+          Array<{ id: string; status: string; unitNumber: string }>
+        >`SELECT id, status, "unitNumber" FROM "Unit" WHERE id = ${existing.unitId} FOR UPDATE`;
 
-        if (updateResult.count === 0) {
+        const unit = lockedUnits[0];
+
+        if (!unit) {
+          throw new BadRequestException(`Unit ${existing.unitId} was not found`);
+        }
+
+        if (unit.status !== 'AVAILABLE') {
           throw new BadRequestException(
-            `Unit ${existing.unit.unitNumber} is ${existing.unit.status.toLowerCase()}, not available`,
+            `Unit ${unit.unitNumber} is ${unit.status.toLowerCase()}, not available`,
           );
         }
+
+        await tx.unit.update({
+          where: { id: existing.unitId },
+          data: { status: 'RESERVED' },
+        });
         unitTransition = 'AVAILABLE -> RESERVED';
       }
 
@@ -401,6 +408,126 @@ export class ReservationsService {
     }
 
     return processedCount;
+  }
+
+  async processMultiStageExpiryWarnings(): Promise<{
+    day10WarningsSent: number;
+    day13WarningsSent: number;
+  }> {
+    const activeHolds = await this.prisma.reservation.findMany({
+      where: {
+        status: { in: ACTIVE_RESERVATION_STATUSES },
+        expiryDate: { gte: new Date() },
+      },
+      include: {
+        customer: true,
+        unit: {
+          include: {
+            floor: {
+              include: {
+                building: {
+                  include: {
+                    project: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    let day10WarningsSent = 0;
+    let day13WarningsSent = 0;
+    const now = Date.now();
+
+    for (const hold of activeHolds) {
+      if (!hold.expiryDate) continue;
+      const msRemaining = hold.expiryDate.getTime() - now;
+      const daysRemaining = msRemaining / (1000 * 60 * 60 * 24);
+
+      const customerName = `${hold.customer.firstName} ${hold.customer.lastName}`;
+      const customerPhone = hold.customer.phone || '0911000000';
+      const unitNumber = hold.unit.unitNumber;
+      const projectName = hold.unit.floor.building.project.name;
+      const formattedExpiry = hold.expiryDate.toLocaleDateString();
+
+      // 1. Stage 1: Day 10 Alert (4 Days Remaining)
+      if (daysRemaining <= 4 && daysRemaining > 1) {
+        const alreadySent = await this.prisma.auditLog.findFirst({
+          where: {
+            entityType: 'Reservation',
+            entityId: hold.id,
+            action: 'reservation.sms_warning_day10_sent',
+          },
+        });
+
+        if (!alreadySent) {
+          const smsBody = `Dear ${customerName}, BetFlow CRM Notice: Your 14-day hold on Unit ${unitNumber} (${projectName}) expires in 4 days on ${formattedExpiry}. Complete deposit or submit bank receipt to confirm your reservation.`;
+          await this.smsService.sendSms({
+            recipientName: customerName,
+            recipientPhone: customerPhone,
+            body: smsBody,
+            triggerType: 'HOLD_EXPIRY_ALERT',
+            customerId: hold.customerId,
+          });
+
+          await this.prisma.auditLog.create({
+            data: {
+              action: 'reservation.sms_warning_day10_sent',
+              entityType: 'Reservation',
+              entityId: hold.id,
+              newValues: {
+                daysRemaining: '4 days',
+                recipientPhone: customerPhone,
+                smsBody,
+              },
+            },
+          });
+
+          day10WarningsSent++;
+        }
+      }
+
+      // 2. Stage 2: Day 13 Final Urgent Warning (1 Day Remaining)
+      if (daysRemaining <= 1 && daysRemaining > 0) {
+        const alreadySent = await this.prisma.auditLog.findFirst({
+          where: {
+            entityType: 'Reservation',
+            entityId: hold.id,
+            action: 'reservation.sms_warning_day13_sent',
+          },
+        });
+
+        if (!alreadySent) {
+          const smsBody = `URGENT BetFlow Notice: FINAL WARNING for Unit ${unitNumber} (${projectName}). Your 14-day hold expires TOMORROW. Submit bank receipt immediately to prevent unit auto-reverting to AVAILABLE.`;
+          await this.smsService.sendSms({
+            recipientName: customerName,
+            recipientPhone: customerPhone,
+            body: smsBody,
+            triggerType: 'HOLD_EXPIRY_ALERT',
+            customerId: hold.customerId,
+          });
+
+          await this.prisma.auditLog.create({
+            data: {
+              action: 'reservation.sms_warning_day13_sent',
+              entityType: 'Reservation',
+              entityId: hold.id,
+              newValues: {
+                daysRemaining: '1 day (URGENT FINAL)',
+                recipientPhone: customerPhone,
+                smsBody,
+              },
+            },
+          });
+
+          day13WarningsSent++;
+        }
+      }
+    }
+
+    return { day10WarningsSent, day13WarningsSent };
   }
 
   private normalizeStatus(status: string): ReservationStatus {

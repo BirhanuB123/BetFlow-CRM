@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { classifyLeadOrigin, normalizePhone } from '@betflow/shared';
 import { PrismaService } from '../../database/prisma.service';
 import { CreateCustomerInput, UpdateCustomerInput } from './customers.types';
 
@@ -15,12 +16,17 @@ const customerInclude = {
 export class CustomersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  list() {
-    return this.prisma.customer.findMany({
+  async list() {
+    const customers = await this.prisma.customer.findMany({
       where: {},
       include: customerInclude,
       orderBy: { createdAt: 'desc' },
     });
+
+    return customers.map((c) => ({
+      ...c,
+      diasporaTag: classifyLeadOrigin(c.phone),
+    }));
   }
 
   async get(id: string) {
@@ -137,12 +143,30 @@ export class CustomersService {
       await this.assertAccountExists(input.accountId);
     }
 
+    const normalizedPhone = normalizePhone(input.phone);
+    if (normalizedPhone) {
+      const existing = await this.prisma.customer.findFirst({
+        where: {
+          OR: [
+            { phone: normalizedPhone },
+            { phone: input.phone?.trim() },
+          ],
+        },
+      });
+
+      if (existing) {
+        throw new BadRequestException(
+          `Duplicate customer detected: A customer with phone ${normalizedPhone} already exists (${existing.firstName} ${existing.lastName}).`,
+        );
+      }
+    }
+
     const customer = await this.prisma.customer.create({
       data: {
         firstName,
         lastName,
         email: input.email?.trim() || null,
-        phone: input.phone?.trim() || null,
+        phone: normalizedPhone || input.phone?.trim() || null,
         title: input.title?.trim() || null,
         accountId: input.accountId || null,
       },
@@ -151,7 +175,10 @@ export class CustomersService {
 
     await this.recordAudit(userId, 'customer.created', customer.id);
 
-    return customer;
+    return {
+      ...customer,
+      diasporaTag: classifyLeadOrigin(customer.phone),
+    };
   }
 
   async update(userId: string, id: string, input: UpdateCustomerInput) {
