@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { LeadsService } from './leads.service';
@@ -25,8 +26,11 @@ export class LeadsController {
   constructor(private readonly leads: LeadsService) {}
 
   @Get()
-  list(@CurrentUser() user: AuthenticatedUser) {
-    return this.leads.list();
+  list(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('q') search?: string,
+  ) {
+    return this.leads.list(search);
   }
 
   @Get('sources')

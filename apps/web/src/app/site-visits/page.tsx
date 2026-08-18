@@ -34,8 +34,22 @@ import { useToast } from "@/components/ui/toast";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import { toEthiopianDate } from "@betflow/shared";
 
 type PersonRef = { id: string; firstName: string; lastName: string } | null;
+
+export type RecommendedUnit = {
+  id: string;
+  unitNumber: string;
+  type: string;
+  price: string | number;
+  area: number | null;
+  floorNumber: number;
+  buildingName: string;
+  projectName: string;
+  matchPercentage: number;
+  matchReasons: string[];
+};
 
 type ApiSiteVisit = {
   id: string;
@@ -53,6 +67,7 @@ type ApiSiteVisit = {
   budgetETB?: number | string | null;
   paymentMethod?: string | null;
   demands?: string | null;
+  recommendedUnits?: RecommendedUnit[];
 };
 
 type CustomerOption = { id: string; firstName: string; lastName: string };
@@ -66,13 +81,19 @@ const statusClass: Record<string, string> = {
 };
 
 function fmtDateTime(iso: string) {
-  return new Date(iso).toLocaleString(undefined, {
+  const d = new Date(iso);
+  const gc = d.toLocaleString(undefined, {
     month: "short",
     day: "numeric",
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
   });
+  const ec = toEthiopianDate(d);
+  return {
+    gc,
+    ecText: ec ? `${ec.ecMonthNameAmharic} ${ec.ecDay}, ${ec.ecYear} ዓ.ም` : "",
+  };
 }
 
 function toIso(local: string) {
@@ -917,7 +938,19 @@ export default function SiteVisitsPage() {
                         </td>
 
                         <td className="px-5 py-3 text-slate-600 font-medium">
-                          {fmtDateTime(visit.date)}
+                          {(() => {
+                            const dt = fmtDateTime(visit.date);
+                            return (
+                              <div className="flex flex-col gap-0.5">
+                                <span className="font-semibold text-slate-900">{dt.gc}</span>
+                                {dt.ecText && (
+                                  <span className="text-[10px] font-bold text-blue-800 bg-blue-50 px-1.5 py-0.2 rounded w-fit border border-blue-200">
+                                    🇪🇹 {dt.ecText}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </td>
 
                         {/* Demand Specs */}
@@ -1195,6 +1228,59 @@ export default function SiteVisitsPage() {
                     <p className="text-xs text-slate-600 leading-relaxed">
                       {activeModalVisit.notes}
                     </p>
+                  </div>
+                )}
+
+                {/* Automated Recommended Available Units Shortlist */}
+                {activeModalVisit.recommendedUnits && activeModalVisit.recommendedUnits.length > 0 && (
+                  <div className="rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50/70 via-blue-50/40 to-slate-50 p-3.5 shadow-2xs">
+                    <div className="flex items-center justify-between mb-2.5 border-b border-indigo-100 pb-2">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-base">🎯</span>
+                        <h4 className="font-bold text-indigo-950 text-xs">
+                          Automated Recommended Units Shortlist
+                        </h4>
+                      </div>
+                      <span className="rounded bg-indigo-600 px-2 py-0.5 text-[10px] font-extrabold text-white">
+                        {activeModalVisit.recommendedUnits.length} Matched Units
+                      </span>
+                    </div>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {activeModalVisit.recommendedUnits.map((u) => (
+                        <div
+                          key={u.id}
+                          className="flex items-center justify-between rounded-lg border border-indigo-100 bg-white p-2.5 shadow-2xs hover:border-indigo-300 transition-colors"
+                        >
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-slate-900 text-xs">Unit {u.unitNumber}</span>
+                              <span className="rounded-full bg-emerald-100 px-2 py-0.2 text-[10px] font-bold text-emerald-800 border border-emerald-300">
+                                {u.matchPercentage}% Match
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 mt-0.5">
+                              {u.projectName} · {u.buildingName} (Floor {u.floorNumber}) · {u.type} {u.area ? `· ${u.area}m²` : ""}
+                            </p>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {u.matchReasons.map((reason, idx) => (
+                                <span key={idx} className="text-[9px] font-medium bg-slate-100 text-slate-600 rounded px-1.5 py-0.2">
+                                  ✓ {reason}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="text-right pl-3 shrink-0">
+                            <p className="font-extrabold text-xs text-indigo-900">{formatCurrency(u.price)}</p>
+                            <Link
+                              href="/units"
+                              className="inline-block mt-1 text-[10px] font-bold text-indigo-600 hover:underline"
+                            >
+                              View Stacking →
+                            </Link>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

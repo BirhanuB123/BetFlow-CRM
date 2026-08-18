@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { Prisma } from '@prisma/client';
 import {
   CreateSiteVisitInput,
   SITE_VISIT_STATUSES,
@@ -20,16 +21,23 @@ const siteVisitInclude = {
 export class SiteVisitsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  list(filters: { status?: string; upcoming?: boolean } = {}) {
+  async list(filters: { status?: string; upcoming?: boolean } = {}) {
     const where: Record<string, unknown> = {};
     if (filters.status) where.status = this.normalizeStatus(filters.status);
     if (filters.upcoming) where.date = { gte: new Date() };
 
-    return this.prisma.siteVisit.findMany({
+    const visits = await this.prisma.siteVisit.findMany({
       where,
       include: siteVisitInclude,
       orderBy: { date: 'asc' },
     });
+
+    return Promise.all(
+      visits.map(async (visit) => ({
+        ...visit,
+        recommendedUnits: await this.calculateUnitRecommendations(visit),
+      })),
+    );
   }
 
   async get(id: string) {
@@ -42,7 +50,139 @@ export class SiteVisitsService {
       throw new NotFoundException(`Site visit ${id} was not found`);
     }
 
-    return visit;
+    const recommendedUnits = await this.calculateUnitRecommendations(visit);
+
+    return {
+      ...visit,
+      recommendedUnits,
+    };
+  }
+
+  async calculateUnitRecommendations(visit: {
+    budgetETB?: number | Prisma.Decimal | null;
+    preferredSqm?: number | Prisma.Decimal | null;
+    bedroomCount?: number | null;
+    preferredFloor?: string | null;
+    propertyType?: string | null;
+  }) {
+    const availableUnits = await this.prisma.unit.findMany({
+      where: { status: 'AVAILABLE' },
+      include: {
+        floor: {
+          select: {
+            id: true,
+            floorNumber: true,
+            name: true,
+            building: {
+              select: {
+                id: true,
+                name: true,
+                project: { select: { id: true, name: true } },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (availableUnits.length === 0) return [];
+
+    const scored = availableUnits.map((unit) => {
+      let score = 0;
+      const reasons: string[] = [];
+
+      const unitPrice = Number(unit.price) || 0;
+      const unitArea = Number(unit.area) || 0;
+
+      // 1. Budget Match (35 points)
+      if (visit.budgetETB && Number(visit.budgetETB) > 0) {
+        const budget = Number(visit.budgetETB);
+        if (unitPrice <= budget) {
+          score += 35;
+          reasons.push('Fully within buyer budget');
+        } else if (unitPrice <= budget * 1.15) {
+          score += 20;
+          reasons.push('Within 15% budget range');
+        }
+      } else {
+        score += 20;
+      }
+
+      // 2. Preferred Sqm Match (25 points)
+      if (visit.preferredSqm && Number(visit.preferredSqm) > 0 && unitArea > 0) {
+        const targetSqm = Number(visit.preferredSqm);
+        const diffRatio = Math.abs(unitArea - targetSqm) / targetSqm;
+        if (diffRatio <= 0.15) {
+          score += 25;
+          reasons.push(`Exact area match (${unitArea}m²)`);
+        } else if (diffRatio <= 0.3) {
+          score += 15;
+          reasons.push(`Close area match (${unitArea}m²)`);
+        }
+      } else {
+        score += 15;
+      }
+
+      // 3. Property / Bedroom Type Match (25 points)
+      if (visit.propertyType || visit.bedroomCount) {
+        const typeLower = unit.type.toLowerCase();
+        if (
+          visit.propertyType &&
+          typeLower.includes(visit.propertyType.toLowerCase().slice(0, 5))
+        ) {
+          score += 25;
+          reasons.push(`Matching property type (${unit.type})`);
+        } else if (
+          visit.bedroomCount &&
+          typeLower.includes(`${visit.bedroomCount}`)
+        ) {
+          score += 25;
+          reasons.push(`${visit.bedroomCount} Bedroom layout match`);
+        } else {
+          score += 10;
+        }
+      } else {
+        score += 15;
+      }
+
+      // 4. Preferred Floor Match (15 points)
+      if (visit.preferredFloor) {
+        const floorPref = visit.preferredFloor.toLowerCase();
+        const flNum = unit.floor.floorNumber;
+        if (
+          (floorPref.includes('low') && flNum <= 5) ||
+          (floorPref.includes('mid') && flNum >= 6 && flNum <= 10) ||
+          (floorPref.includes('high') && flNum >= 11) ||
+          (floorPref.includes('top') && flNum >= 12)
+        ) {
+          score += 15;
+          reasons.push(`Preferred floor height (Floor ${flNum})`);
+        } else {
+          score += 5;
+        }
+      } else {
+        score += 10;
+      }
+
+      const matchPercentage = Math.min(100, Math.round(score));
+
+      return {
+        id: unit.id,
+        unitNumber: unit.unitNumber,
+        type: unit.type,
+        price: unit.price,
+        area: unit.area,
+        floorNumber: unit.floor.floorNumber,
+        buildingName: unit.floor.building.name,
+        projectName: unit.floor.building.project.name,
+        matchPercentage,
+        matchReasons: reasons,
+      };
+    });
+
+    return scored
+      .sort((a, b) => b.matchPercentage - a.matchPercentage)
+      .slice(0, 5);
   }
 
   async create(userId: string, input: CreateSiteVisitInput) {

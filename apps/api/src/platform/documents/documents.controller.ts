@@ -34,6 +34,11 @@ type ResponseHeaders = { setHeader(name: string, value: string): void };
 export class DocumentsController {
   constructor(private readonly documents: DocumentsService) {}
 
+  @Get('kyc-status/:customerId')
+  getKycStatus(@Param('customerId') customerId: string) {
+    return this.documents.getKycStatus(customerId);
+  }
+
   @Get()
   list(
     @CurrentUser() user: AuthenticatedUser,

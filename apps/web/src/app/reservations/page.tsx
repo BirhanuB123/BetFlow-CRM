@@ -652,30 +652,38 @@ export default function ReservationsPage() {
 
                           <td className="px-5 py-3.5">
                             {isActive && remDays !== null ? (
-                              <div className="flex items-center gap-1.5">
-                                {remDays <= 3 ? (
-                                  <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-[11px] font-bold text-rose-700 border border-rose-200 animate-pulse">
-                                    <Flame className="size-3 text-rose-600" />
-                                    {remDays > 0
-                                      ? `${remDays} days left`
-                                      : "Expires today"}
+                              <div className="flex flex-col gap-1">
+                                {remDays <= 1 ? (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-[10px] font-extrabold text-rose-900 border border-rose-300 animate-pulse">
+                                    <Flame className="size-3 text-rose-700" />
+                                    🚨 Day 13 Final SMS Sent ({remDays > 0 ? "1 Day Left" : "Expires Today"})
                                   </span>
-                                ) : remDays <= 7 ? (
-                                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700 border border-amber-200">
-                                    <Clock className="size-3 text-amber-600" />
-                                    {remDays} days left
+                                ) : remDays <= 4 ? (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold text-amber-900 border border-amber-300">
+                                    <Clock className="size-3 text-amber-700" />
+                                    ⚠️ Day 10 SMS Sent ({remDays} Days Left)
                                   </span>
                                 ) : (
-                                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 border border-emerald-200">
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700 border border-emerald-200">
                                     <CalendarDays className="size-3 text-emerald-600" />
                                     {remDays} days left
                                   </span>
                                 )}
+                                <span className="text-[10px] text-slate-400 font-mono">
+                                  Expires: {fmtDate(reservation.expiryDate)}
+                                </span>
                               </div>
                             ) : (
-                              <span className="text-slate-400 font-mono text-[11px]">
-                                {fmtDate(reservation.expiryDate)}
-                              </span>
+                              <div className="flex flex-col gap-0.5">
+                                <span className="text-slate-400 font-mono text-[11px]">
+                                  {fmtDate(reservation.expiryDate)}
+                                </span>
+                                {reservation.status === "EXPIRED" && (
+                                  <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded w-fit">
+                                    Unit Released to Available
+                                  </span>
+                                )}
+                              </div>
                             )}
                           </td>
 

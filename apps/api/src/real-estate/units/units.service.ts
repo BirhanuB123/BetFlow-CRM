@@ -21,7 +21,14 @@ const unitInclude = {
         select: {
           id: true,
           name: true,
-          project: { select: { id: true, name: true } },
+          project: {
+            select: {
+              id: true,
+              name: true,
+              constructionStage: true,
+              progressPercentage: true,
+            },
+          },
         },
       },
     },
@@ -33,9 +40,65 @@ const unitInclude = {
 export class UnitsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  getStageInfo(stage?: string | null, progress?: number | null) {
+    const stageMap: Record<
+      string,
+      { label: string; badge: string; isMilestoneReady: boolean }
+    > = {
+      EXCAVATION_FOUNDATION: {
+        label: 'Foundation & Excavation',
+        badge: 'Foundation Stage',
+        isMilestoneReady: false,
+      },
+      STRUCTURE_CONCRETE_SLAB: {
+        label: 'Concrete Slab Structure',
+        badge: 'Structure Ready',
+        isMilestoneReady: true,
+      },
+      BRICKWORK_PLASTERING: {
+        label: 'Brickwork & Plastering',
+        badge: 'Masonry Stage',
+        isMilestoneReady: true,
+      },
+      FINISHING_TILING: {
+        label: 'Finishing & Tiling',
+        badge: 'Finishing Stage',
+        isMilestoneReady: true,
+      },
+      HANDOVER_READY: {
+        label: 'Handover & Keys Ready',
+        badge: 'Handover Ready',
+        isMilestoneReady: true,
+      },
+    };
+
+    const key = stage || 'STRUCTURE_CONCRETE_SLAB';
+    const info = stageMap[key] || {
+      label: key,
+      badge: key,
+      isMilestoneReady: true,
+    };
+
+    return {
+      stageKey: key,
+      label: info.label,
+      badge: info.badge,
+      isMilestoneReady: info.isMilestoneReady,
+      progressPercentage: progress ?? 50,
+    };
+  }
+
   async getStackingPlan() {
     const buildings = await this.prisma.building.findMany({
       include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+            constructionStage: true,
+            progressPercentage: true,
+          },
+        },
         floors: {
           include: {
             units: {
@@ -48,34 +111,60 @@ export class UnitsService {
       orderBy: { name: 'asc' },
     });
 
-    return buildings.map((b) => ({
-      id: b.id,
-      name: b.name,
-      floors: b.floors.map((f) => ({
-        id: f.id,
-        floorNumber: f.floorNumber,
-        name: f.name,
-        units: f.units.map((u) => ({
-          id: u.id,
-          unitNumber: u.unitNumber,
-          type: u.type,
-          status: u.status,
-          price: u.price,
-          area: u.area,
+    return buildings.map((b) => {
+      const stageInfo = this.getStageInfo(
+        b.project?.constructionStage,
+        b.project?.progressPercentage,
+      );
+
+      return {
+        id: b.id,
+        name: b.name,
+        project: b.project
+          ? {
+              ...b.project,
+              stageInfo,
+            }
+          : null,
+        floors: b.floors.map((f) => ({
+          id: f.id,
+          floorNumber: f.floorNumber,
+          name: f.name,
+          units: f.units.map((u) => ({
+            id: u.id,
+            unitNumber: u.unitNumber,
+            type: u.type,
+            status: u.status,
+            price: u.price,
+            area: u.area,
+            stageInfo,
+          })),
         })),
-      })),
-    }));
+      };
+    });
   }
 
-  list(filters: { status?: string; floorId?: string } = {}) {
+  async list(filters: { status?: string; floorId?: string } = {}) {
     const where: Record<string, unknown> = {};
     if (filters.status) where.status = this.normalizeStatus(filters.status);
     if (filters.floorId) where.floorId = filters.floorId;
 
-    return this.prisma.unit.findMany({
+    const units = await this.prisma.unit.findMany({
       where,
       include: unitInclude,
       orderBy: { unitNumber: 'asc' },
+    });
+
+    return units.map((u) => {
+      const project = u.floor?.building?.project;
+      const stageInfo = this.getStageInfo(
+        project?.constructionStage,
+        project?.progressPercentage,
+      );
+      return {
+        ...u,
+        stageInfo,
+      };
     });
   }
 
@@ -89,7 +178,16 @@ export class UnitsService {
       throw new NotFoundException(`Unit ${id} was not found`);
     }
 
-    return unit;
+    const project = unit.floor?.building?.project;
+    const stageInfo = this.getStageInfo(
+      project?.constructionStage,
+      project?.progressPercentage,
+    );
+
+    return {
+      ...unit,
+      stageInfo,
+    };
   }
 
   async create(userId: string, input: CreateUnitInput) {

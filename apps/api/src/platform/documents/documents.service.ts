@@ -13,6 +13,12 @@ import {
 } from './document-storage.service';
 
 const DOCUMENT_CATEGORIES = [
+  'KEBELE_ID',
+  'PASSPORT',
+  'TIN_CERTIFICATE',
+  'YELLOW_CARD',
+  'FOREIGN_PASSPORT',
+  'POWER_OF_ATTORNEY_MOFA',
   'ID',
   'KYC',
   'CONTRACT',
@@ -90,6 +96,76 @@ export class DocumentsService {
       orderBy: { uploadedAt: 'desc' },
     });
     return documents.map((document) => this.serialize(document));
+  }
+
+  async getKycStatus(customerId: string) {
+    const customer = await this.prisma.customer.findUnique({
+      where: { id: customerId },
+      select: { id: true, firstName: true, lastName: true, phone: true, email: true },
+    });
+    if (!customer) throw new NotFoundException(`Customer ${customerId} not found`);
+
+    const isDiaspora =
+      !!customer.phone &&
+      customer.phone.startsWith('+') &&
+      !customer.phone.startsWith('+251');
+
+    const requiredPreset = isDiaspora
+      ? [
+          { category: 'YELLOW_CARD', label: 'Yellow Card (Ethiopian Origin ID)' },
+          { category: 'FOREIGN_PASSPORT', label: 'Foreign Passport' },
+          { category: 'POWER_OF_ATTORNEY_MOFA', label: 'Power of Attorney (ውክልና MoFA Verified)' },
+        ]
+      : [
+          { category: 'KEBELE_ID', label: 'Kebele / Resident ID' },
+          { category: 'PASSPORT', label: 'Ethiopian National Passport' },
+          { category: 'TIN_CERTIFICATE', label: 'TIN Certificate (Taxpayer ID)' },
+        ];
+
+    const customerDocuments = await this.prisma.document.findMany({
+      where: { entityType: 'CUSTOMER', entityId: customerId },
+      include: documentInclude,
+    });
+
+    const now = new Date();
+    const requirements = requiredPreset.map((req) => {
+      const doc = customerDocuments.find(
+        (d) => d.category.toUpperCase() === req.category,
+      );
+
+      let status: 'VERIFIED' | 'PENDING_REVIEW' | 'EXPIRED' | 'MISSING' = 'MISSING';
+      if (doc) {
+        if (doc.expiresAt && doc.expiresAt < now) {
+          status = 'EXPIRED';
+        } else if (doc.status === 'VERIFIED') {
+          status = 'VERIFIED';
+        } else {
+          status = 'PENDING_REVIEW';
+        }
+      }
+
+      return {
+        category: req.category,
+        label: req.label,
+        status,
+        document: doc ? this.serialize(doc) : null,
+      };
+    });
+
+    const verifiedCount = requirements.filter((r) => r.status === 'VERIFIED').length;
+    const completionPercentage = Math.round((verifiedCount / requirements.length) * 100);
+    const isKycComplete = verifiedCount === requirements.length;
+
+    return {
+      customerId: customer.id,
+      customerName: `${customer.firstName} ${customer.lastName}`,
+      buyerType: isDiaspora ? 'DIASPORA' : 'LOCAL',
+      isKycComplete,
+      completionPercentage,
+      verifiedCount,
+      totalRequired: requirements.length,
+      requirements,
+    };
   }
 
   async upload(

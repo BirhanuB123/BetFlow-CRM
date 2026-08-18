@@ -26,6 +26,10 @@ import {
   User,
   Sparkles,
   Search,
+  ChevronDown,
+  ChevronRight,
+  History,
+  Layers,
 } from "lucide-react";
 
 import { StatCard, StatRow } from "@/components/ui/stat-card";
@@ -87,12 +91,15 @@ export default function ContractsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<
-    "ALL" | "SIGNED" | "PENDING_SIGNATURE" | "ACTIVE" | "CANCELLED"
-  >("ALL");
+    "ACTIVE_ONLY" | "ALL" | "SIGNED" | "PENDING_SIGNATURE" | "CANCELLED"
+  >("ACTIVE_ONLY");
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [activeModalContract, setActiveModalContract] =
     useState<ApiContract | null>(null);
+  const [expandedRevisions, setExpandedRevisions] = useState<
+    Record<string, boolean>
+  >({});
 
   const [form, setForm] = useState({
     contractNumber: "",
@@ -152,21 +159,73 @@ export default function ContractsPage() {
     }
   }, []);
 
-  const filteredContracts = useMemo(() => {
-    if (!debouncedSearch.trim()) return contracts;
-    const term = debouncedSearch.trim().toLowerCase();
-    return contracts.filter((c) => {
-      const buyer = `${c.customer?.firstName ?? ""} ${c.customer?.lastName ?? ""}`.toLowerCase();
-      const unit = (c.unit?.unitNumber ?? "").toLowerCase();
-      const num = (c.contractNumber ?? "").toLowerCase();
-      return buyer.includes(term) || unit.includes(term) || num.includes(term);
-    });
-  }, [contracts, debouncedSearch]);
+  const {
+    groupedContracts,
+    activeCount,
+    signedCount,
+    pendingCount,
+    cancelledCount,
+  } = useMemo(() => {
+    const act = contracts.filter((c) => c.status !== "CANCELLED").length;
+    const sig = contracts.filter((c) => c.status === "SIGNED").length;
+    const pen = contracts.filter((c) => c.status === "PENDING_SIGNATURE").length;
+    const can = contracts.filter((c) => c.status === "CANCELLED").length;
 
-  const visible = useMemo(() => {
-    if (filter === "ALL") return filteredContracts;
-    return filteredContracts.filter((c) => c.status === filter);
-  }, [filteredContracts, filter]);
+    let pool = contracts;
+    if (debouncedSearch.trim()) {
+      const term = debouncedSearch.trim().toLowerCase();
+      pool = contracts.filter((c) => {
+        const buyer = `${c.customer?.firstName ?? ""} ${c.customer?.lastName ?? ""}`.toLowerCase();
+        const unit = (c.unit?.unitNumber ?? "").toLowerCase();
+        const num = (c.contractNumber ?? "").toLowerCase();
+        return buyer.includes(term) || unit.includes(term) || num.includes(term);
+      });
+    }
+
+    if (filter === "ACTIVE_ONLY") {
+      pool = pool.filter((c) => c.status !== "CANCELLED");
+    } else if (filter !== "ALL") {
+      pool = pool.filter((c) => c.status === filter);
+    }
+
+    // Grouping by unit & customer to combine contract revisions (e.g. Saron Taddesse on Unit 201)
+    const map = new Map<
+      string,
+      { primary: ApiContract; revisions: ApiContract[] }
+    >();
+
+    const rank = (status: string) => {
+      if (status === "SIGNED") return 4;
+      if (status === "PENDING_SIGNATURE") return 3;
+      if (status === "ACTIVE") return 2;
+      return 1;
+    };
+
+    for (const c of pool) {
+      const unitKey = (c.unit as { id?: string; unitNumber?: string })?.id || c.unit?.unitNumber || "unit";
+      const customerKey = (c.customer as { id?: string; firstName?: string })?.id || c.customer?.firstName || "customer";
+      const key = `${unitKey}_${customerKey}`;
+      if (!map.has(key)) {
+        map.set(key, { primary: c, revisions: [] });
+      } else {
+        const existing = map.get(key)!;
+        if (rank(c.status) > rank(existing.primary.status)) {
+          existing.revisions.push(existing.primary);
+          existing.primary = c;
+        } else {
+          existing.revisions.push(c);
+        }
+      }
+    }
+
+    return {
+      groupedContracts: Array.from(map.values()),
+      activeCount: act,
+      signedCount: sig,
+      pendingCount: pen,
+      cancelledCount: can,
+    };
+  }, [contracts, debouncedSearch, filter]);
 
   const handleCreate = async (event: FormEvent) => {
     event.preventDefault();
@@ -256,10 +315,6 @@ export default function ContractsPage() {
     (acc, c) => acc + (Number(c.downPaymentAmt) || 0),
     0,
   );
-  const signedCount = contracts.filter((c) => c.status === "SIGNED").length;
-  const pendingCount = contracts.filter(
-    (c) => c.status === "PENDING_SIGNATURE",
-  ).length;
 
   return (
     <DashboardShell
@@ -547,15 +602,16 @@ export default function ContractsPage() {
           <div className="border-b border-slate-200 bg-slate-50/50 px-5 py-3 flex items-center justify-between gap-4">
             <div className="flex items-center gap-1.5 overflow-x-auto">
               <button
-                onClick={() => setFilter("ALL")}
+                onClick={() => setFilter("ACTIVE_ONLY")}
                 className={cn(
-                  "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
-                  filter === "ALL"
+                  "px-3 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5",
+                  filter === "ACTIVE_ONLY"
                     ? "bg-[#233b66] text-white shadow-sm"
                     : "text-slate-600 hover:bg-slate-200/60",
                 )}
               >
-                All Contracts ({contracts.length})
+                <CheckCircle2 className="size-3.5 text-emerald-400" />
+                Active Deals ({activeCount})
               </button>
 
               <button
@@ -581,6 +637,31 @@ export default function ContractsPage() {
               >
                 Pending Signature ({pendingCount})
               </button>
+
+              <button
+                onClick={() => setFilter("CANCELLED")}
+                className={cn(
+                  "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center gap-1",
+                  filter === "CANCELLED"
+                    ? "bg-[#233b66] text-white shadow-sm"
+                    : "text-slate-500 hover:bg-slate-200/60",
+                )}
+              >
+                <XCircle className="size-3 text-rose-500" />
+                Cancelled History ({cancelledCount})
+              </button>
+
+              <button
+                onClick={() => setFilter("ALL")}
+                className={cn(
+                  "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
+                  filter === "ALL"
+                    ? "bg-[#233b66] text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-200/60",
+                )}
+              >
+                All Records ({contracts.length})
+              </button>
             </div>
           </div>
 
@@ -588,7 +669,7 @@ export default function ContractsPage() {
             <div className="p-4">
               <TableSkeleton rows={5} cols={6} />
             </div>
-          ) : visible.length === 0 ? (
+          ) : groupedContracts.length === 0 ? (
             <div className="p-6">
               <EmptyState
                 title="No contracts in this view"
@@ -603,7 +684,7 @@ export default function ContractsPage() {
               <table className="w-full text-left text-xs whitespace-nowrap">
                 <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
                   <tr>
-                    <th className="px-5 py-3">Contract Ref & Type</th>
+                    <th className="px-5 py-3">Contract Ref & Version</th>
                     <th className="px-5 py-3">Customer / Buyer</th>
                     <th className="px-5 py-3">Property Unit</th>
                     <th className="px-5 py-3">Agreement Value (ETB)</th>
@@ -613,105 +694,195 @@ export default function ContractsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {visible.map((contract) => (
-                    <tr
-                      key={contract.id}
-                      className="hover:bg-slate-50/60 transition-colors"
-                    >
-                      <td className="px-5 py-3">
-                        <p className="font-semibold text-slate-800">
-                          {contract.contractNumber ??
-                            `ET-CNT-${contract.id.slice(0, 8).toUpperCase()}`}
-                        </p>
-                        <span className="inline-block mt-0.5 rounded bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600 border border-slate-200">
-                          {contractTypeLabels[contract.contractType] ??
-                            contract.contractType}
-                        </span>
-                      </td>
+                  {groupedContracts.map(({ primary: contract, revisions }) => {
+                    const isExpanded = !!expandedRevisions[contract.id];
 
-                      <td className="px-5 py-3 font-medium">
-                        <Link
-                          href={`/customers/${contract.customer.id}`}
-                          className="font-semibold text-indigo-600 hover:underline inline-flex items-center gap-1.5"
+                    return (
+                      <>
+                        <tr
+                          key={contract.id}
+                          className="hover:bg-slate-50/60 transition-colors"
                         >
-                          <User className="size-3.5 text-indigo-500" />
-                          {contract.customer.firstName}{" "}
-                          {contract.customer.lastName}
-                        </Link>
-                      </td>
+                          <td className="px-5 py-3">
+                            <div className="flex flex-col gap-0.5">
+                              <span className="font-semibold text-slate-800 flex items-center gap-1.5">
+                                {contract.contractNumber ??
+                                  `ET-CNT-${contract.id.slice(0, 8).toUpperCase()}`}
+                                {revisions.length > 0 && (
+                                  <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.2 rounded border border-indigo-200">
+                                    v2.0 Executed
+                                  </span>
+                                )}
+                              </span>
 
-                      <td className="px-5 py-3">
-                        <span className="inline-flex items-center gap-1.5 font-bold text-slate-800">
-                          <Building className="size-3.5 text-slate-400" />
-                          Unit {contract.unit.unitNumber}
-                        </span>
-                      </td>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <span className="inline-block rounded bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600 border border-slate-200">
+                                  {contractTypeLabels[contract.contractType] ??
+                                    contract.contractType}
+                                </span>
 
-                      <td className="px-5 py-3 font-bold text-slate-900">
-                        {formatCurrency(contract.totalAmt)}
-                      </td>
+                                {revisions.length > 0 && (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setExpandedRevisions((prev) => ({
+                                        ...prev,
+                                        [contract.id]: !prev[contract.id],
+                                      }))
+                                    }
+                                    className="text-[10px] font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-0.5 bg-indigo-50/80 px-1.5 py-0.5 rounded border border-indigo-100 cursor-pointer"
+                                  >
+                                    <History className="size-3 text-indigo-500" />
+                                    {revisions.length} Draft Revisions
+                                    {isExpanded ? (
+                                      <ChevronDown className="size-3" />
+                                    ) : (
+                                      <ChevronRight className="size-3" />
+                                    )}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </td>
 
-                      <td className="px-5 py-3">
-                        <div className="flex flex-col gap-0.5">
-                          {contract.downPaymentAmt ? (
-                            <span className="font-bold text-emerald-700">
-                              {formatCurrency(contract.downPaymentAmt)}
-                            </span>
-                          ) : (
-                            <span className="text-slate-400 italic">
-                              No deposit
-                            </span>
-                          )}
-                          <span className="text-[10px] text-slate-500 truncate max-w-[150px]">
-                            {paymentPlanLabels[contract.paymentPlan ?? ""] ??
-                              "Standard Plan"}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td className="px-5 py-3">
-                        <StatusPill status={contract.status} size="sm" />
-                      </td>
-
-                      <td className="px-5 py-3 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => setActiveModalContract(contract)}
-                            className="rounded bg-indigo-50 p-1.5 text-indigo-600 hover:bg-indigo-100 transition-colors"
-                            title="View Contract Specs"
-                          >
-                            <Eye className="size-3.5" />
-                          </button>
-
-                          {contract.status !== "SIGNED" ? (
-                            <Button
-                              size="xs"
-                              onClick={() => markSigned(contract.id)}
-                              className="bg-emerald-600 hover:bg-emerald-700 text-white h-7 text-[11px] px-2 shadow-2xs"
+                          <td className="px-5 py-3 font-medium">
+                            <Link
+                              href={`/customers/${contract.customer.id}`}
+                              className="font-semibold text-indigo-600 hover:underline inline-flex items-center gap-1.5"
                             >
-                              <FileCheck2 className="size-3 mr-1" />
-                              Mark Signed
-                            </Button>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                              <ShieldCheck className="size-3" />
-                              Unit Sold
-                            </span>
-                          )}
+                              <User className="size-3.5 text-indigo-500" />
+                              {contract.customer.firstName}{" "}
+                              {contract.customer.lastName}
+                            </Link>
+                          </td>
 
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(contract.id)}
-                            className="rounded p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
-                            title="Delete contract"
-                          >
-                            <Trash2 className="size-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                          <td className="px-5 py-3">
+                            <span className="inline-flex items-center gap-1.5 font-bold text-slate-800">
+                              <Building className="size-3.5 text-slate-400" />
+                              Unit {contract.unit.unitNumber}
+                            </span>
+                          </td>
+
+                          <td className="px-5 py-3 font-bold text-slate-900">
+                            {formatCurrency(contract.totalAmt)}
+                          </td>
+
+                          <td className="px-5 py-3">
+                            <div className="flex flex-col gap-0.5">
+                              {contract.downPaymentAmt ? (
+                                <span className="font-bold text-emerald-700">
+                                  {formatCurrency(contract.downPaymentAmt)}
+                                </span>
+                              ) : (
+                                <span className="text-slate-400 italic">
+                                  No deposit
+                                </span>
+                              )}
+                              <span className="text-[10px] text-slate-500 truncate max-w-[150px]">
+                                {paymentPlanLabels[contract.paymentPlan ?? ""] ??
+                                  "Standard Plan"}
+                              </span>
+                            </div>
+                          </td>
+
+                          <td className="px-5 py-3">
+                            <StatusPill status={contract.status} size="sm" />
+                          </td>
+
+                          <td className="px-5 py-3 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => setActiveModalContract(contract)}
+                                className="rounded bg-indigo-50 p-1.5 text-indigo-600 hover:bg-indigo-100 transition-colors"
+                                title="View Contract Specs & Unit History"
+                              >
+                                <Eye className="size-3.5" />
+                              </button>
+
+                              <Link
+                                href={`/contracts/verify/${contract.id}`}
+                                className="rounded bg-sky-50 p-1.5 text-sky-700 hover:bg-sky-100 transition-colors font-semibold text-[11px] flex items-center gap-1 border border-sky-200"
+                                title="QR Audit Verification Page"
+                              >
+                                <ShieldCheck className="size-3.5 text-sky-600" />
+                                QR Audit
+                              </Link>
+
+                              {contract.status !== "SIGNED" ? (
+                                <Button
+                                  size="xs"
+                                  onClick={() => markSigned(contract.id)}
+                                  className="bg-emerald-600 hover:bg-emerald-700 text-white h-7 text-[11px] px-2 shadow-2xs"
+                                >
+                                  <FileCheck2 className="size-3 mr-1" />
+                                  Mark Signed
+                                </Button>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                                  <ShieldCheck className="size-3" />
+                                  Unit Sold
+                                </span>
+                              )}
+
+                              <button
+                                type="button"
+                                onClick={() => handleDelete(contract.id)}
+                                className="rounded p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                                title="Delete contract"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+
+                        {/* Nested Sub-table for Prior Revision History */}
+                        {isExpanded &&
+                          revisions.map((rev, idx) => (
+                            <tr
+                              key={rev.id}
+                              className="bg-slate-50/90 border-l-4 border-indigo-400 transition-colors"
+                            >
+                              <td className="px-5 py-2.5 pl-10 text-[11px]">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-semibold text-slate-600">
+                                    {rev.contractNumber ??
+                                      `ET-CNT-${rev.id.slice(0, 8).toUpperCase()}`}
+                                  </span>
+                                  <span className="text-[10px] font-bold text-slate-500 bg-slate-200 px-1.5 py-0.2 rounded">
+                                    v1.{idx} Superseded Draft
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="px-5 py-2.5 text-[11px] text-slate-600">
+                                {rev.customer.firstName} {rev.customer.lastName}
+                              </td>
+                              <td className="px-5 py-2.5 text-[11px] text-slate-600">
+                                Unit {rev.unit.unitNumber}
+                              </td>
+                              <td className="px-5 py-2.5 text-[11px] text-slate-600">
+                                {formatCurrency(rev.totalAmt)}
+                              </td>
+                              <td className="px-5 py-2.5 text-[11px] text-slate-500">
+                                Re-negotiated
+                              </td>
+                              <td className="px-5 py-2.5">
+                                <StatusPill status={rev.status} size="sm" />
+                              </td>
+                              <td className="px-5 py-2.5 text-right">
+                                <Link
+                                  href={`/contracts/verify/${rev.id}`}
+                                  className="text-[10px] font-medium text-slate-500 hover:underline"
+                                >
+                                  Inspect Audit
+                                </Link>
+                              </td>
+                            </tr>
+                          ))}
+                      </>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -817,6 +988,43 @@ export default function ContractsPage() {
                     <p className="mt-1 text-xs font-semibold text-slate-800">
                       {fmtDate(activeModalContract.startDate)}
                     </p>
+                  </div>
+                </div>
+
+                {/* Unit Ownership & History Timeline */}
+                <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-3 space-y-2">
+                  <p className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <History className="size-3.5 text-indigo-600" />
+                    Unit Sales & Revision History Timeline
+                  </p>
+                  <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                    {contracts
+                      .filter(
+                        (c) =>
+                          (c.unit as { id?: string })?.id === (activeModalContract.unit as { id?: string })?.id ||
+                          c.unit?.unitNumber === activeModalContract.unit?.unitNumber,
+                      )
+                      .map((hist) => (
+                        <div
+                          key={hist.id}
+                          className="flex items-center justify-between rounded bg-white p-2 border border-slate-200 text-[11px]"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-800">
+                              {hist.customer.firstName} {hist.customer.lastName}
+                            </span>
+                            <span className="text-[10px] text-slate-500 font-mono">
+                              ({hist.contractNumber ?? `ET-CNT-${hist.id.slice(0, 6)}`})
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-slate-700">
+                              {formatCurrency(hist.totalAmt)}
+                            </span>
+                            <StatusPill status={hist.status} size="sm" />
+                          </div>
+                        </div>
+                      ))}
                   </div>
                 </div>
 

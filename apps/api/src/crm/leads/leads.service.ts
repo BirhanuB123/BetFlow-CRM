@@ -4,6 +4,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import {
+  classifyLeadOrigin,
+  getTransliteratedVariants,
+  normalizePhone,
+} from '@betflow/shared';
 import { PrismaService } from '../../database/prisma.service';
 import {
   ConvertLeadInput,
@@ -29,15 +34,29 @@ export class LeadsService {
     private readonly aiScoring: AiScoringService,
   ) {}
 
-  async list() {
+  async list(search?: string) {
+    const where: Prisma.LeadWhereInput = {};
+
+    if (search?.trim()) {
+      const variants = getTransliteratedVariants(search);
+      where.OR = variants.flatMap((term) => [
+        { firstName: { contains: term, mode: 'insensitive' } },
+        { lastName: { contains: term, mode: 'insensitive' } },
+        { company: { contains: term, mode: 'insensitive' } },
+        { email: { contains: term, mode: 'insensitive' } },
+        { phone: { contains: term, mode: 'insensitive' } },
+      ]);
+    }
+
     const leads = await this.prisma.lead.findMany({
-      where: {},
+      where,
       include: leadInclude,
       orderBy: { createdAt: 'desc' },
     });
 
     return leads.map((lead) => ({
       ...lead,
+      diasporaTag: classifyLeadOrigin(lead.phone),
       aiScore: this.aiScoring.scoreLead({
         id: lead.id,
         firstName: lead.firstName,
@@ -69,6 +88,57 @@ export class LeadsService {
     }
 
     const status = this.normalizeStatus(input.status ?? 'NEW');
+    const normalizedPhone = normalizePhone(input.phone);
+    const email = input.email?.trim()?.toLowerCase() || null;
+
+    // Deduplication check by Phone
+    if (normalizedPhone) {
+      const existingLead = await this.prisma.lead.findFirst({
+        where: {
+          OR: [
+            { phone: normalizedPhone },
+            { phone: input.phone?.trim() },
+          ],
+        },
+        include: { owner: { select: { firstName: true, lastName: true } } },
+      });
+
+      if (existingLead) {
+        const ownerName = existingLead.owner
+          ? `${existingLead.owner.firstName} ${existingLead.owner.lastName}`
+          : 'Unassigned';
+        throw new BadRequestException(
+          `Duplicate lead detected: A lead with phone ${normalizedPhone} already exists (${existingLead.firstName} ${existingLead.lastName}, Status: ${existingLead.status}, Owner: ${ownerName}).`,
+        );
+      }
+
+      const existingCustomer = await this.prisma.customer.findFirst({
+        where: {
+          OR: [
+            { phone: normalizedPhone },
+            { phone: input.phone?.trim() },
+          ],
+        },
+      });
+
+      if (existingCustomer) {
+        throw new BadRequestException(
+          `Duplicate entry: Customer with phone ${normalizedPhone} already exists (${existingCustomer.firstName} ${existingCustomer.lastName}).`,
+        );
+      }
+    }
+
+    // Deduplication check by Email
+    if (email) {
+      const existingEmailLead = await this.prisma.lead.findFirst({
+        where: { email },
+      });
+      if (existingEmailLead) {
+        throw new BadRequestException(
+          `Duplicate lead detected: A lead with email ${email} already exists (${existingEmailLead.firstName} ${existingEmailLead.lastName}).`,
+        );
+      }
+    }
 
     if (input.sourceId) {
       await this.assertSourceExists(input.sourceId);
@@ -80,14 +150,16 @@ export class LeadsService {
           firstName,
           lastName,
           company: input.company?.trim() || null,
-          email: input.email?.trim() || null,
-          phone: input.phone?.trim() || null,
+          email,
+          phone: normalizedPhone || input.phone?.trim() || null,
           status,
           sourceId: input.sourceId || null,
           ownerId: input.ownerId || userId,
         },
         include: leadInclude,
       });
+
+      const diasporaTag = classifyLeadOrigin(lead.phone);
 
       // Smart Automation: Calculate AI Score & Trigger Auto-Tasks
       const aiScore = this.aiScoring.scoreLead({
@@ -107,7 +179,7 @@ export class LeadsService {
         await tx.task.create({
           data: {
             title: `🔥 AI Auto-Task: Immediate VIP outreach for ${lead.firstName} ${lead.lastName}`,
-            description: aiScore.suggestedNextAction,
+            description: `${aiScore.suggestedNextAction} (${diasporaTag.isDiaspora ? `Diaspora Lead - ${diasporaTag.originCountry}` : 'Local Lead'})`,
             dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Due in 24h
             status: 'TODO',
             assigneeId: lead.ownerId ?? userId,
@@ -121,7 +193,7 @@ export class LeadsService {
           data: {
             userId: lead.ownerId ?? userId,
             title: `🔥 High-Intent Lead Alert (${aiScore.score}/100)`,
-            message: `Lead ${lead.firstName} ${lead.lastName} scored ${aiScore.score}/100. Action required: ${aiScore.suggestedNextAction}`,
+            message: `Lead ${lead.firstName} ${lead.lastName} scored ${aiScore.score}/100. Origin: ${diasporaTag.flag} ${diasporaTag.originCountry}. Action required: ${aiScore.suggestedNextAction}`,
           },
         });
       }
@@ -132,11 +204,17 @@ export class LeadsService {
           action: 'lead.created',
           entityType: 'Lead',
           entityId: lead.id,
+          newValues: {
+            phone: normalizedPhone,
+            isDiaspora: String(diasporaTag.isDiaspora),
+            originCountry: diasporaTag.originCountry,
+          },
         },
       });
 
       return {
         ...lead,
+        diasporaTag,
         aiScore,
       };
     });

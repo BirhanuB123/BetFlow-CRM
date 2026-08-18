@@ -68,6 +68,12 @@ type ApiLead = {
   convertedCustomerId: string | null;
   source: LeadSource | null;
   owner: LeadOwner | null;
+  diasporaTag?: {
+    isDiaspora: boolean;
+    originCountry: string;
+    flag: string;
+    countryCode: string;
+  };
   aiScore?: {
     score: number;
     intent: "HOT" | "WARM" | "COLD";
@@ -160,6 +166,7 @@ export default function LeadsPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [search, setSearch] = useState("");
+  const [originFilter, setOriginFilter] = useState<"ALL" | "DIASPORA" | "LOCAL">("ALL");
   const [statusFilter, setStatusFilter] = useState<Set<string>>(new Set());
   const [sourceFilter, setSourceFilter] = useState<Set<string>>(new Set());
   const [showFilters, setShowFilters] = useState(true);
@@ -231,6 +238,8 @@ export default function LeadsPage() {
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
     return leads.filter((lead) => {
+      if (originFilter === "DIASPORA" && !lead.diasporaTag?.isDiaspora) return false;
+      if (originFilter === "LOCAL" && lead.diasporaTag?.isDiaspora) return false;
       if (statusFilter.size > 0 && !statusFilter.has(lead.status)) return false;
       if (sourceFilter.size > 0 && !sourceFilter.has(lead.source?.id ?? "")) {
         return false;
@@ -241,6 +250,7 @@ export default function LeadsPage() {
         lead.company ?? "",
         lead.email ?? "",
         lead.phone ?? "",
+        lead.diasporaTag?.originCountry ?? "",
         lead.source?.name ?? "",
         ownerName(lead),
       ]
@@ -248,7 +258,7 @@ export default function LeadsPage() {
         .toLowerCase()
         .includes(term);
     });
-  }, [leads, search, statusFilter, sourceFilter]);
+  }, [leads, search, originFilter, statusFilter, sourceFilter]);
 
   const sorted = useMemo(() => {
     const value = (lead: ApiLead) => {
@@ -436,21 +446,54 @@ export default function LeadsPage() {
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-t-lg border border-zinc-200 bg-white px-4 py-3 h-[60px]">
         <div className="flex items-center gap-1">
-          <span className="rounded-md bg-indigo-50 px-3 py-1.5 text-sm font-semibold text-indigo-700">
+          <button
+            type="button"
+            onClick={() => setOriginFilter("ALL")}
+            className={cn(
+              "rounded-md px-3 py-1.5 text-sm font-semibold transition-colors border",
+              originFilter === "ALL"
+                ? "bg-indigo-50 text-indigo-700 border-indigo-200"
+                : "bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50",
+            )}
+          >
             All Leads
-          </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setOriginFilter("DIASPORA")}
+            className={cn(
+              "rounded-md px-3 py-1.5 text-sm font-semibold transition-colors border flex items-center gap-1",
+              originFilter === "DIASPORA"
+                ? "bg-amber-100 text-amber-900 border-amber-300 font-bold"
+                : "bg-amber-50/60 text-amber-800 border-amber-200 hover:bg-amber-100/70",
+            )}
+          >
+            <span>🌍</span> Diaspora Leads
+          </button>
+          <button
+            type="button"
+            onClick={() => setOriginFilter("LOCAL")}
+            className={cn(
+              "rounded-md px-3 py-1.5 text-sm font-semibold transition-colors border flex items-center gap-1",
+              originFilter === "LOCAL"
+                ? "bg-emerald-100 text-emerald-900 border-emerald-300 font-bold"
+                : "bg-emerald-50/60 text-emerald-800 border-emerald-200 hover:bg-emerald-100/70",
+            )}
+          >
+            <span>🇪🇹</span> Local Leads
+          </button>
           <button
             type="button"
             onClick={() => setShowSocialDrawer((prev) => !prev)}
             className={cn(
-              "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-semibold transition-colors border",
+              "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-semibold transition-colors border ml-1",
               showSocialDrawer
                 ? "bg-blue-600 text-white border-blue-600 shadow-sm"
                 : "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100",
             )}
           >
             <Webhook className="size-3.5" />
-            Social Outreach Webhooks
+            Social Webhooks
           </button>
           <div className="mx-1 h-5 w-px bg-zinc-200" />
           <button
@@ -810,16 +853,30 @@ export default function LeadsPage() {
                         </td>
                         <td className="px-4 py-3 text-zinc-600">
                           {lead.phone ? (
-                            <span className="flex items-center gap-2">
-                              {lead.phone}
-                              <a
-                                href={`tel:${lead.phone}`}
-                                className="text-zinc-300 hover:text-emerald-600 group-hover:text-zinc-400"
-                                aria-label={`Call ${fullName(lead)}`}
-                              >
-                                <Phone className="size-3.5" />
-                              </a>
-                            </span>
+                            <div className="flex flex-col gap-0.5">
+                              <span className="flex items-center gap-1.5 font-medium text-zinc-800">
+                                {lead.diasporaTag?.flag && (
+                                  <span title={lead.diasporaTag.originCountry}>{lead.diasporaTag.flag}</span>
+                                )}
+                                {lead.phone}
+                                <a
+                                  href={`tel:${lead.phone}`}
+                                  className="text-zinc-400 hover:text-emerald-600"
+                                  aria-label={`Call ${fullName(lead)}`}
+                                >
+                                  <Phone className="size-3.5" />
+                                </a>
+                              </span>
+                              {lead.diasporaTag?.isDiaspora ? (
+                                <span className="text-[10px] font-bold text-amber-800 bg-amber-50 rounded px-1.5 py-0.2 w-fit border border-amber-200">
+                                  Diaspora ({lead.diasporaTag.originCountry})
+                                </span>
+                              ) : (
+                                <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 rounded px-1.5 py-0.2 w-fit border border-emerald-200">
+                                  Local Lead
+                                </span>
+                              )}
+                            </div>
                           ) : (
                             "—"
                           )}

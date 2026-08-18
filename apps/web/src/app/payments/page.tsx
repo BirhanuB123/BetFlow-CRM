@@ -68,9 +68,16 @@ type ApiSchedule = {
   paidAmount: string;
   status: string;
   notes: string | null;
+  gracePeriodDays?: number;
+  penaltyRatePercent?: number;
+  graceCutoffDate?: string;
+  isWithinGrace?: boolean;
+  isOverGrace?: boolean;
+  lateDaysAfterGrace?: number;
+  computedPenaltyAmount?: number;
   contract: {
     id: string;
-    customer: { id: string; firstName: string; lastName: string };
+    customer: { id: string; firstName: string; lastName: string; phone?: string | null };
     unit: { id: string; unitNumber: string; type: string };
   };
 };
@@ -530,30 +537,50 @@ export default function RealEstatePaymentsPage() {
                           </td>
 
                           <td className="px-5 py-3 font-medium text-slate-600">
-                            {fmtDate(sched.dueDate)}
+                            <div className="flex flex-col gap-0.5">
+                              <span className="font-semibold text-slate-900">{fmtDate(sched.dueDate)}</span>
+                              {sched.isWithinGrace && (
+                                <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.2 rounded w-fit border border-amber-200">
+                                  🛡️ Grace Period ({sched.gracePeriodDays ?? 15}d)
+                                </span>
+                              )}
+                              {sched.isOverGrace && (
+                                <span className="text-[10px] font-extrabold text-rose-900 bg-rose-100 px-1.5 py-0.2 rounded w-fit border border-rose-300">
+                                  ⚠️ Overdue {sched.lateDaysAfterGrace}d Past Grace
+                                </span>
+                              )}
+                            </div>
                           </td>
 
                           <td className="px-5 py-3">
-                            <span
-                              className={cn(
-                                "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold border",
-                                isOverdue
-                                  ? statusClass.OVERDUE
-                                  : (statusClass[sched.status] ??
-                                      "bg-slate-100 text-slate-700"),
-                              )}
-                            >
-                              {sched.status === "PAID" && (
-                                <CheckCircle2 className="size-3 text-emerald-600" />
-                              )}
-                              {isOverdue && (
-                                <AlertTriangle className="size-3 text-rose-600" />
-                              )}
-                              {sched.status !== "PAID" && !isOverdue && (
-                                <Clock className="size-3 text-amber-600" />
-                              )}
-                              {isOverdue ? "OVERDUE" : sched.status}
-                            </span>
+                            <div className="flex flex-col gap-1">
+                              <span
+                                className={cn(
+                                  "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold border w-fit",
+                                  sched.isOverGrace || isOverdue
+                                    ? statusClass.OVERDUE
+                                    : (statusClass[sched.status] ??
+                                        "bg-slate-100 text-slate-700"),
+                                )}
+                              >
+                                {sched.status === "PAID" && (
+                                  <CheckCircle2 className="size-3 text-emerald-600" />
+                                )}
+                                {(sched.isOverGrace || isOverdue) && (
+                                  <AlertTriangle className="size-3 text-rose-600" />
+                                )}
+                                {sched.status !== "PAID" && !isOverdue && !sched.isOverGrace && (
+                                  <Clock className="size-3 text-amber-600" />
+                                )}
+                                {sched.isOverGrace || isOverdue ? "OVERDUE" : sched.status}
+                              </span>
+
+                              {sched.computedPenaltyAmount && sched.computedPenaltyAmount > 0 ? (
+                                <span className="text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 w-fit">
+                                  + {formatCurrency(sched.computedPenaltyAmount)} Late Penalty ({sched.penaltyRatePercent}% Rate)
+                                </span>
+                              ) : null}
+                            </div>
                           </td>
 
                           <td className="px-5 py-3 text-right">

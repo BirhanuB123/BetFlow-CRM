@@ -55,6 +55,11 @@ export class ContractsController {
     return this.builderService.reviewApproval(user.id, id, body.action);
   }
 
+  @Get('verify/:id')
+  verify(@Param('id') id: string) {
+    return this.contracts.verifyContract(id);
+  }
+
   @Get(':id/pdf')
   async getPdf(@Param('id') id: string, @Res() res: Response) {
     const buffer = await this.contracts.generatePdf(id);

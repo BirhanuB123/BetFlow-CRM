@@ -63,16 +63,29 @@ import {
   enrollLeadApi,
   fetchRulesApi,
   updateRuleApi,
+  fetchSmsTemplatesApi,
+  broadcastConstructionApi,
+  type LocalizedTemplate,
 } from "@/lib/sms";
 import { SmsCampaignModal } from "@/features/automation/sms-campaign-modal";
 import { cn } from "@/lib/utils";
 
 export default function SmsAutomationPage() {
   const { success } = useToast();
-  // Active Tab: "rules" | "drip" | "outbox"
-  const [activeTab, setActiveTab] = useState<"rules" | "drip" | "outbox">(
-    "rules",
-  );
+  // Active Tab: "rules" | "drip" | "outbox" | "templates"
+  const [activeTab, setActiveTab] = useState<
+    "rules" | "drip" | "outbox" | "templates"
+  >("rules");
+
+  // Localized Templates & Broadcast State
+  const [templates, setTemplates] = useState<LocalizedTemplate[]>([]);
+  const [templateLang, setTemplateLang] = useState<"am" | "en">("am");
+  const [broadcastState, setBroadcastState] = useState({
+    projectId: "",
+    stageName: "STRUCTURE_CONCRETE_SLAB",
+    language: "am" as "am" | "en",
+    loading: false,
+  });
 
   // Loading & Refresh State
   const [loading, setLoading] = useState(true);
@@ -587,6 +600,25 @@ export default function SmsAutomationPage() {
               >
                 <Send className="size-4" />
                 <span>SMS Delivery Outbox ({logs.length})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab("templates");
+                  if (templates.length === 0) {
+                    fetchSmsTemplatesApi().then(setTemplates);
+                  }
+                }}
+                className={cn(
+                  "flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-bold transition-all",
+                  activeTab === "templates"
+                    ? "border-[#233b66] text-[#233b66]"
+                    : "border-transparent text-slate-500 hover:text-slate-900",
+                )}
+              >
+                <Sparkles className="size-4 text-amber-500" />
+                <span>Localized Templates & Broadcast</span>
               </button>
             </div>
 
@@ -1172,6 +1204,287 @@ export default function SmsAutomationPage() {
               charCount={charCount}
               segmentCount={segmentCount}
             />
+          )}
+
+          {/* TAB 4: BILINGUAL LOCALIZED DRIP TEMPLATES & BROADCAST CONSOLE */}
+          {activeTab === "templates" && (
+            <div className="space-y-6">
+              {/* Construction Stage Progress Broadcast Console */}
+              <section className="rounded-xl border border-indigo-200 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-950 p-5 text-white shadow-md">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-indigo-800/60 pb-4">
+                  <div>
+                    <h3 className="text-sm font-bold text-indigo-300 flex items-center gap-2">
+                      <Zap className="size-4 text-amber-400" />
+                      Construction Stage Milestone Broadcast Console
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Broadcast real-time construction stage updates via Ethio Telecom / AfroMessage to all unit buyers linked to a project.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setBroadcastState({ ...broadcastState, language: "am" })
+                      }
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
+                        broadcastState.language === "am"
+                          ? "bg-indigo-600 text-white"
+                          : "bg-slate-800 text-slate-400 hover:text-white",
+                      )}
+                    >
+                      🇪🇹 Amharic (አማርኛ)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setBroadcastState({ ...broadcastState, language: "en" })
+                      }
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
+                        broadcastState.language === "en"
+                          ? "bg-indigo-600 text-white"
+                          : "bg-slate-800 text-slate-400 hover:text-white",
+                      )}
+                    >
+                      🇬🇧 English
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-4 sm:grid-cols-3 items-end">
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                      Target Project
+                    </label>
+                    <select
+                      value={broadcastState.projectId}
+                      onChange={(e) =>
+                        setBroadcastState({
+                          ...broadcastState,
+                          projectId: e.target.value,
+                        })
+                      }
+                      className="w-full h-9 rounded-lg border border-indigo-700 bg-slate-900 px-3 text-xs text-white focus:outline-none focus:border-indigo-400 font-semibold"
+                    >
+                      <option value="">-- All Active Projects --</option>
+                      <option value="proj-1">Bole Luxury Towers (Addis Ababa)</option>
+                      <option value="proj-2">Legetafo Villa Estate</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                      New Construction Stage Reached
+                    </label>
+                    <select
+                      value={broadcastState.stageName}
+                      onChange={(e) =>
+                        setBroadcastState({
+                          ...broadcastState,
+                          stageName: e.target.value,
+                        })
+                      }
+                      className="w-full h-9 rounded-lg border border-indigo-700 bg-slate-900 px-3 text-xs text-white focus:outline-none focus:border-indigo-400 font-semibold"
+                    >
+                      <option value="STRUCTURE_CONCRETE_SLAB">STRUCTURE: CONCRETE SLAB 100%</option>
+                      <option value="BRICKWORK_PLASTERING">BRICKWORK & PLASTERING READY</option>
+                      <option value="MEP_INSTALLATION">MEP & PIPING INSTALLATION</option>
+                      <option value="FINISHING_TILING">INTERIOR FINISHING & TILING</option>
+                      <option value="HANDOVER_READY">KEY HANDOVER READY</option>
+                    </select>
+                  </div>
+
+                  <Button
+                    type="button"
+                    disabled={broadcastState.loading}
+                    onClick={async () => {
+                      setBroadcastState({ ...broadcastState, loading: true });
+                      try {
+                        const res = await broadcastConstructionApi({
+                          projectId: broadcastState.projectId || "proj-1",
+                          stageName: broadcastState.stageName,
+                          language: broadcastState.language,
+                        });
+                        success(
+                          `Broadcast dispatched successfully to ${res.recipientsCount} unit buyers!`,
+                        );
+                        const logsData = await fetchOutboxLogs();
+                        setLogs(logsData);
+                      } catch {
+                        alert("Failed to broadcast construction update.");
+                      } finally {
+                        setBroadcastState({
+                          ...broadcastState,
+                          loading: false,
+                        });
+                      }
+                    }}
+                    className="h-9 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs shadow-md cursor-pointer"
+                  >
+                    <Send className="size-4 mr-1.5" />
+                    {broadcastState.loading
+                      ? "Broadcasting SMS..."
+                      : "Broadcast Progress Update"}
+                  </Button>
+                </div>
+              </section>
+
+              {/* Localized Drip Templates Grid Header */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-800">
+                    Pre-Configured Localized Drip & Transactional SMS Templates
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Standardized SMS message templates formatted for Ethiopian buyers in Amharic & English.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => setTemplateLang("am")}
+                    className={cn(
+                      "px-3 py-1 text-xs font-bold rounded-md transition-colors cursor-pointer",
+                      templateLang === "am"
+                        ? "bg-white text-indigo-700 shadow-xs"
+                        : "text-slate-600 hover:text-slate-900",
+                    )}
+                  >
+                    🇪🇹 Amharic (አማርኛ)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTemplateLang("en")}
+                    className={cn(
+                      "px-3 py-1 text-xs font-bold rounded-md transition-colors cursor-pointer",
+                      templateLang === "en"
+                        ? "bg-white text-indigo-700 shadow-xs"
+                        : "text-slate-600 hover:text-slate-900",
+                    )}
+                  >
+                    🇬🇧 English
+                  </button>
+                </div>
+              </div>
+
+              {/* Templates Cards Grid */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                {(templates.length > 0
+                  ? templates
+                  : [
+                      {
+                        category: "paymentMilestone",
+                        title: "Payment Milestone Due Date",
+                        en: 'Dear {clientName}, payment reminder: Your milestone "{milestoneName}" of ETB {amount} for Unit {unitNumber} ({projectName}) is due on {dueDate}. CBE Acc: 1000123456789 (BetFlow Real Estate).',
+                        am: 'ውድ {clientName}፣ የክፍያ ማሳሰቢያ፡ ለቤት ቁጥር {unitNumber} ({projectName}) የደረጃ "{milestoneName}" ክፍያ ETB {amount} በ{dueDate} መክፈል እንዳለብዎት እናሳስባለን። CBE: 1000123456789።',
+                        variables: [
+                          "clientName",
+                          "milestoneName",
+                          "amount",
+                          "unitNumber",
+                          "projectName",
+                          "dueDate",
+                        ],
+                      },
+                      {
+                        category: "paymentReceipt",
+                        title: "Payment Receipt Confirmation",
+                        en: 'Dear {clientName}, payment received! ETB {amount} received on {paymentDate} for Unit {unitNumber}. Receipt #{receiptNumber}. Remaining balance: ETB {remainingBalance}.',
+                        am: 'ውድ {clientName}፣ የክፍያ ደረሰኝ፡ ለቤት ቁጥር {unitNumber} ETB {amount} በ{paymentDate} ገቢ ሆኗል። የደረሰኝ ቁጥር #{receiptNumber}። ቀሪ ክፍያ፡ ETB {remainingBalance}።',
+                        variables: [
+                          "clientName",
+                          "amount",
+                          "paymentDate",
+                          "unitNumber",
+                          "receiptNumber",
+                          "remainingBalance",
+                        ],
+                      },
+                      {
+                        category: "siteVisitConfirm",
+                        title: "Site Visit Confirmation",
+                        en: 'Dear {clientName}, site visit confirmed! Your tour of {projectName} is scheduled for {visitDate} at {visitTime}. Your sales agent is {agentName} ({agentPhone}).',
+                        am: 'ውድ {clientName}፣ የሳይት ጉብኝት ተረጋግጧል! የ{projectName} ፕሮጀክት ጉብኝት በ{visitDate} በ{visitTime} ተይዟል። መሪ አሸኛችሁ፡ {agentName} ({agentPhone})።',
+                        variables: [
+                          "clientName",
+                          "projectName",
+                          "visitDate",
+                          "visitTime",
+                          "agentName",
+                          "agentPhone",
+                        ],
+                      },
+                      {
+                        category: "siteVisitFollowup",
+                        title: "Post-Site-Visit Follow-Up",
+                        en: 'Selam {clientName}! Thank you for visiting {projectName} today. Unit {unitNumber} is available with custom finishing options. Contact {agentName} ({agentPhone}) to reserve.',
+                        am: 'ሰላም {clientName}! ዛሬ {projectName} ስላስጎበኘንዎ እናመሰግናለን። ለቤት ቁጥር {unitNumber} ምርጫዎን ለማረጋገጥ ለ{agentName} ({agentPhone}) ይደውሉ።',
+                        variables: [
+                          "clientName",
+                          "projectName",
+                          "unitNumber",
+                          "agentName",
+                          "agentPhone",
+                        ],
+                      },
+                    ]
+                ).map((tpl) => (
+                  <div
+                    key={tpl.category}
+                    className="rounded-xl border border-slate-200 bg-white p-4 text-slate-800 shadow-xs space-y-3 flex flex-col justify-between"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
+                          <Sparkles className="size-3.5 text-amber-500" />
+                          {tpl.title}
+                        </span>
+                        <span className="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                          {templateLang === "am" ? "አማርኛ (Ethiopic)" : "English"}
+                        </span>
+                      </div>
+
+                      <div className="rounded-lg bg-slate-900 p-3 font-mono text-xs text-slate-200 leading-relaxed border border-slate-800">
+                        {templateLang === "am" ? tpl.am : tpl.en}
+                      </div>
+
+                      {/* Variables Tags */}
+                      <div className="flex flex-wrap items-center gap-1 pt-1">
+                        <span className="text-[10px] font-bold text-slate-400 mr-1">Variables:</span>
+                        {tpl.variables.map((v) => (
+                          <span
+                            key={v}
+                            className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-mono text-slate-600 border border-slate-200"
+                          >
+                            {`{${v}}`}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2 border-t border-slate-100 pt-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          navigator.clipboard.writeText(
+                            templateLang === "am" ? tpl.am : tpl.en,
+                          );
+                          success("Template copied to clipboard!");
+                        }}
+                        className="h-8 text-xs font-semibold text-slate-700 cursor-pointer"
+                      >
+                        <Copy className="size-3.5 mr-1" /> Copy Template
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
           {/* MODAL 2: CREATE NEW DRIP CAMPAIGN */}

@@ -513,3 +513,69 @@ export async function deleteDripCampaignApi(id: string): Promise<boolean> {
   }
 }
 
+export type LocalizedTemplate = {
+  category: string;
+  title: string;
+  en: string;
+  am: string;
+  variables: string[];
+};
+
+export async function fetchSmsTemplatesApi(): Promise<LocalizedTemplate[]> {
+  try {
+    return await apiFetch<LocalizedTemplate[]>("/sms/templates");
+  } catch {
+    return [
+      {
+        category: "paymentMilestone",
+        title: "Payment Milestone Due Date",
+        en: 'Dear {clientName}, payment reminder: Your milestone "{milestoneName}" of ETB {amount} for Unit {unitNumber} ({projectName}) is due on {dueDate}. CBE Acc: 1000123456789 (BetFlow Real Estate).',
+        am: 'ውድ {clientName}፣ የክፍያ ማሳሰቢያ፡ ለቤት ቁጥር {unitNumber} ({projectName}) የደረጃ "{milestoneName}" ክፍያ ETB {amount} በ{dueDate} መክፈል እንዳለብዎት እናሳስባለን። CBE: 1000123456789።',
+        variables: ["clientName", "milestoneName", "amount", "unitNumber", "projectName", "dueDate"],
+      },
+      {
+        category: "paymentReceipt",
+        title: "Payment Receipt Confirmation",
+        en: 'Dear {clientName}, payment received! ETB {amount} received on {paymentDate} for Unit {unitNumber}. Receipt #{receiptNumber}. Remaining balance: ETB {remainingBalance}.',
+        am: 'ውድ {clientName}፣ የክፍያ ደረሰኝ፡ ለቤት ቁጥር {unitNumber} ETB {amount} በ{paymentDate} ገቢ ሆኗል። የደረሰኝ ቁጥር #{receiptNumber}። ቀሪ ክፍያ፡ ETB {remainingBalance}።',
+        variables: ["clientName", "amount", "paymentDate", "unitNumber", "receiptNumber", "remainingBalance"],
+      },
+      {
+        category: "siteVisitConfirm",
+        title: "Site Visit Confirmation",
+        en: 'Dear {clientName}, site visit confirmed! Your tour of {projectName} is scheduled for {visitDate} at {visitTime}. Your sales agent is {agentName} ({agentPhone}).',
+        am: 'ውድ {clientName}፣ የሳይት ጉብኝት ተረጋግጧል! የ{projectName} ፕሮጀክት ጉብኝት በ{visitDate} በ{visitTime} ተይዟል። መሪ አሸኛችሁ፡ {agentName} ({agentPhone})።',
+        variables: ["clientName", "projectName", "visitDate", "visitTime", "agentName", "agentPhone"],
+      },
+      {
+        category: "siteVisitFollowup",
+        title: "Post-Site-Visit Follow-Up",
+        en: 'Selam {clientName}! Thank you for visiting {projectName} today. Unit {unitNumber} is available with custom finishing options. Contact {agentName} ({agentPhone}) to reserve.',
+        am: 'ሰላም {clientName}! ዛሬ {projectName} ስላስጎበኘንዎ እናመሰግናለን። ለቤት ቁጥር {unitNumber} ምርጫዎን ለማረጋገጥ ለ{agentName} ({agentPhone}) ይደውሉ።',
+        variables: ["clientName", "projectName", "unitNumber", "agentName", "agentPhone"],
+      },
+      {
+        category: "constructionUpdate",
+        title: "Construction Milestone Progress Update",
+        en: 'BetFlow Construction Update: {projectName} has reached milestone "{stageName}"! Work is progressing as scheduled. Track live progress at betflow.et/portal.',
+        am: 'ቤተፍሎው የግንባታ ዜና፡ የ{projectName} ፕሮጀክት ግንባታ ደረጃ "{stageName}" ደርሷል! ኮንስትራክሽን ሂደቱን በbetflow.et/portal ላይ ይከታተሉ።',
+        variables: ["projectName", "stageName"],
+      },
+    ];
+  }
+}
+
+export async function broadcastConstructionApi(dto: {
+  projectId: string;
+  stageName: string;
+  language?: "en" | "am";
+}) {
+  return await apiFetch<{ recipientsCount: number; dispatchedLogs: unknown[] }>(
+    "/sms/broadcast-construction",
+    {
+      method: "POST",
+      body: JSON.stringify(dto),
+    },
+  );
+}
+
