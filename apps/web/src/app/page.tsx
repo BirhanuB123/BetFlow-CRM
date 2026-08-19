@@ -309,7 +309,7 @@ export default function Home() {
               {t("nav.dashboard")}
             </Link>
             <Link
-              href="/leads"
+              href="/pipeline?tab=leads"
               className="hover:text-indigo-400 transition-colors"
             >
               {t("nav.leadIntake")}
@@ -321,7 +321,7 @@ export default function Home() {
               {t("nav.stackingMatrix")}
             </Link>
             <Link
-              href="/contracts"
+              href="/transactions?tab=contracts"
               className="hover:text-indigo-400 transition-colors"
             >
               {t("nav.contractsPdf")}
@@ -388,7 +388,7 @@ export default function Home() {
                 {t("nav.dashboard")}
               </Link>
               <Link
-                href="/leads"
+                href="/pipeline?tab=leads"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold text-slate-200 hover:bg-indigo-600/20 hover:text-indigo-300 transition-colors"
               >
@@ -402,7 +402,7 @@ export default function Home() {
                 {t("nav.stackingMatrix")}
               </Link>
               <Link
-                href="/contracts"
+                href="/transactions?tab=contracts"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold text-slate-200 hover:bg-indigo-600/20 hover:text-indigo-300 transition-colors"
               >
@@ -716,7 +716,7 @@ export default function Home() {
                         No buyer leads recorded in database yet.
                       </p>
                       <Link
-                        href="/leads"
+                        href="/pipeline?tab=leads"
                         className="mt-2 text-xs font-bold text-indigo-400 hover:underline"
                       >
                         + Add First Buyer Lead in CRM →
@@ -748,7 +748,7 @@ export default function Home() {
                           <div className="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
                             <span>Added: {fmtDate(lead.createdAt)}</span>
                             <Link
-                              href="/leads"
+                              href="/pipeline?tab=leads"
                               className="text-indigo-400 hover:text-indigo-300 font-bold"
                             >
                               View →
@@ -848,7 +848,7 @@ export default function Home() {
                         No sales deals in pipeline yet.
                       </p>
                       <Link
-                        href="/deals"
+                        href="/pipeline?tab=deals"
                         className="mt-2 text-xs font-bold text-emerald-400 hover:underline"
                       >
                         + Create First Opportunity Deal →
@@ -877,7 +877,7 @@ export default function Home() {
                               {deal.stage?.name}
                             </span>
                             <Link
-                              href="/deals"
+                              href="/pipeline?tab=deals"
                               className="text-slate-400 hover:text-white font-bold"
                             >
                               Kanban →
@@ -973,7 +973,7 @@ export default function Home() {
                         No payment milestones logged yet.
                       </p>
                       <Link
-                        href="/payments"
+                        href="/transactions?tab=payments"
                         className="mt-2 text-xs font-bold text-emerald-400 hover:underline"
                       >
                         + Manage Payment Schedules →
@@ -1142,13 +1142,13 @@ export default function Home() {
               <Link href="/dashboard" className="hover:text-indigo-400 transition-colors">
                 Dashboard
               </Link>
-              <Link href="/leads" className="hover:text-indigo-400 transition-colors">
+              <Link href="/pipeline?tab=leads" className="hover:text-indigo-400 transition-colors">
                 Leads
               </Link>
               <Link href="/units" className="hover:text-indigo-400 transition-colors">
                 Inventory
               </Link>
-              <Link href="/contracts" className="hover:text-indigo-400 transition-colors">
+              <Link href="/transactions?tab=contracts" className="hover:text-indigo-400 transition-colors">
                 Contracts
               </Link>
               <Link href="/portal" className="hover:text-indigo-400 transition-colors">

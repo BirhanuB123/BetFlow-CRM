@@ -312,7 +312,7 @@ function OperationalGrid({ tasks, visits, todaysLeads, deals }: any) {
       </Card>
 
       {/* 3. Recent Leads */}
-      <Card title="Today's Active Leads" icon={UserRoundCheck} href="/leads">
+      <Card title="Today's Active Leads" icon={UserRoundCheck} href="/pipeline?tab=leads">
         {todaysLeads.length === 0 && leadsCount(todaysLeads, deals) === 0 ? (
           <Empty label="No new leads recorded today." />
         ) : (
@@ -357,7 +357,7 @@ function OperationalGrid({ tasks, visits, todaysLeads, deals }: any) {
       </Card>
 
       {/* 4. Top Active Deals */}
-      <Card title="Top Sales Pipeline Deals" icon={WalletCards} href="/deals">
+      <Card title="Top Sales Pipeline Deals" icon={WalletCards} href="/pipeline?tab=deals">
         {deals.length === 0 ? (
           <Empty label="No active deals found." />
         ) : (

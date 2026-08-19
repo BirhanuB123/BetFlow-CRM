@@ -95,10 +95,7 @@ export class LeadsService {
     if (normalizedPhone) {
       const existingLead = await this.prisma.lead.findFirst({
         where: {
-          OR: [
-            { phone: normalizedPhone },
-            { phone: input.phone?.trim() },
-          ],
+          OR: [{ phone: normalizedPhone }, { phone: input.phone?.trim() }],
         },
         include: { owner: { select: { firstName: true, lastName: true } } },
       });
@@ -114,10 +111,7 @@ export class LeadsService {
 
       const existingCustomer = await this.prisma.customer.findFirst({
         where: {
-          OR: [
-            { phone: normalizedPhone },
-            { phone: input.phone?.trim() },
-          ],
+          OR: [{ phone: normalizedPhone }, { phone: input.phone?.trim() }],
         },
       });
 

@@ -248,7 +248,7 @@ export default function ContractVerificationPage() {
               </button>
 
               <Link
-                href="/contracts"
+                href="/transactions?tab=contracts"
                 className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-white transition-colors"
               >
                 Back to Contracts <ExternalLink className="size-3" />

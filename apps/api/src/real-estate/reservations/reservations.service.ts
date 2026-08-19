@@ -17,7 +17,9 @@ import {
 } from './reservations.types';
 
 const reservationInclude = {
-  customer: { select: { id: true, firstName: true, lastName: true, phone: true } },
+  customer: {
+    select: { id: true, firstName: true, lastName: true, phone: true },
+  },
   unit: { select: { id: true, unitNumber: true, type: true, status: true } },
   _count: { select: { payments: true } },
 } as const;
@@ -68,76 +70,78 @@ export class ReservationsService {
 
     await this.assertCustomerExists(input.customerId);
 
-    const result = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      // Explicit SQL row-level lock (SELECT FOR UPDATE) ensures only ONE concurrent transaction
-      // can lock and transition an AVAILABLE unit to RESERVED during peak launches.
-      const lockedUnits = await tx.$queryRaw<
-        Array<{ id: string; status: string; unitNumber: string }>
-      >`SELECT id, status, "unitNumber" FROM "Unit" WHERE id = ${input.unitId} FOR UPDATE`;
+    const result = await this.prisma.$transaction(
+      async (tx: Prisma.TransactionClient) => {
+        // Explicit SQL row-level lock (SELECT FOR UPDATE) ensures only ONE concurrent transaction
+        // can lock and transition an AVAILABLE unit to RESERVED during peak launches.
+        const lockedUnits = await tx.$queryRaw<
+          Array<{ id: string; status: string; unitNumber: string }>
+        >`SELECT id, status, "unitNumber" FROM "Unit" WHERE id = ${input.unitId} FOR UPDATE`;
 
-      const unit = lockedUnits[0];
+        const unit = lockedUnits[0];
 
-      if (!unit) {
-        throw new BadRequestException(`Unit ${input.unitId} was not found`);
-      }
+        if (!unit) {
+          throw new BadRequestException(`Unit ${input.unitId} was not found`);
+        }
 
-      if (unit.status !== 'AVAILABLE') {
-        throw new BadRequestException(
-          `Unit ${unit.unitNumber} is ${unit.status.toLowerCase()}, not available`,
-        );
-      }
-
-      await tx.unit.update({
-        where: { id: input.unitId },
-        data: { status: 'RESERVED' },
-      });
-
-      const reservationDate = input.date
-        ? this.normalizeDate(input.date)
-        : new Date();
-      const holdPeriodDays = input.holdPeriodDays || 14;
-      const expiryDate = input.expiryDate
-        ? this.normalizeDate(input.expiryDate)
-        : new Date(
-            reservationDate.getTime() + holdPeriodDays * 24 * 60 * 60 * 1000,
+        if (unit.status !== 'AVAILABLE') {
+          throw new BadRequestException(
+            `Unit ${unit.unitNumber} is ${unit.status.toLowerCase()}, not available`,
           );
+        }
 
-      const reservationNumber =
-        input.reservationNumber?.trim() ||
-        `BF-RES-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
+        await tx.unit.update({
+          where: { id: input.unitId },
+          data: { status: 'RESERVED' },
+        });
 
-      const reservation = await tx.reservation.create({
-        data: {
-          reservationNumber,
-          customerId: input.customerId,
-          unitId: input.unitId,
-          amount,
-          holdPeriodDays,
-          expiryDate,
-          paymentMethod: input.paymentMethod || 'BANK_TRANSFER',
-          receiptNumber: input.receiptNumber?.trim() || null,
-          notes: input.notes?.trim() || null,
-          status,
-          date: reservationDate,
-        },
-        include: reservationInclude,
-      });
+        const reservationDate = input.date
+          ? this.normalizeDate(input.date)
+          : new Date();
+        const holdPeriodDays = input.holdPeriodDays || 14;
+        const expiryDate = input.expiryDate
+          ? this.normalizeDate(input.expiryDate)
+          : new Date(
+              reservationDate.getTime() + holdPeriodDays * 24 * 60 * 60 * 1000,
+            );
 
-      await tx.auditLog.create({
-        data: {
-          userId,
-          action: 'reservation.created',
-          entityType: 'Reservation',
-          entityId: reservation.id,
-          newValues: { unitStatus: 'AVAILABLE -> RESERVED' },
-        },
-      });
+        const reservationNumber =
+          input.reservationNumber?.trim() ||
+          `BF-RES-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
 
-      return {
-        ...reservation,
-        unit: { ...reservation.unit, status: 'RESERVED' },
-      };
-    });
+        const reservation = await tx.reservation.create({
+          data: {
+            reservationNumber,
+            customerId: input.customerId,
+            unitId: input.unitId,
+            amount,
+            holdPeriodDays,
+            expiryDate,
+            paymentMethod: input.paymentMethod || 'BANK_TRANSFER',
+            receiptNumber: input.receiptNumber?.trim() || null,
+            notes: input.notes?.trim() || null,
+            status,
+            date: reservationDate,
+          },
+          include: reservationInclude,
+        });
+
+        await tx.auditLog.create({
+          data: {
+            userId,
+            action: 'reservation.created',
+            entityType: 'Reservation',
+            entityId: reservation.id,
+            newValues: { unitStatus: 'AVAILABLE -> RESERVED' },
+          },
+        });
+
+        return {
+          ...reservation,
+          unit: { ...reservation.unit, status: 'RESERVED' },
+        };
+      },
+    );
 
     await this.redisCache.invalidatePattern('units:');
     await this.redisCache.invalidatePattern('projects:');
@@ -232,7 +236,9 @@ export class ReservationsService {
         const unit = lockedUnits[0];
 
         if (!unit) {
-          throw new BadRequestException(`Unit ${existing.unitId} was not found`);
+          throw new BadRequestException(
+            `Unit ${existing.unitId} was not found`,
+          );
         }
 
         if (unit.status !== 'AVAILABLE') {

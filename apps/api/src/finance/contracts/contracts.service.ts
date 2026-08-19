@@ -208,7 +208,9 @@ export class ContractsService {
     const contract = await this.prisma.contract.findFirst({
       where: { id },
       include: {
-        customer: { select: { firstName: true, lastName: true, email: true, phone: true } },
+        customer: {
+          select: { firstName: true, lastName: true, email: true, phone: true },
+        },
         unit: {
           select: {
             unitNumber: true,
@@ -216,7 +218,9 @@ export class ContractsService {
             floor: {
               select: {
                 name: true,
-                building: { select: { name: true, project: { select: { name: true } } } },
+                building: {
+                  select: { name: true, project: { select: { name: true } } },
+                },
               },
             },
           },
@@ -226,16 +230,22 @@ export class ContractsService {
     });
 
     if (!contract) {
-      throw new NotFoundException(`Contract with ID ${id} was not found for audit verification.`);
+      throw new NotFoundException(
+        `Contract with ID ${id} was not found for audit verification.`,
+      );
     }
 
     const signatures = contract.signatures || [];
     const isAuthentic =
-      signatures.length > 0 || contract.status === 'SIGNED' || contract.status === 'ACTIVE';
+      signatures.length > 0 ||
+      contract.status === 'SIGNED' ||
+      contract.status === 'ACTIVE';
 
     return {
       contractId: contract.id,
-      contractNumber: contract.contractNumber || `BF-CON-${contract.id.slice(0, 8).toUpperCase()}`,
+      contractNumber:
+        contract.contractNumber ||
+        `BF-CON-${contract.id.slice(0, 8).toUpperCase()}`,
       status: contract.status,
       isAuthentic,
       projectName: contract.unit.floor.building.project.name,

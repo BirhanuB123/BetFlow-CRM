@@ -54,6 +54,7 @@ import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/i18n/language-context";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { useBranding } from "@/lib/branding-context";
+import { usePermissions } from "@/hooks/use-permissions";
 
 const SIDEBAR_MIN = 200;
 const SIDEBAR_MAX = 460;
@@ -102,47 +103,60 @@ const navSections = [
   {
     title: "Sales & Pipeline",
     items: [
-      { label: "Leads", href: "/leads", icon: UserRoundCheck },
       {
-        label: "Customers",
-        href: "/customers",
-        icon: UsersRound,
-        aliases: ["Contacts", "Buyers"],
+        label: "Pipeline",
+        href: "/pipeline",
+        icon: UserRoundCheck,
+        aliases: ["Leads", "Customers", "Deals", "Sales", "Contacts", "Buyers"],
       },
-      { label: "Deals", href: "/deals", icon: CircleDollarSign },
     ],
   },
   {
     title: "Activities & Engagement",
     items: [
-      { label: "Tasks", href: "/tasks", icon: ClipboardList },
-      { label: "Meetings", href: "/meetings", icon: CalendarDays },
-      { label: "Calls", href: "/calls", icon: Phone, aliases: ["Call logs", "Telephony"] },
       {
-        label: "Visits",
-        href: "/site-visits",
-        icon: Route,
-        aliases: ["Site visits"],
+        label: "Activities",
+        href: "/activities",
+        icon: ClipboardList,
+        aliases: [
+          "Tasks",
+          "Meetings",
+          "Calls",
+          "Visits",
+          "Site visits",
+          "Activity log",
+          "Call logs",
+          "Telephony",
+        ],
       },
     ],
   },
   {
     title: "Property Inventory",
     items: [
-      { label: "Projects", href: "/projects", icon: Building2 },
-      { label: "Units", href: "/units", icon: SquareStack },
+      {
+        label: "Projects",
+        href: "/projects",
+        icon: Building2,
+        aliases: ["Units", "Stacking Matrix", "Inventory", "Property units"],
+      },
     ],
   },
   {
     title: "Transactions & Finance",
     items: [
-      { label: "Reservations", href: "/reservations", icon: ShoppingBag },
-      { label: "Contracts", href: "/contracts", icon: ScrollText },
       {
-        label: "Payment Schedules",
-        href: "/payments",
+        label: "Transactions",
+        href: "/transactions",
         icon: CircleDollarSign,
-        aliases: ["Payments", "Milestones"],
+        aliases: [
+          "Reservations",
+          "Contracts",
+          "Payments",
+          "Payment Schedules",
+          "Milestones",
+          "Holds",
+        ],
       },
     ],
   },
@@ -150,16 +164,17 @@ const navSections = [
     title: "Marketing & Automation",
     items: [
       {
-        label: "Social Outreach",
-        href: "/automation/email-campaigns",
+        label: "Campaigns",
+        href: "/campaigns",
         icon: Megaphone,
-        aliases: ["Campaigns", "Telegram", "Social leads"],
-      },
-      {
-        label: "SMS & Drip Automation",
-        href: "/automation/sms",
-        icon: MessageSquare,
-        aliases: ["SMS", "Ethio Telecom", "Drip"],
+        aliases: [
+          "Social Outreach",
+          "SMS & Drip Automation",
+          "SMS",
+          "Telegram",
+          "Meta",
+          "Outreach",
+        ],
       },
     ],
   },
@@ -167,7 +182,6 @@ const navSections = [
     title: "System & Assets",
     items: [
       { label: "Documents", href: "/documents", icon: FileText },
-      { label: "Settings", href: "/settings", icon: Settings },
     ],
   },
 ];
@@ -175,9 +189,9 @@ const navSections = [
 const moduleNavItems = navSections.flatMap((s) => s.items);
 
 const createItems = [
-  { label: "New Lead", href: "/leads", icon: UserRoundCheck },
-  { label: "New Customer", href: "/customers", icon: UsersRound },
-  { label: "New Deal", href: "/deals", icon: CircleDollarSign },
+  { label: "New Lead", href: "/pipeline?tab=leads", icon: UserRoundCheck },
+  { label: "New Customer", href: "/pipeline?tab=customers", icon: UsersRound },
+  { label: "New Deal", href: "/pipeline?tab=deals", icon: CircleDollarSign },
   { label: "New Task", href: "/tasks", icon: ClipboardList },
   { label: "New Meeting", href: "/meetings", icon: CalendarDays },
 ];
@@ -206,6 +220,10 @@ const navKeyMap: Record<string, string> = {
   "Home": "dashboard.home",
   "Dashboard": "nav.dashboard",
   "Reports": "nav.reports",
+  "Pipeline": "nav.pipeline",
+  "Activities": "nav.activities",
+  "Transactions": "nav.transactions",
+  "Campaigns": "nav.campaigns",
   "Leads": "nav.leads",
   "Customers": "nav.customers",
   "Deals": "nav.deals",
@@ -234,6 +252,10 @@ const sectionTitleMap: Record<string, string> = {
 };
 
 const itemBadges: Record<string, { label: string; cls: string }> = {
+  Pipeline: {
+    label: "12",
+    cls: "bg-emerald-500/25 text-emerald-300 border-emerald-400/40",
+  },
   Leads: {
     label: "12",
     cls: "bg-emerald-500/25 text-emerald-300 border-emerald-400/40",
@@ -274,28 +296,28 @@ function SidebarLink({
         onClick={onNavigate}
         title={displayLabel}
         className={cn(
-          "relative flex h-[36px] items-center gap-3 rounded-lg px-2.5 text-[14.5px] sm:text-[15px] font-semibold text-[#d4e2f7] transition-all duration-150",
-          "hover:bg-white/10 hover:text-white",
+          "relative flex h-[42px] items-center gap-3.5 rounded-xl px-3 text-[16px] font-bold text-slate-100 transition-all duration-150",
+          "hover:bg-white/15 hover:text-white hover:scale-[1.01]",
           "group-data-[collapsed=true]/side:lg:justify-center group-data-[collapsed=true]/side:lg:px-0",
-          isActive && "bg-white/15 text-white font-bold shadow-xs",
+          isActive && "bg-white/20 text-white font-extrabold shadow-sm",
         )}
       >
         {isActive ? (
-          <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-[#70a0ff] shadow-[0_0_10px_#70a0ff] group-data-[collapsed=true]/side:lg:left-0" />
+          <span className="absolute left-0 top-2 bottom-2 w-1.5 rounded-r-full bg-[#70a0ff] shadow-[0_0_12px_#70a0ff] group-data-[collapsed=true]/side:lg:left-0" />
         ) : null}
         <Icon
           className={cn(
-            "size-[18px] shrink-0 text-[#96accf] transition-transform duration-150 group-hover/link:scale-110",
+            "size-5 shrink-0 text-[#a4bbde] transition-transform duration-150 group-hover/link:scale-110",
             isActive && "text-[#70a0ff] scale-105",
           )}
         />
-        <span className="truncate flex-1 group-data-[collapsed=true]/side:lg:hidden">
+        <span className="truncate flex-1 group-data-[collapsed=true]/side:lg:hidden tracking-wide text-[16px]">
           {displayLabel}
         </span>
         {badge ? (
           <span
             className={cn(
-              "hidden sm:inline-flex items-center justify-center rounded-full px-2 py-0.5 text-[11px] font-bold border leading-tight group-data-[collapsed=true]/side:lg:hidden",
+              "hidden sm:inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-extrabold border leading-tight group-data-[collapsed=true]/side:lg:hidden",
               badge.cls,
             )}
           >
@@ -674,6 +696,12 @@ export function DashboardShell({
     greeting = t("dashboard.greetingAfternoon");
   }
 
+  const { hasModulePermission } = usePermissions();
+
+  const visibleNavSections = useMemo(() => {
+    return navSections.filter((section) => hasModulePermission(section.title));
+  }, [hasModulePermission]);
+
   const filteredModules = useMemo(() => {
     const term = moduleQuery.trim().toLowerCase();
     if (!term) return moduleNavItems;
@@ -834,42 +862,42 @@ export function DashboardShell({
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col border-t border-white/14 px-2 pt-3">
-          <div className="mb-2.5 flex items-center gap-2 px-1 text-[16px] font-bold text-white group-data-[collapsed=true]/side:lg:justify-center group-data-[collapsed=true]/side:lg:px-0">
-            <div className="grid size-5 grid-cols-2 gap-0.5 rounded bg-[#ff4e96] p-0.5">
-              <span className="rounded-sm bg-white/70" />
-              <span className="rounded-sm bg-white/70" />
-              <span className="rounded-sm bg-white/70" />
-              <span className="rounded-sm bg-white/70" />
+          <div className="mb-2.5 flex items-center gap-2.5 px-1 text-[17.5px] font-extrabold text-white group-data-[collapsed=true]/side:lg:justify-center group-data-[collapsed=true]/side:lg:px-0">
+            <div className="grid size-5.5 grid-cols-2 gap-0.5 rounded-md bg-[#ff4e96] p-0.5 shadow-2xs">
+              <span className="rounded-xs bg-white" />
+              <span className="rounded-xs bg-white" />
+              <span className="rounded-xs bg-white" />
+              <span className="rounded-xs bg-white" />
             </div>
-            <span className="group-data-[collapsed=true]/side:lg:hidden">
+            <span className="group-data-[collapsed=true]/side:lg:hidden tracking-tight">
               {t("nav.modules")}
             </span>
           </div>
-          <label className="mb-3 flex h-9 items-center gap-2 rounded-lg border border-white/18 bg-white/5 px-2.5 text-[#b7c5dd] focus-within:bg-white/10 focus-within:border-[#70a0ff]/50 focus-within:ring-2 focus-within:ring-[#70a0ff]/20 transition-all group-data-[collapsed=true]/side:lg:hidden">
-            <Search className="size-4 shrink-0 text-[#91a1bd]" />
+          <label className="mb-3 flex h-9.5 items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 text-[#d0deeb] focus-within:bg-white/15 focus-within:border-[#70a0ff] focus-within:ring-2 focus-within:ring-[#70a0ff]/30 transition-all group-data-[collapsed=true]/side:lg:hidden">
+            <Search className="size-4 shrink-0 text-[#a4bbde]" />
             <input
               aria-label="Search modules"
               value={moduleQuery}
               onChange={(event) => setModuleQuery(event.target.value)}
-              className="w-full bg-transparent text-xs sm:text-[13px] text-white outline-none placeholder:text-[#91a1bd]"
+              className="w-full bg-transparent text-xs sm:text-[14px] font-medium text-white outline-none placeholder:text-[#a4bbde]"
               placeholder={t("actions.searchModules")}
             />
             {moduleQuery ? (
               <button
                 type="button"
                 onClick={() => setModuleQuery("")}
-                className="text-xs text-[#91a1bd] hover:text-white"
+                className="text-xs text-[#a4bbde] hover:text-white"
               >
                 ✕
               </button>
             ) : null}
           </label>
-          <nav className="flex-1 space-y-2 overflow-y-auto pr-1">
+          <nav className="flex-1 space-y-1 overflow-y-auto pr-1">
             {moduleQuery.trim() === "" ? (
-              navSections.map((section) => (
-                <SidebarSection
-                  key={section.title}
-                  section={section}
+              visibleNavSections.flatMap((section) => section.items).map((item) => (
+                <SidebarLink
+                  key={item.href}
+                  item={item}
                   active={active}
                   onNavigate={() => setNavOpen(false)}
                 />
@@ -918,14 +946,23 @@ export function DashboardShell({
                 </p>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={signOut}
-              title={t("actions.signOut")}
-              className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-[#f472b6] hover:bg-white/15 hover:border-white/30 hover:text-white transition-all duration-150 cursor-pointer shadow-2xs"
-            >
-              <LogOut className="size-4.5 shrink-0" />
-            </button>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <Link
+                href="/settings"
+                title="Settings"
+                className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-[#91a1bd] hover:bg-white/15 hover:border-white/30 hover:text-white transition-all duration-150 cursor-pointer shadow-2xs"
+              >
+                <Settings className="size-4.5 shrink-0" />
+              </Link>
+              <button
+                type="button"
+                onClick={signOut}
+                title={t("actions.signOut")}
+                className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-[#f472b6] hover:bg-white/15 hover:border-white/30 hover:text-white transition-all duration-150 cursor-pointer shadow-2xs"
+              >
+                <LogOut className="size-4.5 shrink-0" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1023,7 +1060,7 @@ export function DashboardShell({
                 <CalendarDays className="size-4" />
               </Link>
               <Link
-                href="/reservations"
+                href="/transactions?tab=reservations"
                 aria-label="Reservations"
                 title="Property Reservations"
                 className={cn(
@@ -1175,8 +1212,8 @@ export function DashboardShell({
                   <MenuLink href="/reports/sales" icon={BarChart3}>
                     Sales Reports
                   </MenuLink>
-                  <MenuLink href="/leads" icon={UserRoundCheck}>
-                    Leads Pipeline
+                  <MenuLink href="/pipeline" icon={UserRoundCheck}>
+                    Sales Pipeline
                   </MenuLink>
                 </Dropdown>
 

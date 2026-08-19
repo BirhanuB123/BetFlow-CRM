@@ -276,7 +276,7 @@ export default function CustomerDetailPage() {
         {/* Back Navigation Bar */}
         <div className="flex items-center justify-between">
           <Link
-            href="/customers"
+            href="/pipeline?tab=customers"
             className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-indigo-600 transition-colors"
           >
             <ArrowLeft className="size-4" />
@@ -508,7 +508,7 @@ export default function CustomerDetailPage() {
                     </h3>
                   </div>
                   <Link
-                    href="/deals"
+                    href="/pipeline?tab=deals"
                     className="text-xs font-semibold text-indigo-600 hover:underline"
                   >
                     Manage Deals →
@@ -576,7 +576,7 @@ export default function CustomerDetailPage() {
                     </h3>
                   </div>
                   <Link
-                    href="/contracts"
+                    href="/transactions?tab=contracts"
                     className="text-xs font-semibold text-indigo-600 hover:underline"
                   >
                     View Contracts →
@@ -620,7 +620,7 @@ export default function CustomerDetailPage() {
                     </h3>
                   </div>
                   <Link
-                    href="/reservations"
+                    href="/transactions?tab=reservations"
                     className="text-xs font-semibold text-indigo-600 hover:underline"
                   >
                     View Reservations →
@@ -664,7 +664,7 @@ export default function CustomerDetailPage() {
                     </h3>
                   </div>
                   <Link
-                    href="/payments"
+                    href="/transactions?tab=payments"
                     className="text-xs font-semibold text-indigo-600 hover:underline"
                   >
                     Payment Ledger →

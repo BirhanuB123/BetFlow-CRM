@@ -5,10 +5,18 @@
 
 export type UserStatus = "Active" | "Invited" | "Suspended";
 
+export type UserPermissionItem = {
+  id?: string;
+  name: string;
+  module: string;
+  description?: string | null;
+};
+
 export type AuthenticatedUser = {
   id: string;
   email: string;
   roles: string[];
+  permissions?: UserPermissionItem[];
 };
 
 export type JwtPayload = {

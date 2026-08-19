@@ -26,7 +26,9 @@ export class InventoryGateway
   }
 
   handleDisconnect(client: Socket) {
-    this.logger.log(`Client disconnected from inventory websocket: ${client.id}`);
+    this.logger.log(
+      `Client disconnected from inventory websocket: ${client.id}`,
+    );
   }
 
   broadcastUnitStatusChange(unitId: string, status: string, details?: any) {

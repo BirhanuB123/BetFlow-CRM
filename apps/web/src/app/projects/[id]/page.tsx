@@ -9,6 +9,7 @@ import {
   Building2,
   ChevronDown,
   ChevronRight,
+  Grid,
   Layers,
   Plus,
   Trash2,
@@ -32,6 +33,7 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { ActivityTimeline } from "@/components/activity/activity-timeline";
 import { NotesPanel } from "@/components/notes/notes-panel";
+import { UnitsView } from "@/components/views/units-view";
 import { apiFetch, apiUpload, API_BASE_URL } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
@@ -1135,7 +1137,7 @@ export default function ProjectDetailPage() {
     floorsCount: "1",
   });
   const [timelineKey, setTimelineKey] = useState(0);
-  const [activeTab, setActiveTab] = useState<"INVENTORY" | "GALLERY">(
+  const [activeTab, setActiveTab] = useState<"INVENTORY" | "STACKING" | "GALLERY">(
     "INVENTORY",
   );
 
@@ -1740,6 +1742,19 @@ export default function ProjectDetailPage() {
                 </button>
 
                 <button
+                  onClick={() => setActiveTab("STACKING")}
+                  className={cn(
+                    "px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5",
+                    activeTab === "STACKING"
+                      ? "bg-indigo-600 text-white shadow-sm"
+                      : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
+                  )}
+                >
+                  <Grid className="size-4" />
+                  Stacking Matrix & Calculator
+                </button>
+
+                <button
                   onClick={() => setActiveTab("GALLERY")}
                   className={cn(
                     "px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5",
@@ -1753,7 +1768,9 @@ export default function ProjectDetailPage() {
                 </button>
               </div>
 
-              {activeTab === "INVENTORY" ? (
+              {activeTab === "STACKING" ? (
+                <UnitsView projectId={project.id} />
+              ) : activeTab === "INVENTORY" ? (
                 <>
                   <section className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
                     <div className="flex items-center justify-between">

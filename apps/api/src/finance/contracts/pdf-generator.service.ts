@@ -108,7 +108,12 @@ export class PdfGeneratorService {
         .fontSize(9.5)
         .font('Helvetica-Oblique')
         .fillColor(textMuted)
-        .text('Standard Property Sales Agreement (FDRE Civil Code Compliance)', 40, 134, { align: 'center' });
+        .text(
+          'Standard Property Sales Agreement (FDRE Civil Code Compliance)',
+          40,
+          134,
+          { align: 'center' },
+        );
 
       doc
         .moveTo(40, 150)
@@ -247,8 +252,12 @@ export class PdfGeneratorService {
 
       // Dual Column Boxes
       const colW = 250;
-      doc.rect(40, termsY + 14, colW, 115).fillAndStroke('#fafafa', borderColor);
-      doc.rect(305, termsY + 14, colW, 115).fillAndStroke('#fafafa', borderColor);
+      doc
+        .rect(40, termsY + 14, colW, 115)
+        .fillAndStroke('#fafafa', borderColor);
+      doc
+        .rect(305, termsY + 14, colW, 115)
+        .fillAndStroke('#fafafa', borderColor);
 
       // Left Column: Delivery & Ownership
       doc

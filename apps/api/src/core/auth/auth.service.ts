@@ -17,7 +17,61 @@ export type LoginBody = {
 type UserRoleResult = {
   role: {
     name: string;
+    permissions?: {
+      permission: {
+        id: string;
+        name: string;
+        module: string;
+        description: string | null;
+      };
+    }[];
   };
+};
+
+function extractUserRolesAndPermissions(userRoles: UserRoleResult[]) {
+  const roles = userRoles.map((item) => item.role.name);
+  const permissionsMap = new Map<
+    string,
+    { id: string; name: string; module: string; description: string | null }
+  >();
+
+  for (const item of userRoles) {
+    if (item.role?.permissions) {
+      for (const rp of item.role.permissions) {
+        if (rp.permission && !permissionsMap.has(rp.permission.name)) {
+          permissionsMap.set(rp.permission.name, {
+            id: rp.permission.id,
+            name: rp.permission.name,
+            module: rp.permission.module,
+            description: rp.permission.description,
+          });
+        }
+      }
+    }
+  }
+
+  return {
+    roles,
+    permissions: Array.from(permissionsMap.values()),
+  };
+}
+
+const userIncludePermissions = {
+  roles: {
+    include: {
+      role: {
+        select: {
+          id: true,
+          name: true,
+          permissions: {
+            include: {
+              permission: true,
+            },
+          },
+        },
+      },
+    },
+  },
 };
 
 @Injectable()
@@ -148,18 +202,7 @@ export class AuthService {
       where: {
         email: input.email.trim().toLowerCase(),
       },
-      include: {
-        roles: {
-          include: {
-            role: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-        },
-      },
+      include: userIncludePermissions,
     });
 
     if (!user) {
@@ -249,9 +292,7 @@ export class AuthService {
       },
     });
 
-    const roles = (user.roles as UserRoleResult[]).map(
-      (item) => item.role.name,
-    );
+    const { roles, permissions } = extractUserRolesAndPermissions(user.roles);
     const expiresIn = 900; // 15 minutes
     const refreshExpiresIn = 604800; // 7 days
 
@@ -285,6 +326,8 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
         avatarUrl: user.avatarUrl,
+        roles,
+        permissions,
       },
       authMethod: 'password',
     };
@@ -305,18 +348,7 @@ export class AuthService {
         id: payload.sub,
         isActive: true,
       },
-      include: {
-        roles: {
-          include: {
-            role: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-        },
-      },
+      include: userIncludePermissions,
     });
 
     if (!user) {
@@ -325,9 +357,7 @@ export class AuthService {
       );
     }
 
-    const roles = (user.roles as UserRoleResult[]).map(
-      (item) => item.role.name,
-    );
+    const { roles, permissions } = extractUserRolesAndPermissions(user.roles);
     const expiresIn = 900; // 15 minutes
     const refreshExpiresIn = 604800; // 7 days
 
@@ -361,6 +391,8 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
         avatarUrl: user.avatarUrl,
+        roles,
+        permissions,
       },
     };
   }
@@ -371,23 +403,14 @@ export class AuthService {
         id: authenticatedUser.id,
         isActive: true,
       },
-      include: {
-        roles: {
-          include: {
-            role: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-        },
-      },
+      include: userIncludePermissions,
     });
 
     if (!user) {
       throw new UnauthorizedException('Invalid token subject');
     }
+
+    const { roles, permissions } = extractUserRolesAndPermissions(user.roles);
 
     return {
       user: {
@@ -396,6 +419,8 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
         avatarUrl: user.avatarUrl,
+        roles,
+        permissions,
       },
     };
   }
