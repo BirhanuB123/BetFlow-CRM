@@ -9,68 +9,66 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { CallsService } from './calls.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
-import type {
-  CreateCallInput,
-  CompleteCallInput,
-  UpdateCallInput,
-} from './calls.types';
 
 @UseGuards(JwtAuthGuard)
 @Controller('calls')
 export class CallsController {
-  constructor(private readonly calls: CallsService) {}
+  constructor(private readonly callsService: CallsService) {}
+
+  @Get('stats')
+  getStats() {
+    return this.callsService.getStats();
+  }
 
   @Get()
   list(
-    @CurrentUser() user: AuthenticatedUser,
     @Query('status') status?: string,
-    @Query('dueToday') dueToday?: string,
-    @Query('overdue') overdue?: string,
+    @Query('callType') callType?: string,
+    @Query('leadId') leadId?: string,
+    @Query('customerId') customerId?: string,
   ) {
-    return this.calls.list({
-      status,
-      dueToday: dueToday === 'true' || dueToday === '1',
-      overdue: overdue === 'true' || overdue === '1',
-    });
+    return this.callsService.list({ status, callType, leadId, customerId });
   }
 
   @Get(':id')
-  get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.calls.get(id);
+  get(@Param('id') id: string) {
+    return this.callsService.get(id);
   }
 
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @Post()
   create(
     @CurrentUser() user: AuthenticatedUser,
-    @Body() body: CreateCallInput,
+    @Body() body: any,
   ) {
-    return this.calls.create(user.id, body);
-  }
-
-  @Patch(':id/complete')
-  complete(
-    @CurrentUser() user: AuthenticatedUser,
-    @Param('id') id: string,
-    @Body() body: CompleteCallInput,
-  ) {
-    return this.calls.complete(user.id, id, body);
+    return this.callsService.create(user.id, body);
   }
 
   @Patch(':id')
   update(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
-    @Body() body: UpdateCallInput,
+    @Body() body: any,
   ) {
-    return this.calls.update(user.id, id, body);
+    return this.callsService.update(user.id, id, body);
+  }
+
+  @Post(':id/complete')
+  completeCall(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() body: { durationSeconds?: number; callResult?: string; notes?: string },
+  ) {
+    return this.callsService.completeCall(user.id, id, body);
   }
 
   @Delete(':id')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.calls.remove(user.id, id);
+    return this.callsService.remove(user.id, id);
   }
 }

@@ -193,6 +193,10 @@ export class EthioTelecomSmsService {
     status: 'DELIVERED' | 'QUEUED' | 'FAILED';
     sentAt: string;
     costEthioBirr: number;
+    gatewayUsed?: string;
+    attemptsCount?: number;
+    encoding?: string;
+    segmentCount?: number;
   }> = [
     {
       id: 'sms-log-1',
@@ -203,6 +207,10 @@ export class EthioTelecomSmsService {
       status: 'DELIVERED',
       sentAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
       costEthioBirr: 0.35,
+      gatewayUsed: 'Ethio Telecom Gateway Sandbox',
+      attemptsCount: 1,
+      encoding: 'GSM-7 (English)',
+      segmentCount: 1,
     },
     {
       id: 'sms-log-2',
@@ -213,6 +221,10 @@ export class EthioTelecomSmsService {
       status: 'DELIVERED',
       sentAt: new Date(Date.now() - 5 * 3600 * 1000).toISOString(),
       costEthioBirr: 0.35,
+      gatewayUsed: 'Ethio Telecom Gateway Sandbox',
+      attemptsCount: 1,
+      encoding: 'GSM-7 (English)',
+      segmentCount: 1,
     },
     {
       id: 'sms-log-3',
@@ -223,6 +235,10 @@ export class EthioTelecomSmsService {
       status: 'DELIVERED',
       sentAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
       costEthioBirr: 0.35,
+      gatewayUsed: 'Ethio Telecom Gateway Sandbox',
+      attemptsCount: 1,
+      encoding: 'GSM-7 (English)',
+      segmentCount: 1,
     },
   ];
 
@@ -450,30 +466,93 @@ export class EthioTelecomSmsService {
   }
 
   /**
-   * Send an SMS alert via AfroMessage or Ethio Telecom API Gateway
+   * Calculate Amharic Unicode vs GSM-7 Character Count & Multi-Part Segments
+   */
+  getSmsMetadata(body: string) {
+    const isUnicode = /[\u1200-\u137F]/.test(body);
+    const charCount = body ? body.length : 0;
+    let segmentCount = 1;
+
+    if (isUnicode) {
+      segmentCount = charCount <= 70 ? 1 : Math.ceil(charCount / 67);
+    } else {
+      segmentCount = charCount <= 160 ? 1 : Math.ceil(charCount / 153);
+    }
+
+    return {
+      charCount,
+      isUnicode,
+      encoding: isUnicode ? 'UTF-8 (Amharic/Unicode)' : 'GSM-7 (English)',
+      segmentCount,
+    };
+  }
+
+  /**
+   * Retry wrapper with exponential backoff for transient gateway failures
+   */
+  private async fetchWithRetry(
+    url: string,
+    options: RequestInit,
+    maxRetries = 2,
+    baseDelayMs = 300,
+  ): Promise<Response> {
+    let lastError: any;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await fetch(url, options);
+        if (response.ok || attempt === maxRetries) {
+          return response;
+        }
+        if (response.status >= 500) {
+          this.logger.warn(
+            `Gateway HTTP ${response.status} on attempt ${attempt}/${maxRetries}. Retrying...`,
+          );
+        } else {
+          return response;
+        }
+      } catch (err: any) {
+        lastError = err;
+        this.logger.warn(
+          `Gateway network fetch attempt ${attempt}/${maxRetries} failed: ${err?.message || err}`,
+        );
+      }
+      await new Promise((res) =>
+        setTimeout(res, baseDelayMs * Math.pow(2, attempt - 1)),
+      );
+    }
+    throw lastError || new Error('Gateway request failed after retries');
+  }
+
+  /**
+   * Send an SMS alert via AfroMessage or Ethio Telecom API Gateway with Dual-Gateway Failover
    */
   async sendSms(dto: SmsSendDto) {
     const formattedPhone = this.formatEthioPhone(dto.recipientPhone);
     const triggerType = dto.triggerType || 'MANUAL_BROADCAST';
+    const metadata = this.getSmsMetadata(dto.body);
 
     this.logger.log(
-      `[SMS Gateway Dispatch] Sending to ${formattedPhone} (${dto.recipientName}): "${dto.body.substring(0, 40)}..."`,
+      `[SMS Gateway Dispatch] Sending to ${formattedPhone} (${dto.recipientName}) [${metadata.encoding}, ${metadata.segmentCount} segment(s)]: "${dto.body.substring(0, 40)}..."`,
     );
 
-    let status: 'DELIVERED' | 'QUEUED' | 'FAILED' = 'DELIVERED';
+    let status: 'DELIVERED' | 'QUEUED' | 'FAILED' = 'FAILED';
+    let gatewayUsed = 'Sandbox Mode (Dev)';
+    let attemptsCount = 0;
 
-    // 1. AfroMessage Gateway Integration (Primary Ethiopian Aggregator)
-    if (process.env.AFROMESSAGE_API_KEY) {
+    // Helper: AfroMessage Gateway
+    const tryAfroMessage = async (): Promise<boolean> => {
+      if (!process.env.AFROMESSAGE_API_KEY) return false;
+      const apiKey = process.env.AFROMESSAGE_API_KEY.trim();
+      const senderId = process.env.AFROMESSAGE_SENDER_ID || '';
+      const url = `https://api.afromessage.com/api/send?to=${formattedPhone}&message=${encodeURIComponent(dto.body)}${senderId ? `&sender=${encodeURIComponent(senderId)}` : ''}`;
+
+      this.logger.log(
+        `[Gateway Dispatch] Primary attempt via AfroMessage to +${formattedPhone}...`,
+      );
+      attemptsCount++;
+
       try {
-        const apiKey = process.env.AFROMESSAGE_API_KEY.trim();
-        const senderId = process.env.AFROMESSAGE_SENDER_ID || '';
-        const url = `https://api.afromessage.com/api/send?to=${formattedPhone}&message=${encodeURIComponent(dto.body)}${senderId ? `&sender=${encodeURIComponent(senderId)}` : ''}`;
-
-        this.logger.log(
-          `Dispatching real SMS via AfroMessage Gateway to +${formattedPhone}...`,
-        );
-
-        const response = await fetch(url, {
+        const response = await this.fetchWithRetry(url, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${apiKey}`,
@@ -491,46 +570,95 @@ export class EthioTelecomSmsService {
           (data?.acknowledge === 'success' || data?.response?.code === 200)
         ) {
           this.logger.log(
-            `[AfroMessage SMS Success] Message delivered to +${formattedPhone}`,
+            `[AfroMessage SMS Success] Delivered to +${formattedPhone}`,
           );
-          status = 'DELIVERED';
-        } else {
-          this.logger.warn(
-            `[AfroMessage SMS Failed] HTTP ${response.status}: ${JSON.stringify(data)}`,
-          );
-          status = 'FAILED';
+          gatewayUsed = 'AfroMessage Live Gateway';
+          return true;
         }
-      } catch (err) {
-        this.logger.error(`AfroMessage API connection failed: ${err}`);
-        status = 'FAILED';
+        this.logger.warn(
+          `[AfroMessage SMS Failed] HTTP ${response.status}: ${JSON.stringify(data)}`,
+        );
+      } catch (err: any) {
+        this.logger.error(
+          `AfroMessage API connection error: ${err?.message || err}`,
+        );
       }
-    }
-    // 2. Ethio Telecom Enterprise Direct API Gateway
-    else if (process.env.ETHIO_SMS_API_URL) {
+      return false;
+    };
+
+    // Helper: Ethio Telecom Direct Gateway
+    const tryEthioTelecom = async (): Promise<boolean> => {
+      if (!process.env.ETHIO_SMS_API_URL) return false;
+      this.logger.log(
+        `[Gateway Dispatch] Attempt via Ethio Telecom Shortcode to +${formattedPhone}...`,
+      );
+      attemptsCount++;
+
       try {
-        const response = await fetch(process.env.ETHIO_SMS_API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.ETHIO_SMS_TOKEN || ''}`,
+        const response = await this.fetchWithRetry(
+          process.env.ETHIO_SMS_API_URL,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${process.env.ETHIO_SMS_TOKEN || ''}`,
+            },
+            body: JSON.stringify({
+              shortcode: process.env.ETHIO_SMS_SHORTCODE || '8844',
+              to: formattedPhone,
+              message: dto.body,
+            }),
           },
-          body: JSON.stringify({
-            shortcode: process.env.ETHIO_SMS_SHORTCODE || '8844',
-            to: formattedPhone,
-            message: dto.body,
-          }),
-        });
+        );
 
         if (response.ok) {
-          status = 'DELIVERED';
-        } else {
-          this.logger.warn(`Ethio Telecom HTTP Error: ${response.statusText}`);
-          status = 'FAILED';
+          this.logger.log(
+            `[Ethio Telecom SMS Success] Delivered to +${formattedPhone}`,
+          );
+          gatewayUsed = 'Ethio Telecom Direct Shortcode (8844)';
+          return true;
         }
-      } catch (err) {
-        this.logger.error(`Ethio Telecom API connection failed: ${err}`);
-        status = 'FAILED';
+        this.logger.warn(`Ethio Telecom HTTP Error: ${response.statusText}`);
+      } catch (err: any) {
+        this.logger.error(
+          `Ethio Telecom API connection error: ${err?.message || err}`,
+        );
       }
+      return false;
+    };
+
+    // Dual-Gateway Failover Engine Pipeline
+    let success = false;
+
+    if (process.env.AFROMESSAGE_API_KEY) {
+      success = await tryAfroMessage();
+      if (!success && process.env.ETHIO_SMS_API_URL) {
+        this.logger.warn(
+          `[Dual-Gateway Failover] AfroMessage failed. Automatically failing over to Ethio Telecom...`,
+        );
+        success = await tryEthioTelecom();
+      }
+    } else if (process.env.ETHIO_SMS_API_URL) {
+      success = await tryEthioTelecom();
+      if (!success && process.env.AFROMESSAGE_API_KEY) {
+        this.logger.warn(
+          `[Dual-Gateway Failover] Ethio Telecom failed. Automatically failing over to AfroMessage...`,
+        );
+        success = await tryAfroMessage();
+      }
+    }
+
+    if (success) {
+      status = 'DELIVERED';
+    } else if (
+      !process.env.AFROMESSAGE_API_KEY &&
+      !process.env.ETHIO_SMS_API_URL
+    ) {
+      status = 'DELIVERED';
+      gatewayUsed = 'Ethio Telecom Gateway Sandbox';
+      attemptsCount = 1;
+    } else {
+      status = 'FAILED';
     }
 
     const logEntry = {
@@ -541,7 +669,11 @@ export class EthioTelecomSmsService {
       triggerType,
       status,
       sentAt: new Date().toISOString(),
-      costEthioBirr: 0.35,
+      costEthioBirr: Number((0.35 * metadata.segmentCount).toFixed(2)),
+      gatewayUsed,
+      attemptsCount,
+      encoding: metadata.encoding,
+      segmentCount: metadata.segmentCount,
     };
 
     this.smsOutboxLogs.unshift(logEntry);
@@ -550,7 +682,7 @@ export class EthioTelecomSmsService {
     try {
       this.inMemory.recordActivity({
         actorUserId: 'user_001',
-        action: `Dispatched SMS (${triggerType}) to ${dto.recipientName} (+${formattedPhone})`,
+        action: `Dispatched SMS (${triggerType}) to ${dto.recipientName} (+${formattedPhone}) [${metadata.encoding}, ${gatewayUsed}]`,
         target: formattedPhone,
         type: 'call',
       });
@@ -580,12 +712,24 @@ export class EthioTelecomSmsService {
       (acc, curr) => acc + (curr.costEthioBirr || 0),
       0,
     );
+    const totalSegments = this.smsOutboxLogs.reduce(
+      (acc, curr) => acc + (curr.segmentCount || 1),
+      0,
+    );
+    const unicodeCount = this.smsOutboxLogs.filter((l) =>
+      l.encoding?.includes('Amharic'),
+    ).length;
     const activeCampaigns = this.dripCampaigns.filter(
       (c) => c.status === 'ACTIVE',
     ).length;
 
     let gatewayProvider = 'Ethio Telecom Gateway Sandbox';
-    if (process.env.AFROMESSAGE_API_KEY) {
+    if (
+      process.env.AFROMESSAGE_API_KEY &&
+      process.env.ETHIO_SMS_API_URL
+    ) {
+      gatewayProvider = 'Dual Gateway (AfroMessage + Ethio Telecom Direct)';
+    } else if (process.env.AFROMESSAGE_API_KEY) {
       gatewayProvider = 'AfroMessage Live Gateway (Ethiopia)';
     } else if (process.env.ETHIO_SMS_API_URL) {
       gatewayProvider = 'Ethio Telecom Live Shortcode';
@@ -595,6 +739,8 @@ export class EthioTelecomSmsService {
       totalSent,
       delivered,
       failed: totalSent - delivered,
+      totalSegments,
+      unicodeCount,
       deliveryRate:
         totalSent > 0 ? Math.round((delivered / totalSent) * 100) : 100,
       totalCostBirr: Math.round(totalCostBirr * 100) / 100,

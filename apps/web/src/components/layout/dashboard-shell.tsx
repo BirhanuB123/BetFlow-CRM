@@ -117,7 +117,7 @@ const navSections = [
     items: [
       { label: "Tasks", href: "/tasks", icon: ClipboardList },
       { label: "Meetings", href: "/meetings", icon: CalendarDays },
-      { label: "Calls", href: "/notifications/follow-ups", icon: Phone },
+      { label: "Calls", href: "/calls", icon: Phone, aliases: ["Call logs", "Telephony"] },
       {
         label: "Visits",
         href: "/site-visits",

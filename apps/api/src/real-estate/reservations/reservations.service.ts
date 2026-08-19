@@ -5,7 +5,9 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
+import { RedisCacheService } from '../../database/redis-cache.service';
 import { EthioTelecomSmsService } from '../../integrations/sms.service';
+import { InventoryGateway } from '../units/inventory.gateway';
 import {
   ACTIVE_RESERVATION_STATUSES,
   CreateReservationInput,
@@ -24,6 +26,8 @@ const reservationInclude = {
 export class ReservationsService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly redisCache: RedisCacheService,
+    private readonly inventoryGateway: InventoryGateway,
     private readonly smsService: EthioTelecomSmsService,
   ) {}
 
@@ -64,7 +68,7 @@ export class ReservationsService {
 
     await this.assertCustomerExists(input.customerId);
 
-    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    const result = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Explicit SQL row-level lock (SELECT FOR UPDATE) ensures only ONE concurrent transaction
       // can lock and transition an AVAILABLE unit to RESERVED during peak launches.
       const lockedUnits = await tx.$queryRaw<
@@ -134,6 +138,20 @@ export class ReservationsService {
         unit: { ...reservation.unit, status: 'RESERVED' },
       };
     });
+
+    await this.redisCache.invalidatePattern('units:');
+    await this.redisCache.invalidatePattern('projects:');
+
+    this.inventoryGateway.broadcastUnitStatusChange(input.unitId, 'RESERVED', {
+      reservationId: result.id,
+      amount: input.amount,
+    });
+    this.inventoryGateway.broadcastReservationEvent('created', {
+      reservationId: result.id,
+      unitId: input.unitId,
+    });
+
+    return result;
   }
 
   async update(userId: string, id: string, input: UpdateReservationInput) {
@@ -345,6 +363,11 @@ export class ReservationsService {
       });
 
       processedCount++;
+    }
+
+    if (processedCount > 0) {
+      await this.redisCache.invalidatePattern('units:');
+      await this.redisCache.invalidatePattern('projects:');
     }
 
     // 2. Pending Verification Holds: expired reservations with a bank receipt ref or payment attached -> retain unit lock & flag for finance verification

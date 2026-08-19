@@ -466,11 +466,16 @@ export class PdfGeneratorService {
   computeSignatureHash(
     contractId: string,
     signerName: string,
+    signerRole: string,
     signedAt: string,
     ipAddress: string,
+    userAgent: string,
     signatureDataUrl: string,
   ): string {
-    const raw = `${contractId}:${signerName}:${signedAt}:${ipAddress}:${signatureDataUrl.slice(-50)}`;
-    return createHash('sha256').update(raw).digest('hex');
+    const signatureChecksum = createHash('sha256')
+      .update(signatureDataUrl || '')
+      .digest('hex');
+    const rawPayload = `BETFLOW_AUDIT_V2|contract:${contractId}|signer:${signerName}|role:${signerRole}|time:${signedAt}|ip:${ipAddress}|ua:${userAgent}|sigHash:${signatureChecksum}`;
+    return createHash('sha256').update(rawPayload).digest('hex');
   }
 }

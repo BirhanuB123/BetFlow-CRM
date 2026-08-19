@@ -1,6 +1,7 @@
 import { type FormEvent } from "react";
 import { Sparkles, Receipt, User, Building, Coins, CalendarDays, Banknote } from "lucide-react";
 import { formatCurrency } from "@/lib/currency";
+import { OfflineDraftBanner } from "@/components/ui/offline-draft-banner";
 
 export type CustomerOption = { id: string; firstName: string; lastName: string };
 export type UnitOption = {
@@ -29,6 +30,10 @@ interface CreateReservationModalProps {
   availableUnits: UnitOption[];
   saving: boolean;
   selectedUnitDetails: UnitOption | null;
+  isOffline?: boolean;
+  hasDraft?: boolean;
+  onRestoreDraft?: () => void;
+  onClearDraft?: () => void;
 }
 
 export function CreateReservationModal({
@@ -39,12 +44,22 @@ export function CreateReservationModal({
   availableUnits,
   saving,
   selectedUnitDetails,
+  isOffline,
+  hasDraft,
+  onRestoreDraft,
+  onClearDraft,
 }: CreateReservationModalProps) {
   return (
     <form
       onSubmit={onSubmit}
       className="mt-6 rounded-xl border border-[#233b66]/20 bg-gradient-to-br from-[#233b66]/5 via-indigo-50/30 to-slate-50/50 p-5 shadow-inner transition-all"
     >
+      <OfflineDraftBanner
+        isOffline={isOffline}
+        hasDraft={hasDraft}
+        onRestoreDraft={onRestoreDraft}
+        onClearDraft={onClearDraft}
+      />
       <div className="flex items-center justify-between border-b border-[#233b66]/10 pb-3 mb-4">
         <h3 className="text-xs font-bold text-[#233b66] uppercase tracking-wider flex items-center gap-2">
           <Sparkles className="size-4 text-[#233b66]" />

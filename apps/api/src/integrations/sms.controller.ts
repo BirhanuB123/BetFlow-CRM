@@ -8,6 +8,7 @@ import {
   Param,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import {
   EthioTelecomSmsService,
   SmsSendDto,
@@ -43,6 +44,7 @@ export class SmsController {
     return this.smsService.getTemplates();
   }
 
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('broadcast-construction')
   async broadcastConstruction(
     @Body()
@@ -59,6 +61,7 @@ export class SmsController {
     );
   }
 
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('send')
   async sendSms(@Body() dto: SmsSendDto) {
     return this.smsService.sendSms(dto);

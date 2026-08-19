@@ -276,12 +276,12 @@ export default function ReservationsPage() {
 
   return (
     <DashboardShell
-      title="Property Unit Holds & Reservations"
+      title="Property Reservations"
       description="Reserve units post-site-visit, track deposit receipts, and manage automatic inventory locking & release windows."
       active="Reservations"
     >
       <div className="space-y-6">
-        {/* KPI Top Stat Summary Row */}
+        {/* KPI Top Stat Summary Row 
         <StatRow>
           <StatCard
             label="Active Unit Holds"
@@ -314,6 +314,7 @@ export default function ReservationsPage() {
             color="rose"
           />
         </StatRow>
+        */}
 
         {/* Section Header & Toolbar */}
         <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
