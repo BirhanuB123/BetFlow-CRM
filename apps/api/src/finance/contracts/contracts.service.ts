@@ -143,8 +143,10 @@ export class ContractsService {
     const verificationHash = this.pdfGenerator.computeSignatureHash(
       id,
       input.signerName,
+      input.signerRole,
       signedAtISO,
       reqMeta.ipAddress,
+      reqMeta.userAgent,
       input.signatureDataUrl,
     );
 

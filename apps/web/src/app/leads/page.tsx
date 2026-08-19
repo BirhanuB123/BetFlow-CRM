@@ -22,6 +22,7 @@ import {
   Search,
   SlidersHorizontal,
   Trash2,
+  Pencil,
   UserRoundCheck,
   X,
   Share2,
@@ -160,6 +161,7 @@ function SocialSourceBadge({
 }
 
 export default function LeadsPage() {
+  const toast = useToast();
   const [leads, setLeads] = useState<ApiLead[]>([]);
   const [sources, setSources] = useState<LeadSource[]>([]);
   const [loading, setLoading] = useState(true);
@@ -186,6 +188,8 @@ export default function LeadsPage() {
   const [busy, setBusy] = useState(false);
   const [convertLead, setConvertLead] = useState<ApiLead | null>(null);
   const [aiInsightLead, setAiInsightLead] = useState<ApiLead | null>(null);
+  const [editingLead, setEditingLead] = useState<ApiLead | null>(null);
+  const [editForm, setEditForm] = useState(emptyForm);
 
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -950,15 +954,37 @@ export default function LeadsPage() {
                           )}
                         </td>
                         <td className="px-4 py-3 text-right opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            type="button"
-                            onClick={(e) => handleDeleteSingle(lead.id, e)}
-                            className="text-zinc-400 hover:text-rose-600 p-1.5 rounded hover:bg-rose-50 transition-colors"
-                            title="Delete lead"
-                            aria-label="Delete lead"
-                          >
-                            <Trash2 className="size-3.5" />
-                          </button>
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingLead(lead);
+                                setEditForm({
+                                  firstName: lead.firstName || "",
+                                  lastName: lead.lastName || "",
+                                  company: lead.company || "",
+                                  email: lead.email || "",
+                                  phone: lead.phone || "",
+                                  sourceId: lead.source?.id || "",
+                                  status: (lead.status as LeadStatus) || "NEW",
+                                });
+                              }}
+                              className="text-zinc-400 hover:text-indigo-600 p-1.5 rounded hover:bg-indigo-50 transition-colors"
+                              title="Edit lead details"
+                              aria-label="Edit lead details"
+                            >
+                              <Pencil className="size-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => handleDeleteSingle(lead.id, e)}
+                              className="text-zinc-400 hover:text-rose-600 p-1.5 rounded hover:bg-rose-50 transition-colors"
+                              title="Delete lead"
+                              aria-label="Delete lead"
+                            >
+                              <Trash2 className="size-3.5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -1024,6 +1050,137 @@ export default function LeadsPage() {
           }}
         />
       ) : null}
+
+      {/* Edit Lead Modal */}
+      {editingLead && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-lg rounded-xl border border-zinc-200 bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-zinc-100 pb-3 mb-4">
+              <h3 className="text-base font-bold text-zinc-900">
+                Edit Lead Details
+              </h3>
+              <button
+                type="button"
+                onClick={() => setEditingLead(null)}
+                className="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setBusy(true);
+                try {
+                  const updated = await apiFetch<ApiLead>(`/leads/${editingLead.id}`, {
+                    method: "PATCH",
+                    body: JSON.stringify(editForm),
+                  });
+                  setLeads((prev) =>
+                    prev.map((l) => (l.id === editingLead.id ? { ...l, ...updated } : l)),
+                  );
+                  setEditingLead(null);
+                  toast.success("Lead updated successfully!");
+                } catch (err: any) {
+                  toast.error(err?.message || "Failed to update lead");
+                } finally {
+                  setBusy(false);
+                }
+              }}
+              className="space-y-4 text-xs"
+            >
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-zinc-700 mb-1">First Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editForm.firstName}
+                    onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
+                    className="w-full h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-900 focus:border-indigo-600 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-zinc-700 mb-1">Last Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editForm.lastName}
+                    onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
+                    className="w-full h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-900 focus:border-indigo-600 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-zinc-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={editForm.email}
+                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    className="w-full h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-900 focus:border-indigo-600 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-zinc-700 mb-1">Phone</label>
+                  <input
+                    type="tel"
+                    value={editForm.phone}
+                    onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                    className="w-full h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-900 focus:border-indigo-600 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-zinc-700 mb-1">Company / Organization</label>
+                  <input
+                    type="text"
+                    value={editForm.company}
+                    onChange={(e) => setEditForm({ ...editForm, company: e.target.value })}
+                    className="w-full h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-900 focus:border-indigo-600 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-zinc-700 mb-1">Status / Pipeline Stage</label>
+                  <select
+                    value={editForm.status}
+                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value as LeadStatus })}
+                    className="w-full h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-900 focus:border-indigo-600 focus:outline-none"
+                  >
+                    {LEAD_STATUSES.map((st) => (
+                      <option key={st} value={st}>
+                        {titleCase(st)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 border-t border-zinc-100 pt-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditingLead(null)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={busy}
+                  size="sm"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                >
+                  {busy ? "Saving Changes…" : "Update Lead"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {aiInsightLead ? (
         <AiInsightsModal

@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { RedisCacheService } from '../../database/redis-cache.service';
 import {
   CreateUnitInput,
   UNIT_STATUSES,
@@ -38,7 +39,10 @@ const unitInclude = {
 
 @Injectable()
 export class UnitsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redisCache: RedisCacheService,
+  ) {}
 
   getStageInfo(stage?: string | null, progress?: number | null) {
     const stageMap: Record<
@@ -89,6 +93,10 @@ export class UnitsService {
   }
 
   async getStackingPlan() {
+    const cacheKey = 'units:stacking_plan';
+    const cached = await this.redisCache.get<any[]>(cacheKey);
+    if (cached) return cached;
+
     const buildings = await this.prisma.building.findMany({
       include: {
         project: {
@@ -111,7 +119,7 @@ export class UnitsService {
       orderBy: { name: 'asc' },
     });
 
-    return buildings.map((b) => {
+    const result = buildings.map((b) => {
       const stageInfo = this.getStageInfo(
         b.project?.constructionStage,
         b.project?.progressPercentage,
@@ -142,9 +150,16 @@ export class UnitsService {
         })),
       };
     });
+
+    await this.redisCache.set(cacheKey, result, 300);
+    return result;
   }
 
   async list(filters: { status?: string; floorId?: string } = {}) {
+    const cacheKey = `units:list:${JSON.stringify(filters)}`;
+    const cached = await this.redisCache.get<any[]>(cacheKey);
+    if (cached) return cached;
+
     const where: Record<string, unknown> = {};
     if (filters.status) where.status = this.normalizeStatus(filters.status);
     if (filters.floorId) where.floorId = filters.floorId;
@@ -155,7 +170,7 @@ export class UnitsService {
       orderBy: { unitNumber: 'asc' },
     });
 
-    return units.map((u) => {
+    const result = units.map((u) => {
       const project = u.floor?.building?.project;
       const stageInfo = this.getStageInfo(
         project?.constructionStage,
@@ -166,9 +181,16 @@ export class UnitsService {
         stageInfo,
       };
     });
+
+    await this.redisCache.set(cacheKey, result, 300);
+    return result;
   }
 
   async get(id: string) {
+    const cacheKey = `units:${id}`;
+    const cached = await this.redisCache.get<any>(cacheKey);
+    if (cached) return cached;
+
     const unit = await this.prisma.unit.findFirst({
       where: { id },
       include: unitInclude,
@@ -184,10 +206,13 @@ export class UnitsService {
       project?.progressPercentage,
     );
 
-    return {
+    const result = {
       ...unit,
       stageInfo,
     };
+
+    await this.redisCache.set(cacheKey, result, 300);
+    return result;
   }
 
   async create(userId: string, input: CreateUnitInput) {
@@ -216,6 +241,8 @@ export class UnitsService {
     });
 
     await this.recordAudit(userId, 'unit.created', unit.id);
+    await this.redisCache.invalidatePattern('units:');
+    await this.redisCache.invalidatePattern('projects:');
 
     return unit;
   }
@@ -259,6 +286,8 @@ export class UnitsService {
     });
 
     await this.recordAudit(userId, 'unit.updated', unit.id);
+    await this.redisCache.invalidatePattern('units:');
+    await this.redisCache.invalidatePattern('projects:');
 
     return unit;
   }
@@ -283,6 +312,8 @@ export class UnitsService {
       from: existing.status,
       to: normalized,
     });
+    await this.redisCache.invalidatePattern('units:');
+    await this.redisCache.invalidatePattern('projects:');
 
     return unit;
   }
@@ -313,6 +344,8 @@ export class UnitsService {
 
     await this.prisma.unit.delete({ where: { id } });
     await this.recordAudit(userId, 'unit.deleted', id);
+    await this.redisCache.invalidatePattern('units:');
+    await this.redisCache.invalidatePattern('projects:');
 
     return { id, deleted: true };
   }

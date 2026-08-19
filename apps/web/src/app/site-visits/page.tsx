@@ -355,7 +355,7 @@ export default function SiteVisitsPage() {
 
   return (
     <DashboardShell
-      title="Site Visits & Customer Demands"
+      title="Site Visits Dashboard"
       description="Track property site visits, buyer unit preferences, square meters, floor placement, and purchase intent."
       active="Site visits"
     >
@@ -367,7 +367,7 @@ export default function SiteVisitsPage() {
               <div className="flex items-center gap-2">
                 <Building2 className="size-5 text-[#233b66]" />
                 <h2 className="text-lg font-bold text-slate-900">
-                  Site Visit Bookings & Buyer Preferences
+                  Site Visits & Bookings
                 </h2>
               </div>
               <p className="mt-1 text-sm text-slate-500">

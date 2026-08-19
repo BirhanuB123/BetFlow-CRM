@@ -11,6 +11,7 @@ import Link from "next/link";
 import {
   Plus,
   Trash2,
+  Pencil,
   X,
   Search,
   ChevronDown,
@@ -143,6 +144,8 @@ export default function ContactsPage() {
   );
   const [filterSearch, setFilterSearch] = useState("");
   const [showSidebar, setShowSidebar] = useState(true);
+  const [editingCustomer, setEditingCustomer] = useState<ApiCustomer | null>(null);
+  const [editCustomerForm, setEditCustomerForm] = useState<NewCustomer>(EMPTY_FORM);
 
   // Row selection state
   const [selectedRowIds, setSelectedRowIds] = useState<Set<string>>(new Set());
@@ -792,14 +795,34 @@ export default function ContactsPage() {
                           Birhanu Baynesagn
                         </td>
                         <td className="px-4 py-2.5 text-right opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={(e) => handleDelete(customer.id, e)}
-                            className="text-zinc-400 hover:text-red-600 p-1.5 rounded hover:bg-red-50 transition-colors"
-                            title="Delete contact"
-                            aria-label="Delete contact"
-                          >
-                            <Trash2 className="size-3.5" />
-                          </button>
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setEditingCustomer(customer);
+                                setEditCustomerForm({
+                                  firstName: customer.firstName || "",
+                                  lastName: customer.lastName || "",
+                                  email: customer.email || "",
+                                  phone: customer.phone || "",
+                                });
+                              }}
+                              className="text-zinc-400 hover:text-indigo-600 p-1.5 rounded hover:bg-indigo-50 transition-colors"
+                              title="Edit contact details"
+                              aria-label="Edit contact details"
+                            >
+                              <Pencil className="size-3.5" />
+                            </button>
+                            <button
+                              onClick={(e) => handleDelete(customer.id, e)}
+                              className="text-zinc-400 hover:text-red-600 p-1.5 rounded hover:bg-red-50 transition-colors"
+                              title="Delete contact"
+                              aria-label="Delete contact"
+                            >
+                              <Trash2 className="size-3.5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -830,6 +853,109 @@ export default function ContactsPage() {
           )}
         </div>
       </div>
+      {/* Edit Customer Modal */}
+      {editingCustomer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-zinc-100 pb-3 mb-4">
+              <h3 className="text-base font-bold text-zinc-900">
+                Edit Contact Details
+              </h3>
+              <button
+                type="button"
+                onClick={() => setEditingCustomer(null)}
+                className="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setSaving(true);
+                setError(null);
+                try {
+                  const updated = await apiFetch<ApiCustomer>(`/customers/${editingCustomer.id}`, {
+                    method: "PATCH",
+                    body: JSON.stringify(editCustomerForm),
+                  });
+                  setCustomers((prev) =>
+                    prev.map((c) => (c.id === editingCustomer.id ? { ...c, ...updated } : c)),
+                  );
+                  setEditingCustomer(null);
+                } catch (err: any) {
+                  setError(err instanceof Error ? err.message : "Failed to update contact");
+                } finally {
+                  setSaving(false);
+                }
+              }}
+              className="space-y-4 text-xs"
+            >
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-zinc-700 mb-1">First Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editCustomerForm.firstName}
+                    onChange={(e) => setEditCustomerForm({ ...editCustomerForm, firstName: e.target.value })}
+                    className="w-full h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-900 focus:border-indigo-600 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-zinc-700 mb-1">Last Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editCustomerForm.lastName}
+                    onChange={(e) => setEditCustomerForm({ ...editCustomerForm, lastName: e.target.value })}
+                    className="w-full h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-900 focus:border-indigo-600 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-zinc-700 mb-1">Email Address</label>
+                <input
+                  type="email"
+                  value={editCustomerForm.email || ""}
+                  onChange={(e) => setEditCustomerForm({ ...editCustomerForm, email: e.target.value })}
+                  className="w-full h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-900 focus:border-indigo-600 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-zinc-700 mb-1">Phone Number</label>
+                <input
+                  type="tel"
+                  value={editCustomerForm.phone || ""}
+                  onChange={(e) => setEditCustomerForm({ ...editCustomerForm, phone: e.target.value })}
+                  className="w-full h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-900 focus:border-indigo-600 focus:outline-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 border-t border-zinc-100 pt-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditingCustomer(null)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={saving}
+                  size="sm"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                >
+                  {saving ? "Saving Changes…" : "Update Contact"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </DashboardShell>
   );
 }

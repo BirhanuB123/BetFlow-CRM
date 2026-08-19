@@ -10,6 +10,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import type { Response, Request } from 'express';
 import { ContractsService } from './contracts.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -33,6 +34,7 @@ export class ContractsController {
     private readonly builderService: ContractBuilderService,
   ) {}
 
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('generate')
   generate(
     @CurrentUser() user: AuthenticatedUser,
@@ -71,6 +73,7 @@ export class ContractsController {
     res.send(buffer);
   }
 
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post(':id/signatures')
   sign(
     @Param('id') id: string,

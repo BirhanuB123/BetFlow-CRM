@@ -12,3 +12,4 @@ export * from "./task.types.js";
 export * from "./payment.types.js";
 export * from "./activity.types.js";
 export * from "./property.types.js";
+export * from "./call.types.js";

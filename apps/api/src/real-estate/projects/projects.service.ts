@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { RedisCacheService } from '../../database/redis-cache.service';
 import { EthioTelecomSmsService } from '../../integrations/sms.service';
 import {
   CreateProjectInput,
@@ -16,17 +17,22 @@ import {
 export class ProjectsService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly redisCache: RedisCacheService,
     private readonly smsService: EthioTelecomSmsService,
   ) {}
 
   async list() {
+    const cacheKey = 'projects:list';
+    const cached = await this.redisCache.get<any[]>(cacheKey);
+    if (cached) return cached;
+
     const projects = await this.prisma.project.findMany({
       where: {},
       include: { _count: { select: { buildings: true } } },
       orderBy: { createdAt: 'desc' },
     });
 
-    return Promise.all(
+    const result = await Promise.all(
       projects.map(async (project) => {
         const units = await this.prisma.unit.findMany({
           where: { floor: { building: { projectId: project.id } } },
@@ -56,9 +62,16 @@ export class ProjectsService {
         };
       }),
     );
+
+    await this.redisCache.set(cacheKey, result, 300);
+    return result;
   }
 
   async get(id: string) {
+    const cacheKey = `projects:${id}`;
+    const cached = await this.redisCache.get<any>(cacheKey);
+    if (cached) return cached;
+
     const project = await this.prisma.project.findFirst({
       where: { id },
       include: {
@@ -101,7 +114,7 @@ export class ProjectsService {
       0,
     );
 
-    return {
+    const result = {
       ...project,
       buildings,
       unitsCount,
@@ -110,6 +123,9 @@ export class ProjectsService {
       soldUnitsCount,
       totalValueETB,
     };
+
+    await this.redisCache.set(cacheKey, result, 300);
+    return result;
   }
 
   async create(userId: string, input: CreateProjectInput) {
@@ -143,6 +159,7 @@ export class ProjectsService {
     });
 
     await this.recordAudit(userId, 'project.created', project.id);
+    await this.redisCache.invalidatePattern('projects:');
 
     return project;
   }
@@ -273,6 +290,8 @@ export class ProjectsService {
         : {}),
     });
 
+    await this.redisCache.invalidatePattern('projects:');
+
     return project;
   }
 
@@ -300,6 +319,7 @@ export class ProjectsService {
     ]);
 
     await this.recordAudit(userId, 'project.deleted', id);
+    await this.redisCache.invalidatePattern('projects:');
 
     return { id, deleted: true };
   }

@@ -83,6 +83,8 @@ model Branch {
   id       String  @id @default(uuid())
   name     String
   location String?
+
+  @@index([name])
 }
 
 model Project {
@@ -107,6 +109,10 @@ model Project {
   updatedAt DateTime @default(now()) @updatedAt
 
   buildings Building[]
+
+  @@index([status, subCity])
+  @@index([subCity, category])
+  @@index([status, category])
 }
 
 model Building {
@@ -145,6 +151,8 @@ model Unit {
 
   @@index([status, floorId])
   @@index([status, type])
+  @@index([status, price])
+  @@index([status, type, price])
 }
 
 // --------------------------------------
@@ -180,6 +188,9 @@ model Lead {
   callLogs   CallLog[]
 
   @@index([status, ownerId])
+  @@index([status, ownerId, createdAt])
+  @@index([sourceId, status])
+  @@index([createdAt])
   @@index([convertedAt])
   @@index([email, phone])
 }
@@ -242,6 +253,7 @@ model Customer {
   contracts    Contract[]
 
   @@index([accountId])
+  @@index([email, phone])
 }
 
 model DealStage {
@@ -270,6 +282,8 @@ model Deal {
   contracts Contract[]
 
   @@index([accountId])
+  @@index([stageId, value])
+  @@index([customerId, stageId])
 }
 
 // --------------------------------------
@@ -365,6 +379,7 @@ model Reservation {
 
   @@index([status, expiryDate])
   @@index([customerId, unitId])
+  @@index([unitId, status])
 }
 
 model Contract {
@@ -396,6 +411,7 @@ model Contract {
 
   @@index([status, unitId])
   @@index([customerId, dealId])
+  @@index([status, customerId])
 }
 
 model Payment {

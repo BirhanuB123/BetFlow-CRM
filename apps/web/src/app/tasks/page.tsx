@@ -430,7 +430,7 @@ export default function TasksPage() {
 
   return (
     <DashboardShell
-      title="Real Estate Task Operations"
+      title="Task Operations"
       description="Track pro-forma preparation, site visit logistics, bank mortgage document collection, and sales contracts."
       active="Tasks"
     >
@@ -442,7 +442,7 @@ export default function TasksPage() {
               <div className="flex items-center gap-2">
                 <ClipboardList className="size-5 text-[#233b66]" />
                 <h2 className="text-lg font-bold text-slate-900">
-                  Ethiopian Real Estate Sales Tasks
+                  Sales Task
                 </h2>
               </div>
               <p className="mt-1 text-sm text-slate-500">
