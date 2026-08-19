@@ -44,7 +44,14 @@ export class PaymentsService {
       include: {
         contract: {
           include: {
-            customer: { select: { id: true, firstName: true, lastName: true, phone: true } },
+            customer: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                phone: true,
+              },
+            },
             unit: { select: { id: true, unitNumber: true, type: true } },
           },
         },
@@ -68,17 +75,26 @@ export class PaymentsService {
       let lateDaysAfterGrace = 0;
       let isWithinGrace = false;
 
-      if (now > schedule.dueDate && now <= graceCutoff && schedule.status !== 'PAID') {
+      if (
+        now > schedule.dueDate &&
+        now <= graceCutoff &&
+        schedule.status !== 'PAID'
+      ) {
         isWithinGrace = true;
       }
 
       if (isOverGrace) {
         const msLate = now.getTime() - graceCutoff.getTime();
         lateDaysAfterGrace = Math.floor(msLate / (1000 * 60 * 60 * 24)) + 1;
-        const unpaidAmount = Math.max(0, Number(schedule.amount) - Number(schedule.paidAmount));
+        const unpaidAmount = Math.max(
+          0,
+          Number(schedule.amount) - Number(schedule.paidAmount),
+        );
 
         const penaltyMonths = Math.max(1, Math.ceil(lateDaysAfterGrace / 30));
-        computedPenalty = Math.round(unpaidAmount * penaltyRate * penaltyMonths);
+        computedPenalty = Math.round(
+          unpaidAmount * penaltyRate * penaltyMonths,
+        );
       }
 
       return {

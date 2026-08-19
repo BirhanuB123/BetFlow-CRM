@@ -9,7 +9,9 @@ import { CallsGateway } from './calls.gateway';
 
 const callInclude = {
   lead: { select: { id: true, firstName: true, lastName: true, phone: true } },
-  customer: { select: { id: true, firstName: true, lastName: true, phone: true } },
+  customer: {
+    select: { id: true, firstName: true, lastName: true, phone: true },
+  },
 } as const;
 
 @Injectable()
@@ -20,12 +22,14 @@ export class CallsService {
     private readonly callsGateway: CallsGateway,
   ) {}
 
-  async list(filters: {
-    status?: string;
-    callType?: string;
-    leadId?: string;
-    customerId?: string;
-  } = {}) {
+  async list(
+    filters: {
+      status?: string;
+      callType?: string;
+      leadId?: string;
+      customerId?: string;
+    } = {},
+  ) {
     const where: Record<string, unknown> = {};
     if (filters.status) where.status = filters.status.toUpperCase();
     if (filters.callType) where.callType = filters.callType.toUpperCase();
@@ -41,7 +45,9 @@ export class CallsService {
     return calls.map((c) => ({
       ...c,
       leadName: c.lead ? `${c.lead.firstName} ${c.lead.lastName}`.trim() : null,
-      customerName: c.customer ? `${c.customer.firstName} ${c.customer.lastName}`.trim() : null,
+      customerName: c.customer
+        ? `${c.customer.firstName} ${c.customer.lastName}`.trim()
+        : null,
     }));
   }
 
@@ -57,8 +63,12 @@ export class CallsService {
 
     return {
       ...call,
-      leadName: call.lead ? `${call.lead.firstName} ${call.lead.lastName}`.trim() : null,
-      customerName: call.customer ? `${call.customer.firstName} ${call.customer.lastName}`.trim() : null,
+      leadName: call.lead
+        ? `${call.lead.firstName} ${call.lead.lastName}`.trim()
+        : null,
+      customerName: call.customer
+        ? `${call.customer.firstName} ${call.customer.lastName}`.trim()
+        : null,
     };
   }
 
@@ -75,7 +85,9 @@ export class CallsService {
         callPurpose: input.callPurpose || 'POST_VISIT_FOLLOWUP',
         callResult: input.callResult || null,
         dueDate,
-        durationSeconds: input.durationSeconds ? Number(input.durationSeconds) : null,
+        durationSeconds: input.durationSeconds
+          ? Number(input.durationSeconds)
+          : null,
         notes: input.notes?.trim() || null,
         status: input.status || 'PENDING',
         leadId: input.leadId || null,
@@ -86,8 +98,12 @@ export class CallsService {
 
     const result = {
       ...call,
-      leadName: call.lead ? `${call.lead.firstName} ${call.lead.lastName}`.trim() : null,
-      customerName: call.customer ? `${call.customer.firstName} ${call.customer.lastName}`.trim() : null,
+      leadName: call.lead
+        ? `${call.lead.firstName} ${call.lead.lastName}`.trim()
+        : null,
+      customerName: call.customer
+        ? `${call.customer.firstName} ${call.customer.lastName}`.trim()
+        : null,
     };
 
     await this.recordAudit(userId, 'call.created', call.id);
@@ -107,11 +123,13 @@ export class CallsService {
     if (input.callPurpose !== undefined) data.callPurpose = input.callPurpose;
     if (input.callResult !== undefined) data.callResult = input.callResult;
     if (input.dueDate !== undefined) data.dueDate = new Date(input.dueDate);
-    if (input.durationSeconds !== undefined) data.durationSeconds = Number(input.durationSeconds);
+    if (input.durationSeconds !== undefined)
+      data.durationSeconds = Number(input.durationSeconds);
     if (input.notes !== undefined) data.notes = input.notes?.trim() || null;
     if (input.status !== undefined) data.status = input.status;
     if (input.leadId !== undefined) data.leadId = input.leadId || null;
-    if (input.customerId !== undefined) data.customerId = input.customerId || null;
+    if (input.customerId !== undefined)
+      data.customerId = input.customerId || null;
 
     const call = await this.prisma.callLog.update({
       where: { id },
@@ -121,8 +139,12 @@ export class CallsService {
 
     const result = {
       ...call,
-      leadName: call.lead ? `${call.lead.firstName} ${call.lead.lastName}`.trim() : null,
-      customerName: call.customer ? `${call.customer.firstName} ${call.customer.lastName}`.trim() : null,
+      leadName: call.lead
+        ? `${call.lead.firstName} ${call.lead.lastName}`.trim()
+        : null,
+      customerName: call.customer
+        ? `${call.customer.firstName} ${call.customer.lastName}`.trim()
+        : null,
     };
 
     await this.recordAudit(userId, 'call.updated', id);
@@ -146,7 +168,9 @@ export class CallsService {
         status: 'COMPLETED',
         completedAt: new Date(),
         callResult: input.callResult || existing.callResult || 'INTERESTED',
-        durationSeconds: input.durationSeconds ? Number(input.durationSeconds) : existing.durationSeconds || 120,
+        durationSeconds: input.durationSeconds
+          ? Number(input.durationSeconds)
+          : existing.durationSeconds || 120,
         notes: input.notes ? input.notes.trim() : existing.notes,
       },
       include: callInclude,
@@ -154,8 +178,12 @@ export class CallsService {
 
     const result = {
       ...call,
-      leadName: call.lead ? `${call.lead.firstName} ${call.lead.lastName}`.trim() : null,
-      customerName: call.customer ? `${call.customer.firstName} ${call.customer.lastName}`.trim() : null,
+      leadName: call.lead
+        ? `${call.lead.firstName} ${call.lead.lastName}`.trim()
+        : null,
+      customerName: call.customer
+        ? `${call.customer.firstName} ${call.customer.lastName}`.trim()
+        : null,
     };
 
     await this.recordAudit(userId, 'call.completed', id);
@@ -179,16 +207,28 @@ export class CallsService {
 
   async getStats() {
     const totalCalls = await this.prisma.callLog.count();
-    const completed = await this.prisma.callLog.count({ where: { status: 'COMPLETED' } });
-    const pending = await this.prisma.callLog.count({ where: { status: 'PENDING' } });
+    const completed = await this.prisma.callLog.count({
+      where: { status: 'COMPLETED' },
+    });
+    const pending = await this.prisma.callLog.count({
+      where: { status: 'PENDING' },
+    });
     const overdue = await this.prisma.callLog.count({
       where: { status: 'PENDING', dueDate: { lt: new Date() } },
     });
 
-    const interestedCount = await this.prisma.callLog.count({ where: { callResult: 'INTERESTED' } });
-    const noAnswerCount = await this.prisma.callLog.count({ where: { callResult: 'NO_ANSWER' } });
-    const busyCount = await this.prisma.callLog.count({ where: { callResult: 'BUSY_CALL_BACK' } });
-    const proformaCount = await this.prisma.callLog.count({ where: { callResult: 'REQUESTED_PROFORMA' } });
+    const interestedCount = await this.prisma.callLog.count({
+      where: { callResult: 'INTERESTED' },
+    });
+    const noAnswerCount = await this.prisma.callLog.count({
+      where: { callResult: 'NO_ANSWER' },
+    });
+    const busyCount = await this.prisma.callLog.count({
+      where: { callResult: 'BUSY_CALL_BACK' },
+    });
+    const proformaCount = await this.prisma.callLog.count({
+      where: { callResult: 'REQUESTED_PROFORMA' },
+    });
 
     return {
       totalCalls,

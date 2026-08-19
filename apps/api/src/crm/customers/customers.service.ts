@@ -147,10 +147,7 @@ export class CustomersService {
     if (normalizedPhone) {
       const existing = await this.prisma.customer.findFirst({
         where: {
-          OR: [
-            { phone: normalizedPhone },
-            { phone: input.phone?.trim() },
-          ],
+          OR: [{ phone: normalizedPhone }, { phone: input.phone?.trim() }],
         },
       });
 

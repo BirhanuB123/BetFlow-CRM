@@ -26,10 +26,7 @@ export class LeadsController {
   constructor(private readonly leads: LeadsService) {}
 
   @Get()
-  list(
-    @CurrentUser() user: AuthenticatedUser,
-    @Query('q') search?: string,
-  ) {
+  list(@CurrentUser() user: AuthenticatedUser, @Query('q') search?: string) {
     return this.leads.list(search);
   }
 

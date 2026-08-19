@@ -42,10 +42,7 @@ export class CallsController {
 
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @Post()
-  create(
-    @CurrentUser() user: AuthenticatedUser,
-    @Body() body: any,
-  ) {
+  create(@CurrentUser() user: AuthenticatedUser, @Body() body: any) {
     return this.callsService.create(user.id, body);
   }
 
@@ -62,7 +59,8 @@ export class CallsController {
   completeCall(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
-    @Body() body: { durationSeconds?: number; callResult?: string; notes?: string },
+    @Body()
+    body: { durationSeconds?: number; callResult?: string; notes?: string },
   ) {
     return this.callsService.completeCall(user.id, id, body);
   }

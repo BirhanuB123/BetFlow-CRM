@@ -101,9 +101,16 @@ export class DocumentsService {
   async getKycStatus(customerId: string) {
     const customer = await this.prisma.customer.findUnique({
       where: { id: customerId },
-      select: { id: true, firstName: true, lastName: true, phone: true, email: true },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        email: true,
+      },
     });
-    if (!customer) throw new NotFoundException(`Customer ${customerId} not found`);
+    if (!customer)
+      throw new NotFoundException(`Customer ${customerId} not found`);
 
     const isDiaspora =
       !!customer.phone &&
@@ -112,14 +119,23 @@ export class DocumentsService {
 
     const requiredPreset = isDiaspora
       ? [
-          { category: 'YELLOW_CARD', label: 'Yellow Card (Ethiopian Origin ID)' },
+          {
+            category: 'YELLOW_CARD',
+            label: 'Yellow Card (Ethiopian Origin ID)',
+          },
           { category: 'FOREIGN_PASSPORT', label: 'Foreign Passport' },
-          { category: 'POWER_OF_ATTORNEY_MOFA', label: 'Power of Attorney (ውክልና MoFA Verified)' },
+          {
+            category: 'POWER_OF_ATTORNEY_MOFA',
+            label: 'Power of Attorney (ውክልና MoFA Verified)',
+          },
         ]
       : [
           { category: 'KEBELE_ID', label: 'Kebele / Resident ID' },
           { category: 'PASSPORT', label: 'Ethiopian National Passport' },
-          { category: 'TIN_CERTIFICATE', label: 'TIN Certificate (Taxpayer ID)' },
+          {
+            category: 'TIN_CERTIFICATE',
+            label: 'TIN Certificate (Taxpayer ID)',
+          },
         ];
 
     const customerDocuments = await this.prisma.document.findMany({
@@ -133,7 +149,8 @@ export class DocumentsService {
         (d) => d.category.toUpperCase() === req.category,
       );
 
-      let status: 'VERIFIED' | 'PENDING_REVIEW' | 'EXPIRED' | 'MISSING' = 'MISSING';
+      let status: 'VERIFIED' | 'PENDING_REVIEW' | 'EXPIRED' | 'MISSING' =
+        'MISSING';
       if (doc) {
         if (doc.expiresAt && doc.expiresAt < now) {
           status = 'EXPIRED';
@@ -152,8 +169,12 @@ export class DocumentsService {
       };
     });
 
-    const verifiedCount = requirements.filter((r) => r.status === 'VERIFIED').length;
-    const completionPercentage = Math.round((verifiedCount / requirements.length) * 100);
+    const verifiedCount = requirements.filter(
+      (r) => r.status === 'VERIFIED',
+    ).length;
+    const completionPercentage = Math.round(
+      (verifiedCount / requirements.length) * 100,
+    );
     const isKycComplete = verifiedCount === requirements.length;
 
     return {

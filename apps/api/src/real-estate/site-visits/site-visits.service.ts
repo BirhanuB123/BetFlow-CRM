@@ -109,7 +109,11 @@ export class SiteVisitsService {
       }
 
       // 2. Preferred Sqm Match (25 points)
-      if (visit.preferredSqm && Number(visit.preferredSqm) > 0 && unitArea > 0) {
+      if (
+        visit.preferredSqm &&
+        Number(visit.preferredSqm) > 0 &&
+        unitArea > 0
+      ) {
         const targetSqm = Number(visit.preferredSqm);
         const diffRatio = Math.abs(unitArea - targetSqm) / targetSqm;
         if (diffRatio <= 0.15) {

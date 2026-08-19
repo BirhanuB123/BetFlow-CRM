@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import Redis from 'ioredis';
 
 interface CacheEntry<T> {
@@ -42,17 +47,23 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
 
       this.client.on('error', (err) => {
         if (this.isRedisConnected) {
-          this.logger.warn(`Redis cache connection error: ${err.message}. Falling back to in-memory cache.`);
+          this.logger.warn(
+            `Redis cache connection error: ${err.message}. Falling back to in-memory cache.`,
+          );
         }
         this.isRedisConnected = false;
       });
 
       await this.client.connect().catch((err) => {
-        this.logger.warn(`Redis server unavailable (${err.message}). Using in-memory fallback cache.`);
+        this.logger.warn(
+          `Redis server unavailable (${err.message}). Using in-memory fallback cache.`,
+        );
         this.isRedisConnected = false;
       });
     } catch (error: any) {
-      this.logger.warn(`Redis client initialization skipped (${error.message}). Using in-memory cache.`);
+      this.logger.warn(
+        `Redis client initialization skipped (${error.message}). Using in-memory cache.`,
+      );
       this.isRedisConnected = false;
     }
   }
@@ -125,7 +136,9 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
           await this.client.del(...keys);
         }
       } catch (err: any) {
-        this.logger.debug(`Redis invalidatePattern failed for prefix "${patternPrefix}": ${err.message}`);
+        this.logger.debug(
+          `Redis invalidatePattern failed for prefix "${patternPrefix}": ${err.message}`,
+        );
       }
     }
 
