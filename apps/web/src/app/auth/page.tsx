@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, UserPlus, LogIn, KeyRound, Lock } from "lucide-react";
+import { ArrowRight, UserPlus, LogIn, KeyRound, Lock, Building2 } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -36,9 +36,28 @@ type ResetState = {
   newPassword: string;
 };
 
-const labelClass = "text-[13px] font-medium text-zinc-600";
+type ShowcasePhoto = {
+  id: string;
+  src: string;
+  title: string;
+  subtitle: string;
+  location: string;
+  statText: string;
+};
+const AUTH_SHOWCASE_PHOTOS: ShowcasePhoto[] = [
+  {
+    id: "bole-tower-1",
+    src: "/tower.png",
+    title: "Bole Luxury Towers",
+    subtitle: "24-Story Residential & Commercial Elevation",
+    location: "Addis Ababa",
+    statText: "Selling Through · Live Stacking Locked",
+  },
+];
+
+const labelClass = "text-[13px] font-semibold text-slate-700";
 const inputClass =
-  "mt-1.5 h-11 w-full rounded-lg bg-[#f1f4f8] px-3.5 text-sm text-zinc-900 outline-none ring-1 ring-transparent transition placeholder:text-zinc-400 focus:bg-white focus:ring-2 focus:ring-[#0E6E63]/40";
+  "mt-1.5 h-11 w-full rounded-xl bg-slate-50 border border-slate-200/90 px-3.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -308,424 +327,497 @@ export default function AuthPage() {
     }
   };
 
+  const activePhoto = AUTH_SHOWCASE_PHOTOS[0];
+
   return (
-    <main className="relative min-h-screen w-full overflow-hidden bg-[#e9edf2]">
-      {/* Background */}
-      <div className="absolute inset-0 bg-[url('/login-bg.svg')] bg-cover bg-center" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#eef2f6]/70 via-transparent to-transparent" />
+    <main className="relative min-h-screen w-full bg-slate-900 font-sans text-slate-100 selection:bg-[#233b66] selection:text-white">
+      <div className="grid min-h-screen w-full lg:grid-cols-12">
+        {/* Left Panel: Real-Estate Showcase (Hidden on small screens) */}
+        <div className="relative hidden lg:flex lg:col-span-7 xl:col-span-7 flex-col justify-between overflow-hidden bg-slate-950 p-12">
+          {/* Real Estate Background Photo */}
+          <div
+            className="absolute inset-0 bg-cover bg-center transition-all duration-700 opacity-60"
+            style={{ backgroundImage: `url(${activePhoto.src})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-950/20" />
 
-      {/* Floating auth card */}
-      <div className="relative z-10 flex min-h-screen items-center justify-center px-6 sm:px-10 lg:justify-start lg:px-24">
-        <div className="w-full max-w-[420px] rounded-2xl border border-white/60 bg-white/95 p-8 shadow-[0_24px_60px_-24px_rgba(15,32,60,0.45)] backdrop-blur">
-          <div className="flex flex-col items-center">
+          {/* Top Brand Tag */}
+          <div className="relative z-10 flex items-center gap-3">
             <Image
-              src="/betflow-logo.svg"
+              src="/betflow-mark.svg"
               alt={systemName}
-              width={168}
-              height={44}
-              priority
-              className="h-11 w-auto"
+              width={36}
+              height={36}
+              className="rounded-xl bg-indigo-600 p-1 shadow-md"
             />
-            <h1 className="mt-2 text-base font-extrabold text-slate-800 tracking-tight">
-              {systemName}
-            </h1>
-            <p className="mt-0.5 text-[12px] font-medium tracking-wide text-zinc-400">
-              Corporate Portal Access
-            </p>
-          </div>
-
-          {/* Mode Switcher Tabs */}
-          <div className="mt-6 grid grid-cols-2 rounded-xl bg-[#f1f4f8] p-1 text-xs font-medium text-zinc-600">
-            <button
-              type="button"
-              onClick={() => {
-                setMode("login");
-                setError(null);
-                setFeedback(null);
-              }}
-              className={`flex items-center justify-center gap-1.5 rounded-lg py-2 transition ${
-                mode === "login"
-                  ? "bg-white font-semibold text-[#0E6E63] shadow-sm"
-                  : "hover:text-zinc-900"
-              }`}
-            >
-              <LogIn className="size-3.5" />
-              Sign In
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setMode("register");
-                setError(null);
-                setFeedback(null);
-              }}
-              className={`flex items-center justify-center gap-1.5 rounded-lg py-2 transition ${
-                mode === "register"
-                  ? "bg-white font-semibold text-[#0E6E63] shadow-sm"
-                  : "hover:text-zinc-900"
-              }`}
-            >
-              <UserPlus className="size-3.5" />
-              Register
-            </button>
-          </div>
-
-          {error ? (
-            <p className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-600">
-              {error}
-            </p>
-          ) : feedback ? (
-            <p className="mt-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-600">
-              {feedback}
-            </p>
-          ) : null}
-
-          {mode === "login" ? (
-            <form className="mt-5 grid gap-4" onSubmit={handleLogin}>
-              <label className="block">
-                <span className={labelClass}>Email</span>
-                <input
-                  className={inputClass}
-                  type="email"
-                  autoComplete="email"
-                  placeholder="you@betflow.com"
-                  value={loginState.email}
-                  onChange={(e) =>
-                    setLoginState((s) => ({ ...s, email: e.target.value }))
-                  }
-                  required
-                />
-              </label>
-              <label className="block">
-                <span className={labelClass}>Password</span>
-                <input
-                  className={inputClass}
-                  type="password"
-                  autoComplete="current-password"
-                  placeholder="••••••••"
-                  value={loginState.password}
-                  onChange={(e) =>
-                    setLoginState((s) => ({ ...s, password: e.target.value }))
-                  }
-                  required
-                />
-              </label>
-
-              <div className="flex items-center justify-between pt-1">
-                <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-600">
-                  <input
-                    type="checkbox"
-                    className="size-4 rounded border-zinc-300 accent-[#0E6E63]"
-                    checked={remember}
-                    onChange={(e) => setRemember(e.target.checked)}
-                  />
-                  Remember me
-                </label>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode("forgot");
-                    setError(null);
-                    setFeedback(null);
-                    setForgotState({ email: loginState.email });
-                  }}
-                  className="text-xs font-medium text-[#0E6E63] hover:underline"
-                >
-                  Forgot password?
-                </button>
-              </div>
-
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#0E6E63] px-4 text-sm font-medium text-white transition hover:bg-[#0b5c52] disabled:opacity-60"
-                >
-                  {loading ? "Signing in…" : "Sign in"}
-                  {!loading && <ArrowRight className="size-4" />}
-                </button>
-              </div>
-
-              <p className="pt-2 text-center text-[13px] text-zinc-500">
-                Don't have an account?{" "}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode("register");
-                    setError(null);
-                    setFeedback(null);
-                  }}
-                  className="font-medium text-[#0E6E63] hover:underline"
-                >
-                  Register here
-                </button>
+            <div>
+              <p className="text-sm font-black text-white tracking-tight">
+                {systemName}
               </p>
-            </form>
-          ) : mode === "register" ? (
-            <form className="mt-5 grid gap-3.5" onSubmit={handleRegister}>
-              <div className="grid grid-cols-2 gap-3">
+              <p className="text-xs text-slate-400 font-medium">
+                Real Estate Sales & Contract OS
+              </p>
+            </div>
+          </div>
+
+          {/* Floating Caption Badge & Headline Showcase */}
+          <div className="relative z-10 space-y-6">
+            {/* Floating Hero Property Badge */}
+            <div className="rounded-2xl border border-white/20 bg-slate-900/85 p-5 backdrop-blur-md shadow-2xl max-w-md space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <span className="rounded-full bg-indigo-500/20 px-2.5 py-0.5 text-[10px] font-extrabold text-indigo-300 border border-indigo-500/30 uppercase tracking-wider">
+                  Featured Development
+                </span>
+                <span className="text-[11px] font-extrabold text-slate-400">
+                  📍 {activePhoto.location}
+                </span>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="rounded-xl bg-indigo-600/30 border border-indigo-400/30 p-2.5 text-indigo-300 mt-0.5">
+                  <Building2 className="size-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-white">
+                    {activePhoto.title}
+                  </h3>
+                  <p className="text-xs font-medium text-slate-300 mt-0.5">
+                    {activePhoto.subtitle}
+                  </p>
+                </div>
+              </div>
+              <div className="pt-2.5 border-t border-slate-800 flex items-center justify-between text-xs">
+                <span className="text-emerald-400 font-extrabold flex items-center gap-1.5">
+                  <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+                  {activePhoto.statText}
+                </span>
+              </div>
+            </div>
+
+            <div className="max-w-xl space-y-2">
+              <h2 className="text-2xl font-black tracking-tight text-white leading-tight">
+                Purpose-built CRM & Contract OS for Ethiopian Developers
+              </h2>
+              <p className="text-xs text-slate-400 leading-relaxed font-medium">
+                Real-time unit stacking elevation, atomic inventory locks, automated SHA-256 PDF legal contracts, and payment milestone tracking.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Panel: Auth Form Container */}
+        <div className="flex flex-col justify-between p-6 sm:p-10 lg:col-span-5 xl:col-span-5 lg:p-12 bg-white text-slate-900 min-h-screen">
+          <div className="mx-auto w-full max-w-md my-auto space-y-6">
+            {/* Header */}
+            <div className="flex flex-col items-center text-center">
+              <Image
+                src="/betflow-logo.svg"
+                alt={systemName}
+                width={168}
+                height={44}
+                priority
+                className="h-11 w-auto"
+              />
+              <h1 className="mt-3 text-lg font-extrabold text-slate-800 tracking-tight">
+                {systemName}
+              </h1>
+              <p className="mt-0.5 text-xs font-medium tracking-wide text-zinc-500">
+                Corporate Portal Access
+              </p>
+            </div>
+
+            {/* Mode Switcher Tabs */}
+            <div className="grid grid-cols-2 rounded-xl bg-[#f1f4f8] p-1 text-xs font-medium text-zinc-600">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("login");
+                  setError(null);
+                  setFeedback(null);
+                }}
+                className={`flex items-center justify-center gap-1.5 rounded-lg py-2 transition ${
+                  mode === "login"
+                    ? "bg-white font-bold text-indigo-600 shadow-sm"
+                    : "hover:text-zinc-900"
+                }`}
+              >
+                <LogIn className="size-3.5" />
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("register");
+                  setError(null);
+                  setFeedback(null);
+                }}
+                className={`flex items-center justify-center gap-1.5 rounded-lg py-2 transition ${
+                  mode === "register"
+                    ? "bg-white font-bold text-indigo-600 shadow-sm"
+                    : "hover:text-zinc-900"
+                }`}
+              >
+                <UserPlus className="size-3.5" />
+                Register
+              </button>
+            </div>
+
+            {error ? (
+              <p className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-600">
+                {error}
+              </p>
+            ) : feedback ? (
+              <p className="mt-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-600">
+                {feedback}
+              </p>
+            ) : null}
+
+            {mode === "login" ? (
+              <form className="mt-5 grid gap-4" onSubmit={handleLogin}>
                 <label className="block">
-                  <span className={labelClass}>First Name</span>
+                  <span className={labelClass}>Email</span>
                   <input
                     className={inputClass}
-                    type="text"
-                    placeholder="John"
-                    value={registerState.firstName}
+                    type="email"
+                    autoComplete="email"
+                    placeholder="you@betflow.com"
+                    value={loginState.email}
                     onChange={(e) =>
-                      setRegisterState((s) => ({
-                        ...s,
-                        firstName: e.target.value,
-                      }))
+                      setLoginState((s) => ({ ...s, email: e.target.value }))
                     }
                     required
                   />
                 </label>
                 <label className="block">
-                  <span className={labelClass}>Last Name</span>
+                  <span className={labelClass}>Password</span>
                   <input
                     className={inputClass}
-                    type="text"
-                    placeholder="Doe"
-                    value={registerState.lastName}
+                    type="password"
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    value={loginState.password}
+                    onChange={(e) =>
+                      setLoginState((s) => ({ ...s, password: e.target.value }))
+                    }
+                    required
+                  />
+                </label>
+
+                <div className="flex items-center justify-between pt-1">
+                  <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-600">
+                    <input
+                      type="checkbox"
+                      className="size-4 rounded border-zinc-300 accent-indigo-600"
+                      checked={remember}
+                      onChange={(e) => setRemember(e.target.checked)}
+                    />
+                    Remember me
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("forgot");
+                      setError(null);
+                      setFeedback(null);
+                      setForgotState({ email: loginState.email });
+                    }}
+                    className="text-xs font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:opacity-60 cursor-pointer shadow-sm"
+                  >
+                    {loading ? "Signing in…" : "Sign in"}
+                    {!loading && <ArrowRight className="size-4" />}
+                  </button>
+                </div>
+
+                <p className="pt-2 text-center text-[13px] text-zinc-500">
+                  Don't have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("register");
+                      setError(null);
+                      setFeedback(null);
+                    }}
+                    className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
+                  >
+                    Register here
+                  </button>
+                </p>
+              </form>
+            ) : mode === "register" ? (
+              <form className="mt-5 grid gap-3.5" onSubmit={handleRegister}>
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="block">
+                    <span className={labelClass}>First Name</span>
+                    <input
+                      className={inputClass}
+                      type="text"
+                      placeholder="John"
+                      value={registerState.firstName}
+                      onChange={(e) =>
+                        setRegisterState((s) => ({
+                          ...s,
+                          firstName: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </label>
+                  <label className="block">
+                    <span className={labelClass}>Last Name</span>
+                    <input
+                      className={inputClass}
+                      type="text"
+                      placeholder="Doe"
+                      value={registerState.lastName}
+                      onChange={(e) =>
+                        setRegisterState((s) => ({
+                          ...s,
+                          lastName: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </label>
+                </div>
+
+                <label className="block">
+                  <span className={labelClass}>Email</span>
+                  <input
+                    className={inputClass}
+                    type="email"
+                    autoComplete="email"
+                    placeholder="you@betflow.com"
+                    value={registerState.email}
+                    onChange={(e) =>
+                      setRegisterState((s) => ({ ...s, email: e.target.value }))
+                    }
+                    required
+                  />
+                </label>
+
+                <label className="block">
+                  <span className={labelClass}>Password</span>
+                  <input
+                    className={inputClass}
+                    type="password"
+                    autoComplete="new-password"
+                    placeholder="••••••••"
+                    value={registerState.password}
                     onChange={(e) =>
                       setRegisterState((s) => ({
                         ...s,
-                        lastName: e.target.value,
+                        password: e.target.value,
                       }))
                     }
                     required
                   />
                 </label>
-              </div>
 
-              <label className="block">
-                <span className={labelClass}>Email</span>
-                <input
-                  className={inputClass}
-                  type="email"
-                  autoComplete="email"
-                  placeholder="you@betflow.com"
-                  value={registerState.email}
-                  onChange={(e) =>
-                    setRegisterState((s) => ({ ...s, email: e.target.value }))
-                  }
-                  required
-                />
-              </label>
+                <label className="block">
+                  <span className={labelClass}>Admin Invite Code (Optional)</span>
+                  <input
+                    className={inputClass}
+                    type="text"
+                    placeholder="e.g. BETFLOW-VIP-2026 for auto-activation"
+                    value={registerState.inviteCode}
+                    onChange={(e) =>
+                      setRegisterState((s) => ({
+                        ...s,
+                        inviteCode: e.target.value,
+                      }))
+                    }
+                  />
+                  <span className="mt-1 block text-[10px] text-zinc-400 font-medium">
+                    Without a valid invite code, your account will require manager approval before you can sign in.
+                  </span>
+                </label>
 
-              <label className="block">
-                <span className={labelClass}>Password</span>
-                <input
-                  className={inputClass}
-                  type="password"
-                  autoComplete="new-password"
-                  placeholder="••••••••"
-                  value={registerState.password}
-                  onChange={(e) =>
-                    setRegisterState((s) => ({
-                      ...s,
-                      password: e.target.value,
-                    }))
-                  }
-                  required
-                />
-              </label>
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:opacity-60 cursor-pointer shadow-sm"
+                  >
+                    {loading ? "Creating account…" : "Create Account"}
+                    {!loading && <ArrowRight className="size-4" />}
+                  </button>
+                </div>
 
-              <label className="block">
-                <span className={labelClass}>Admin Invite Code (Optional)</span>
-                <input
-                  className={inputClass}
-                  type="text"
-                  placeholder="e.g. BETFLOW-VIP-2026 for auto-activation"
-                  value={registerState.inviteCode}
-                  onChange={(e) =>
-                    setRegisterState((s) => ({
-                      ...s,
-                      inviteCode: e.target.value,
-                    }))
-                  }
-                />
-                <span className="mt-1 block text-[10px] text-zinc-400 font-medium">
-                  Without a valid invite code, your account will require manager approval before you can sign in.
-                </span>
-              </label>
+                <p className="pt-2 text-center text-[13px] text-zinc-500">
+                  Already have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("login");
+                      setError(null);
+                      setFeedback(null);
+                    }}
+                    className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
+                  >
+                    Sign in
+                  </button>
+                </p>
+              </form>
+            ) : mode === "forgot" ? (
+              <form className="mt-5 grid gap-4" onSubmit={handleForgotPassword}>
+                <div className="rounded-xl bg-indigo-50 border border-indigo-200/80 p-3.5 text-xs text-indigo-950">
+                  <p className="font-bold flex items-center gap-1.5 text-indigo-700">
+                    <KeyRound className="size-4" /> Forgot your password?
+                  </p>
+                  <p className="mt-1 text-zinc-600 font-medium">
+                    Enter your account email address below to generate a 6-digit password verification code.
+                  </p>
+                </div>
 
-              <div className="pt-2">
+                <label className="block">
+                  <span className={labelClass}>Registered Email</span>
+                  <input
+                    className={inputClass}
+                    type="email"
+                    placeholder="you@betflow.com"
+                    value={forgotState.email}
+                    onChange={(e) => setForgotState({ email: e.target.value })}
+                    required
+                  />
+                </label>
+
                 <button
                   type="submit"
                   disabled={loading}
-                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#0E6E63] px-4 text-sm font-medium text-white transition hover:bg-[#0b5c52] disabled:opacity-60"
+                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:opacity-60 cursor-pointer shadow-sm"
                 >
-                  {loading ? "Creating account…" : "Create Account"}
+                  {loading ? "Requesting code…" : "Send Verification Code"}
                   {!loading && <ArrowRight className="size-4" />}
                 </button>
-              </div>
 
-              <p className="pt-2 text-center text-[13px] text-zinc-500">
-                Already have an account?{" "}
+                <p className="pt-2 text-center text-[13px] text-zinc-500">
+                  Remember your password?{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("login");
+                      setError(null);
+                      setFeedback(null);
+                    }}
+                    className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
+                  >
+                    Back to Sign in
+                  </button>
+                </p>
+              </form>
+            ) : (
+              <form className="mt-5 grid gap-4" onSubmit={handleResetPassword}>
+                <div className="rounded-xl bg-amber-50 p-3.5 text-xs text-amber-900 border border-amber-200">
+                  <p className="font-semibold flex items-center gap-1.5 text-amber-800">
+                    <Lock className="size-4" /> Reset Password Verification
+                  </p>
+                  <p className="mt-1 text-amber-700">
+                    Enter the 6-digit code sent to your email along with your new password.
+                  </p>
+                </div>
+
+                <label className="block">
+                  <span className={labelClass}>Account Email</span>
+                  <input
+                    className={inputClass}
+                    type="email"
+                    placeholder="you@betflow.com"
+                    value={resetState.email}
+                    onChange={(e) =>
+                      setResetState((s) => ({ ...s, email: e.target.value }))
+                    }
+                    required
+                  />
+                </label>
+
+                <label className="block">
+                  <span className={labelClass}>6-Digit Verification Code</span>
+                  <input
+                    className={inputClass}
+                    type="text"
+                    placeholder="e.g. 849201"
+                    value={resetState.token}
+                    onChange={(e) =>
+                      setResetState((s) => ({ ...s, token: e.target.value }))
+                    }
+                    required
+                  />
+                </label>
+
+                <label className="block">
+                  <span className={labelClass}>New Password</span>
+                  <input
+                    className={inputClass}
+                    type="password"
+                    placeholder="••••••••"
+                    value={resetState.newPassword}
+                    onChange={(e) =>
+                      setResetState((s) => ({ ...s, newPassword: e.target.value }))
+                    }
+                    required
+                  />
+                  <span className="mt-1 block text-[10px] text-zinc-400">
+                    Must be at least 8 characters with uppercase, lowercase, and a number or symbol.
+                  </span>
+                </label>
+
                 <button
-                  type="button"
-                  onClick={() => {
-                    setMode("login");
-                    setError(null);
-                    setFeedback(null);
-                  }}
-                  className="font-medium text-[#0E6E63] hover:underline"
+                  type="submit"
+                  disabled={loading}
+                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:opacity-60 cursor-pointer shadow-sm"
                 >
-                  Sign in
+                  {loading ? "Resetting password…" : "Reset Password & Sign In"}
+                  {!loading && <ArrowRight className="size-4" />}
                 </button>
-              </p>
-            </form>
-          ) : mode === "forgot" ? (
-            <form className="mt-5 grid gap-4" onSubmit={handleForgotPassword}>
-              <div className="rounded-xl bg-[#0E6E63]/10 p-3.5 text-xs text-[#0E6E63]">
-                <p className="font-semibold flex items-center gap-1.5">
-                  <KeyRound className="size-4" /> Forgot your password?
-                </p>
-                <p className="mt-1 text-zinc-600">
-                  Enter your account email address below to generate a 6-digit password verification code.
-                </p>
-              </div>
 
-              <label className="block">
-                <span className={labelClass}>Registered Email</span>
-                <input
-                  className={inputClass}
-                  type="email"
-                  placeholder="you@betflow.com"
-                  value={forgotState.email}
-                  onChange={(e) => setForgotState({ email: e.target.value })}
-                  required
-                />
-              </label>
+                <p className="pt-2 text-center text-[13px] text-zinc-500">
+                  Cancel reset?{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("login");
+                      setError(null);
+                      setFeedback(null);
+                    }}
+                    className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
+                  >
+                    Back to Sign in
+                  </button>
+                </p>
+              </form>
+            )}
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#0E6E63] px-4 text-sm font-medium text-white transition hover:bg-[#0b5c52] disabled:opacity-60"
+            <p className="mt-6 border-t border-zinc-100 pt-4 text-center text-xs text-zinc-400">
+              <a
+                href="https://www.gebetatech.com"
+                className="hover:text-zinc-700"
               >
-                {loading ? "Requesting code…" : "Send Verification Code"}
-                {!loading && <ArrowRight className="size-4" />}
-              </button>
+                Developed By: Gebeta Trading Technology
+              </a>
+            </p>
+          </div>
 
-              <p className="pt-2 text-center text-[13px] text-zinc-500">
-                Remember your password?{" "}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode("login");
-                    setError(null);
-                    setFeedback(null);
-                  }}
-                  className="font-medium text-[#0E6E63] hover:underline"
-                >
-                  Back to Sign in
-                </button>
-              </p>
-            </form>
-          ) : (
-            <form className="mt-5 grid gap-4" onSubmit={handleResetPassword}>
-              <div className="rounded-xl bg-amber-50 p-3.5 text-xs text-amber-900 border border-amber-200">
-                <p className="font-semibold flex items-center gap-1.5 text-amber-800">
-                  <Lock className="size-4" /> Reset Password Verification
-                </p>
-                <p className="mt-1 text-amber-700">
-                  Enter the 6-digit code sent to your email along with your new password.
-                </p>
-              </div>
-
-              <label className="block">
-                <span className={labelClass}>Account Email</span>
-                <input
-                  className={inputClass}
-                  type="email"
-                  placeholder="you@betflow.com"
-                  value={resetState.email}
-                  onChange={(e) =>
-                    setResetState((s) => ({ ...s, email: e.target.value }))
-                  }
-                  required
-                />
-              </label>
-
-              <label className="block">
-                <span className={labelClass}>6-Digit Verification Code</span>
-                <input
-                  className={inputClass}
-                  type="text"
-                  placeholder="e.g. 849201"
-                  value={resetState.token}
-                  onChange={(e) =>
-                    setResetState((s) => ({ ...s, token: e.target.value }))
-                  }
-                  required
-                />
-              </label>
-
-              <label className="block">
-                <span className={labelClass}>New Password</span>
-                <input
-                  className={inputClass}
-                  type="password"
-                  placeholder="••••••••"
-                  value={resetState.newPassword}
-                  onChange={(e) =>
-                    setResetState((s) => ({ ...s, newPassword: e.target.value }))
-                  }
-                  required
-                />
-                <span className="mt-1 block text-[10px] text-zinc-400">
-                  Must be at least 8 characters with uppercase, lowercase, and a number or symbol.
-                </span>
-              </label>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#0E6E63] px-4 text-sm font-medium text-white transition hover:bg-[#0b5c52] disabled:opacity-60"
-              >
-                {loading ? "Resetting password…" : "Reset Password & Sign In"}
-                {!loading && <ArrowRight className="size-4" />}
-              </button>
-
-              <p className="pt-2 text-center text-[13px] text-zinc-500">
-                Cancel reset?{" "}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode("login");
-                    setError(null);
-                    setFeedback(null);
-                  }}
-                  className="font-medium text-[#0E6E63] hover:underline"
-                >
-                  Back to Sign in
-                </button>
-              </p>
-            </form>
-          )}
-
-          <p className="mt-6 border-t border-zinc-100 pt-4 text-center text-xs text-zinc-400">
-            <a
-              href="https://www.gebetatech.com"
-              className="hover:text-zinc-700"
-            >
-              Developed By: Gebeta Trading Technology
+          <footer className="flex justify-center gap-6 pt-6 text-xs text-zinc-400">
+            <a href="#" className="hover:text-zinc-700 transition-colors">
+              Internal Use Only
             </a>
-          </p>
+            <span>•</span>
+            <a href="#" className="hover:text-zinc-700 transition-colors">
+              Privacy Policy
+            </a>
+          </footer>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="absolute inset-x-0 bottom-0 z-10 flex justify-center gap-6 pb-5 text-xs text-zinc-500">
-        <a href="#" className="hover:text-zinc-700">
-          Internal Use Only
-        </a>
-        <a href="#" className="hover:text-zinc-700">
-          Privacy Policy
-        </a>
-      </footer>
     </main>
   );
 }
