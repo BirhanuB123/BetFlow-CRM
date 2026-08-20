@@ -32,7 +32,7 @@ export const am: Dictionary = {
   actions: {
     demoCredentials: "የሙከራ መለያ መረጃ",
     copiedCredentials: "የሙከራ መለያ መረጃ ተቀድቷል!",
-    launchCommandCenter: "ትዕዛዝ ማዕከል ክፈት",
+    launchCommandCenter: "የ14 ቀን ነፃ ሙከራ ጀምር",
     exploreDemoAccount: "የሙከራ መለያውን ይመልከቱ",
     quickCreate: "ፈጣን መፍጠሪያ",
     createRecord: "መዝገብ ፍጠር",

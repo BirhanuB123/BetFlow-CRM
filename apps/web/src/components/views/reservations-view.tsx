@@ -16,9 +16,7 @@ import {
   CheckCircle2,
   Clock,
   Eye,
-  Coins,
   Lock,
-  Unlock,
   Search,
   FileSignature,
 } from "lucide-react";
@@ -27,7 +25,6 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { TableSkeleton } from "@/components/ui/skeleton-loaders";
 import { StatusPill } from "@/components/ui/status-pill";
-import { StatCard, StatRow } from "@/components/ui/stat-card";
 import { useToast } from "@/components/ui/toast";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
@@ -243,58 +240,8 @@ export function ReservationsView() {
     }
   };
 
-  // KPI Calculations
-  const activeCount = reservations.filter(
-    (r) => r.status === "PENDING" || r.status === "APPROVED",
-  ).length;
-  const approvedCount = reservations.filter((r) => r.status === "APPROVED").length;
-  const totalDepositVolumeETB = reservations
-    .filter((r) => r.status === "PENDING" || r.status === "APPROVED")
-    .reduce((acc, r) => acc + (Number(r.amount) || 0), 0);
-  const expiringSoonCount = reservations.filter((r) => {
-    if (r.status !== "PENDING" && r.status !== "APPROVED") return false;
-    const diff = daysRemaining(r.expiryDate);
-    return diff !== null && diff <= 3 && diff >= 0;
-  }).length;
-  const releasedCount = reservations.filter(
-    (r) => r.status === "EXPIRED" || r.status === "CANCELLED",
-  ).length;
-
   return (
     <div className="space-y-6">
-      {/* KPI Stat Row */}
-      <StatRow>
-        <StatCard
-          label="Active Unit Holds"
-          value={String(activeCount)}
-          detail="Locked unit inventory"
-          icon={Lock}
-          color="navy"
-          trend={activeCount > 0 ? "up" : "flat"}
-          trendLabel={`${approvedCount} Approved`}
-        />
-        <StatCard
-          label="Deposits Held (ETB)"
-          value={formatCurrency(totalDepositVolumeETB)}
-          detail="Active reservation funds"
-          icon={Coins}
-          color="emerald"
-        />
-        <StatCard
-          label="Expiring Soon (≤3 Days)"
-          value={String(expiringSoonCount)}
-          detail={expiringSoonCount > 0 ? "Requires action/extension" : "All holds on schedule"}
-          icon={Clock}
-          color="amber"
-        />
-        <StatCard
-          label="Released / Expired"
-          value={String(releasedCount)}
-          detail="Returned to available stock"
-          icon={Unlock}
-          color="rose"
-        />
-      </StatRow>
 
       {/* Section Header & Toolbar */}
       <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">

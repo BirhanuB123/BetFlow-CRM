@@ -30,7 +30,7 @@ export const en = {
   actions: {
     demoCredentials: "Demo Credentials",
     copiedCredentials: "Copied Demo Credentials!",
-    launchCommandCenter: "Launch Command Center",
+    launchCommandCenter: "Start Free 14-Day Trial",
     exploreDemoAccount: "Explore Demo Account",
     quickCreate: "Quick Create",
     createRecord: "Create Record",

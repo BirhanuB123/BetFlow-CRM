@@ -1,12 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import { Download, Printer, DollarSign, ArrowLeft } from "lucide-react";
+import { Download, Printer, DollarSign, ArrowLeft, TrendingUp } from "lucide-react";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  CartesianGrid,
+} from "recharts";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
+import { formatCurrency } from "@/lib/currency";
 import { printReportDocument } from "@/lib/print";
 
 type RevenueRow = {
@@ -37,6 +48,19 @@ export default function RevenueReportPage() {
     }
     void load();
   }, []);
+
+  const parseVal = (str: string) =>
+    parseFloat(str.replace(/[^0-9.-]+/g, "")) || 0;
+
+  const chartData = useMemo(() => {
+    return rows.map((r) => ({
+      period: r.period,
+      Booked: parseVal(r.booked),
+      Collected: parseVal(r.collected),
+      Outstanding: parseVal(r.outstanding),
+      Forecast: parseVal(r.forecast),
+    }));
+  }, [rows]);
 
   const handleExportCSV = () => {
     const headers = [
@@ -133,6 +157,52 @@ export default function RevenueReportPage() {
           <p className="rounded-lg border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-600">
             {error}
           </p>
+        )}
+
+        {/* Recharts Time-Series Visualization */}
+        {!loading && chartData.length > 0 && (
+          <section className="no-print rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <TrendingUp className="size-4 text-indigo-600" />
+                  Time-Series Revenue Trends
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Visual comparison of booked revenue, collected payments, outstanding balances, and growth forecasts per period.
+                </p>
+              </div>
+            </div>
+
+            <div className="h-72 w-full pt-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="period" tickLine={false} tick={{ fontSize: 12, fill: "#64748b" }} />
+                  <YAxis
+                    tickLine={false}
+                    tick={{ fontSize: 11, fill: "#64748b" }}
+                    tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip
+                    formatter={(value) => [formatCurrency(Number(value) || 0), "Amount"]}
+                    contentStyle={{
+                      backgroundColor: "#0f172a",
+                      borderColor: "#334155",
+                      borderRadius: "8px",
+                      color: "#fff",
+                      fontSize: "12px",
+                    }}
+                  />
+                  <Legend wrapperStyle={{ paddingTop: "12px", fontSize: "12px" }} />
+                  <Bar dataKey="Booked" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Collected" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Outstanding" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Forecast" fill="#94a3b8" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </section>
         )}
 
         <section className="rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
