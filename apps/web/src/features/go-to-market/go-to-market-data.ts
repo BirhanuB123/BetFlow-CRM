@@ -445,9 +445,3 @@ export const resourcePages: Record<ResourcePageKey, ResourcePage> = {
     ],
   },
 };
-
-export const demoCredentials = {
-  tenant: "betflow-crm",
-  email: "admin@betflow.example",
-  password: "admin123",
-};

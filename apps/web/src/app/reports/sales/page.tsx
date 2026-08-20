@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import {
   Download,
@@ -21,10 +21,13 @@ import {
   Building2,
   CheckCircle2,
   ArrowLeft,
+  Pencil,
+  Check,
 } from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
+import { formatCurrency } from "@/lib/currency";
 import { printReportDocument } from "@/lib/print";
 import { cn } from "@/lib/utils";
 
@@ -51,31 +54,43 @@ export default function SalesReportPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [timeRange, setTimeRange] = useState("This Month");
 
-  const loadData = async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
-    else setLoading(true);
-    setError(null);
+  // Configurable Target State
+  const [revenueTarget, setRevenueTarget] = useState<number>(500000);
+  const [isEditingTarget, setIsEditingTarget] = useState(false);
+  const [targetInput, setTargetInput] = useState("500000");
 
-    try {
-      const [sales, agentData] = await Promise.all([
-        apiFetch<SalesDashboard>("/reports/sales"),
-        apiFetch<AgentRow[]>("/reports/agents"),
-      ]);
-      setDashboard(sales);
-      setAgents(agentData);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load sales report",
-      );
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+  const loadData = useCallback(
+    async (isRefresh = false, rangeParam = timeRange) => {
+      if (isRefresh) setRefreshing(true);
+      else setLoading(true);
+      setError(null);
+
+      try {
+        const [sales, agentData] = await Promise.all([
+          apiFetch<SalesDashboard>(
+            `/reports/sales?range=${encodeURIComponent(rangeParam)}`,
+          ),
+          apiFetch<AgentRow[]>(
+            `/reports/agents?range=${encodeURIComponent(rangeParam)}`,
+          ),
+        ]);
+        setDashboard(sales);
+        setAgents(agentData);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to load sales report",
+        );
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [timeRange],
+  );
 
   useEffect(() => {
-    void loadData();
-  }, []);
+    void loadData(false, timeRange);
+  }, [timeRange, loadData]);
 
   // Filter agents by search query
   const filteredAgents = useMemo(() => {
@@ -85,13 +100,34 @@ export default function SalesReportPage() {
     );
   }, [agents, searchQuery]);
 
-  // Calculate totals
+  // Calculate totals & current revenue dynamically
   const totalRevenueNum = useMemo(() => {
     return agents.reduce((acc, a) => {
       const val = parseFloat(a.revenue.replace(/[^0-9.-]+/g, "")) || 0;
       return acc + val;
     }, 0);
   }, [agents]);
+
+  const currentRevenue = useMemo(() => {
+    if (totalRevenueNum > 0) return totalRevenueNum;
+    if (dashboard?.metrics) {
+      const bookedMetric = dashboard.metrics.find(
+        (m) =>
+          m.label.toLowerCase().includes("booked") ||
+          m.label.toLowerCase().includes("collected"),
+      );
+      if (bookedMetric) {
+        const parsed = parseFloat(bookedMetric.value.replace(/[^0-9.-]+/g, ""));
+        if (!isNaN(parsed) && parsed > 0) return parsed;
+      }
+    }
+    return 250000;
+  }, [totalRevenueNum, dashboard]);
+
+  const targetProgressPct = useMemo(() => {
+    if (revenueTarget <= 0) return 0;
+    return Math.min(100, Math.round((currentRevenue / revenueTarget) * 1000) / 10);
+  }, [currentRevenue, revenueTarget]);
 
   const totalLeads = useMemo(
     () => agents.reduce((acc, a) => acc + a.leads, 0),
@@ -399,15 +435,55 @@ export default function SalesReportPage() {
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-indigo-400 font-semibold text-xs uppercase tracking-wider">
                 <Sparkles className="size-4 text-indigo-300" />
-                <span>Monthly Target & Pace Tracking</span>
+                <span>{timeRange} Target & Pace Tracking</span>
               </div>
-              <h3 className="text-xl font-bold tracking-tight text-white">
-                Booked Revenue Target:{" "}
-                <span className="text-emerald-400">$500,000</span>
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xl font-bold tracking-tight text-white">
+                  Revenue Target:{" "}
+                  <span className="text-emerald-400">
+                    {formatCurrency(revenueTarget)}
+                  </span>
+                </h3>
+                {isEditingTarget ? (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const num = parseFloat(targetInput.replace(/[^0-9.-]+/g, ""));
+                      if (!isNaN(num) && num > 0) setRevenueTarget(num);
+                      setIsEditingTarget(false);
+                    }}
+                    className="flex items-center gap-1"
+                  >
+                    <input
+                      type="number"
+                      value={targetInput}
+                      onChange={(e) => setTargetInput(e.target.value)}
+                      className="h-7 w-28 rounded border border-indigo-400 bg-slate-800 px-2 text-xs font-bold text-white outline-none"
+                    />
+                    <button
+                      type="submit"
+                      className="rounded bg-emerald-600 p-1 text-white hover:bg-emerald-500"
+                    >
+                      <Check className="size-3.5" />
+                    </button>
+                  </form>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTargetInput(String(revenueTarget));
+                      setIsEditingTarget(true);
+                    }}
+                    className="text-slate-400 hover:text-white transition-colors"
+                    title="Configure Target"
+                  >
+                    <Pencil className="size-3.5" />
+                  </button>
+                )}
+              </div>
               <p className="text-xs text-slate-300">
-                Currently at <strong className="text-white">$250,000</strong>{" "}
-                (50.0% of target). On track to meet quarterly forecasts.
+                Currently at <strong className="text-white">{formatCurrency(currentRevenue)}</strong>{" "}
+                ({targetProgressPct.toFixed(1)}% of target). On track to meet forecasts.
               </p>
             </div>
 
@@ -415,15 +491,22 @@ export default function SalesReportPage() {
             <div className="w-full max-w-xs space-y-2 rounded-lg bg-white/10 p-3.5 backdrop-blur-xs border border-white/10">
               <div className="flex justify-between text-xs font-semibold">
                 <span className="text-slate-300">Progress</span>
-                <span className="text-emerald-400 font-bold">50.0%</span>
+                <span className="text-emerald-400 font-bold">
+                  {targetProgressPct.toFixed(1)}%
+                </span>
               </div>
               <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-800">
-                <div className="h-full rounded-full bg-gradient-to-r from-indigo-400 via-teal-400 to-emerald-400 w-1/2" />
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-indigo-400 via-teal-400 to-emerald-400 transition-all duration-500"
+                  style={{
+                    width: `${Math.min(100, Math.max(0, targetProgressPct))}%`,
+                  }}
+                />
               </div>
               <div className="flex justify-between text-[10px] text-slate-400">
                 <span>$0</span>
-                <span>$250k</span>
-                <span>$500k Goal</span>
+                <span>{formatCurrency(currentRevenue)}</span>
+                <span>{formatCurrency(revenueTarget)} Goal</span>
               </div>
             </div>
           </div>
