@@ -14,6 +14,7 @@ import {
   FileText,
   Sparkles,
   ShieldCheck,
+  Building2,
 } from "lucide-react";
 
 type HeroProps = {
@@ -32,12 +33,19 @@ export function Hero({ selectedWorkflows, onToggleWorkflow }: HeroProps) {
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           {/* Left Content Column */}
           <div className="lg:col-span-7 text-left space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-1.5 text-xs font-bold text-indigo-300 shadow-xs">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-              </span>
-              <span>{t("hero.badge")}</span>
+            {/* Credibility & Live System Badge */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-1.5 text-xs font-bold text-indigo-300 shadow-xs">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                </span>
+                <span>{t("hero.badge")}</span>
+              </div>
+              <div className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 border-l border-slate-800 pl-3">
+                <Building2 className="size-3.5 text-indigo-400" />
+                <span>Purpose-built CRM OS for real estate developers & brokerages</span>
+              </div>
             </div>
 
             <h1 className="text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl leading-[1.15]">
@@ -47,8 +55,13 @@ export function Hero({ selectedWorkflows, onToggleWorkflow }: HeroProps) {
               </span>
             </h1>
 
+            {/* Qualitative Credibility Sub-headline */}
             <p className="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-2xl">
               {t("hero.subtitle")}
+            </p>
+            <p className="text-xs sm:text-sm font-semibold text-indigo-300/90 flex items-center gap-2">
+              <span className="size-1.5 rounded-full bg-emerald-400 inline-block" />
+              Empowering sales teams with real-time unit locks, automated legal PDF contracts, and milestone tracking.
             </p>
 
             {/* Workflow Tag Selectors */}
@@ -91,7 +104,7 @@ export function Hero({ selectedWorkflows, onToggleWorkflow }: HeroProps) {
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* Outcome-Oriented Action Buttons (Outcome copy naming what the user gets) */}
             <div className="pt-4 flex flex-wrap items-center gap-4">
               <Link
                 href="/dashboard"
@@ -110,7 +123,7 @@ export function Hero({ selectedWorkflows, onToggleWorkflow }: HeroProps) {
               </Link>
             </div>
 
-            {/* Security Disclaimer Banner */}
+            {/* Security Disclaimer Banner (Safely scoped, zero exposed credentials) */}
             <div className="inline-flex items-center gap-2.5 rounded-xl border border-slate-800 bg-slate-900/90 px-4 py-2 text-xs text-slate-400 shadow-xs">
               <ShieldCheck className="size-4 text-emerald-400 shrink-0" />
               <span>
@@ -119,10 +132,11 @@ export function Hero({ selectedWorkflows, onToggleWorkflow }: HeroProps) {
             </div>
           </div>
 
-          {/* Right Column: High-End Property Architectural Render Card */}
+          {/* Right Column: Hero Visual Asset */}
           <div className="lg:col-span-5">
             <div className="relative rounded-2xl border border-slate-800 bg-slate-950/80 p-3 shadow-2xl overflow-hidden group">
               <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-slate-900">
+                {/* Note: FUB-style hero direction recommends a real human/agent photo (e.g. sales team, handshake, client closing) here long-term once verified assets exist. Using architectural tower render for now. */}
                 <Image
                   src="/tower.png"
                   alt="Luxury Real Estate Architectural Render"

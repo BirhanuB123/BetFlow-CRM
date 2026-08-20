@@ -1,84 +1,136 @@
 "use client";
 
+import Link from "next/link";
 import Image from "next/image";
-import { Grid, FileSignature, Coins } from "lucide-react";
+import { VALUE_PILLARS } from "@/features/go-to-market/value-pillars";
+import {
+  CheckCircle2,
+  Grid,
+  CalendarDays,
+  FileSignature,
+  ArrowRight,
+} from "lucide-react";
 
 export function ShowcaseCards() {
+  const icons = {
+    organize: Grid,
+    engage: CalendarDays,
+    close: FileSignature,
+  };
+
   return (
     <section className="py-20 bg-slate-900 border-t border-slate-800">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 space-y-16">
-        <div className="text-center max-w-3xl mx-auto">
-          <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-400">
-            High-Craft Real Estate Workflows
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 space-y-24">
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto space-y-3">
+          <span className="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-1.5 text-xs font-extrabold text-indigo-300 uppercase tracking-wider">
+            Three Core Real Estate Sales Pillars
           </span>
-          <h2 className="mt-2 text-3xl font-black text-white sm:text-4xl">
-            Turn every buyer lead into a closed property sale
+          <h2 className="text-3xl font-black text-white sm:text-4xl lg:text-5xl tracking-tight">
+            Built for how top real estate teams actually sell
           </h2>
-          <p className="mt-3 text-sm text-slate-400">
-            Purpose-built tools for managing high-value residential, commercial, and diaspora property sales.
+          <p className="text-sm sm:text-base text-slate-400">
+            From buyer lead intake to signed contracts and milestone payments — organized around three core pillars.
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8 items-center">
-          {/* Left Render Card */}
-          <div className="relative rounded-2xl border border-slate-800 bg-slate-950 p-3 shadow-xl overflow-hidden group">
-            <div className="relative aspect-[16/10] overflow-hidden rounded-xl bg-slate-900">
-              <Image
-                src="/interior.png"
-                alt="Modern Apartment Living Render"
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
-              
-              <div className="absolute bottom-4 left-4 right-4 p-4 rounded-xl bg-slate-950/90 backdrop-blur-md border border-slate-800 text-xs">
-                <span className="rounded bg-indigo-600/30 border border-indigo-500/40 px-2 py-0.5 text-[10px] font-extrabold text-indigo-300 uppercase">
-                  Luxury Penthouse Interior
-                </span>
-                <h4 className="text-sm font-extrabold text-white mt-1">Floor 14 • Penthouse A</h4>
-                <p className="text-[11px] text-slate-300 mt-0.5">240 sqm • Panoramic City View • Reserved</p>
-              </div>
-            </div>
-          </div>
+        {/* 3 Pillar Showcases */}
+        <div className="space-y-20">
+          {VALUE_PILLARS.map((pillar, idx) => {
+            const Icon = icons[pillar.id];
+            const isEven = idx % 2 === 0;
 
-          {/* Right Feature Highlights */}
-          <div className="space-y-6">
-            <div className="rounded-xl border border-slate-800 bg-slate-950 p-5 space-y-2">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
-                  <Grid className="size-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">Atomic Unit Reservation Locks</h3>
-                  <p className="text-xs text-slate-400">Zero risk of double booking. SQL row locks guarantee instant unit reservation status.</p>
-                </div>
-              </div>
-            </div>
+            return (
+              <div
+                key={pillar.id}
+                className={`grid lg:grid-cols-12 gap-10 items-center ${
+                  isEven ? "" : "lg:grid-flow-dense"
+                }`}
+              >
+                {/* Text & Features Column */}
+                <div
+                  className={`space-y-5 ${
+                    isEven
+                      ? "lg:col-span-6"
+                      : "lg:col-span-6 lg:col-start-7"
+                  }`}
+                >
+                  <div className="inline-flex items-center gap-2 rounded-lg bg-indigo-600/20 border border-indigo-500/30 px-3 py-1 text-xs font-bold text-indigo-300">
+                    <Icon className="size-4 text-indigo-400" />
+                    <span>{pillar.badge}</span>
+                  </div>
 
-            <div className="rounded-xl border border-slate-800 bg-slate-950 p-5 space-y-2">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                  <FileSignature className="size-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">SHA-256 Verified PDF Contracts</h3>
-                  <p className="text-xs text-slate-400">Server-side legal contract generation with mouse/touch signature pads and timestamped hash.</p>
-                </div>
-              </div>
-            </div>
+                  <div>
+                    <h3 className="text-2xl sm:text-3xl font-black text-white">
+                      {pillar.title}: <span className="text-slate-300 font-bold">{pillar.subtitle}</span>
+                    </h3>
+                    <p className="text-sm font-semibold text-indigo-400 mt-1">
+                      {pillar.tagline}
+                    </p>
+                  </div>
 
-            <div className="rounded-xl border border-slate-800 bg-slate-950 p-5 space-y-2">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                  <Coins className="size-5" />
+                  <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                    {pillar.description}
+                  </p>
+
+                  {/* Bullet Benefits */}
+                  <ul className="space-y-2.5 pt-2">
+                    {pillar.features.map((feature, fIdx) => (
+                      <li
+                        key={fIdx}
+                        className="flex items-start gap-2.5 text-xs text-slate-300 font-medium"
+                      >
+                        <CheckCircle2 className="size-4 text-emerald-400 shrink-0 mt-0.5" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* Action Links */}
+                  <div className="flex flex-wrap gap-3 pt-3">
+                    {pillar.moduleLinks.map((link, lIdx) => (
+                      <Link
+                        key={lIdx}
+                        href={link.href}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-300 hover:text-white bg-indigo-950/60 border border-indigo-800/60 rounded-lg px-3 py-1.5 transition-colors"
+                      >
+                        <span>{link.label}</span>
+                        <ArrowRight className="size-3 text-indigo-400" />
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">Milestone Payment Schedules</h3>
-                  <p className="text-xs text-slate-400">Track 30% downpayments, construction milestones, overdue penalties, and bank deposit slips.</p>
+
+                {/* Screenshot / Card Visual Column */}
+                <div
+                  className={`lg:col-span-6 ${
+                    isEven ? "" : "lg:col-start-1"
+                  }`}
+                >
+                  <div className="relative rounded-2xl border border-slate-800 bg-slate-950 p-3 shadow-xl overflow-hidden group">
+                    <div className="relative aspect-[16/10] overflow-hidden rounded-xl bg-slate-900">
+                      <Image
+                        src={pillar.imageSrc}
+                        alt={pillar.imageAlt}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+
+                      <div className="absolute bottom-4 left-4 right-4 p-4 rounded-xl bg-slate-950/90 backdrop-blur-md border border-slate-800 text-xs">
+                        <span className="rounded bg-indigo-600/30 border border-indigo-500/40 px-2 py-0.5 text-[10px] font-extrabold text-indigo-300 uppercase">
+                          {pillar.title} Pillar Showcase
+                        </span>
+                        <h4 className="text-sm font-extrabold text-white mt-1">
+                          {pillar.subtitle}
+                        </h4>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            );
+          })}
         </div>
       </div>
     </section>

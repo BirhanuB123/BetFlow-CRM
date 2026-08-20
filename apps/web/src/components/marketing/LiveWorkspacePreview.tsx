@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { formatCurrency } from "@/lib/currency";
 import { StatusPill } from "@/components/ui/status-pill";
+import { apiFetch, getSession } from "@/lib/api";
 import {
   Database,
   RefreshCw,
@@ -12,20 +13,18 @@ import {
   CircleDollarSign,
   CalendarDays,
   Coins,
+  CheckCircle2,
 } from "lucide-react";
 import {
   demoLeads,
   demoUnits,
-  demoStacking,
   demoDeals,
   demoForecast,
   demoVisits,
   demoSchedules,
   type LeadItem,
   type UnitItem,
-  type StackingBuilding,
   type DealItem,
-  type ForecastStage,
   type SiteVisitItem,
   type PaymentScheduleItem,
 } from "@/features/go-to-market/demo-preview-data";
@@ -46,23 +45,78 @@ type LiveWorkspacePreviewProps = {
 
 export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePreviewProps) {
   const [loadingDb, setLoadingDb] = useState(false);
+  const [isLiveDb, setIsLiveDb] = useState(false);
   const [realLeads, setRealLeads] = useState<LeadItem[]>(demoLeads);
   const [realUnits, setRealUnits] = useState<UnitItem[]>(demoUnits);
   const [realDeals, setRealDeals] = useState<DealItem[]>(demoDeals);
-  const [realForecast] = useState<typeof demoForecast>(demoForecast);
+  const [realForecast, setRealForecast] = useState<typeof demoForecast>(demoForecast);
   const [realVisits, setRealVisits] = useState<SiteVisitItem[]>(demoVisits);
   const [realSchedules, setRealSchedules] = useState<PaymentScheduleItem[]>(demoSchedules);
 
-  const resetPreviewData = useCallback(async () => {
+  const syncDatabaseData = useCallback(async () => {
     setLoadingDb(true);
-    await new Promise((resolve) => setTimeout(resolve, 350));
-    setRealLeads([...demoLeads]);
-    setRealUnits([...demoUnits]);
-    setRealDeals([...demoDeals]);
-    setRealVisits([...demoVisits]);
-    setRealSchedules([...demoSchedules]);
+    const session = getSession();
+
+    if (session?.accessToken) {
+      try {
+        const [leads, units, deals, visits, schedules, forecast] = await Promise.all([
+          apiFetch<LeadItem[]>("/leads", { suppressAuthRedirect: true }).catch(() => null),
+          apiFetch<UnitItem[]>("/units", { suppressAuthRedirect: true }).catch(() => null),
+          apiFetch<DealItem[]>("/deals", { suppressAuthRedirect: true }).catch(() => null),
+          apiFetch<SiteVisitItem[]>("/site-visits", { suppressAuthRedirect: true }).catch(() => null),
+          apiFetch<PaymentScheduleItem[]>("/payments/schedules", { suppressAuthRedirect: true }).catch(() => null),
+          apiFetch<typeof demoForecast>("/reports/forecasting", { suppressAuthRedirect: true }).catch(() => null),
+        ]);
+
+        let connected = false;
+        if (leads && leads.length > 0) {
+          setRealLeads(leads);
+          connected = true;
+        }
+        if (units && units.length > 0) {
+          setRealUnits(units);
+          connected = true;
+        }
+        if (deals && deals.length > 0) {
+          setRealDeals(deals);
+          connected = true;
+        }
+        if (visits && visits.length > 0) {
+          setRealVisits(visits);
+          connected = true;
+        }
+        if (schedules && schedules.length > 0) {
+          setRealSchedules(schedules);
+          connected = true;
+        }
+        if (forecast) {
+          setRealForecast(forecast);
+        }
+
+        setIsLiveDb(connected);
+      } catch {
+        setRealLeads([...demoLeads]);
+        setRealUnits([...demoUnits]);
+        setRealDeals([...demoDeals]);
+        setRealVisits([...demoVisits]);
+        setRealSchedules([...demoSchedules]);
+        setIsLiveDb(false);
+      }
+    } else {
+      setRealLeads([...demoLeads]);
+      setRealUnits([...demoUnits]);
+      setRealDeals([...demoDeals]);
+      setRealVisits([...demoVisits]);
+      setRealSchedules([...demoSchedules]);
+      setIsLiveDb(false);
+    }
+
     setLoadingDb(false);
   }, []);
+
+  useEffect(() => {
+    void syncDatabaseData();
+  }, [syncDatabaseData]);
 
   return (
     <section id="workspace-preview" className="py-16 bg-slate-950 border-t border-b border-slate-800 text-white relative z-20">
@@ -78,27 +132,29 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
               </div>
               <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-slate-800 text-slate-300 font-mono text-[11px]">
                 <Database className="size-3.5 text-emerald-400" />
-                <span>betflow-crm.app — Interactive Demo Workspace Sandbox</span>
+                <span>
+                  betflow-crm.app — {isLiveDb ? "PostgreSQL Real-Time Database Connection" : "Interactive Demo Workspace Sandbox"}
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <span className="relative flex size-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex size-2 rounded-full bg-emerald-500"></span>
+                <span className={`absolute inline-flex h-full w-full animate-ping rounded-full ${isLiveDb ? "bg-emerald-400 opacity-75" : "bg-indigo-400 opacity-75"}`}></span>
+                <span className={`relative inline-flex size-2 rounded-full ${isLiveDb ? "bg-emerald-500" : "bg-indigo-500"}`}></span>
               </span>
               <span className="text-[11px] font-bold text-slate-300">
-                Interactive Demo Records
+                {isLiveDb ? "🟢 Live Database Sync" : "🔵 Demo Sandbox Records"}
               </span>
               <button
                 type="button"
-                onClick={() => void resetPreviewData()}
+                onClick={() => void syncDatabaseData()}
                 disabled={loadingDb}
                 className="ml-2 inline-flex items-center gap-1 rounded-md border border-slate-700 bg-slate-950 px-2.5 py-1 text-[11px] font-bold text-slate-200 hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
               >
                 <RefreshCw
                   className={`size-3 text-indigo-400 ${loadingDb ? "animate-spin" : ""}`}
                 />
-                <span>{loadingDb ? "Syncing..." : "Reset Preview"}</span>
+                <span>{loadingDb ? "Syncing..." : isLiveDb ? "Sync Live DB" : "Refresh Sandbox"}</span>
               </button>
             </div>
           </div>
@@ -165,18 +221,31 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
           </div>
 
           {/* Active Tab Content */}
-          <div className="min-h-[340px] text-white">
+          <div className="min-h-[340px] text-white space-y-6">
             {/* TAB 1: LEADS */}
             {activeTab === "leads" && (
               <div className="space-y-4">
+                {/* Concrete Operational Benefit Bullets */}
+                <div className="rounded-xl border border-indigo-500/30 bg-indigo-950/40 p-3.5 text-xs space-y-2">
+                  <p className="font-extrabold text-indigo-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <CheckCircle2 className="size-3.5 text-emerald-400" />
+                    Pillar 1: Organize — Lead Intake & Buyer CRM Benefits
+                  </p>
+                  <div className="grid sm:grid-cols-3 gap-2.5 text-slate-300">
+                    <span className="flex items-center gap-1.5">⚡ Instant auto-capture from Facebook, Telegram & web</span>
+                    <span className="flex items-center gap-1.5">🎯 Automated lead scoring by budget & property urgency</span>
+                    <span className="flex items-center gap-1.5">🌍 Diaspora buyer tracking with multi-currency tags</span>
+                  </div>
+                </div>
+
                 <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
                   <div>
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
                       <UserRoundCheck className="size-4 text-indigo-400" />
-                      Buyer Lead Intake & Conversion (Live Database)
+                      Buyer Lead Intake & Conversion (Interactive Demo Sandbox)
                     </h3>
                     <p className="text-xs text-slate-400 mt-0.5 font-medium">
-                      Real-time buyer lead records stored in database schema.
+                      Real-time buyer lead records with status progression and source attribution.
                     </p>
                   </div>
                   <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold text-emerald-300 border border-emerald-500/40">
@@ -224,11 +293,24 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
             {/* TAB 2: STACKING MATRIX */}
             {activeTab === "units" && (
               <div className="space-y-4">
+                {/* Concrete Operational Benefit Bullets */}
+                <div className="rounded-xl border border-purple-500/30 bg-purple-950/40 p-3.5 text-xs space-y-2">
+                  <p className="font-extrabold text-purple-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <CheckCircle2 className="size-3.5 text-emerald-400" />
+                    Pillar 1: Organize — Inventory Stacking Benefits
+                  </p>
+                  <div className="grid sm:grid-cols-3 gap-2.5 text-slate-300">
+                    <span className="flex items-center gap-1.5">🏢 Floor-by-floor interactive elevation grid</span>
+                    <span className="flex items-center gap-1.5">🔒 Atomic SQL row locks preventing double reservations</span>
+                    <span className="flex items-center gap-1.5">📊 Live sell-through analytics and price tier matrix</span>
+                  </div>
+                </div>
+
                 <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
                   <div>
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
                       <Grid className="size-4 text-purple-400" />
-                      Property Inventory Matrix (Live Stacking Plan)
+                      Property Inventory Matrix (Interactive Stacking Plan)
                     </h3>
                     <p className="text-xs text-slate-400 mt-0.5 font-medium">
                       Floor-by-floor building elevation matrix and unit status locks.
@@ -277,6 +359,19 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
             {/* TAB 3: PIPELINE */}
             {activeTab === "pipeline" && (
               <div className="space-y-4">
+                {/* Concrete Operational Benefit Bullets */}
+                <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/40 p-3.5 text-xs space-y-2">
+                  <p className="font-extrabold text-emerald-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <CheckCircle2 className="size-3.5 text-emerald-400" />
+                    Pillar 2: Engage — Sales Pipeline Benefits
+                  </p>
+                  <div className="grid sm:grid-cols-3 gap-2.5 text-slate-300">
+                    <span className="flex items-center gap-1.5">🔄 Visual Kanban stage progression & deal gates</span>
+                    <span className="flex items-center gap-1.5">💡 Weighted probability revenue forecasting</span>
+                    <span className="flex items-center gap-1.5">🔔 Overdue deal SLA alerts keeping agents on track</span>
+                  </div>
+                </div>
+
                 <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
                   <div>
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
@@ -337,6 +432,19 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
             {/* TAB 4: VISITS */}
             {activeTab === "visits" && (
               <div className="space-y-4">
+                {/* Concrete Operational Benefit Bullets */}
+                <div className="rounded-xl border border-amber-500/30 bg-amber-950/40 p-3.5 text-xs space-y-2">
+                  <p className="font-extrabold text-amber-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <CheckCircle2 className="size-3.5 text-emerald-400" />
+                    Pillar 2: Engage — Site Visit Scheduler Benefits
+                  </p>
+                  <div className="grid sm:grid-cols-3 gap-2.5 text-slate-300">
+                    <span className="flex items-center gap-1.5">📅 Calendar scheduling & agent dispatch tracking</span>
+                    <span className="flex items-center gap-1.5">🚗 Transport logistics for diaspora site tours</span>
+                    <span className="flex items-center gap-1.5">📝 Post-tour buyer feedback & automatic drip triggers</span>
+                  </div>
+                </div>
+
                 <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
                   <div>
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
@@ -380,6 +488,19 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
             {/* TAB 5: PAYMENTS */}
             {activeTab === "payments" && (
               <div className="space-y-4">
+                {/* Concrete Operational Benefit Bullets */}
+                <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/40 p-3.5 text-xs space-y-2">
+                  <p className="font-extrabold text-emerald-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <CheckCircle2 className="size-3.5 text-emerald-400" />
+                    Pillar 3: Close — Contracts & Payment Schedule Benefits
+                  </p>
+                  <div className="grid sm:grid-cols-3 gap-2.5 text-slate-300">
+                    <span className="flex items-center gap-1.5">💳 30% downpayment & construction milestone schedules</span>
+                    <span className="flex items-center gap-1.5">📄 SHA-256 verified PDF agreements & e-signatures</span>
+                    <span className="flex items-center gap-1.5">🏦 Bank deposit slip upload approval with audit log</span>
+                  </div>
+                </div>
+
                 <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
                   <div>
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">

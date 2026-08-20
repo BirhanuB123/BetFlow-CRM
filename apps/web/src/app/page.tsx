@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { StickyNav } from "@/components/marketing/StickyNav";
 import { Hero } from "@/components/marketing/Hero";
+import { TrustBar } from "@/components/marketing/TrustBar";
 import { LiveWorkspacePreview } from "@/components/marketing/LiveWorkspacePreview";
 import { ShowcaseCards } from "@/components/marketing/ShowcaseCards";
+import { SocialProof } from "@/components/marketing/SocialProof";
 import { CtaBanner } from "@/components/marketing/CtaBanner";
 import { Footer } from "@/components/marketing/Footer";
 
@@ -53,11 +55,13 @@ export default function Home() {
         selectedWorkflows={selectedWorkflows}
         onToggleWorkflow={toggleWorkflow}
       />
+      <TrustBar />
       <LiveWorkspacePreview
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
       <ShowcaseCards />
+      <SocialProof />
       <CtaBanner />
       <Footer />
     </main>
