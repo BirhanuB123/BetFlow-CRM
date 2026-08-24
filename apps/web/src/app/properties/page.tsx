@@ -149,7 +149,7 @@ export default function PropertiesPage() {
       {/* Building Selector */}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white p-4 rounded-xl border border-zinc-200">
         <div className="flex items-center gap-2">
-          <HardHat className="size-5 text-amber-600" />
+          <HardHat className="size-5 text-warning" />
           <div>
             <h2 className="text-sm font-bold text-zinc-900">
               Active Building Site
@@ -173,7 +173,7 @@ export default function PropertiesPage() {
       </div>
 
       {error && (
-        <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <p className="mb-4 rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </p>
       )}
@@ -185,7 +185,7 @@ export default function PropertiesPage() {
             <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2">
               <span>🏗️ Ethiopian Construction Stages (የግንባታ ደረጃዎች)</span>
               {activeBuilding && (
-                <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
+                <span className="rounded-full bg-warning/10 px-2.5 py-0.5 text-xs font-semibold text-warning">
                   {activeBuilding.name}
                 </span>
               )}
@@ -223,9 +223,9 @@ export default function PropertiesPage() {
                   className={cn(
                     "flex flex-col justify-between rounded-xl border p-4 transition-all hover:shadow-md",
                     m.status === "COMPLETED"
-                      ? "border-emerald-200 bg-emerald-50/40"
+                      ? "border-success/20 bg-success/10/40"
                       : m.status === "IN_PROGRESS"
-                        ? "border-amber-200 bg-amber-50/40"
+                        ? "border-warning/20 bg-warning/10/40"
                         : "border-zinc-200 bg-zinc-50/40",
                   )}
                 >
@@ -238,9 +238,9 @@ export default function PropertiesPage() {
                         className={cn(
                           "rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase",
                           m.status === "COMPLETED" &&
-                            "bg-emerald-100 text-emerald-800",
+                            "bg-success/10 text-success",
                           m.status === "IN_PROGRESS" &&
-                            "bg-amber-100 text-amber-800",
+                            "bg-warning/10 text-warning",
                           m.status === "NOT_STARTED" &&
                             "bg-zinc-100 text-zinc-600",
                         )}
@@ -252,7 +252,7 @@ export default function PropertiesPage() {
                     <h3 className="mt-2 text-sm font-bold text-zinc-900">
                       {label.en}
                     </h3>
-                    <p className="text-xs font-semibold text-amber-800">
+                    <p className="text-xs font-semibold text-warning">
                       {label.am}
                     </p>
 
@@ -267,8 +267,8 @@ export default function PropertiesPage() {
                           className={cn(
                             "h-full rounded-full transition-all duration-500",
                             m.status === "COMPLETED"
-                              ? "bg-emerald-600"
-                              : "bg-amber-500",
+                              ? "bg-success"
+                              : "bg-warning",
                           )}
                           style={{ width: `${m.completionPercent}%` }}
                         />
@@ -282,7 +282,7 @@ export default function PropertiesPage() {
                     className="mt-4 w-full h-8 text-xs font-semibold gap-1 bg-white hover:bg-zinc-50"
                     onClick={() => openMilestoneModal(m)}
                   >
-                    <Hammer className="size-3 text-amber-600" /> Update Stage
+                    <Hammer className="size-3 text-warning" /> Update Stage
                   </Button>
                 </div>
               );
@@ -297,7 +297,7 @@ export default function PropertiesPage() {
           <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl border border-zinc-100">
             <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
               <div className="flex items-center gap-2">
-                <HardHat className="size-5 text-amber-600" />
+                <HardHat className="size-5 text-warning" />
                 <div>
                   <h2 className="text-base font-bold text-zinc-900">
                     Update {editingMilestone.stageNameEnglish} (
@@ -349,7 +349,7 @@ export default function PropertiesPage() {
                   step="5"
                   value={percent}
                   onChange={(e) => setPercent(Number(e.target.value))}
-                  className="mt-2 w-full accent-amber-600"
+                  className="mt-2 w-full accent-warning"
                 />
               </div>
 
@@ -367,7 +367,7 @@ export default function PropertiesPage() {
               </div>
 
               {/* Trigger Warning Box */}
-              <div className="rounded-lg bg-amber-50 p-3 border border-amber-200 text-xs text-amber-900">
+              <div className="rounded-lg bg-warning/10 p-3 border border-warning/20 text-xs text-warning">
                 <p className="font-bold flex items-center gap-1">
                   <span>⚡ Auto-Invoice Demand Trigger</span>
                 </p>
@@ -380,8 +380,8 @@ export default function PropertiesPage() {
 
               {/* Trigger Result Success Notice */}
               {triggerResult ? (
-                <div className="rounded-lg bg-emerald-50 p-3.5 border border-emerald-200 text-xs text-emerald-900 space-y-1">
-                  <p className="font-bold flex items-center gap-1 text-emerald-800">
+                <div className="rounded-lg bg-success/10 p-3.5 border border-success/20 text-xs text-success space-y-1">
+                  <p className="font-bold flex items-center gap-1 text-success">
                     <CheckCircle2 className="size-4" /> Milestone Payment Demand
                     Issued!
                   </p>
@@ -408,7 +408,7 @@ export default function PropertiesPage() {
               <Button
                 onClick={handleUpdateMilestone}
                 disabled={submitting}
-                className="h-9 bg-amber-600 hover:bg-amber-700 text-white gap-1"
+                className="h-9 bg-warning hover:bg-warning text-white gap-1"
               >
                 <Send className="size-3.5" />
                 {submitting ? "Publishing…" : "Publish & Trigger Payments"}

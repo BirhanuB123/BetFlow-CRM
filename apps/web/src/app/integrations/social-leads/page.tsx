@@ -41,7 +41,7 @@ function StatBadge({
 function StatusPill({ ok, label }: { ok: boolean; label: string }) {
   return (
     <div
-      className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${ok ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}
+      className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${ok ? "border-success/20 bg-success/10 text-success" : "border-warning/20 bg-warning/10 text-warning"}`}
     >
       {ok ? (
         <CheckCircle2 className="size-4" />
@@ -134,7 +134,7 @@ export default function SocialLeadsPage() {
         <section className="rounded-xl border border-zinc-200 bg-white">
           <div className="flex items-center justify-between border-b border-zinc-200 px-5 py-4">
             <div className="flex items-center gap-2">
-              <Webhook className="size-4 text-blue-500" />
+              <Webhook className="size-4 text-info" />
               <h2 className="font-semibold">Webhook Configuration</h2>
             </div>
             <button
@@ -190,7 +190,7 @@ export default function SocialLeadsPage() {
                   className="shrink-0 text-zinc-400 hover:text-zinc-700"
                 >
                   {copied === row.key ? (
-                    <CheckCircle2 className="size-4 text-emerald-500" />
+                    <CheckCircle2 className="size-4 text-success" />
                   ) : (
                     <Copy className="size-4" />
                   )}
@@ -203,7 +203,7 @@ export default function SocialLeadsPage() {
         {/* Env vars */}
         <section className="rounded-xl border border-zinc-200 bg-white">
           <div className="flex items-center gap-2 border-b border-zinc-200 px-5 py-4">
-            <ShieldCheck className="size-4 text-violet-500" />
+            <ShieldCheck className="size-4 text-info" />
             <h2 className="font-semibold">Environment Variables</h2>
           </div>
           <div className="p-5 space-y-3">
@@ -214,7 +214,7 @@ export default function SocialLeadsPage() {
               </code>{" "}
               file on the API server.
             </p>
-            <pre className="overflow-auto rounded-lg bg-zinc-950 p-4 text-xs leading-relaxed text-emerald-300">
+            <pre className="overflow-auto rounded-lg bg-zinc-950 p-4 text-xs leading-relaxed text-success">
               {`# Meta webhook verification token
 # Must match the value you enter in Meta Developer Portal
 META_VERIFY_TOKEN=your_random_secret_token
@@ -258,7 +258,7 @@ META_APP_SECRET=your_meta_app_secret`}
       <section className="mt-6 rounded-xl border border-zinc-200 bg-white">
         <div className="border-b border-zinc-200 px-5 py-4">
           <div className="flex items-center gap-2">
-            <Share2 className="size-4 text-blue-600" />
+            <Share2 className="size-4 text-info" />
             <h2 className="font-semibold">
               Setup Guide — Meta Developer Portal
             </h2>
@@ -293,7 +293,7 @@ META_APP_SECRET=your_meta_app_secret`}
             },
           ].map((item) => (
             <li key={item.step} className="flex items-start gap-4 px-5 py-4">
-              <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-600">
+              <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-info/10 text-sm font-bold text-info">
                 {item.step}
               </span>
               <div>
@@ -310,7 +310,7 @@ META_APP_SECRET=your_meta_app_secret`}
             href="https://developers.facebook.com/docs/marketing-api/guides/lead-ads/"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline"
+            className="inline-flex items-center gap-1 text-sm text-info hover:underline"
           >
             <ExternalLink className="size-3" />
             Meta Lead Ads Webhook documentation

@@ -132,7 +132,7 @@ export function NotesPanel({
       </form>
 
       {error && (
-        <p className="border-b border-zinc-100 bg-red-50 px-4 py-2 text-sm text-red-600">
+        <p className="border-b border-zinc-100 bg-destructive/10 px-4 py-2 text-sm text-destructive">
           {error}
         </p>
       )}
@@ -164,7 +164,7 @@ export function NotesPanel({
               <button
                 type="button"
                 onClick={() => removeNote(note.id)}
-                className="text-zinc-300 opacity-0 transition-opacity hover:text-red-600 group-hover:opacity-100"
+                className="text-zinc-300 opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
                 aria-label="Delete note"
               >
                 <Trash2 className="size-4" />

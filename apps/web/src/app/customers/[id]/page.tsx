@@ -83,13 +83,13 @@ function money(value: string | number) {
 }
 
 const statusTone: Record<string, string> = {
-  SIGNED: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  APPROVED: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  COMPLETED: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  PAID: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  PENDING: "bg-amber-50 text-amber-700 border-amber-200",
-  PENDING_SIGNATURE: "bg-amber-50 text-amber-700 border-amber-200",
-  CANCELLED: "bg-rose-50 text-rose-700 border-rose-200",
+  SIGNED: "bg-success/10 text-success border-success/20",
+  APPROVED: "bg-success/10 text-success border-success/20",
+  COMPLETED: "bg-success/10 text-success border-success/20",
+  PAID: "bg-success/10 text-success border-success/20",
+  PENDING: "bg-warning/10 text-warning border-warning/20",
+  PENDING_SIGNATURE: "bg-warning/10 text-warning border-warning/20",
+  CANCELLED: "bg-destructive/10 text-destructive border-destructive/20",
   EXPIRED: "bg-slate-100 text-slate-600 border-slate-200",
 };
 
@@ -104,7 +104,7 @@ function StatusBadge({ status }: { status: string }) {
       {status === "SIGNED" ||
       status === "APPROVED" ||
       status === "COMPLETED" ? (
-        <CheckCircle2 className="size-3 text-emerald-600" />
+        <CheckCircle2 className="size-3 text-success" />
       ) : null}
       {status.replace(/_/g, " ")}
     </span>
@@ -299,7 +299,7 @@ export default function CustomerDetailPage() {
                 size="sm"
                 disabled={deleting}
                 onClick={handleDelete}
-                className="h-8.5 text-xs font-semibold text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+                className="h-8.5 text-xs font-semibold text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
               >
                 <Trash2 className="size-3.5 mr-1.5" />
                 {deleting ? "Deleting..." : "Delete Contact"}
@@ -309,7 +309,7 @@ export default function CustomerDetailPage() {
         </div>
 
         {error && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-semibold text-rose-700 shadow-2xs">
+          <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-xs font-semibold text-destructive shadow-2xs">
             {error}
           </div>
         )}
@@ -335,7 +335,7 @@ export default function CustomerDetailPage() {
                 <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-start gap-4">
                     {/* Initials Avatar */}
-                    <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0E6E63] to-teal-700 text-lg font-extrabold text-white shadow-md">
+                    <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0E6E63] to-success text-lg font-extrabold text-white shadow-md">
                       {initials}
                     </div>
 
@@ -344,8 +344,8 @@ export default function CustomerDetailPage() {
                         <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
                           {customer.firstName} {customer.lastName}
                         </h2>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 shadow-2xs">
-                          <UserCheck className="size-3 text-emerald-600" />
+                        <span className="inline-flex items-center gap-1 rounded-full bg-success/10 border border-success/20 px-2.5 py-0.5 text-[11px] font-bold text-success shadow-2xs">
+                          <UserCheck className="size-3 text-success" />
                           Active Client
                         </span>
                       </div>
@@ -367,7 +367,7 @@ export default function CustomerDetailPage() {
                               title="Copy Email"
                             >
                               {copiedEmail ? (
-                                <Check className="size-3 text-emerald-600" />
+                                <Check className="size-3 text-success" />
                               ) : (
                                 <Copy className="size-3" />
                               )}
@@ -390,7 +390,7 @@ export default function CustomerDetailPage() {
                               title="Copy Phone"
                             >
                               {copiedPhone ? (
-                                <Check className="size-3 text-emerald-600" />
+                                <Check className="size-3 text-success" />
                               ) : (
                                 <Copy className="size-3" />
                               )}
@@ -431,7 +431,7 @@ export default function CustomerDetailPage() {
                     <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
                       Pipeline
                     </span>
-                    <div className="flex size-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100">
+                    <div className="flex size-7 items-center justify-center rounded-lg bg-success/10 text-success border border-success/20">
                       <Briefcase className="size-3.5" />
                     </div>
                   </div>
@@ -453,7 +453,7 @@ export default function CustomerDetailPage() {
                       <CheckCircle2 className="size-3.5" />
                     </div>
                   </div>
-                  <h3 className="mt-1.5 text-lg font-extrabold text-emerald-600">
+                  <h3 className="mt-1.5 text-lg font-extrabold text-success">
                     {money(totals.paid)}
                   </h3>
                   <p className="mt-1 text-[11px] font-semibold text-slate-500">
@@ -467,7 +467,7 @@ export default function CustomerDetailPage() {
                     <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
                       Contracts
                     </span>
-                    <div className="flex size-7 items-center justify-center rounded-lg bg-purple-50 text-purple-600 border border-purple-100">
+                    <div className="flex size-7 items-center justify-center rounded-lg bg-info/10 text-info border border-info">
                       <FileText className="size-3.5" />
                     </div>
                   </div>
@@ -485,7 +485,7 @@ export default function CustomerDetailPage() {
                     <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
                       Reservations
                     </span>
-                    <div className="flex size-7 items-center justify-center rounded-lg bg-amber-50 text-amber-600 border border-amber-100">
+                    <div className="flex size-7 items-center justify-center rounded-lg bg-warning/10 text-warning border border-warning/20">
                       <BookmarkCheck className="size-3.5" />
                     </div>
                   </div>
@@ -570,7 +570,7 @@ export default function CustomerDetailPage() {
               <section className="rounded-xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
                 <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/70 p-4">
                   <div className="flex items-center gap-2">
-                    <FileText className="size-4 text-purple-600" />
+                    <FileText className="size-4 text-info" />
                     <h3 className="text-sm font-bold text-slate-900">
                       Contracts ({customer.contracts.length})
                     </h3>
@@ -614,7 +614,7 @@ export default function CustomerDetailPage() {
               <section className="rounded-xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
                 <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/70 p-4">
                   <div className="flex items-center gap-2">
-                    <BookmarkCheck className="size-4 text-amber-600" />
+                    <BookmarkCheck className="size-4 text-warning" />
                     <h3 className="text-sm font-bold text-slate-900">
                       Reservations ({customer.reservations.length})
                     </h3>
@@ -658,7 +658,7 @@ export default function CustomerDetailPage() {
               <section className="rounded-xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
                 <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/70 p-4">
                   <div className="flex items-center gap-2">
-                    <DollarSign className="size-4 text-emerald-600" />
+                    <DollarSign className="size-4 text-success" />
                     <h3 className="text-sm font-bold text-slate-900">
                       Payments ({customer.payments.length})
                     </h3>
@@ -684,7 +684,7 @@ export default function CustomerDetailPage() {
                       "Status",
                     ]}
                     rows={customer.payments.map((payment) => [
-                      <span key="a" className="font-extrabold text-emerald-600">
+                      <span key="a" className="font-extrabold text-success">
                         {money(payment.amount)}
                       </span>,
                       <span

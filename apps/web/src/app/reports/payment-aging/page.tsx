@@ -16,10 +16,10 @@ type AgingRow = {
 };
 
 const riskClass: Record<string, string> = {
-  Low: "bg-emerald-50 text-emerald-700",
-  Medium: "bg-amber-50 text-amber-800",
-  High: "bg-orange-50 text-orange-700",
-  Critical: "bg-red-50 text-red-700",
+  Low: "bg-success/10 text-success",
+  Medium: "bg-warning/10 text-warning",
+  High: "bg-warning/10 text-warning",
+  Critical: "bg-destructive/10 text-destructive",
 };
 
 export default function PaymentAgingReportPage() {
@@ -63,13 +63,13 @@ export default function PaymentAgingReportPage() {
             </Link>
             <div className="h-4 w-px bg-slate-300 hidden sm:block" />
             <div className="flex items-center gap-2 text-slate-800 font-bold text-sm">
-              <Clock className="size-4 text-amber-600" />
+              <Clock className="size-4 text-warning" />
               <span>Payment Aging & Risk Analytics</span>
             </div>
           </div>
         </div>
       {error && (
-        <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <p className="mb-4 rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </p>
       )}

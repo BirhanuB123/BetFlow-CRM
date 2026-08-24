@@ -164,8 +164,8 @@ const input =
   "h-9 rounded-md border border-slate-200 bg-white px-3 text-sm outline-none focus:border-primary/40 shadow-2xs";
 
 const unitStatusClass: Record<string, string> = {
-  AVAILABLE: "bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold",
-  RESERVED: "bg-amber-50 text-amber-700 border-amber-200 font-semibold",
+  AVAILABLE: "bg-success/10 text-success border-success/20 font-semibold",
+  RESERVED: "bg-warning/10 text-warning border-warning/20 font-semibold",
   SOLD: "bg-slate-100 text-slate-700 border-slate-200 font-semibold",
 };
 
@@ -393,7 +393,7 @@ function FloorSection({
             <button
               type="button"
               onClick={deleteFloor}
-              className="text-slate-400 hover:text-rose-600 transition-colors p-1"
+              className="text-slate-400 hover:text-destructive transition-colors p-1"
               title="Delete floor"
             >
               <Trash2 className="size-4" />
@@ -405,7 +405,7 @@ function FloorSection({
       {open && (
         <div className="border-t border-slate-100 p-3 bg-slate-50/50">
           {err && (
-            <p className="mb-2 rounded bg-rose-50 px-2 py-1 text-xs font-medium text-rose-600">
+            <p className="mb-2 rounded bg-destructive/10 px-2 py-1 text-xs font-medium text-destructive">
               {err}
             </p>
           )}
@@ -540,7 +540,7 @@ function FloorSection({
                       <button
                         type="button"
                         onClick={() => deleteUnit(u.id)}
-                        className="text-slate-300 hover:text-rose-600 transition-colors p-1"
+                        className="text-slate-300 hover:text-destructive transition-colors p-1"
                         title="Delete unit"
                       >
                         <Trash2 className="size-3.5" />
@@ -784,7 +784,7 @@ function BuildingSection({
             <button
               type="button"
               onClick={deleteBuilding}
-              className="text-slate-400 hover:text-rose-600 transition-colors p-1"
+              className="text-slate-400 hover:text-destructive transition-colors p-1"
               title="Delete building"
             >
               <Trash2 className="size-4" />
@@ -796,7 +796,7 @@ function BuildingSection({
       {open && (
         <div className="space-y-3 p-4">
           {err && (
-            <p className="rounded bg-rose-50 px-2 py-1 text-xs text-rose-600">
+            <p className="rounded bg-destructive/10 px-2 py-1 text-xs text-destructive">
               {err}
             </p>
           )}
@@ -972,7 +972,7 @@ function ConstructionMilestonesWidget({
       </div>
 
       {err && (
-        <p className="rounded bg-rose-50 p-2 text-xs text-rose-600">{err}</p>
+        <p className="rounded bg-destructive/10 p-2 text-xs text-destructive">{err}</p>
       )}
 
       {isEditing ? (
@@ -1052,7 +1052,7 @@ function ConstructionMilestonesWidget({
             </div>
             <div className="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-indigo-600 transition-all"
+                className="h-full rounded-full bg-gradient-to-r from-primary to-primary transition-all"
                 style={{ width: `${currentProgress}%` }}
               />
             </div>
@@ -1072,7 +1072,7 @@ function ConstructionMilestonesWidget({
                     isCurrent
                       ? "border-primary/30 bg-primary/10 font-semibold text-primary shadow-2xs"
                       : isPast
-                        ? "border-slate-200 bg-emerald-50/40 text-slate-700"
+                        ? "border-slate-200 bg-success/10/40 text-slate-700"
                         : "border-slate-100 bg-white text-slate-400 opacity-75",
                   )}
                 >
@@ -1081,9 +1081,9 @@ function ConstructionMilestonesWidget({
                       className={cn(
                         "size-6 rounded-full flex items-center justify-center text-[10px] font-extrabold shrink-0",
                         isPast
-                          ? "bg-emerald-600 text-white"
+                          ? "bg-success text-white"
                           : isCurrent
-                            ? "bg-primary text-white ring-2 ring-indigo-200"
+                            ? "bg-primary text-white ring-2 ring-primary"
                             : "bg-slate-200 text-slate-500",
                       )}
                     >
@@ -1104,7 +1104,7 @@ function ConstructionMilestonesWidget({
                       isCurrent
                         ? "bg-primary text-white border-primary"
                         : isPast
-                          ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                          ? "bg-success/10 text-success border-success/20"
                           : "bg-slate-100 text-slate-500 border-slate-200",
                     )}
                   >
@@ -1348,7 +1348,7 @@ export default function ProjectDetailPage() {
             <Button
               onClick={handleDeleteProject}
               variant="outline"
-              className="h-8 text-xs border-rose-200 text-rose-700 hover:bg-rose-50"
+              className="h-8 text-xs border-destructive/20 text-destructive hover:bg-destructive/10"
             >
               <Trash2 className="size-3.5 mr-1" /> Delete Project
             </Button>
@@ -1357,7 +1357,7 @@ export default function ProjectDetailPage() {
       </div>
 
       {error && (
-        <p className="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-700">
+        <p className="mb-4 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-xs font-medium text-destructive">
           {error}
         </p>
       )}
@@ -1374,7 +1374,7 @@ export default function ProjectDetailPage() {
           {showEditModal && (
             <form
               onSubmit={handleUpdateProject}
-              className="rounded-xl border border-primary/20 bg-gradient-to-b from-indigo-50/40 to-slate-50/50 p-5 shadow-lg space-y-4"
+              className="rounded-xl border border-primary/20 bg-gradient-to-b from-primary to-slate-50/50 p-5 shadow-lg space-y-4"
             >
               <div className="flex items-center justify-between border-b border-primary/10 pb-3">
                 <h3 className="text-sm font-bold text-primary flex items-center gap-2">
@@ -1622,7 +1622,7 @@ export default function ProjectDetailPage() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white">
+                  <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-slate-900 via-primary to-slate-900 text-white">
                     <Building2 className="size-12 text-primary/80 mb-2" />
                     <p className="text-xs font-semibold text-slate-300">
                       {categoryLabels[
@@ -1645,7 +1645,7 @@ export default function ProjectDetailPage() {
                     <h1 className="text-xl font-extrabold text-slate-900">
                       {project.name}
                     </h1>
-                    <span className="rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-bold text-emerald-700">
+                    <span className="rounded-full bg-success/10 border border-success/20 px-3 py-1 text-xs font-bold text-success">
                       {project.status}
                     </span>
                   </div>
@@ -1689,20 +1689,20 @@ export default function ProjectDetailPage() {
                     </p>
                   </div>
 
-                  <div className="rounded-lg bg-emerald-50 p-2.5 border border-emerald-100">
-                    <p className="text-[10px] font-semibold text-emerald-700 uppercase">
+                  <div className="rounded-lg bg-success/10 p-2.5 border border-success/20">
+                    <p className="text-[10px] font-semibold text-success uppercase">
                       Available Units
                     </p>
-                    <p className="text-sm font-extrabold text-emerald-800 mt-0.5">
+                    <p className="text-sm font-extrabold text-success mt-0.5">
                       {project.availableUnitsCount ?? 0} Units
                     </p>
                   </div>
 
-                  <div className="rounded-lg bg-amber-50 p-2.5 border border-amber-100">
-                    <p className="text-[10px] font-semibold text-amber-700 uppercase">
+                  <div className="rounded-lg bg-warning/10 p-2.5 border border-warning/20">
+                    <p className="text-[10px] font-semibold text-warning uppercase">
                       Reserved Holds
                     </p>
-                    <p className="text-sm font-extrabold text-amber-800 mt-0.5">
+                    <p className="text-sm font-extrabold text-warning mt-0.5">
                       {project.reservedUnitsCount ?? 0} Units
                     </p>
                   </div>
@@ -1914,9 +1914,9 @@ export default function ProjectDetailPage() {
                   )}
 
                   {project.videoUrl && (
-                    <div className="rounded-lg bg-sky-50 p-4 border border-sky-200 flex items-center justify-between">
+                    <div className="rounded-lg bg-info/10 p-4 border border-info/20 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Video className="size-5 text-sky-600" />
+                        <Video className="size-5 text-info" />
                         <div>
                           <p className="text-xs font-bold text-slate-900">
                             Virtual Video Walkthrough
@@ -1930,7 +1930,7 @@ export default function ProjectDetailPage() {
                         href={project.videoUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1 rounded bg-sky-600 px-3 py-1 text-xs font-semibold text-white hover:bg-sky-700"
+                        className="inline-flex items-center gap-1 rounded bg-info px-3 py-1 text-xs font-semibold text-white hover:bg-info"
                       >
                         <ExternalLink className="size-3" /> Watch Video
                       </a>

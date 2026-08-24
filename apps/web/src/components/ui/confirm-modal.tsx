@@ -31,14 +31,14 @@ export function ConfirmModal({
 
   const variantStyles = {
     danger: {
-      iconBg: "bg-rose-100 text-rose-600 border-rose-200",
-      confirmBtn: "bg-rose-600 hover:bg-rose-700 text-white shadow-sm",
-      badgeText: "bg-rose-50 text-rose-700 border-rose-200",
+      iconBg: "bg-destructive/10 text-destructive border-destructive/20",
+      confirmBtn: "bg-destructive hover:bg-destructive text-white shadow-sm",
+      badgeText: "bg-destructive/10 text-destructive border-destructive/20",
     },
     warning: {
-      iconBg: "bg-amber-100 text-amber-600 border-amber-200",
-      confirmBtn: "bg-amber-600 hover:bg-amber-700 text-white shadow-sm",
-      badgeText: "bg-amber-50 text-amber-700 border-amber-200",
+      iconBg: "bg-warning/10 text-warning border-warning/20",
+      confirmBtn: "bg-warning hover:bg-warning text-white shadow-sm",
+      badgeText: "bg-warning/10 text-warning border-warning/20",
     },
     indigo: {
       iconBg: "bg-primary/10 text-primary border-primary/20",

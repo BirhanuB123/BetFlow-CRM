@@ -188,7 +188,7 @@ export function SignaturePad({
             size="sm"
             onClick={clearCanvas}
             disabled={!hasSignature}
-            className="h-7 text-[11px] gap-1 text-rose-600 hover:text-rose-700"
+            className="h-7 text-[11px] gap-1 text-destructive hover:text-destructive"
           >
             <Eraser className="size-3" /> Clear
           </Button>

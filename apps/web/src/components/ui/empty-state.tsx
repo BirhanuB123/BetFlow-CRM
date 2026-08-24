@@ -36,7 +36,7 @@ export function EmptyState({
         {description}
       </p>
       {hint && (
-        <p className="mt-2 rounded-lg bg-amber-50 px-3 py-1 text-[11px] font-medium text-amber-700 border border-amber-200/60">
+        <p className="mt-2 rounded-lg bg-warning/10 px-3 py-1 text-[11px] font-medium text-warning border border-warning/20/60">
           💡 {hint}
         </p>
       )}

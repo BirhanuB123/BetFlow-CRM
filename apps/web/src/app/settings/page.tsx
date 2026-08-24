@@ -744,7 +744,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
       ) : (
         <div className="space-y-6">
           {error && (
-            <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-semibold text-rose-700 shadow-2xs">
+            <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-xs font-semibold text-destructive shadow-2xs">
               {error}
             </div>
           )}
@@ -815,7 +815,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
 
             {tenant && (
               <div className="flex items-center gap-2 px-3 py-1 text-xs text-slate-500 font-semibold">
-                <span className="inline-flex size-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="inline-flex size-2 rounded-full bg-success animate-pulse" />
                 <span>
                   Workspace:{" "}
                   <strong className="text-[#233b66]">{tenant.name}</strong>
@@ -864,7 +864,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">Security Status</span>
-                      <span className="font-semibold text-emerald-600">
+                      <span className="font-semibold text-success">
                         Protected
                       </span>
                     </div>
@@ -972,7 +972,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                                 onClick={() => {
                                   setProfileForm((prev) => ({ ...prev, avatarUrl: "" }));
                                 }}
-                                className="h-8 rounded-lg border border-red-200 bg-red-50 px-3 text-xs font-bold text-red-600 hover:bg-red-100 transition cursor-pointer"
+                                className="h-8 rounded-lg border border-destructive/20 bg-destructive/10 px-3 text-xs font-bold text-destructive hover:bg-destructive/10 transition cursor-pointer"
                               >
                                 Revert to Default Avatar
                               </button>
@@ -1027,7 +1027,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
 
                     <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-2">
                       {profileSaved ? (
-                        <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+                        <span className="inline-flex items-center gap-1.5 text-xs font-bold text-success">
                           <CheckCircle2 className="size-4" /> Profile updated
                           successfully
                         </span>
@@ -1066,8 +1066,8 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                       className={cn(
                         "mb-4 rounded-xl border p-3.5 text-xs font-semibold shadow-2xs",
                         passwordFeedback.type === "success"
-                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                          : "border-rose-200 bg-rose-50 text-rose-700",
+                          ? "border-success/20 bg-success/10 text-success"
+                          : "border-destructive/20 bg-destructive/10 text-destructive",
                       )}
                     >
                       {passwordFeedback.message}
@@ -1232,7 +1232,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
 
                       <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-2">
                         {tenantSaved ? (
-                          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+                          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-success">
                             <CheckCircle2 className="size-4" /> Workspace
                             updated
                           </span>
@@ -1447,7 +1447,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                                   size="icon-sm"
                                   onClick={() => handleSaveRole(role.id)}
                                   disabled={savingRoleId === role.id}
-                                  className="bg-emerald-600 text-white"
+                                  className="bg-success text-white"
                                 >
                                   {savingRoleId === role.id ? (
                                     <RotateCw className="size-3.5 animate-spin" />
@@ -1476,7 +1476,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                                 <Button
                                   size="icon-sm"
                                   variant="ghost"
-                                  className="text-rose-500 hover:text-rose-700 hover:bg-rose-50"
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
                                   onClick={() => handleDeleteRole(role.id)}
                                 >
                                   <Trash2 className="size-3.5" />
@@ -1702,13 +1702,13 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                                   handleToggleUserStatus(user.id, user.status)
                                 }
                                 disabled={updatingUserStatusId === user.id}
-                                className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 border border-emerald-200 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 transition-colors cursor-pointer"
+                                className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-1 text-[11px] font-bold text-success border border-success/20 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors cursor-pointer"
                                 title="Click to deactivate user account"
                               >
                                 {updatingUserStatusId === user.id ? (
-                                  <RotateCw className="size-3 animate-spin text-emerald-600" />
+                                  <RotateCw className="size-3 animate-spin text-success" />
                                 ) : (
-                                  <CheckCircle2 className="size-3 text-emerald-600" />
+                                  <CheckCircle2 className="size-3 text-success" />
                                 )}
                                 <span>ACTIVE</span>
                               </button>
@@ -1719,13 +1719,13 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                                   handleToggleUserStatus(user.id, user.status)
                                 }
                                 disabled={updatingUserStatusId === user.id}
-                                className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-800 border border-amber-300 hover:bg-emerald-600 hover:text-white transition-colors cursor-pointer shadow-2xs group"
+                                className="inline-flex items-center gap-1.5 rounded-full bg-warning/10 px-2.5 py-1 text-[11px] font-bold text-warning border border-warning/30 hover:bg-success hover:text-white transition-colors cursor-pointer shadow-2xs group"
                                 title="Click to approve & activate this user account"
                               >
                                 {updatingUserStatusId === user.id ? (
-                                  <RotateCw className="size-3 animate-spin text-amber-600" />
+                                  <RotateCw className="size-3 animate-spin text-warning" />
                                 ) : (
-                                  <ShieldAlert className="size-3 text-amber-600 group-hover:text-white" />
+                                  <ShieldAlert className="size-3 text-warning group-hover:text-white" />
                                 )}
                                 <span>INACTIVE (Click to Activate)</span>
                               </button>
@@ -1743,7 +1743,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                                     handleToggleUserStatus(user.id, user.status)
                                   }
                                   disabled={updatingUserStatusId === user.id}
-                                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-7 px-2.5 gap-1 shadow-2xs cursor-pointer"
+                                  className="font-bold text-xs h-7 px-2.5 gap-1 shadow-2xs cursor-pointer"
                                   title="Approve and activate this user"
                                 >
                                   {updatingUserStatusId === user.id ? (
@@ -1758,7 +1758,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                               <Button
                                 variant="ghost"
                                 size="icon-sm"
-                                className="text-rose-500 hover:text-rose-700 hover:bg-rose-50"
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
                                 onClick={() => handleDeleteUser(user.id)}
                                 disabled={deletingUserId === user.id}
                                 title="Delete or deactivate user"

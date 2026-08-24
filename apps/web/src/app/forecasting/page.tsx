@@ -57,7 +57,7 @@ export default function ForecastingPage() {
       active="Forecasting"
     >
       {error && (
-        <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <p className="mb-4 rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </p>
       )}
@@ -85,17 +85,17 @@ export default function ForecastingPage() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-5 shadow-2xs">
+            <div className="rounded-xl border border-info bg-info/10/50 p-5 shadow-2xs">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-wider text-purple-700">
+                <p className="text-xs font-semibold uppercase tracking-wider text-info">
                   Weighted Revenue Forecast
                 </p>
-                <TrendingUp className="size-4 text-purple-600" />
+                <TrendingUp className="size-4 text-info" />
               </div>
-              <p className="mt-2 text-3xl font-extrabold text-purple-950">
+              <p className="mt-2 text-3xl font-extrabold text-info">
                 {fmt(data.totalWeightedPipeline)}
               </p>
-              <p className="mt-1 text-xs text-purple-700 font-medium">
+              <p className="mt-1 text-xs text-info font-medium">
                 Adjusted by stage win probability
               </p>
             </div>
@@ -105,9 +105,9 @@ export default function ForecastingPage() {
                 <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                   Pipeline Realization Rate
                 </p>
-                <BarChart3 className="size-4 text-emerald-600" />
+                <BarChart3 className="size-4 text-success" />
               </div>
-              <p className="mt-2 text-2xl font-bold text-emerald-700">
+              <p className="mt-2 text-2xl font-bold text-success">
                 {efficiency}%
               </p>
               <p className="mt-1 text-xs text-zinc-400">
@@ -154,7 +154,7 @@ export default function ForecastingPage() {
                   </span>,
                   <span
                     key="prob"
-                    className="inline-flex rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-bold text-purple-800"
+                    className="inline-flex rounded-full bg-info px-2.5 py-0.5 text-xs font-bold text-info"
                   >
                     {stage.probability}%
                   </span>,
@@ -162,14 +162,14 @@ export default function ForecastingPage() {
                   fmt(stage.rawVolume),
                   <span
                     key="weighted"
-                    className="font-extrabold text-purple-900"
+                    className="font-extrabold text-info"
                   >
                     {fmt(stage.weightedVolume)}
                   </span>,
                   <div key="bar" className="flex items-center gap-2">
                     <div className="h-2 w-24 overflow-hidden rounded-full bg-zinc-100">
                       <div
-                        className="h-full bg-purple-600 rounded-full"
+                        className="h-full bg-info rounded-full"
                         style={{ width: `${percentShare}%` }}
                       />
                     </div>

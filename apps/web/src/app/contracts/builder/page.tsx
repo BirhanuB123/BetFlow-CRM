@@ -198,8 +198,8 @@ export default function ContractBuilderPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-extrabold text-emerald-700 border border-emerald-200">
-              <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1 text-[11px] font-extrabold text-success border border-success/20">
+              <span className="size-2 rounded-full bg-success animate-pulse" />
               SHA-256 PDF Engine Ready
             </span>
           </div>
@@ -309,7 +309,7 @@ export default function ContractBuilderPage() {
             </div>
 
             {error && (
-              <p className="text-xs text-rose-600 font-medium">{error}</p>
+              <p className="text-xs text-destructive font-medium">{error}</p>
             )}
 
             <Button
@@ -375,10 +375,10 @@ export default function ContractBuilderPage() {
                   <span
                     className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold uppercase ${
                       signatures.length > 0
-                        ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                        ? "bg-success/10 text-success border border-success/30"
                         : generatedResult.requiresApproval
-                          ? "bg-amber-100 text-amber-800 border border-amber-300"
-                          : "bg-blue-100 text-blue-800 border border-blue-300"
+                          ? "bg-warning/10 text-warning border border-warning/30"
+                          : "bg-info/10 text-info border border-info"
                     }`}
                   >
                     {signatures.length > 0 ? (
@@ -403,12 +403,12 @@ export default function ContractBuilderPage() {
             {generatedResult ? (
               <div className="space-y-4">
                 {generatedResult.requiresApproval ? (
-                  <div className="rounded-lg bg-amber-50 p-3.5 border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
-                    <AlertCircle className="size-4 text-amber-600 shrink-0 mt-0.5" />
+                  <div className="rounded-lg bg-warning/10 p-3.5 border border-warning/20 text-xs text-warning flex items-start gap-2">
+                    <AlertCircle className="size-4 text-warning shrink-0 mt-0.5" />
                     <div>
                       <p className="font-bold">Management Approval Required</p>
                       <p className="mt-0.5">{generatedResult.approvalReason}</p>
-                      <p className="mt-1 text-[11px] text-amber-800 font-semibold">
+                      <p className="mt-1 text-[11px] text-warning font-semibold">
                         Contract submitted to Manager Approval Queue
                         (/approvals).
                       </p>
@@ -444,7 +444,7 @@ export default function ContractBuilderPage() {
             <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-2xs space-y-3">
               <div className="flex items-center justify-between border-b border-zinc-100 pb-2.5">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="size-4 text-emerald-600" />
+                  <ShieldCheck className="size-4 text-success" />
                   <h3 className="text-sm font-bold text-zinc-900">
                     E-Signature Verification Audit Trail
                   </h3>
@@ -485,7 +485,7 @@ export default function ContractBuilderPage() {
                               ({sig.signerRole})
                             </span>
                           </p>
-                          <span className="text-[10px] font-mono bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full font-semibold">
+                          <span className="text-[10px] font-mono bg-info/10 text-info px-2 py-0.5 rounded-full font-semibold">
                             SHA-256 Verified
                           </span>
                         </div>

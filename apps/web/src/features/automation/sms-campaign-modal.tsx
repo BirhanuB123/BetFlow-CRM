@@ -193,7 +193,7 @@ export function SmsCampaignModal({
                       })),
                     )
                   }
-                  className="rounded bg-sky-50 px-2 py-0.5 text-[10px] font-mono font-semibold text-sky-700 border border-sky-200 hover:bg-sky-100 transition-colors cursor-pointer"
+                  className="rounded bg-info/10 px-2 py-0.5 text-[10px] font-mono font-semibold text-info border border-info/20 hover:bg-info/10 transition-colors cursor-pointer"
                 >
                   + {tag}
                 </button>

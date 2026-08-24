@@ -22,8 +22,8 @@ type AuditLogItem = {
 
 const severityClass = {
   Info: "bg-zinc-100 text-zinc-700",
-  Warning: "bg-amber-50 text-amber-800",
-  Critical: "bg-red-50 text-red-700",
+  Warning: "bg-warning/10 text-warning",
+  Critical: "bg-destructive/10 text-destructive",
 };
 
 function getSeverity(action: string): "Info" | "Warning" | "Critical" {
@@ -90,7 +90,7 @@ export default function AuditLogsPage() {
         </div>
 
         {error && (
-          <p className="m-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          <p className="m-4 rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {error}
           </p>
         )}

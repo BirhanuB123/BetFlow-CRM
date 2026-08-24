@@ -218,12 +218,12 @@ export default function InventoryReportPage() {
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 Available Stock
               </p>
-              <CheckCircle2 className="size-4 text-emerald-500" />
+              <CheckCircle2 className="size-4 text-success" />
             </div>
-            <p className="mt-2 text-2xl font-bold text-emerald-600">
+            <p className="mt-2 text-2xl font-bold text-success">
               {totalAvailable}
             </p>
-            <p className="mt-1 text-xs text-emerald-700 font-medium">
+            <p className="mt-1 text-xs text-success font-medium">
               Ready for reservation
             </p>
           </div>
@@ -233,12 +233,12 @@ export default function InventoryReportPage() {
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 Reserved Holds
               </p>
-              <BookmarkCheck className="size-4 text-amber-500" />
+              <BookmarkCheck className="size-4 text-warning" />
             </div>
-            <p className="mt-2 text-2xl font-bold text-amber-600">
+            <p className="mt-2 text-2xl font-bold text-warning">
               {totalReserved}
             </p>
-            <p className="mt-1 text-xs text-amber-700 font-medium">
+            <p className="mt-1 text-xs text-warning font-medium">
               Pending deposit payment
             </p>
           </div>
@@ -272,7 +272,7 @@ export default function InventoryReportPage() {
           </div>
 
           {error && (
-            <p className="m-4 rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs font-semibold text-rose-700">
+            <p className="m-4 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs font-semibold text-destructive">
               {error}
             </p>
           )}
@@ -314,12 +314,12 @@ export default function InventoryReportPage() {
                           {row.totalUnits}
                         </td>
                         <td className="px-5 py-3">
-                          <span className="inline-flex items-center rounded-md bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-xs font-bold text-emerald-700">
+                          <span className="inline-flex items-center rounded-md bg-success/10 border border-success/20 px-2 py-0.5 text-xs font-bold text-success">
                             {row.available}
                           </span>
                         </td>
                         <td className="px-5 py-3">
-                          <span className="inline-flex items-center rounded-md bg-amber-50 border border-amber-200 px-2 py-0.5 text-xs font-bold text-amber-700">
+                          <span className="inline-flex items-center rounded-md bg-warning/10 border border-warning/20 px-2 py-0.5 text-xs font-bold text-warning">
                             {row.reserved}
                           </span>
                         </td>

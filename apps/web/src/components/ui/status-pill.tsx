@@ -27,8 +27,8 @@ export function StatusPill({
     case "APPROVED":
     case "PAID":
     case "WON":
-      bgClass = "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60";
-      pulseDotClass = "bg-emerald-500";
+      bgClass = "bg-success/10 text-success border-success/20 dark:bg-success/20 dark:border-success/40";
+      pulseDotClass = "bg-success";
       break;
 
     case "RESERVED":
@@ -39,16 +39,16 @@ export function StatusPill({
     case "QUALIFIED":
     case "PROPOSAL":
     case "WARM_LEADS":
-      bgClass = "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border-amber-200 dark:border-amber-800/60";
-      pulseDotClass = "bg-amber-500";
+      bgClass = "bg-warning/10 text-warning border-warning/20 dark:bg-warning/20 dark:border-warning/40";
+      pulseDotClass = "bg-warning";
       break;
 
     case "SOLD":
     case "CONVERTED_TO_CONTRACT":
     case "TITLE_DEED":
     case "HANDOVER_KEYS":
-      bgClass = "bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300 border-sky-200 dark:border-sky-800/60";
-      pulseDotClass = "bg-sky-500";
+      bgClass = "bg-info/10 text-info border-info/20 dark:bg-info/20 dark:border-info/40";
+      pulseDotClass = "bg-info";
       break;
 
     case "CANCELLED":
@@ -57,15 +57,15 @@ export function StatusPill({
     case "LOST":
     case "OVERDUE":
     case "FAILED":
-      bgClass = "bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 border-rose-200 dark:border-rose-800/60";
-      pulseDotClass = "bg-rose-500";
+      bgClass = "bg-destructive/10 text-destructive border-destructive/20 dark:bg-destructive/20 dark:border-destructive/40";
+      pulseDotClass = "bg-destructive";
       break;
 
     case "NEW":
     case "COLD_LEADS":
     case "SITE_VISITORS":
     case "OTHER":
-      bgClass = "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary/80 border-primary/20 dark:border-primary/60";
+      bgClass = "bg-primary/10 text-primary border-primary/20 dark:bg-primary/20 dark:border-primary/40";
       pulseDotClass = "bg-primary";
       break;
   }

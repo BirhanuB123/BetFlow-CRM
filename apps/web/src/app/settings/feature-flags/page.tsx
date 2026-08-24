@@ -115,13 +115,13 @@ export default function FeatureFlagsPage() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div className="mb-4 rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       )}
 
       {successMsg && (
-        <div className="mb-4 flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-600">
+        <div className="mb-4 flex items-center gap-2 rounded-md border border-success/20 bg-success/10 px-4 py-3 text-sm text-success">
           <Check className="size-4 shrink-0" />
           <span>{successMsg}</span>
         </div>
@@ -159,12 +159,12 @@ export default function FeatureFlagsPage() {
                 {togglingKey === flag.key ? (
                   <RotateCw className="size-5 animate-spin text-zinc-400" />
                 ) : flag.enabled ? (
-                  <ToggleRight className="size-7 text-emerald-600" />
+                  <ToggleRight className="size-7 text-success" />
                 ) : (
                   <ToggleLeft className="size-7 text-zinc-400" />
                 )}
                 <span
-                  className={`text-xs font-semibold uppercase ${flag.enabled ? "text-emerald-700" : "text-zinc-600"}`}
+                  className={`text-xs font-semibold uppercase ${flag.enabled ? "text-success" : "text-zinc-600"}`}
                 >
                   {flag.enabled ? "Enabled" : "Disabled"}
                 </span>

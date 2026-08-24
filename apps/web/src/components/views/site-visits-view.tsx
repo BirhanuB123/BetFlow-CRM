@@ -71,10 +71,10 @@ type CustomerOption = { id: string; firstName: string; lastName: string };
 type LeadOption = { id: string; firstName: string; lastName: string };
 
 const statusClass: Record<string, string> = {
-  SCHEDULED: "bg-blue-50 text-blue-700 border-blue-200",
-  COMPLETED: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  CANCELLED: "bg-rose-50 text-rose-700 border-rose-200",
-  NO_SHOW: "bg-amber-50 text-amber-700 border-amber-200",
+  SCHEDULED: "bg-info/10 text-info border-info/20",
+  COMPLETED: "bg-success/10 text-success border-success/20",
+  CANCELLED: "bg-destructive/10 text-destructive border-destructive/20",
+  NO_SHOW: "bg-warning/10 text-warning border-warning/20",
 };
 
 function fmtDateTime(iso: string) {
@@ -340,10 +340,10 @@ export function SiteVisitsView() {
   const todayKey = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
 
   const statusChipClass: Record<string, string> = {
-    SCHEDULED: "bg-blue-100 text-blue-800 border-blue-200",
-    COMPLETED: "bg-emerald-100 text-emerald-800 border-emerald-200",
-    CANCELLED: "bg-rose-100 text-rose-800 border-rose-200",
-    NO_SHOW:   "bg-amber-100 text-amber-800 border-amber-200",
+    SCHEDULED: "bg-info/10 text-info border-info/20",
+    COMPLETED: "bg-success/10 text-success border-success/20",
+    CANCELLED: "bg-destructive/10 text-destructive border-destructive/20",
+    NO_SHOW:   "bg-warning/10 text-warning border-warning/20",
   };
 
   return (
@@ -678,7 +678,7 @@ export function SiteVisitsView() {
         )}
 
         {error && (
-          <p className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-700">
+          <p className="mt-4 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-xs font-medium text-destructive">
             {error}
           </p>
         )}
@@ -794,7 +794,7 @@ export function SiteVisitsView() {
                     key={cellKey}
                     className={cn(
                       "bg-white min-h-[90px] p-1.5 flex flex-col gap-1",
-                      isToday && "bg-blue-50/60",
+                      isToday && "bg-info/10/60",
                     )}
                   >
                     {/* Date number */}
@@ -850,10 +850,10 @@ export function SiteVisitsView() {
             {/* Legend */}
             <div className="mt-4 flex flex-wrap items-center gap-3 text-[11px] font-semibold">
               {([
-                ["SCHEDULED",  "bg-blue-100 text-blue-800",    "Scheduled"],
-                ["COMPLETED",  "bg-emerald-100 text-emerald-800", "Completed"],
-                ["CANCELLED",  "bg-rose-100 text-rose-800",    "Cancelled"],
-                ["NO_SHOW",    "bg-amber-100 text-amber-800",  "No Show"],
+                ["SCHEDULED",  "bg-info/10 text-info",    "Scheduled"],
+                ["COMPLETED",  "bg-success/10 text-success", "Completed"],
+                ["CANCELLED",  "bg-destructive/10 text-destructive",    "Cancelled"],
+                ["NO_SHOW",    "bg-warning/10 text-warning",  "No Show"],
               ] as const).map(([, cls, labelText]) => (
                 <span
                   key={labelText}
@@ -932,7 +932,7 @@ export function SiteVisitsView() {
                             <div className="flex flex-col gap-0.5">
                               <span className="font-semibold text-slate-900">{dt.gc}</span>
                               {dt.ecText && (
-                                <span className="text-[10px] font-bold text-blue-800 bg-blue-50 px-1.5 py-0.2 rounded w-fit border border-blue-200">
+                                <span className="text-[10px] font-bold text-info bg-info/10 px-1.5 py-0.2 rounded w-fit border border-info/20">
                                   🇪🇹 {dt.ecText}
                                 </span>
                               )}
@@ -992,7 +992,7 @@ export function SiteVisitsView() {
                       <td className="px-5 py-3">
                         {visit.budgetETB ? (
                           <div className="flex flex-col gap-0.5">
-                            <span className="font-bold text-emerald-700">
+                            <span className="font-bold text-success">
                               {formatCurrency(visit.budgetETB)}
                             </span>
                             <span className="text-[10px] text-slate-500 truncate max-w-[150px]">
@@ -1051,7 +1051,7 @@ export function SiteVisitsView() {
                                 onClick={() =>
                                   changeStatus(visit.id, "COMPLETED")
                                 }
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white h-7 text-[11px] px-2"
+                                className="h-7 text-[11px] px-2"
                               >
                                 Complete
                               </Button>
@@ -1061,7 +1061,7 @@ export function SiteVisitsView() {
                                 onClick={() =>
                                   changeStatus(visit.id, "NO_SHOW")
                                 }
-                                className="border-amber-300 text-amber-800 hover:bg-amber-50 h-7 text-[11px] px-2"
+                                className="border-warning/30 text-warning hover:bg-warning/10 h-7 text-[11px] px-2"
                               >
                                 No-show
                               </Button>
@@ -1071,7 +1071,7 @@ export function SiteVisitsView() {
                           <button
                             type="button"
                             onClick={() => handleDelete(visit.id)}
-                            className="rounded p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                            className="rounded p-1.5 text-slate-400 hover:bg-destructive/10 hover:text-destructive transition-colors"
                             title="Delete visit"
                           >
                             <Trash2 className="size-3.5" />
@@ -1176,10 +1176,10 @@ export function SiteVisitsView() {
 
                 <div className="rounded-lg border border-slate-100 p-3 bg-slate-50/50">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                    <Banknote className="size-3 text-emerald-600" /> Target
+                    <Banknote className="size-3 text-success" /> Target
                     Budget (ETB)
                   </p>
-                  <p className="mt-1 text-sm font-bold text-emerald-700">
+                  <p className="mt-1 text-sm font-bold text-success">
                     {activeModalVisit.budgetETB
                       ? formatCurrency(activeModalVisit.budgetETB)
                       : "Flexible"}
@@ -1198,8 +1198,8 @@ export function SiteVisitsView() {
               </div>
 
               {activeModalVisit.demands && (
-                <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-3">
-                  <p className="text-[11px] font-bold text-amber-900 mb-1">
+                <div className="rounded-lg border border-warning/20 bg-warning/10 p-3">
+                  <p className="text-[11px] font-bold text-warning mb-1">
                     Specific Buyer Demands & Requests
                   </p>
                   <p className="text-xs text-slate-700 leading-relaxed">
@@ -1221,7 +1221,7 @@ export function SiteVisitsView() {
 
               {/* Automated Recommended Available Units Shortlist */}
               {activeModalVisit.recommendedUnits && activeModalVisit.recommendedUnits.length > 0 && (
-                <div className="rounded-xl border border-primary/20 bg-gradient-to-br from-indigo-50/70 via-blue-50/40 to-slate-50 p-3.5 shadow-2xs">
+                <div className="rounded-xl border border-primary/20 bg-gradient-to-br from-primary via-info to-slate-50 p-3.5 shadow-2xs">
                   <div className="flex items-center justify-between mb-2.5 border-b border-primary/10 pb-2">
                     <div className="flex items-center gap-1.5">
                       <span className="text-base">🎯</span>
@@ -1242,7 +1242,7 @@ export function SiteVisitsView() {
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-slate-900 text-xs">Unit {u.unitNumber}</span>
-                            <span className="rounded-full bg-emerald-100 px-2 py-0.2 text-[10px] font-bold text-emerald-800 border border-emerald-300">
+                            <span className="rounded-full bg-success/10 px-2 py-0.2 text-[10px] font-bold text-success border border-success/30">
                               {u.matchPercentage}% Match
                             </span>
                           </div>

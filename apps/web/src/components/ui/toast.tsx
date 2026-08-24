@@ -96,26 +96,26 @@ const toastStyles: Record<ToastType, { bg: string; border: string; icon: string;
   success: {
     bg: "bg-white",
     border: "border-l-4 border-l-emerald-500",
-    icon: "text-emerald-500",
-    iconEl: <CheckCircle2 className="size-5 shrink-0 text-emerald-500" />,
+    icon: "text-success",
+    iconEl: <CheckCircle2 className="size-5 shrink-0 text-success" />,
   },
   error: {
     bg: "bg-white",
     border: "border-l-4 border-l-rose-500",
-    icon: "text-rose-500",
-    iconEl: <XCircle className="size-5 shrink-0 text-rose-500" />,
+    icon: "text-destructive",
+    iconEl: <XCircle className="size-5 shrink-0 text-destructive" />,
   },
   warning: {
     bg: "bg-white",
     border: "border-l-4 border-l-amber-500",
-    icon: "text-amber-500",
-    iconEl: <AlertTriangle className="size-5 shrink-0 text-amber-500" />,
+    icon: "text-warning",
+    iconEl: <AlertTriangle className="size-5 shrink-0 text-warning" />,
   },
   info: {
     bg: "bg-white",
     border: "border-l-4 border-l-blue-500",
-    icon: "text-blue-500",
-    iconEl: <Info className="size-5 shrink-0 text-blue-500" />,
+    icon: "text-info",
+    iconEl: <Info className="size-5 shrink-0 text-info" />,
   },
 };
 

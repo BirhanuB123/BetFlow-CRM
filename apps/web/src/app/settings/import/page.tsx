@@ -30,9 +30,9 @@ type SubscriptionData = {
 };
 
 const statusClass = {
-  ready: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  processing: "bg-blue-50 text-blue-700 border-blue-200",
-  failed: "bg-red-50 text-red-700 border-red-200",
+  ready: "bg-success/10 text-success border-success/20",
+  processing: "bg-info/10 text-info border-info/20",
+  failed: "bg-destructive/10 text-destructive border-destructive/20",
 };
 
 export default function ExcelImportPage() {
@@ -80,7 +80,7 @@ export default function ExcelImportPage() {
         Back to Settings
       </Link>
       {error && (
-        <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div className="mb-4 rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       )}

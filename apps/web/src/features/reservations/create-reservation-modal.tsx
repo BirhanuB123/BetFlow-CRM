@@ -66,7 +66,7 @@ export function CreateReservationModal({
           Unit Lock & Holding Deposit Details
         </h3>
         {selectedUnitDetails && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-bold text-emerald-800 border border-emerald-200">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1 text-[11px] font-bold text-success border border-success/20">
             <Building className="size-3" />
             Unit {selectedUnitDetails.unitNumber} ({selectedUnitDetails.type}) · {formatCurrency(selectedUnitDetails.price)}
           </span>

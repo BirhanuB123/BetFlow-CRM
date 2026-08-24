@@ -17,13 +17,13 @@ type Activity = {
 };
 
 const typeClass: Record<string, string> = {
-  Call: "bg-blue-50 text-blue-700",
-  Email: "bg-cyan-50 text-cyan-700",
-  Assignment: "bg-violet-50 text-violet-700",
-  Task: "bg-amber-50 text-amber-800",
+  Call: "bg-info/10 text-info",
+  Email: "bg-info text-info",
+  Assignment: "bg-info/10 text-info",
+  Task: "bg-warning/10 text-warning",
   Note: "bg-zinc-100 text-zinc-700",
-  Deal: "bg-emerald-50 text-emerald-700",
-  Lead: "bg-rose-50 text-rose-700",
+  Deal: "bg-success/10 text-success",
+  Lead: "bg-destructive/10 text-destructive",
   Customer: "bg-primary/10 text-primary",
   System: "bg-slate-100 text-slate-700",
 };

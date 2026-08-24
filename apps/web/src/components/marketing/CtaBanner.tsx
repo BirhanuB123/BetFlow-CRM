@@ -5,7 +5,7 @@ import { ArrowRight, Sparkles } from "lucide-react";
 
 export function CtaBanner() {
   return (
-    <section className="relative overflow-hidden py-16 bg-gradient-to-r from-indigo-900 via-[#233b66] to-slate-950 text-white border-t border-slate-800">
+    <section className="relative overflow-hidden py-16 bg-gradient-to-r from-primary via-[#233b66] to-slate-950 text-white border-t border-slate-800">
       <div className="relative z-10 mx-auto max-w-5xl px-4 text-center sm:px-6">
         <h2 className="text-3xl font-extrabold sm:text-4xl text-white">
           Ready to streamline your real estate sales pipeline?

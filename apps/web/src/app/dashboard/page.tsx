@@ -131,15 +131,15 @@ function isToday(iso: string) {
 const statusTone: Record<string, string> = {
   TODO: "bg-slate-100 text-slate-700 border-slate-200",
   IN_PROGRESS: "bg-primary/10 text-primary border-primary/20 font-medium",
-  DONE: "bg-emerald-50 text-emerald-700 border-emerald-200 font-medium",
+  DONE: "bg-success/10 text-success border-success/20 font-medium",
   SCHEDULED: "bg-primary/10 text-primary border-primary/20",
-  COMPLETED: "bg-emerald-50 text-emerald-700 border-emerald-200 font-medium",
-  CANCELLED: "bg-rose-50 text-rose-700 border-rose-200",
-  NO_SHOW: "bg-amber-50 text-amber-700 border-amber-200",
+  COMPLETED: "bg-success/10 text-success border-success/20 font-medium",
+  CANCELLED: "bg-destructive/10 text-destructive border-destructive/20",
+  NO_SHOW: "bg-warning/10 text-warning border-warning/20",
   NEW: "bg-slate-100 text-slate-700 border-slate-200",
-  QUALIFIED: "bg-emerald-50 text-emerald-700 border-emerald-200 font-medium",
+  QUALIFIED: "bg-success/10 text-success border-success/20 font-medium",
   CONTACTED: "bg-primary/10 text-primary border-primary/20",
-  FOLLOW_UP: "bg-amber-50 text-amber-700 border-amber-200",
+  FOLLOW_UP: "bg-warning/10 text-warning border-warning/20",
 };
 
 function StatusBadge({ status }: { status: string }) {
@@ -504,7 +504,7 @@ export default function DashboardPage() {
       active="Dashboard"
     >
       {error && (
-        <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 font-medium">
+        <p className="mb-4 rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive font-medium">
           {error}
         </p>
       )}

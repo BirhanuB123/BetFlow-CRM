@@ -388,8 +388,8 @@ export default function AuthPage() {
                 </div>
               </div>
               <div className="pt-2.5 border-t border-slate-800 flex items-center justify-between text-xs">
-                <span className="text-emerald-400 font-extrabold flex items-center gap-1.5">
-                  <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-success font-extrabold flex items-center gap-1.5">
+                  <span className="size-2 rounded-full bg-success animate-pulse" />
                   {t("auth.statText")}
                 </span>
               </div>
@@ -464,11 +464,11 @@ export default function AuthPage() {
             </div>
 
             {error ? (
-              <p className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-600">
+              <p className="mt-4 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
                 {error}
               </p>
             ) : feedback ? (
-              <p className="mt-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-600">
+              <p className="mt-4 rounded-lg bg-success/10 px-3 py-2 text-sm text-success">
                 {feedback}
               </p>
             ) : null}
@@ -719,11 +719,11 @@ export default function AuthPage() {
               </form>
             ) : (
               <form className="mt-5 grid gap-4" onSubmit={handleResetPassword}>
-                <div className="rounded-xl bg-amber-50 p-3.5 text-xs text-amber-900 border border-amber-200">
-                  <p className="font-semibold flex items-center gap-1.5 text-amber-800">
+                <div className="rounded-xl bg-warning/10 p-3.5 text-xs text-warning border border-warning/20">
+                  <p className="font-semibold flex items-center gap-1.5 text-warning">
                     <Lock className="size-4" /> {t("auth.resetPassword")}
                   </p>
-                  <p className="mt-1 text-amber-700">
+                  <p className="mt-1 text-warning">
                     Enter the 6-digit code sent to your email along with your new password.
                   </p>
                 </div>

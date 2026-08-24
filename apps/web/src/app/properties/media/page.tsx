@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { projects, propertyMedia } from "@/features/properties/inventory-data";
 
 const mediaClass = {
-  Photo: "bg-blue-50 text-blue-700",
-  "Floor plan": "bg-emerald-50 text-emerald-700",
+  Photo: "bg-info/10 text-info",
+  "Floor plan": "bg-success/10 text-success",
   Document: "bg-zinc-100 text-zinc-700",
-  "Virtual tour": "bg-violet-50 text-violet-700",
+  "Virtual tour": "bg-info/10 text-info",
 };
 
 export default function PropertyMediaPage() {

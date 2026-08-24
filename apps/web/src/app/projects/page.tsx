@@ -98,10 +98,10 @@ const stageLabels: Record<string, string> = {
 
 const statusClass: Record<string, string> = {
   PLANNING: "bg-slate-100 text-slate-700 border-slate-200",
-  ACTIVE: "bg-blue-50 text-blue-700 border-blue-200 font-medium",
-  SELLING: "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold",
-  COMPLETED: "bg-purple-50 text-purple-700 border-purple-200",
-  ON_HOLD: "bg-rose-50 text-rose-700 border-rose-200",
+  ACTIVE: "bg-info/10 text-info border-info/20 font-medium",
+  SELLING: "bg-success/10 text-success border-success/20 font-bold",
+  COMPLETED: "bg-info/10 text-info border-info",
+  ON_HOLD: "bg-destructive/10 text-destructive border-destructive/20",
 };
 
 const DEFAULT_AMENITIES = [
@@ -664,7 +664,7 @@ export default function ProjectsPage() {
                           <button
                             type="button"
                             onClick={() => removeGalleryPhoto(index)}
-                            className="absolute top-0.5 right-0.5 rounded-full bg-rose-600 p-0.5 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute top-0.5 right-0.5 rounded-full bg-destructive p-0.5 text-white opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             <X className="size-3" />
                           </button>
@@ -785,7 +785,7 @@ export default function ProjectsPage() {
           )}
 
           {error && (
-            <p className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-700">
+            <p className="mt-4 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-xs font-medium text-destructive">
               {error}
             </p>
           )}
@@ -892,7 +892,7 @@ export default function ProjectsPage() {
                   className="group rounded-xl border border-slate-200/80 bg-white shadow-sm hover:shadow-md transition-all flex flex-col overflow-hidden"
                 >
                   {/* Card Cover Render */}
-                  <div className="relative h-44 w-full bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 overflow-hidden">
+                  <div className="relative h-44 w-full bg-gradient-to-br from-slate-900 via-primary to-slate-900 overflow-hidden">
                     {project.coverImage ? (
                       <img
                         src={project.coverImage}
@@ -939,7 +939,7 @@ export default function ProjectsPage() {
                       <button
                         type="button"
                         onClick={() => handleDelete(project)}
-                        className="rounded-full bg-slate-900/80 p-1.5 text-white hover:bg-rose-600 transition-colors border border-white/20 backdrop-blur-md"
+                        className="rounded-full bg-slate-900/80 p-1.5 text-white hover:bg-destructive transition-colors border border-white/20 backdrop-blur-md"
                         title="Delete Project"
                       >
                         <Trash2 className="size-3.5" />
@@ -947,7 +947,7 @@ export default function ProjectsPage() {
                     </div>
 
                     {project.estimatedDelivery && (
-                      <div className="absolute bottom-3 right-3 rounded-md bg-slate-900/80 px-2 py-1 text-[10px] font-semibold text-amber-300 backdrop-blur-md border border-amber-300/30">
+                      <div className="absolute bottom-3 right-3 rounded-md bg-slate-900/80 px-2 py-1 text-[10px] font-semibold text-warning backdrop-blur-md border border-warning/30/30">
                         Delivery: {project.estimatedDelivery}
                       </div>
                     )}
@@ -987,7 +987,7 @@ export default function ProjectsPage() {
                         </div>
                         <div className="h-1.5 w-full rounded-full bg-slate-200 overflow-hidden">
                           <div
-                            className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-indigo-600 transition-all"
+                            className="h-full rounded-full bg-gradient-to-r from-primary to-primary transition-all"
                             style={{ width: `${progress}%` }}
                           />
                         </div>
@@ -1000,7 +1000,7 @@ export default function ProjectsPage() {
                           <Building className="size-3.5" />
                           {project._count.buildings} Blocks
                         </span>
-                        <span className="flex items-center gap-1 text-emerald-600 font-bold">
+                        <span className="flex items-center gap-1 text-success font-bold">
                           <CheckCircle2 className="size-3.5" />
                           {project.availableUnitsCount ?? 0} Avail
                         </span>

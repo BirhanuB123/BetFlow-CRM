@@ -112,10 +112,10 @@ export default function ContractVerificationPage() {
               </p>
             </div>
           </div>
-          <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+          <span className="rounded-full bg-success/10 px-3 py-1 text-xs font-bold text-success border border-success/30 flex items-center gap-1.5">
             <span className="relative flex size-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex size-2 rounded-full bg-emerald-500"></span>
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75"></span>
+              <span className="relative inline-flex size-2 rounded-full bg-success"></span>
             </span>
             Live Verification
           </span>
@@ -127,7 +127,7 @@ export default function ContractVerificationPage() {
           </div>
         ) : error ? (
           <div className="py-12 text-center">
-            <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 mb-3">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-destructive/10 text-destructive border border-destructive/20 mb-3">
               <AlertCircle className="size-6" />
             </div>
             <h2 className="text-base font-bold text-white">
@@ -140,11 +140,11 @@ export default function ContractVerificationPage() {
         ) : data ? (
           <div className="mt-6 space-y-6">
             {/* Authenticity Badge Banner */}
-            <div className="rounded-xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/50 to-slate-900 p-4 flex items-center justify-between">
+            <div className="rounded-xl border border-success/40 bg-gradient-to-r from-success to-slate-900 p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <FileCheck className="size-8 text-emerald-400 shrink-0" />
+                <FileCheck className="size-8 text-success shrink-0" />
                 <div>
-                  <h2 className="text-sm font-bold text-emerald-300">
+                  <h2 className="text-sm font-bold text-success">
                     Official Authentic Sales Agreement
                   </h2>
                   <p className="text-xs text-slate-300 mt-0.5">
@@ -152,7 +152,7 @@ export default function ContractVerificationPage() {
                   </p>
                 </div>
               </div>
-              <span className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-extrabold text-white shadow-sm">
+              <span className="rounded-lg bg-success px-3 py-1.5 text-xs font-extrabold text-white shadow-sm">
                 VERIFIED AUTHENTIC
               </span>
             </div>
@@ -188,9 +188,9 @@ export default function ContractVerificationPage() {
 
               <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3.5">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                  <Hash className="size-3 text-emerald-400" /> Agreed Value (ETB)
+                  <Hash className="size-3 text-success" /> Agreed Value (ETB)
                 </p>
-                <p className="mt-1 text-xs font-bold text-emerald-400">
+                <p className="mt-1 text-xs font-bold text-success">
                   {formatCurrency(data.totalAmt)}
                 </p>
               </div>
@@ -224,7 +224,7 @@ export default function ContractVerificationPage() {
                       <p className="text-[11px] text-slate-400">
                         Signed At: {new Date(sig.signedAt).toLocaleString()}
                       </p>
-                      <div className="mt-1 rounded bg-slate-900 p-2 font-mono text-[10px] text-emerald-400 break-all border border-slate-800">
+                      <div className="mt-1 rounded bg-slate-900 p-2 font-mono text-[10px] text-success break-all border border-slate-800">
                         SHA-256: {sig.verificationHash}
                       </div>
                     </div>

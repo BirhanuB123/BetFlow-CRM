@@ -65,11 +65,11 @@ type UnitOption = {
 };
 
 const statusClass: Record<string, string> = {
-  PENDING: "bg-amber-50 text-amber-700 border-amber-200 font-medium",
-  APPROVED: "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold",
+  PENDING: "bg-warning/10 text-warning border-warning/20 font-medium",
+  APPROVED: "bg-success/10 text-success border-success/20 font-bold",
   CONVERTED_TO_CONTRACT:
     "bg-primary/10 text-primary border-primary/20 font-bold",
-  CANCELLED: "bg-rose-50 text-rose-700 border-rose-200",
+  CANCELLED: "bg-destructive/10 text-destructive border-destructive/20",
   EXPIRED: "bg-slate-100 text-slate-600 border-slate-200",
 };
 
@@ -322,7 +322,7 @@ export function ReservationsView() {
         </div>
 
         {availableUnits.length === 0 && !loading && (
-          <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50/60 p-3 text-xs font-semibold text-amber-800 flex items-center justify-between">
+          <div className="mt-4 rounded-lg border border-warning/20 bg-warning/10/60 p-3 text-xs font-semibold text-warning flex items-center justify-between">
             <span>
               Notice: All units are currently reserved or sold. No AVAILABLE inventory available to lock.
             </span>
@@ -350,7 +350,7 @@ export function ReservationsView() {
       )}
 
       {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-semibold text-rose-700 shadow-2xs">
+        <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-xs font-semibold text-destructive shadow-2xs">
           {error}
         </div>
       )}
@@ -453,7 +453,7 @@ export function ReservationsView() {
                         {/* Amount */}
                         <td className="px-4 py-3">
                           <div>
-                            <span className="font-extrabold text-emerald-700 text-xs block">
+                            <span className="font-extrabold text-success text-xs block">
                               {formatCurrency(reservation.amount)}
                             </span>
                             <span className="text-[10px] text-slate-400">
@@ -474,12 +474,12 @@ export function ReservationsView() {
                           {isActive ? (
                             <div>
                               <div className="flex items-center gap-1.5">
-                                <Clock className="size-3.5 text-amber-600" />
+                                <Clock className="size-3.5 text-warning" />
                                 <span
                                   className={cn(
                                     "font-bold text-xs",
                                     daysLeft !== null && daysLeft <= 3
-                                      ? "text-rose-600"
+                                      ? "text-destructive"
                                       : "text-slate-900",
                                   )}
                                 >
@@ -524,7 +524,7 @@ export function ReservationsView() {
                                 onClick={() =>
                                   changeStatus(reservation.id, "APPROVED")
                                 }
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white h-7 text-[11px] px-2.5 shadow-2xs gap-1"
+                                className="h-7 text-[11px] px-2.5 shadow-2xs gap-1"
                               >
                                 <CheckCircle2 className="size-3" />
                                 Approve
@@ -563,7 +563,7 @@ export function ReservationsView() {
                                     );
                                   }
                                 }}
-                                className="border-rose-200 text-rose-700 hover:bg-rose-50 h-7 text-[11px] px-2"
+                                className="border-destructive/20 text-destructive hover:bg-destructive/10 h-7 text-[11px] px-2"
                               >
                                 Release
                               </Button>

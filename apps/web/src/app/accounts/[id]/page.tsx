@@ -40,9 +40,9 @@ function money(value?: string | null) {
 }
 
 const ratingClass: Record<string, string> = {
-  HOT: "bg-rose-100 text-rose-700",
-  WARM: "bg-amber-100 text-amber-700",
-  COLD: "bg-sky-100 text-sky-700",
+  HOT: "bg-destructive/10 text-destructive",
+  WARM: "bg-warning/10 text-warning",
+  COLD: "bg-info/10 text-info",
 };
 const badge = "rounded-md px-2 py-0.5 text-xs font-medium";
 const inputClass =
@@ -189,7 +189,7 @@ export default function AccountDetailPage() {
       </Link>
 
       {error && (
-        <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <p className="mb-4 rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </p>
       )}
@@ -230,7 +230,7 @@ export default function AccountDetailPage() {
                           ↳ under{" "}
                           <Link
                             href={`/accounts/${account.parentAccount.id}`}
-                            className="text-blue-600 hover:underline"
+                            className="text-info hover:underline"
                           >
                             {account.parentAccount.name}
                           </Link>
@@ -279,7 +279,7 @@ export default function AccountDetailPage() {
                       }
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 text-blue-600 hover:underline"
+                      className="inline-flex items-center gap-1.5 text-info hover:underline"
                     >
                       <Globe className="size-4" />
                       {account.website}
@@ -565,7 +565,7 @@ export default function AccountDetailPage() {
                     <Link
                       key="n"
                       href={`/customers/${c.id}`}
-                      className="font-medium text-blue-600 hover:underline"
+                      className="font-medium text-info hover:underline"
                     >
                       {c.firstName} {c.lastName}
                     </Link>,
@@ -621,7 +621,7 @@ export default function AccountDetailPage() {
                     <Link
                       key="n"
                       href={`/accounts/${c.id}`}
-                      className="font-medium text-blue-600 hover:underline"
+                      className="font-medium text-info hover:underline"
                     >
                       {c.name}
                     </Link>,
