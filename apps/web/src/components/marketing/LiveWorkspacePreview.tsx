@@ -139,8 +139,8 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
             </div>
             <div className="flex items-center gap-2">
               <span className="relative flex size-2">
-                <span className={`absolute inline-flex h-full w-full animate-ping rounded-full ${isLiveDb ? "bg-emerald-400 opacity-75" : "bg-indigo-400 opacity-75"}`}></span>
-                <span className={`relative inline-flex size-2 rounded-full ${isLiveDb ? "bg-emerald-500" : "bg-indigo-500"}`}></span>
+                <span className={`absolute inline-flex h-full w-full animate-ping rounded-full ${isLiveDb ? "bg-emerald-400 opacity-75" : "bg-primary opacity-75"}`}></span>
+                <span className={`relative inline-flex size-2 rounded-full ${isLiveDb ? "bg-emerald-500" : "bg-primary"}`}></span>
               </span>
               <span className="text-[11px] font-bold text-slate-300">
                 {isLiveDb ? "🟢 Live Database Sync" : "🔵 Demo Sandbox Records"}
@@ -152,7 +152,7 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
                 className="ml-2 inline-flex items-center gap-1 rounded-md border border-slate-700 bg-slate-950 px-2.5 py-1 text-[11px] font-bold text-slate-200 hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
               >
                 <RefreshCw
-                  className={`size-3 text-indigo-400 ${loadingDb ? "animate-spin" : ""}`}
+                  className={`size-3 text-primary/80 ${loadingDb ? "animate-spin" : ""}`}
                 />
                 <span>{loadingDb ? "Syncing..." : isLiveDb ? "Sync Live DB" : "Refresh Sandbox"}</span>
               </button>
@@ -202,7 +202,7 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
                   onClick={() => onTabChange(tab.id)}
                   className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-extrabold transition-all cursor-pointer ${
                     isActive
-                      ? "bg-indigo-600 text-white border border-indigo-400/40 shadow-md shadow-indigo-600/40"
+                      ? "bg-primary text-white border border-primary/40 shadow-md shadow-primary/40"
                       : "bg-slate-950/80 text-slate-300 border border-slate-800 hover:bg-slate-800 hover:text-white"
                   }`}
                 >
@@ -226,8 +226,8 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
             {activeTab === "leads" && (
               <div className="space-y-4">
                 {/* Concrete Operational Benefit Bullets */}
-                <div className="rounded-xl border border-indigo-500/30 bg-indigo-950/40 p-3.5 text-xs space-y-2">
-                  <p className="font-extrabold text-indigo-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                <div className="rounded-xl border border-primary/30 bg-primary/20 p-3.5 text-xs space-y-2">
+                  <p className="font-extrabold text-primary/80 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
                     <CheckCircle2 className="size-3.5 text-emerald-400" />
                     Pillar 1: Organize — Lead Intake & Buyer CRM Benefits
                   </p>
@@ -241,7 +241,7 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
                 <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
                   <div>
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                      <UserRoundCheck className="size-4 text-indigo-400" />
+                      <UserRoundCheck className="size-4 text-primary/80" />
                       Buyer Lead Intake & Conversion (Interactive Demo Sandbox)
                     </h3>
                     <p className="text-xs text-slate-400 mt-0.5 font-medium">
@@ -270,7 +270,7 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
                           {lead.company || lead.source?.name || "Direct Inquiry"}
                         </p>
                         {(lead.phone || lead.email) && (
-                          <p className="text-[11px] text-indigo-300 font-mono mt-1 truncate">
+                          <p className="text-[11px] text-primary/80 font-mono mt-1 truncate">
                             {lead.phone || lead.email}
                           </p>
                         )}
@@ -279,7 +279,7 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
                         <span>Added: {fmtDate(lead.createdAt)}</span>
                         <Link
                           href="/pipeline?tab=leads"
-                          className="text-indigo-400 hover:text-indigo-300 font-bold"
+                          className="text-primary/80 hover:text-primary/80 font-bold"
                         >
                           View →
                         </Link>
@@ -413,7 +413,7 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
                         </p>
                       </div>
                       <div className="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
-                        <span className="text-indigo-400 font-bold">
+                        <span className="text-primary/80 font-bold">
                           {deal.stage?.name}
                         </span>
                         <Link

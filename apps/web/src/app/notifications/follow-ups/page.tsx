@@ -325,7 +325,7 @@ export default function FollowUpsPage() {
             </div>
             <Button
               onClick={() => setShowForm((v) => !v)}
-              className="bg-[#233b66] hover:bg-[#1d3257] text-white font-medium shadow-sm transition-all"
+              className="font-medium shadow-sm transition-all"
             >
               {showForm ? (
                 <X className="size-4 mr-1.5" />
@@ -340,7 +340,7 @@ export default function FollowUpsPage() {
           {showForm && (
             <form
               onSubmit={handleCreate}
-              className="mt-6 rounded-xl border border-[#233b66]/20 bg-gradient-to-b from-[#233b66]/5 to-slate-50/50 p-5 shadow-inner"
+              className="mt-6 rounded-xl border border-primary/20 bg-gradient-to-b from-[#233b66]/5 to-slate-50/50 p-5 shadow-inner"
             >
               <h3 className="text-xs font-bold text-[#233b66] uppercase tracking-wider mb-4 flex items-center gap-2">
                 <Sparkles className="size-4 text-[#233b66]" />
@@ -360,7 +360,7 @@ export default function FollowUpsPage() {
                     onChange={(e) =>
                       setForm({ ...form, subject: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   />
                 </div>
 
@@ -373,7 +373,7 @@ export default function FollowUpsPage() {
                     onChange={(e) =>
                       setForm({ ...form, callType: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   >
                     <option value="OUTBOUND">Outbound Phone Call</option>
                     <option value="INBOUND">Inbound Phone Call</option>
@@ -391,7 +391,7 @@ export default function FollowUpsPage() {
                     onChange={(e) =>
                       setForm({ ...form, callPurpose: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   >
                     <option value="POST_VISIT_FOLLOWUP">
                       Post-Site-Visit Follow-Up
@@ -424,7 +424,7 @@ export default function FollowUpsPage() {
                         withId: "",
                       })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   >
                     <option value="customer">Customer (Contact)</option>
                     <option value="lead">Lead (Prospect)</option>
@@ -441,7 +441,7 @@ export default function FollowUpsPage() {
                     onChange={(e) =>
                       setForm({ ...form, withId: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   >
                     <option value="">Select {form.withType}…</option>
                     {withOptions.map((person) => (
@@ -463,7 +463,7 @@ export default function FollowUpsPage() {
                     onChange={(e) =>
                       setForm({ ...form, dueDate: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   />
                 </div>
 
@@ -483,7 +483,7 @@ export default function FollowUpsPage() {
                 </div>
               </div>
 
-              <div className="mt-4 flex items-center justify-end gap-2 border-t border-[#233b66]/20 pt-3">
+              <div className="mt-4 flex items-center justify-end gap-2 border-t border-primary/20 pt-3">
                 <Button
                   type="button"
                   variant="outline"
@@ -495,7 +495,7 @@ export default function FollowUpsPage() {
                 <Button
                   type="submit"
                   disabled={saving}
-                  className="bg-[#233b66] hover:bg-[#1d3257] text-white font-medium h-9 text-xs shadow-sm"
+                  className="font-medium h-9 text-xs shadow-sm"
                 >
                   {saving ? "Scheduling Call…" : "Schedule & Queue Call"}
                 </Button>
@@ -524,7 +524,7 @@ export default function FollowUpsPage() {
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
                   activeFilter === "ALL"
-                    ? "bg-[#233b66] text-white shadow-sm"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-slate-600 hover:bg-slate-200/60",
                 )}
               >
@@ -535,7 +535,7 @@ export default function FollowUpsPage() {
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
                   activeFilter === "DUE_TODAY"
-                    ? "bg-[#233b66] text-white shadow-sm"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-slate-600 hover:bg-slate-200/60",
                 )}
               >
@@ -546,7 +546,7 @@ export default function FollowUpsPage() {
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
                   activeFilter === "OVERDUE"
-                    ? "bg-[#233b66] text-white shadow-sm"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-slate-600 hover:bg-slate-200/60",
                 )}
               >
@@ -557,7 +557,7 @@ export default function FollowUpsPage() {
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer",
                   activeFilter === "COMPLETED"
-                    ? "bg-[#233b66] text-white shadow-sm"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-slate-600 hover:bg-slate-200/60",
                 )}
               >
@@ -572,7 +572,7 @@ export default function FollowUpsPage() {
             </div>
           ) : filteredCalls.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center">
-              <div className="rounded-full bg-[#233b66]/10 p-4 border border-[#233b66]/20 mb-2">
+              <div className="rounded-full bg-primary/10 p-4 border border-primary/20 mb-2">
                 <CalendarClock className="size-6 text-[#233b66]" />
               </div>
               <p className="text-sm font-bold text-slate-900">
@@ -584,7 +584,7 @@ export default function FollowUpsPage() {
               </p>
               <Button
                 onClick={() => setShowForm(true)}
-                className="mt-4 bg-[#233b66] hover:bg-[#1d3257] text-white font-medium text-xs px-4 h-9 shadow-sm"
+                className="mt-4 font-medium text-xs px-4 h-9 shadow-sm"
               >
                 <Plus className="size-4 mr-1.5" />
                 Schedule Follow-up Call
@@ -634,9 +634,9 @@ export default function FollowUpsPage() {
                             isCustomer ? (
                               <Link
                                 href={`/customers/${person.id}`}
-                                className="font-semibold text-indigo-600 hover:underline inline-flex items-center gap-1.5"
+                                className="font-semibold text-primary hover:underline inline-flex items-center gap-1.5"
                               >
-                                <User className="size-3.5 text-indigo-500" />
+                                <User className="size-3.5 text-primary" />
                                 {person.firstName} {person.lastName}
                                 {person.phone && (
                                   <span className="text-[11px] font-normal text-slate-500">
@@ -665,13 +665,13 @@ export default function FollowUpsPage() {
 
                         <td className="px-5 py-3">
                           <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-700 border border-slate-200">
-                            <ChannelIcon className="size-3 text-indigo-600" />
+                            <ChannelIcon className="size-3 text-primary" />
                             {channelLabels[call.callType] ?? call.callType}
                           </span>
                         </td>
 
                         <td className="px-5 py-3">
-                          <span className="rounded-md bg-indigo-50/70 text-indigo-800 px-2 py-0.5 text-[11px] font-medium border border-indigo-100">
+                          <span className="rounded-md bg-primary/10/70 text-primary px-2 py-0.5 text-[11px] font-medium border border-primary/10">
                             {purposeLabels[call.callPurpose] ??
                               call.callPurpose}
                           </span>
@@ -721,7 +721,7 @@ export default function FollowUpsPage() {
                               <Button
                                 size="xs"
                                 onClick={() => setLoggingCall(call)}
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white h-7 text-[11px] px-2.5 shadow-sm"
+                                className="h-7 text-[11px] px-2.5 shadow-sm"
                               >
                                 Log Outcome & Complete
                               </Button>
@@ -752,7 +752,7 @@ export default function FollowUpsPage() {
             <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-xl">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
-                  <PhoneCall className="size-5 text-indigo-600" />
+                  <PhoneCall className="size-5 text-primary" />
                   <h3 className="text-base font-bold text-slate-900">
                     Log Call Outcome & Complete
                   </h3>
@@ -766,8 +766,8 @@ export default function FollowUpsPage() {
               </div>
 
               <form onSubmit={handleCompleteOutcome} className="mt-4 space-y-4">
-                <div className="rounded-lg bg-indigo-50/60 p-3 text-xs">
-                  <p className="font-bold text-indigo-950">
+                <div className="rounded-lg bg-primary/10 p-3 text-xs">
+                  <p className="font-bold text-primary">
                     {loggingCall.subject}
                   </p>
                   <p className="mt-0.5 text-slate-600">
@@ -794,7 +794,7 @@ export default function FollowUpsPage() {
                         callResult: e.target.value,
                       })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   >
                     {CALL_RESULTS.map((res) => (
                       <option key={res.value} value={res.value}>
@@ -815,7 +815,7 @@ export default function FollowUpsPage() {
                     onChange={(e) =>
                       setOutcomeForm({ ...outcomeForm, notes: e.target.value })
                     }
-                    className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   />
                 </div>
 

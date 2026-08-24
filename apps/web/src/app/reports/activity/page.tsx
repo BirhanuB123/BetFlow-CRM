@@ -24,7 +24,7 @@ const typeClass: Record<string, string> = {
   Note: "bg-zinc-100 text-zinc-700",
   Deal: "bg-emerald-50 text-emerald-700",
   Lead: "bg-rose-50 text-rose-700",
-  Customer: "bg-indigo-50 text-indigo-700",
+  Customer: "bg-primary/10 text-primary",
   System: "bg-slate-100 text-slate-700",
 };
 
@@ -64,7 +64,7 @@ export default function ActivityPage() {
             </Link>
             <div className="h-4 w-px bg-slate-300 hidden sm:block" />
             <div className="flex items-center gap-2 text-slate-800 font-bold text-sm">
-              <ActivityIcon className="size-4 text-indigo-600" />
+              <ActivityIcon className="size-4 text-primary" />
               <span>System Activity Audit</span>
             </div>
           </div>

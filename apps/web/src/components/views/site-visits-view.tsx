@@ -368,7 +368,7 @@ export function SiteVisitsView() {
             disabled={
               !showForm && customers.length === 0 && leads.length === 0
             }
-            className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium shadow-sm transition-all"
+            className="font-medium shadow-sm transition-all"
           >
             {showForm ? (
               <X className="size-4 mr-1.5" />
@@ -383,11 +383,11 @@ export function SiteVisitsView() {
         {showForm && (
           <form
             onSubmit={handleCreate}
-            className="mt-6 rounded-xl border border-[#233b66]/20 bg-gradient-to-b from-[#233b66]/5 to-slate-50/50 p-5 shadow-inner"
+            className="mt-6 rounded-xl border border-primary/20 bg-gradient-to-b from-[#233b66]/5 to-slate-50/50 p-5 shadow-inner"
           >
-            <div className="border-b border-[#233b66]/20 pb-3 mb-4 flex items-center justify-between">
-              <h3 className="text-sm font-bold text-[#233b66] uppercase tracking-wider flex items-center gap-2">
-                <span className="flex size-5 items-center justify-center rounded-full bg-[#233b66] text-[10px] text-white font-bold">
+            <div className="border-b border-primary/20 pb-3 mb-4 flex items-center justify-between">
+              <h3 className="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+                <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground font-bold">
                   1
                 </span>
                 Visit Appointment & Client Selection
@@ -408,7 +408,7 @@ export function SiteVisitsView() {
                       withId: "",
                     })
                   }
-                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                 >
                   <option value="customer">
                     Customer (Converted Contact)
@@ -427,7 +427,7 @@ export function SiteVisitsView() {
                   onChange={(e) =>
                     setForm({ ...form, withId: e.target.value })
                   }
-                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                 >
                   <option value="">Select {form.withType}…</option>
                   {withOptions.map((person) => (
@@ -447,15 +447,15 @@ export function SiteVisitsView() {
                   type="datetime-local"
                   value={form.date}
                   onChange={(e) => setForm({ ...form, date: e.target.value })}
-                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                 />
               </div>
             </div>
 
             {/* Section 2: Ethiopian Real Estate Buyer Preferences & Demands */}
-            <div className="border-b border-indigo-100 pb-3 my-5 pt-2 flex items-center justify-between">
-              <h3 className="text-sm font-bold text-indigo-950 uppercase tracking-wider flex items-center gap-2">
-                <span className="flex size-5 items-center justify-center rounded-full bg-indigo-600 text-[10px] text-white font-bold">
+            <div className="border-b border-primary/10 pb-3 my-5 pt-2 flex items-center justify-between">
+              <h3 className="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+                <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[10px] text-white font-bold">
                   2
                 </span>
                 Buyer Property Specifications & Placement Demands
@@ -472,7 +472,7 @@ export function SiteVisitsView() {
                   onChange={(e) =>
                     setForm({ ...form, propertyType: e.target.value })
                   }
-                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                 >
                   {PROPERTY_TYPES.map((t) => (
                     <option key={t} value={t}>
@@ -495,7 +495,7 @@ export function SiteVisitsView() {
                     onChange={(e) =>
                       setForm({ ...form, preferredSqm: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white pl-3 pr-10 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white pl-3 pr-10 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   />
                   <span className="absolute right-3 top-2.5 text-[11px] font-bold text-slate-400">
                     m²
@@ -512,7 +512,7 @@ export function SiteVisitsView() {
                   onChange={(e) =>
                     setForm({ ...form, bedroomCount: e.target.value })
                   }
-                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                 >
                   <option value="1">1 Bedroom (Studio / Single)</option>
                   <option value="2">2 Bedrooms</option>
@@ -530,7 +530,7 @@ export function SiteVisitsView() {
                   onChange={(e) =>
                     setForm({ ...form, preferredFloor: e.target.value })
                   }
-                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                 >
                   {FLOOR_PREFERENCES.map((f) => (
                     <option key={f} value={f}>
@@ -549,7 +549,7 @@ export function SiteVisitsView() {
                   onChange={(e) =>
                     setForm({ ...form, facingDirection: e.target.value })
                   }
-                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                 >
                   {FACING_DIRECTIONS.map((d) => (
                     <option key={d} value={d}>
@@ -568,7 +568,7 @@ export function SiteVisitsView() {
                   onChange={(e) =>
                     setForm({ ...form, purpose: e.target.value })
                   }
-                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                 >
                   {PURPOSES.map((p) => (
                     <option key={p} value={p}>
@@ -589,7 +589,7 @@ export function SiteVisitsView() {
                   onChange={(e) =>
                     setForm({ ...form, budgetETB: e.target.value })
                   }
-                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                 />
               </div>
 
@@ -602,7 +602,7 @@ export function SiteVisitsView() {
                   onChange={(e) =>
                     setForm({ ...form, paymentMethod: e.target.value })
                   }
-                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                 >
                   {PAYMENT_METHODS.map((pm) => (
                     <option key={pm} value={pm}>
@@ -614,9 +614,9 @@ export function SiteVisitsView() {
             </div>
 
             {/* Section 3: Detailed Demands & Follow-up Notes */}
-            <div className="border-b border-indigo-100 pb-3 my-5 pt-2 flex items-center justify-between">
-              <h3 className="text-sm font-bold text-indigo-950 uppercase tracking-wider flex items-center gap-2">
-                <span className="flex size-5 items-center justify-center rounded-full bg-indigo-600 text-[10px] text-white font-bold">
+            <div className="border-b border-primary/10 pb-3 my-5 pt-2 flex items-center justify-between">
+              <h3 className="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+                <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[10px] text-white font-bold">
                   3
                 </span>
                 Specific Demands & Visit Notes
@@ -635,7 +635,7 @@ export function SiteVisitsView() {
                   onChange={(e) =>
                     setForm({ ...form, demands: e.target.value })
                   }
-                  className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                 />
               </div>
 
@@ -650,12 +650,12 @@ export function SiteVisitsView() {
                   onChange={(e) =>
                     setForm({ ...form, notes: e.target.value })
                   }
-                  className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                 />
               </div>
             </div>
 
-            <div className="mt-5 flex justify-end gap-3 border-t border-indigo-100 pt-4">
+            <div className="mt-5 flex justify-end gap-3 border-t border-primary/10 pt-4">
               <Button
                 type="button"
                 variant="outline"
@@ -667,7 +667,7 @@ export function SiteVisitsView() {
               <Button
                 type="submit"
                 disabled={saving}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs shadow-sm"
+                className="font-medium text-xs shadow-sm"
               >
                 {saving
                   ? "Scheduling Intake…"
@@ -699,7 +699,7 @@ export function SiteVisitsView() {
               className={cn(
                 "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-all",
                 viewMode === "list"
-                  ? "bg-[#233b66] text-white shadow-sm"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-slate-500 hover:text-slate-800 hover:bg-slate-100",
               )}
               aria-label="List view"
@@ -713,7 +713,7 @@ export function SiteVisitsView() {
               className={cn(
                 "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-all",
                 viewMode === "calendar"
-                  ? "bg-[#233b66] text-white shadow-sm"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-slate-500 hover:text-slate-800 hover:bg-slate-100",
               )}
               aria-label="Calendar view"
@@ -802,7 +802,7 @@ export function SiteVisitsView() {
                       className={cn(
                         "inline-flex size-6 items-center justify-center rounded-full text-[11px] font-bold self-end",
                         isToday
-                          ? "bg-[#233b66] text-white"
+                          ? "bg-primary text-primary-foreground"
                           : "text-slate-500",
                       )}
                     >
@@ -906,9 +906,9 @@ export function SiteVisitsView() {
                           isCustomer ? (
                             <Link
                               href={`/customers/${person.id}`}
-                              className="font-semibold text-indigo-600 hover:underline inline-flex items-center gap-1.5"
+                              className="font-semibold text-primary hover:underline inline-flex items-center gap-1.5"
                             >
-                              <User className="size-3.5 text-indigo-500" />
+                              <User className="size-3.5 text-primary" />
                               {person.firstName} {person.lastName}
                             </Link>
                           ) : (
@@ -1038,7 +1038,7 @@ export function SiteVisitsView() {
                           <button
                             type="button"
                             onClick={() => setActiveModalVisit(visit)}
-                            className="rounded bg-indigo-50 p-1.5 text-indigo-600 hover:bg-indigo-100 transition-colors"
+                            className="rounded bg-primary/10 p-1.5 text-primary hover:bg-primary/20 transition-colors"
                             title="View Full Customer Demands"
                           >
                             <Eye className="size-3.5" />
@@ -1093,7 +1093,7 @@ export function SiteVisitsView() {
           <div className="w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <Building2 className="size-5 text-indigo-600" />
+                <Building2 className="size-5 text-primary" />
                 <h3 className="text-base font-bold text-slate-900">
                   Buyer Specifications & Demands
                 </h3>
@@ -1107,12 +1107,12 @@ export function SiteVisitsView() {
             </div>
 
             <div className="mt-4 space-y-4 text-xs">
-              <div className="flex items-center justify-between rounded-lg bg-indigo-50/60 p-3">
+              <div className="flex items-center justify-between rounded-lg bg-primary/10 p-3">
                 <div>
                   <p className="text-[11px] font-medium text-slate-500">
                     Client / Visitor
                   </p>
-                  <p className="text-sm font-bold text-indigo-950">
+                  <p className="text-sm font-bold text-primary">
                     {activeModalVisit.customer
                       ? `${activeModalVisit.customer.firstName} ${activeModalVisit.customer.lastName}`
                       : activeModalVisit.lead
@@ -1133,7 +1133,7 @@ export function SiteVisitsView() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-lg border border-slate-100 p-3 bg-slate-50/50">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                    <Ruler className="size-3 text-indigo-500" /> Required Area
+                    <Ruler className="size-3 text-primary" /> Required Area
                   </p>
                   <p className="mt-1 text-sm font-bold text-slate-800">
                     {activeModalVisit.preferredSqm
@@ -1144,7 +1144,7 @@ export function SiteVisitsView() {
 
                 <div className="rounded-lg border border-slate-100 p-3 bg-slate-50/50">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                    <Layers className="size-3 text-indigo-500" /> Bedrooms &
+                    <Layers className="size-3 text-primary" /> Bedrooms &
                     Type
                   </p>
                   <p className="mt-1 text-sm font-bold text-slate-800">
@@ -1156,7 +1156,7 @@ export function SiteVisitsView() {
 
                 <div className="rounded-lg border border-slate-100 p-3 bg-slate-50/50">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                    <Compass className="size-3 text-indigo-500" /> Placement &
+                    <Compass className="size-3 text-primary" /> Placement &
                     Floor
                   </p>
                   <p className="mt-1 text-xs font-semibold text-slate-800">
@@ -1166,7 +1166,7 @@ export function SiteVisitsView() {
 
                 <div className="rounded-lg border border-slate-100 p-3 bg-slate-50/50">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                    <Compass className="size-3 text-indigo-500" /> Facing /
+                    <Compass className="size-3 text-primary" /> Facing /
                     Orientation
                   </p>
                   <p className="mt-1 text-xs font-semibold text-slate-800">
@@ -1188,7 +1188,7 @@ export function SiteVisitsView() {
 
                 <div className="rounded-lg border border-slate-100 p-3 bg-slate-50/50">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                    <FileText className="size-3 text-indigo-500" /> Payment
+                    <FileText className="size-3 text-primary" /> Payment
                     Terms
                   </p>
                   <p className="mt-1 text-xs font-semibold text-slate-800">
@@ -1221,15 +1221,15 @@ export function SiteVisitsView() {
 
               {/* Automated Recommended Available Units Shortlist */}
               {activeModalVisit.recommendedUnits && activeModalVisit.recommendedUnits.length > 0 && (
-                <div className="rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50/70 via-blue-50/40 to-slate-50 p-3.5 shadow-2xs">
-                  <div className="flex items-center justify-between mb-2.5 border-b border-indigo-100 pb-2">
+                <div className="rounded-xl border border-primary/20 bg-gradient-to-br from-indigo-50/70 via-blue-50/40 to-slate-50 p-3.5 shadow-2xs">
+                  <div className="flex items-center justify-between mb-2.5 border-b border-primary/10 pb-2">
                     <div className="flex items-center gap-1.5">
                       <span className="text-base">🎯</span>
-                      <h4 className="font-bold text-indigo-950 text-xs">
+                      <h4 className="font-bold text-primary text-xs">
                         Automated Recommended Units Shortlist
                       </h4>
                     </div>
-                    <span className="rounded bg-indigo-600 px-2 py-0.5 text-[10px] font-extrabold text-white">
+                    <span className="rounded bg-primary px-2 py-0.5 text-[10px] font-extrabold text-white">
                       {activeModalVisit.recommendedUnits.length} Matched Units
                     </span>
                   </div>
@@ -1237,7 +1237,7 @@ export function SiteVisitsView() {
                     {activeModalVisit.recommendedUnits.map((u) => (
                       <div
                         key={u.id}
-                        className="flex items-center justify-between rounded-lg border border-indigo-100 bg-white p-2.5 shadow-2xs hover:border-indigo-300 transition-colors"
+                        className="flex items-center justify-between rounded-lg border border-primary/10 bg-white p-2.5 shadow-2xs hover:border-primary/30 transition-colors"
                       >
                         <div>
                           <div className="flex items-center gap-2">
@@ -1258,10 +1258,10 @@ export function SiteVisitsView() {
                           </div>
                         </div>
                         <div className="text-right pl-3 shrink-0">
-                          <p className="font-extrabold text-xs text-indigo-900">{formatCurrency(u.price)}</p>
+                          <p className="font-extrabold text-xs text-primary">{formatCurrency(u.price)}</p>
                           <Link
                             href="/units"
-                            className="inline-block mt-1 text-[10px] font-bold text-indigo-600 hover:underline"
+                            className="inline-block mt-1 text-[10px] font-bold text-primary hover:underline"
                           >
                             View Stacking →
                           </Link>
@@ -1276,7 +1276,7 @@ export function SiteVisitsView() {
             <div className="mt-6 flex justify-end">
               <Button
                 onClick={() => setActiveModalVisit(null)}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-4"
+                className="text-xs px-4"
               >
                 Close Specification Sheet
               </Button>

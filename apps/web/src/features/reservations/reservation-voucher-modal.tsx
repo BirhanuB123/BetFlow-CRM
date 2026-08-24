@@ -41,7 +41,7 @@ const statusClass: Record<string, string> = {
   PENDING: "bg-amber-50 text-amber-700 border-amber-200 font-medium",
   APPROVED: "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold",
   CONVERTED_TO_CONTRACT:
-    "bg-indigo-50 text-indigo-700 border-indigo-200 font-bold",
+    "bg-primary/10 text-primary border-primary/20 font-bold",
   CANCELLED: "bg-rose-50 text-rose-700 border-rose-200",
   EXPIRED: "bg-slate-100 text-slate-600 border-slate-200",
 };
@@ -69,7 +69,7 @@ export function ReservationVoucherModal({
         {/* Voucher Top Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-[#233b66] text-white shadow-sm">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
               <Building2 className="size-5" />
             </div>
             <div>
@@ -92,7 +92,7 @@ export function ReservationVoucherModal({
         {/* Voucher Content */}
         <div className="mt-5 space-y-4 text-xs">
           {/* Header Banner */}
-          <div className="flex items-center justify-between rounded-xl bg-gradient-to-r from-[#233b66]/10 via-indigo-50/50 to-slate-50 p-4 border border-[#233b66]/10">
+          <div className="flex items-center justify-between rounded-xl bg-gradient-to-r from-[#233b66]/10 via-primary/10/50 to-slate-50 p-4 border border-[#233b66]/10">
             <div>
               <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                 Reservation Reference
@@ -212,7 +212,7 @@ export function ReservationVoucherModal({
 
           <Button
             onClick={onClose}
-            className="bg-[#233b66] hover:bg-[#1a2d50] text-white text-xs px-5"
+            className="text-xs px-5"
           >
             Close Voucher
           </Button>

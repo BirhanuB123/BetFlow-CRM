@@ -130,15 +130,15 @@ function isToday(iso: string) {
 
 const statusTone: Record<string, string> = {
   TODO: "bg-slate-100 text-slate-700 border-slate-200",
-  IN_PROGRESS: "bg-indigo-50 text-indigo-700 border-indigo-200 font-medium",
+  IN_PROGRESS: "bg-primary/10 text-primary border-primary/20 font-medium",
   DONE: "bg-emerald-50 text-emerald-700 border-emerald-200 font-medium",
-  SCHEDULED: "bg-indigo-50 text-indigo-700 border-indigo-200",
+  SCHEDULED: "bg-primary/10 text-primary border-primary/20",
   COMPLETED: "bg-emerald-50 text-emerald-700 border-emerald-200 font-medium",
   CANCELLED: "bg-rose-50 text-rose-700 border-rose-200",
   NO_SHOW: "bg-amber-50 text-amber-700 border-amber-200",
   NEW: "bg-slate-100 text-slate-700 border-slate-200",
   QUALIFIED: "bg-emerald-50 text-emerald-700 border-emerald-200 font-medium",
-  CONTACTED: "bg-indigo-50 text-indigo-700 border-indigo-200",
+  CONTACTED: "bg-primary/10 text-primary border-primary/20",
   FOLLOW_UP: "bg-amber-50 text-amber-700 border-amber-200",
 };
 
@@ -159,7 +159,7 @@ function customerLink(person: NonNullable<PersonRef>) {
   return (
     <Link
       href={`/customers/${person.id}`}
-      className="font-semibold text-indigo-600 hover:text-indigo-800 hover:underline"
+      className="font-semibold text-primary hover:text-primary hover:underline"
     >
       {person.firstName} {person.lastName}
     </Link>
@@ -182,14 +182,14 @@ function Card({
     <section className="flex flex-col min-w-0 rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden transition-all hover:shadow-md h-[340px]">
       <div className="flex h-13 items-center justify-between border-b border-slate-200/80 bg-slate-50/60 px-5">
         <div className="flex items-center gap-2.5">
-          <Icon className="size-4.5 text-indigo-600" />
+          <Icon className="size-4.5 text-primary" />
           <h2 className="text-[14px] font-bold text-slate-800 tracking-tight">
             {title}
           </h2>
         </div>
         <Link
           href={href}
-          className="flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors"
+          className="flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary transition-colors"
         >
           {t("dashboard.viewAll")}
           <ArrowUpRight className="size-3.5" />
@@ -299,7 +299,7 @@ function OperationalGrid({ tasks, visits, todaysLeads, deals }: any) {
                       {visit.customer ? (
                         customerLink(visit.customer)
                       ) : visit.lead ? (
-                        <span className="font-semibold text-indigo-600">
+                        <span className="font-semibold text-primary">
                           {visit.lead.firstName} {visit.lead.lastName}
                         </span>
                       ) : (
@@ -336,7 +336,7 @@ function OperationalGrid({ tasks, visits, todaysLeads, deals }: any) {
                       key={item.id}
                       className="hover:bg-slate-50/50 transition-colors"
                     >
-                      <td className="px-5 py-3 font-semibold text-indigo-600 hover:underline">
+                      <td className="px-5 py-3 font-semibold text-primary hover:underline">
                         {item.firstName
                           ? `${item.firstName} ${item.lastName}`
                           : item.name}
@@ -383,11 +383,11 @@ function OperationalGrid({ tasks, visits, todaysLeads, deals }: any) {
                     <td className="px-5 py-3 font-semibold text-slate-800">
                       {deal.name}
                     </td>
-                    <td className="px-5 py-3 font-bold text-indigo-600">
+                    <td className="px-5 py-3 font-bold text-primary">
                       {money(deal.value)}
                     </td>
                     <td className="px-5 py-3">
-                      <span className="inline-flex items-center rounded-md bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-xs font-semibold text-indigo-700">
+                      <span className="inline-flex items-center rounded-md bg-primary/10 border border-primary/20 px-2 py-0.5 text-xs font-semibold text-primary">
                         {deal.stage.name}
                       </span>
                     </td>

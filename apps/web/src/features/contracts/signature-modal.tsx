@@ -190,7 +190,7 @@ export function SignatureModal({
             <Button
               type="submit"
               disabled={submitting || !signatureDataUrl || !agreeTerms}
-              className="h-9 bg-[#233b66] hover:bg-[#233b66]/90 text-white text-xs gap-1.5 font-semibold"
+              className="h-9 text-xs gap-1.5 font-semibold"
             >
               <CheckCircle2 className="size-4" />
               {submitting ? "Signing Contract..." : "Confirm & Sign Contract"}

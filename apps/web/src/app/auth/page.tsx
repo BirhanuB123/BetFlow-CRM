@@ -58,7 +58,7 @@ const AUTH_SHOWCASE_PHOTOS: ShowcasePhoto[] = [
 
 const labelClass = "text-[13px] font-semibold text-slate-700";
 const inputClass =
-  "mt-1.5 h-11 w-full rounded-xl bg-slate-50 border border-slate-200/90 px-3.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20";
+  "mt-1.5 h-11 w-full rounded-xl bg-slate-50 border border-slate-200/90 px-3.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -332,7 +332,7 @@ export default function AuthPage() {
   const activePhoto = AUTH_SHOWCASE_PHOTOS[0];
 
   return (
-    <main className="relative min-h-screen w-full bg-slate-900 font-sans text-slate-100 selection:bg-[#233b66] selection:text-white">
+    <main className="relative min-h-screen w-full bg-slate-900 font-sans text-slate-100 selection:bg-primary selection:text-white">
       <div className="grid min-h-screen w-full lg:grid-cols-12">
         {/* Left Panel: Real-Estate Showcase (Hidden on small screens) */}
         <div className="relative hidden lg:flex lg:col-span-7 xl:col-span-7 flex-col justify-between overflow-hidden bg-slate-950 p-12">
@@ -350,7 +350,7 @@ export default function AuthPage() {
               alt={systemName}
               width={36}
               height={36}
-              className="rounded-xl bg-indigo-600 p-1 shadow-md"
+              className="rounded-xl bg-primary p-1 shadow-md"
             />
             <div>
               <p className="text-sm font-black text-white tracking-tight">
@@ -367,7 +367,7 @@ export default function AuthPage() {
             {/* Floating Hero Property Badge */}
             <div className="rounded-2xl border border-white/20 bg-slate-900/85 p-5 backdrop-blur-md shadow-2xl max-w-md space-y-3">
               <div className="flex items-center justify-between gap-3">
-                <span className="rounded-full bg-indigo-500/20 px-2.5 py-0.5 text-[10px] font-extrabold text-indigo-300 border border-indigo-500/30 uppercase tracking-wider">
+                <span className="rounded-full bg-primary/20 px-2.5 py-0.5 text-[10px] font-extrabold text-primary/80 border border-primary/30 uppercase tracking-wider">
                   {t("auth.featuredDevelopment")}
                 </span>
                 <span className="text-[11px] font-extrabold text-slate-400">
@@ -375,7 +375,7 @@ export default function AuthPage() {
                 </span>
               </div>
               <div className="flex items-start gap-3">
-                <div className="rounded-xl bg-indigo-600/30 border border-indigo-400/30 p-2.5 text-indigo-300 mt-0.5">
+                <div className="rounded-xl bg-primary/30 border border-primary/30 p-2.5 text-primary/80 mt-0.5">
                   <Building2 className="size-5" />
                 </div>
                 <div>
@@ -438,7 +438,7 @@ export default function AuthPage() {
                 }}
                 className={`flex items-center justify-center gap-1.5 rounded-lg py-2 transition ${
                   mode === "login"
-                    ? "bg-white font-bold text-indigo-600 shadow-sm"
+                    ? "bg-white font-bold text-primary shadow-sm"
                     : "hover:text-zinc-900"
                 }`}
               >
@@ -454,7 +454,7 @@ export default function AuthPage() {
                 }}
                 className={`flex items-center justify-center gap-1.5 rounded-lg py-2 transition ${
                   mode === "register"
-                    ? "bg-white font-bold text-indigo-600 shadow-sm"
+                    ? "bg-white font-bold text-primary shadow-sm"
                     : "hover:text-zinc-900"
                 }`}
               >
@@ -508,7 +508,7 @@ export default function AuthPage() {
                   <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-600">
                     <input
                       type="checkbox"
-                      className="size-4 rounded border-zinc-300 accent-indigo-600"
+                      className="size-4 rounded border-zinc-300 accent-primary"
                       checked={remember}
                       onChange={(e) => setRemember(e.target.checked)}
                     />
@@ -523,7 +523,7 @@ export default function AuthPage() {
                       setFeedback(null);
                       setForgotState({ email: loginState.email });
                     }}
-                    className="text-xs font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
+                    className="text-xs font-medium text-primary hover:text-primary/90 hover:underline"
                   >
                     {t("auth.forgotPasswordLink")}
                   </button>
@@ -533,7 +533,7 @@ export default function AuthPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:opacity-60 cursor-pointer shadow-sm"
+                    className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white transition hover:bg-primary/90 disabled:opacity-60 cursor-pointer shadow-sm"
                   >
                     {loading ? t("auth.signingIn") : t("auth.signInBtn")}
                     {!loading && <ArrowRight className="size-4" />}
@@ -549,7 +549,7 @@ export default function AuthPage() {
                       setError(null);
                       setFeedback(null);
                     }}
-                    className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
+                    className="font-medium text-primary hover:text-primary/90 hover:underline"
                   >
                     Register here
                   </button>
@@ -648,7 +648,7 @@ export default function AuthPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:opacity-60 cursor-pointer shadow-sm"
+                    className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white transition hover:bg-primary/90 disabled:opacity-60 cursor-pointer shadow-sm"
                   >
                     {loading ? t("auth.registering") : t("auth.registerBtn")}
                     {!loading && <ArrowRight className="size-4" />}
@@ -664,7 +664,7 @@ export default function AuthPage() {
                       setError(null);
                       setFeedback(null);
                     }}
-                    className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
+                    className="font-medium text-primary hover:text-primary/90 hover:underline"
                   >
                     {t("auth.signIn")}
                   </button>
@@ -672,8 +672,8 @@ export default function AuthPage() {
               </form>
             ) : mode === "forgot" ? (
               <form className="mt-5 grid gap-4" onSubmit={handleForgotPassword}>
-                <div className="rounded-xl bg-indigo-50 border border-indigo-200/80 p-3.5 text-xs text-indigo-950">
-                  <p className="font-bold flex items-center gap-1.5 text-indigo-700">
+                <div className="rounded-xl bg-primary/10 border border-primary/20 p-3.5 text-xs text-primary">
+                  <p className="font-bold flex items-center gap-1.5 text-primary">
                     <KeyRound className="size-4" /> {t("auth.forgotPassword")}
                   </p>
                   <p className="mt-1 text-zinc-600 font-medium">
@@ -696,7 +696,7 @@ export default function AuthPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:opacity-60 cursor-pointer shadow-sm"
+                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white transition hover:bg-primary/90 disabled:opacity-60 cursor-pointer shadow-sm"
                 >
                   {loading ? t("auth.signingIn") : t("auth.forgotBtn")}
                   {!loading && <ArrowRight className="size-4" />}
@@ -711,7 +711,7 @@ export default function AuthPage() {
                       setError(null);
                       setFeedback(null);
                     }}
-                    className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
+                    className="font-medium text-primary hover:text-primary/90 hover:underline"
                   >
                     {t("auth.backToSignIn")}
                   </button>
@@ -773,7 +773,7 @@ export default function AuthPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:opacity-60 cursor-pointer shadow-sm"
+                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white transition hover:bg-primary/90 disabled:opacity-60 cursor-pointer shadow-sm"
                 >
                   {loading ? t("auth.signingIn") : t("auth.resetBtn")}
                   {!loading && <ArrowRight className="size-4" />}
@@ -788,7 +788,7 @@ export default function AuthPage() {
                       setError(null);
                       setFeedback(null);
                     }}
-                    className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
+                    className="font-medium text-primary hover:text-primary/90 hover:underline"
                   >
                     {t("auth.backToSignIn")}
                   </button>

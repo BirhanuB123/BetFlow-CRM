@@ -758,7 +758,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-bold transition-all cursor-pointer",
                   activeTab === "profile"
-                    ? "bg-[#233b66] text-white shadow-xs"
+                    ? "bg-primary text-primary-foreground shadow-xs"
                     : "text-slate-600 hover:bg-slate-100 hover:text-[#233b66]",
                 )}
               >
@@ -774,7 +774,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                     className={cn(
                       "flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-bold transition-all cursor-pointer",
                       activeTab === "tenant"
-                        ? "bg-[#233b66] text-white shadow-xs"
+                        ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-slate-600 hover:bg-slate-100 hover:text-[#233b66]",
                     )}
                   >
@@ -788,7 +788,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                     className={cn(
                       "flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-bold transition-all cursor-pointer",
                       activeTab === "rbac"
-                        ? "bg-[#233b66] text-white shadow-xs"
+                        ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-slate-600 hover:bg-slate-100 hover:text-[#233b66]",
                     )}
                   >
@@ -802,7 +802,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                     className={cn(
                       "flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-bold transition-all cursor-pointer",
                       activeTab === "users"
-                        ? "bg-[#233b66] text-white shadow-xs"
+                        ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-slate-600 hover:bg-slate-100 hover:text-[#233b66]",
                     )}
                   >
@@ -849,7 +849,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                   </p>
 
                   <div className="mt-4 flex items-center justify-center gap-2">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[#233b66]/10 border border-[#233b66]/20 px-3 py-1 text-xs font-bold text-[#233b66] shadow-2xs">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-bold text-[#233b66] shadow-2xs">
                       <ShieldCheck className="size-3.5 text-[#233b66]" />
                       {isAdmin ? "Workspace Administrator" : "Standard User"}
                     </span>
@@ -886,7 +886,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                           className="flex items-center justify-between rounded-lg border border-slate-100 p-2.5 hover:bg-slate-50 transition"
                         >
                           <div className="flex items-center gap-2.5">
-                            <div className="flex size-7 items-center justify-center rounded-md bg-[#233b66]/10 text-[#233b66]">
+                            <div className="flex size-7 items-center justify-center rounded-md bg-primary/10 text-[#233b66]">
                               <ModIcon className="size-3.5" />
                             </div>
                             <span className="text-xs font-bold text-slate-800">
@@ -1038,7 +1038,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                       <Button
                         type="submit"
                         disabled={savingProfile}
-                        className="bg-[#233b66] hover:bg-[#192b4b] text-white font-bold text-xs h-9 px-4"
+                        className="font-bold text-xs h-9 px-4"
                       >
                         {savingProfile ? "Saving Details…" : "Save Changes"}
                       </Button>
@@ -1130,7 +1130,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                       <Button
                         type="submit"
                         disabled={savingPassword}
-                        className="bg-[#233b66] hover:bg-[#192b4b] text-white font-bold text-xs h-9 px-4"
+                        className="font-bold text-xs h-9 px-4"
                       >
                         {savingPassword
                           ? "Updating Password…"
@@ -1247,7 +1247,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                             (tenantName.trim() === tenant?.name &&
                               tenantCurrency === tenant?.currency)
                           }
-                          className="bg-[#233b66] hover:bg-[#192b4b] text-white font-bold text-xs h-9 px-4"
+                          className="font-bold text-xs h-9 px-4"
                         >
                           {savingTenant ? "Saving…" : "Save Workspace Profile"}
                         </Button>
@@ -1269,10 +1269,10 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                           <Link
                             key={mod.title}
                             href={mod.href}
-                            className="flex items-center justify-between rounded-xl border border-slate-100 p-3 hover:border-[#233b66]/30 hover:bg-slate-50 transition group"
+                            className="flex items-center justify-between rounded-xl border border-slate-100 p-3 hover:border-primary/30 hover:bg-slate-50 transition group"
                           >
                             <div className="flex items-center gap-3">
-                              <div className="flex size-8 items-center justify-center rounded-lg bg-[#233b66]/10 text-[#233b66] group-hover:bg-[#233b66] group-hover:text-white transition">
+                              <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition">
                                 <ModIcon className="size-4" />
                               </div>
                               <div>
@@ -1315,7 +1315,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                 </div>
                 <Button
                   onClick={() => setShowRoleForm((v) => !v)}
-                  className="bg-[#233b66] hover:bg-[#192b4b] text-white font-bold text-xs h-8.5 px-3"
+                  className="font-bold text-xs h-8.5 px-3"
                 >
                   {showRoleForm ? (
                     <X className="size-3.5 mr-1" />
@@ -1329,7 +1329,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
               {showRoleForm && (
                 <form
                   onSubmit={createRole}
-                  className="grid gap-3 border-b border-slate-200 bg-[#233b66]/5 p-4 sm:grid-cols-2"
+                  className="grid gap-3 border-b border-slate-200 bg-primary/5 p-4 sm:grid-cols-2"
                 >
                   <input
                     className={inputClass}
@@ -1352,7 +1352,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                     <Button
                       type="submit"
                       disabled={savingRole}
-                      className="bg-[#233b66] text-white font-bold text-xs"
+                      className="bg-primary text-primary-foreground font-bold text-xs"
                     >
                       {savingRole ? "Creating…" : "Create Role"}
                     </Button>
@@ -1390,7 +1390,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                               }
                             />
                           ) : (
-                            <span className="inline-flex items-center gap-1.5 rounded-md bg-[#233b66]/10 border border-[#233b66]/20 px-2.5 py-1 font-bold text-[#233b66]">
+                            <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 border border-primary/20 px-2.5 py-1 font-bold text-[#233b66]">
                               {role.name}
                             </span>
                           )}
@@ -1513,7 +1513,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                         <th className="px-4 py-3">Feature Module</th>
                         {roles.map((r) => (
                           <th key={r.id} className="px-4 py-3 text-center">
-                            <span className="inline-flex items-center rounded bg-[#233b66]/10 px-2 py-0.5 font-bold text-[#233b66]">
+                            <span className="inline-flex items-center rounded bg-primary/10 px-2 py-0.5 font-bold text-[#233b66]">
                               {r.name}
                             </span>
                           </th>
@@ -1570,7 +1570,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                 <Button
                   onClick={() => setShowInvite((v) => !v)}
                   disabled={!showInvite && roles.length === 0}
-                  className="bg-[#233b66] hover:bg-[#192b4b] text-white font-bold text-xs h-8.5 px-3"
+                  className="font-bold text-xs h-8.5 px-3"
                 >
                   {showInvite ? (
                     <X className="size-3.5 mr-1" />
@@ -1584,7 +1584,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
               {showInvite && (
                 <form
                   onSubmit={inviteUser}
-                  className="grid gap-3 border-b border-slate-200 bg-[#233b66]/5 p-4 sm:grid-cols-3"
+                  className="grid gap-3 border-b border-slate-200 bg-primary/5 p-4 sm:grid-cols-3"
                 >
                   <input
                     className={inputClass}
@@ -1625,7 +1625,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                     <Button
                       type="submit"
                       disabled={savingInvite}
-                      className="bg-[#233b66] text-white font-bold text-xs"
+                      className="bg-primary text-primary-foreground font-bold text-xs"
                     >
                       {savingInvite ? "Sending Invite…" : "Send Invite"}
                     </Button>
@@ -1665,7 +1665,7 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                         >
                           <td className="px-5 py-3.5 font-bold text-slate-900">
                             <div className="flex items-center gap-2.5">
-                              <div className="flex size-7 items-center justify-center rounded-full bg-[#233b66] text-[11px] font-extrabold text-white">
+                              <div className="flex size-7 items-center justify-center rounded-full bg-primary text-[11px] font-extrabold text-primary-foreground">
                                 {userInitials}
                               </div>
                               <span>{user.name}</span>

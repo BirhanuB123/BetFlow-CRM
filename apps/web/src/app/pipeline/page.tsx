@@ -45,7 +45,7 @@ function PipelineContent() {
             className={cn(
               "px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-2",
               activeTab === "leads"
-                ? "bg-indigo-600 text-white shadow-sm"
+                ? "bg-primary text-white shadow-sm"
                 : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
             )}
           >
@@ -59,7 +59,7 @@ function PipelineContent() {
             className={cn(
               "px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-2",
               activeTab === "customers"
-                ? "bg-indigo-600 text-white shadow-sm"
+                ? "bg-primary text-white shadow-sm"
                 : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
             )}
           >
@@ -73,7 +73,7 @@ function PipelineContent() {
             className={cn(
               "px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-2",
               activeTab === "deals"
-                ? "bg-indigo-600 text-white shadow-sm"
+                ? "bg-primary text-white shadow-sm"
                 : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
             )}
           >

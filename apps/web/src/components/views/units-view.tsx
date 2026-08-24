@@ -344,7 +344,7 @@ export function UnitsView({ projectId }: UnitsViewProps) {
                             <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500">
                               <span>{u.area ? `${u.area} m²` : "—"}</span>
                               <span 
-                                className="font-semibold text-indigo-600 group-hover:underline flex items-center gap-0.5"
+                                className="font-semibold text-primary group-hover:underline flex items-center gap-0.5"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setCalcUnit(u);
@@ -532,7 +532,7 @@ export function UnitsView({ projectId }: UnitsViewProps) {
               </div>
 
               {planCalc && (
-                <div className="rounded-xl border border-[#233b66]/20 bg-[#233b66]/5 p-4 space-y-2">
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-2">
                   <div className="flex justify-between items-center text-slate-700">
                     <span>Downpayment Amount:</span>
                     <span className="font-bold text-[#233b66]">{formatPrice(planCalc.downPaymentAmount || 0)}</span>
@@ -541,7 +541,7 @@ export function UnitsView({ projectId }: UnitsViewProps) {
                     <span>Handover Amount:</span>
                     <span className="font-semibold">{formatPrice(planCalc.handoverAmount || 0)}</span>
                   </div>
-                  <div className="flex justify-between items-center border-t border-[#233b66]/20 pt-2 text-slate-900 font-bold">
+                  <div className="flex justify-between items-center border-t border-primary/20 pt-2 text-slate-900 font-bold">
                     <span>Installment Amount:</span>
                     <span className="text-emerald-700 text-sm">{formatPrice(planCalc.installmentAmount || 0)}</span>
                   </div>

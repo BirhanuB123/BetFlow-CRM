@@ -71,7 +71,7 @@ const statusClass: Record<DocumentStatus, string> = {
 };
 
 const inputClass =
-  "h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500 font-medium";
+  "h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-primary font-medium";
 
 type KycRequirement = {
   category: string;
@@ -285,11 +285,11 @@ export default function DocumentsPage() {
     >
       <div className="space-y-6">
         {/* Ethiopian KYC Compliance Presets Widget */}
-        <section className="rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-950 p-5 shadow-lg text-white">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-indigo-800/60 pb-4">
+        <section className="rounded-xl border border-primary/20 bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-950 p-5 shadow-lg text-white">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-primary/60 pb-4">
             <div>
-              <h2 className="text-sm font-bold tracking-wide flex items-center gap-2 text-indigo-300">
-                <UserCheck className="size-4 text-indigo-400" />
+              <h2 className="text-sm font-bold tracking-wide flex items-center gap-2 text-primary/80">
+                <UserCheck className="size-4 text-primary/80" />
                 Ethiopian KYC Compliance Presets (Local vs Diaspora Verification Flow)
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">
@@ -300,7 +300,7 @@ export default function DocumentsPage() {
             <select
               value={selectedKycCustomerId}
               onChange={(e) => fetchKycStatus(e.target.value)}
-              className="h-9 rounded-lg border border-indigo-700 bg-slate-900 px-3 text-xs font-semibold text-white focus:outline-none focus:border-indigo-400"
+              className="h-9 rounded-lg border border-primary/70 bg-slate-900 px-3 text-xs font-semibold text-white focus:outline-none focus:border-primary/40"
             >
               <option value="">-- Inspect Customer KYC Compliance --</option>
               {options.CUSTOMER.map((opt) => (
@@ -322,7 +322,7 @@ export default function DocumentsPage() {
                   <span className="text-sm font-bold text-white">
                     {kycStatus.customerName}
                   </span>
-                  <span className="rounded-full bg-indigo-500/20 px-2.5 py-0.5 text-[10px] font-extrabold text-indigo-300 border border-indigo-500/40">
+                  <span className="rounded-full bg-primary/20 px-2.5 py-0.5 text-[10px] font-extrabold text-primary/80 border border-primary/40">
                     {kycStatus.buyerType === "DIASPORA"
                       ? "✈️ DIASPORA BUYER PRESET"
                       : "🇪🇹 LOCAL BUYER PRESET"}
@@ -348,7 +348,7 @@ export default function DocumentsPage() {
                 <div
                   className={cn(
                     "h-full transition-all",
-                    kycStatus.isKycComplete ? "bg-emerald-500" : "bg-indigo-500",
+                    kycStatus.isKycComplete ? "bg-emerald-500" : "bg-primary",
                   )}
                   style={{ width: `${kycStatus.completionPercentage}%` }}
                 />
@@ -397,7 +397,7 @@ export default function DocumentsPage() {
                         <button
                           type="button"
                           onClick={() => setPreviewDoc(req.document)}
-                          className="text-[10px] font-semibold text-indigo-400 hover:text-indigo-300 underline"
+                          className="text-[10px] font-semibold text-primary/80 hover:text-primary/80 underline"
                         >
                           View File
                         </button>
@@ -443,7 +443,7 @@ export default function DocumentsPage() {
         {showUpload && (
           <form
             onSubmit={upload}
-            className="grid gap-3.5 rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 shadow-sm sm:grid-cols-2 xl:grid-cols-4"
+            className="grid gap-3.5 rounded-xl border border-primary/10 bg-primary/5 p-4 shadow-sm sm:grid-cols-2 xl:grid-cols-4"
           >
             <div>
               <label className="text-[11px] font-semibold text-slate-700 block mb-1">
@@ -518,7 +518,7 @@ export default function DocumentsPage() {
               </select>
             </div>
 
-            <div className="xl:col-span-4 flex items-center justify-between border-t border-indigo-100 pt-3">
+            <div className="xl:col-span-4 flex items-center justify-between border-t border-primary/10 pt-3">
               <label className="text-xs font-semibold text-slate-600 flex items-center gap-2">
                 Expiry Date (Optional):
                 <input
@@ -567,7 +567,7 @@ export default function DocumentsPage() {
                 className={cn(
                   "rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
                   filter === st
-                    ? "bg-indigo-600 text-white shadow-xs"
+                    ? "bg-primary text-white shadow-xs"
                     : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100",
                 )}
               >
@@ -596,11 +596,11 @@ export default function DocumentsPage() {
               ]}
               rows={visibleDocuments.map((doc) => [
                 <div key="name" className="flex items-center gap-2">
-                  <FileText className="size-4 text-indigo-500 shrink-0" />
+                  <FileText className="size-4 text-primary shrink-0" />
                   <button
                     type="button"
                     onClick={() => setPreviewDoc(doc)}
-                    className="font-bold text-indigo-600 hover:underline text-xs text-left"
+                    className="font-bold text-primary hover:underline text-xs text-left"
                   >
                     {doc.name}
                     <span className="font-normal text-slate-400 block text-[11px]">
@@ -610,7 +610,7 @@ export default function DocumentsPage() {
                 </div>,
                 <span
                   key="cat"
-                  className="inline-flex items-center rounded-md bg-indigo-50 border border-indigo-100 px-2 py-0.5 text-xs font-bold text-indigo-700"
+                  className="inline-flex items-center rounded-md bg-primary/10 border border-primary/10 px-2 py-0.5 text-xs font-bold text-primary"
                 >
                   {doc.category.replace(/_/g, " ")}
                 </span>,
@@ -641,7 +641,7 @@ export default function DocumentsPage() {
                     onClick={() => setPreviewDoc(doc)}
                     title="Quick Preview"
                   >
-                    <Eye className="size-4 text-indigo-600" />
+                    <Eye className="size-4 text-primary" />
                   </button>
                   <button
                     type="button"
@@ -691,7 +691,7 @@ export default function DocumentsPage() {
             <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl border border-slate-200">
               <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                 <div className="flex items-center gap-2">
-                  <FileText className="size-5 text-indigo-600" />
+                  <FileText className="size-5 text-primary" />
                   <div>
                     <h3 className="font-bold text-slate-900 text-sm">
                       {previewDoc.name}
@@ -752,7 +752,7 @@ export default function DocumentsPage() {
               <div className="flex gap-2 pt-2">
                 <Button
                   onClick={() => void download(previewDoc)}
-                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white h-9 text-xs font-semibold"
+                  className="flex-1 h-9 text-xs font-semibold"
                 >
                   <Download className="size-3.5 mr-1.5" />
                   Download File

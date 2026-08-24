@@ -66,7 +66,7 @@ type UserOption = { id: string; firstName: string; lastName: string } | null;
 const statusClass: Record<string, string> = {
   TODO: "bg-slate-100 text-slate-700 border-slate-200",
   IN_PROGRESS:
-    "bg-[#233b66]/10 text-[#233b66] border-[#233b66]/20 font-semibold",
+    "bg-primary/10 text-[#233b66] border-primary/20 font-semibold",
   DONE: "bg-emerald-50 text-emerald-700 border-emerald-200",
 };
 
@@ -382,7 +382,7 @@ export function TasksView() {
       {/* Top Banner / Actions Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-[#233b66]/10 text-[#233b66] rounded-lg">
+          <div className="p-2 bg-primary/10 text-[#233b66] rounded-lg">
             <ClipboardList className="size-5" />
           </div>
           <div>
@@ -397,7 +397,7 @@ export function TasksView() {
 
         <Button
           onClick={() => setShowForm(!showForm)}
-          className="bg-[#233b66] hover:bg-[#1a2d50] text-white gap-2 font-semibold text-xs h-9"
+          className="gap-2 font-semibold text-xs h-9"
         >
           {showForm ? (
             <>
@@ -458,7 +458,7 @@ export function TasksView() {
       {showForm && (
         <form
           onSubmit={handleSubmit}
-          className="rounded-xl border border-[#233b66]/20 bg-white p-5 shadow-xs space-y-4 animate-in fade-in slide-in-from-top-2 duration-200"
+          className="rounded-xl border border-primary/20 bg-white p-5 shadow-xs space-y-4 animate-in fade-in slide-in-from-top-2 duration-200"
         >
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
@@ -592,7 +592,7 @@ export function TasksView() {
             <Button
               type="submit"
               disabled={saving}
-              className="bg-[#233b66] hover:bg-[#1a2d50] text-white size-sm text-xs"
+              className="size-sm text-xs"
             >
               {saving ? "Saving..." : "Save Task"}
             </Button>
@@ -672,9 +672,9 @@ export function TasksView() {
 
         {/* Bulk Action Bar */}
         {selectedTaskIds.size > 0 && (
-          <div className="bg-indigo-50 border-b border-indigo-100 px-4 py-2 flex items-center justify-between animate-in fade-in duration-150">
-            <div className="flex items-center gap-2 text-xs font-semibold text-indigo-900">
-              <Check className="size-4 text-indigo-600" />
+          <div className="bg-primary/10 border-b border-primary/10 px-4 py-2 flex items-center justify-between animate-in fade-in duration-150">
+            <div className="flex items-center gap-2 text-xs font-semibold text-primary">
+              <Check className="size-4 text-primary" />
               <span>{selectedTaskIds.size} task(s) selected</span>
             </div>
             <div className="flex items-center gap-2">
@@ -723,7 +723,7 @@ export function TasksView() {
                       type="checkbox"
                       checked={allVisibleSelected}
                       onChange={toggleSelectAll}
-                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                      className="rounded border-slate-300 text-primary focus:ring-primary"
                     />
                   </th>
                   <th className="px-5 py-3">Task / Category</th>
@@ -746,7 +746,7 @@ export function TasksView() {
                       key={task.id}
                       className={cn(
                         "hover:bg-slate-50/70 transition-colors",
-                        isSelected && "bg-indigo-50/30",
+                        isSelected && "bg-primary/10/30",
                       )}
                     >
                       <td className="px-4 py-3 text-center">
@@ -754,7 +754,7 @@ export function TasksView() {
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleSelectOne(task.id)}
-                          className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                          className="rounded border-slate-300 text-primary focus:ring-primary"
                         />
                       </td>
 

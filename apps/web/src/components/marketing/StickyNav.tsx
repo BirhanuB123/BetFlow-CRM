@@ -30,7 +30,7 @@ export function StickyNav() {
             <span className="text-xl font-black text-white tracking-tight">
               {systemName}
             </span>
-            <span className="shrink-0 rounded-md bg-indigo-600/30 border border-indigo-500/40 px-2 py-0.5 text-[10px] font-extrabold text-indigo-300 uppercase tracking-wider">
+            <span className="shrink-0 rounded-md bg-primary/30 border border-primary/40 px-2 py-0.5 text-[10px] font-extrabold text-primary/80 uppercase tracking-wider">
               CRM OS
             </span>
           </div>
@@ -40,31 +40,31 @@ export function StickyNav() {
         <nav className="hidden items-center gap-6 xl:gap-8 text-xs font-bold text-slate-300 lg:flex">
           <Link
             href="/dashboard"
-            className="hover:text-indigo-400 transition-colors"
+            className="hover:text-primary/80 transition-colors"
           >
             {t("nav.dashboard")}
           </Link>
           <Link
             href="/pipeline?tab=leads"
-            className="hover:text-indigo-400 transition-colors"
+            className="hover:text-primary/80 transition-colors"
           >
             {t("nav.leadIntake")}
           </Link>
           <Link
             href="/units"
-            className="hover:text-indigo-400 transition-colors"
+            className="hover:text-primary/80 transition-colors"
           >
             {t("nav.stackingMatrix")}
           </Link>
           <Link
             href="/transactions?tab=contracts"
-            className="hover:text-indigo-400 transition-colors"
+            className="hover:text-primary/80 transition-colors"
           >
             {t("nav.contractsPdf")}
           </Link>
           <Link
             href="/portal"
-            className="hover:text-indigo-400 transition-colors"
+            className="hover:text-primary/80 transition-colors"
           >
             {t("nav.buyerPortal")}
           </Link>
@@ -78,13 +78,13 @@ export function StickyNav() {
             href="/auth"
             className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-slate-800 transition-colors cursor-pointer"
           >
-            <KeyRound className="size-3.5 text-indigo-400" />
+            <KeyRound className="size-3.5 text-primary/80" />
             <span>Sign In</span>
           </Link>
 
           <Link
             href="/dashboard"
-            className="hidden sm:inline-flex group items-center gap-2 rounded-lg bg-indigo-600 px-3.5 py-2 text-xs font-extrabold text-white shadow-md shadow-indigo-600/30 hover:bg-indigo-500 active:scale-[0.98] transition-all cursor-pointer"
+            className="hidden sm:inline-flex group items-center gap-2 rounded-lg bg-primary px-3.5 py-2 text-xs font-extrabold text-white shadow-md shadow-indigo-600/30 hover:bg-primary/90 active:scale-[0.98] transition-all cursor-pointer"
           >
             <span>Start Free Trial</span>
             <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
@@ -114,35 +114,35 @@ export function StickyNav() {
             <Link
               href="/dashboard"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold text-slate-200 hover:bg-indigo-600/20 hover:text-indigo-300 transition-colors"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold text-slate-200 hover:bg-primary/20 hover:text-primary/80 transition-colors"
             >
               {t("nav.dashboard")}
             </Link>
             <Link
               href="/pipeline?tab=leads"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold text-slate-200 hover:bg-indigo-600/20 hover:text-indigo-300 transition-colors"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold text-slate-200 hover:bg-primary/20 hover:text-primary/80 transition-colors"
             >
               {t("nav.leadIntake")}
             </Link>
             <Link
               href="/units"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold text-slate-200 hover:bg-indigo-600/20 hover:text-indigo-300 transition-colors"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold text-slate-200 hover:bg-primary/20 hover:text-primary/80 transition-colors"
             >
               {t("nav.stackingMatrix")}
             </Link>
             <Link
               href="/transactions?tab=contracts"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold text-slate-200 hover:bg-indigo-600/20 hover:text-indigo-300 transition-colors"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold text-slate-200 hover:bg-primary/20 hover:text-primary/80 transition-colors"
             >
               {t("nav.contractsPdf")}
             </Link>
             <Link
               href="/portal"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold text-slate-200 hover:bg-indigo-600/20 hover:text-indigo-300 transition-colors"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold text-slate-200 hover:bg-primary/20 hover:text-primary/80 transition-colors"
             >
               {t("nav.buyerPortal")}
             </Link>
@@ -154,14 +154,14 @@ export function StickyNav() {
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center justify-center gap-2 rounded-lg border border-slate-800 bg-slate-900 py-2.5 text-xs font-semibold text-slate-300 hover:bg-slate-800 transition-colors cursor-pointer w-full"
             >
-              <KeyRound className="size-4 text-indigo-400" />
+              <KeyRound className="size-4 text-primary/80" />
               <span>Sign In</span>
             </Link>
 
             <Link
               href="/dashboard"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 text-xs font-extrabold text-white shadow-md shadow-indigo-600/30 hover:bg-indigo-500 transition-all cursor-pointer w-full text-center"
+              className="flex items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-xs font-extrabold text-white shadow-md shadow-indigo-600/30 hover:bg-primary/90 transition-all cursor-pointer w-full text-center"
             >
               <span>Start Free Trial</span>
               <ArrowRight className="size-4" />

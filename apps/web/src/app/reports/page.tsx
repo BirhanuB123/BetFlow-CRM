@@ -171,7 +171,7 @@ export default function ReportsCatalogPage() {
               aria-label="Filter reports by folder"
               value={folder}
               onChange={(e) => setFolder(e.target.value)}
-              className="h-9 w-full appearance-none rounded-lg border border-slate-300 bg-white pl-3.5 pr-9 text-xs font-semibold text-slate-800 outline-none focus:border-indigo-500 sm:w-56"
+              className="h-9 w-full appearance-none rounded-lg border border-slate-300 bg-white pl-3.5 pr-9 text-xs font-semibold text-slate-800 outline-none focus:border-primary sm:w-56"
             >
               {folders.map((f) => (
                 <option key={f} value={f}>
@@ -200,7 +200,7 @@ export default function ReportsCatalogPage() {
             onClick={handleExportCSV}
             className="h-9 text-xs font-semibold border-slate-300 text-slate-700 hover:bg-slate-50"
           >
-            <Download className="size-3.5 mr-1.5 text-indigo-600" />
+            <Download className="size-3.5 mr-1.5 text-primary" />
             Export Catalog
           </Button>
           <Button
@@ -224,14 +224,14 @@ export default function ReportsCatalogPage() {
         )}
 
         {selected.size > 0 && (
-          <div className="flex items-center gap-3 border-b border-indigo-100 bg-indigo-50/70 px-5 py-2.5 text-xs text-slate-700">
-            <span className="font-semibold text-indigo-900">
+          <div className="flex items-center gap-3 border-b border-primary/10 bg-primary/10/70 px-5 py-2.5 text-xs text-slate-700">
+            <span className="font-semibold text-primary">
               {selected.size} selected
             </span>
             <button
               type="button"
               onClick={() => setSelected(new Set())}
-              className="text-indigo-600 hover:underline font-medium ml-2"
+              className="text-primary hover:underline font-medium ml-2"
             >
               Clear selection
             </button>
@@ -249,7 +249,7 @@ export default function ReportsCatalogPage() {
                     aria-label="Select all reports"
                     checked={allSelected}
                     onChange={toggleSelectAll}
-                    className="size-3.5 rounded border-slate-300 accent-indigo-600 cursor-pointer"
+                    className="size-3.5 rounded border-slate-300 accent-primary cursor-pointer"
                   />
                 </th>
                 <th className="px-3 py-3 font-semibold">Report Name</th>
@@ -290,7 +290,7 @@ export default function ReportsCatalogPage() {
                         aria-label={`Select ${report.name}`}
                         checked={selected.has(report.id)}
                         onChange={() => toggleRow(report.id)}
-                        className="size-3.5 rounded border-slate-300 accent-indigo-600 cursor-pointer"
+                        className="size-3.5 rounded border-slate-300 accent-primary cursor-pointer"
                       />
                     </td>
                     <td className="px-3 py-3">
@@ -315,9 +315,9 @@ export default function ReportsCatalogPage() {
                         </button>
                         <Link
                           href={report.href}
-                          className="font-bold text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-1.5"
+                          className="font-bold text-primary hover:text-primary hover:underline flex items-center gap-1.5"
                         >
-                          <BarChart3 className="size-4 text-indigo-500 shrink-0" />
+                          <BarChart3 className="size-4 text-primary shrink-0" />
                           {report.name}
                         </Link>
                       </div>
@@ -326,7 +326,7 @@ export default function ReportsCatalogPage() {
                       {report.description}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center rounded-md bg-indigo-50 border border-indigo-100 px-2 py-0.5 text-[11px] font-semibold text-indigo-700">
+                      <span className="inline-flex items-center rounded-md bg-primary/10 border border-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
                         {report.folder}
                       </span>
                     </td>
@@ -339,7 +339,7 @@ export default function ReportsCatalogPage() {
                     <td className="px-4 py-3 text-right">
                       <Link
                         href={report.href}
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary hover:underline"
                       >
                         Open
                         <ArrowUpRight className="size-3.5" />
@@ -371,12 +371,12 @@ export default function ReportsCatalogPage() {
                 <div className="flex items-center justify-between gap-2">
                   <Link
                     href={report.href}
-                    className="font-bold text-indigo-600 hover:underline flex items-center gap-1.5 text-sm"
+                    className="font-bold text-primary hover:underline flex items-center gap-1.5 text-sm"
                   >
-                    <BarChart3 className="size-4 text-indigo-500" />
+                    <BarChart3 className="size-4 text-primary" />
                     {report.name}
                   </Link>
-                  <span className="inline-flex items-center gap-1 rounded-md bg-indigo-50 border border-indigo-100 px-2 py-0.5 text-[11px] font-semibold text-indigo-700">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 border border-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
                     <FolderOpen className="size-3" />
                     {report.folder}
                   </span>
@@ -388,7 +388,7 @@ export default function ReportsCatalogPage() {
                   <span>Last accessed {formatDate(report.lastAccessedAt)}</span>
                   <Link
                     href={report.href}
-                    className="font-semibold text-indigo-600 hover:underline"
+                    className="font-semibold text-primary hover:underline"
                   >
                     View Report &rarr;
                   </Link>

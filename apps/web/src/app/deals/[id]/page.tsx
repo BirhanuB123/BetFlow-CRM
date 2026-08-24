@@ -115,7 +115,7 @@ export default function DealDetailPage() {
         <div className="flex items-center justify-between">
           <Link
             href="/pipeline?tab=deals"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-indigo-600 transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-primary transition-colors"
           >
             <ArrowLeft className="size-4" />
             Back to Sales Pipeline
@@ -179,7 +179,7 @@ export default function DealDetailPage() {
               {/* Deal Header Info */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-5">
                 <div className="flex items-start gap-4">
-                  <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700 font-bold text-lg">
+                  <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-lg">
                     💼
                   </div>
                   <div>
@@ -190,7 +190,7 @@ export default function DealDetailPage() {
                       Client:{" "}
                       <Link
                         href={`/customers/${deal.customer.id}`}
-                        className="font-bold text-indigo-600 hover:underline"
+                        className="font-bold text-primary hover:underline"
                       >
                         {deal.customer.firstName} {deal.customer.lastName}
                       </Link>{" "}
@@ -200,7 +200,7 @@ export default function DealDetailPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center rounded-md bg-indigo-50 border border-indigo-100 px-3 py-1 text-xs font-bold text-indigo-700">
+                  <span className="inline-flex items-center rounded-md bg-primary/10 border border-primary/10 px-3 py-1 text-xs font-bold text-primary">
                     Stage: {deal.stage.name} ({deal.stage.probability}%)
                   </span>
                 </div>
@@ -214,7 +214,7 @@ export default function DealDetailPage() {
                   className={cn(
                     "px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-2",
                     activeTab === "reservation"
-                      ? "bg-[#233b66] text-white shadow-sm"
+                      ? "bg-primary text-primary-foreground shadow-sm"
                       : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
                   )}
                 >
@@ -228,7 +228,7 @@ export default function DealDetailPage() {
                   className={cn(
                     "px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-2",
                     activeTab === "contract"
-                      ? "bg-[#233b66] text-white shadow-sm"
+                      ? "bg-primary text-primary-foreground shadow-sm"
                       : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
                   )}
                 >
@@ -242,7 +242,7 @@ export default function DealDetailPage() {
                   className={cn(
                     "px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-2",
                     activeTab === "payments"
-                      ? "bg-[#233b66] text-white shadow-sm"
+                      ? "bg-primary text-primary-foreground shadow-sm"
                       : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
                   )}
                 >
@@ -289,7 +289,7 @@ export default function DealDetailPage() {
                         No reservation hold deposit record linked to this deal yet.
                       </p>
                       <Link href="/transactions?tab=reservations">
-                        <Button size="sm" className="bg-[#233b66] text-white text-xs">
+                        <Button size="sm" className="bg-primary text-primary-foreground text-xs">
                           Create Reservation Hold
                         </Button>
                       </Link>
@@ -312,7 +312,7 @@ export default function DealDetailPage() {
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
                         <div>
                           <span className="text-slate-400 block font-semibold">Total Contract Value</span>
-                          <span className="font-extrabold text-indigo-900">
+                          <span className="font-extrabold text-primary">
                             {formatCurrency(deal.contract.totalAmt)}
                           </span>
                         </div>
@@ -336,7 +336,7 @@ export default function DealDetailPage() {
                         No legal sales contract generated for this deal yet.
                       </p>
                       <Link href="/transactions?tab=contracts">
-                        <Button size="sm" className="bg-[#233b66] text-white text-xs">
+                        <Button size="sm" className="bg-primary text-primary-foreground text-xs">
                           Generate Sales Contract
                         </Button>
                       </Link>

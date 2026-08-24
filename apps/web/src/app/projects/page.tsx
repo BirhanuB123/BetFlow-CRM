@@ -403,7 +403,7 @@ export default function ProjectsPage() {
                 if (showForm) setShowForm(false);
                 else openNewForm();
               }}
-              className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium shadow-sm transition-all"
+              className="font-medium shadow-sm transition-all"
             >
               {showForm ? (
                 <X className="size-4 mr-1.5" />
@@ -418,7 +418,7 @@ export default function ProjectsPage() {
           {showForm && (
             <form
               onSubmit={handleSave}
-              className="mt-6 rounded-xl border border-[#233b66]/20 bg-gradient-to-b from-[#233b66]/5 to-slate-50/50 p-5 shadow-inner"
+              className="mt-6 rounded-xl border border-primary/20 bg-gradient-to-b from-[#233b66]/5 to-slate-50/50 p-5 shadow-inner"
             >
               <h3 className="text-xs font-bold text-[#233b66] uppercase tracking-wider mb-4 flex items-center gap-2">
                 <Sparkles className="size-4 text-[#233b66]" />
@@ -438,7 +438,7 @@ export default function ProjectsPage() {
                     placeholder="e.g. Bole Atlas Luxury Heights Tower"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   />
                 </div>
 
@@ -451,7 +451,7 @@ export default function ProjectsPage() {
                     onChange={(e) =>
                       setForm({ ...form, category: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   >
                     <option value="RESIDENTIAL_TOWER">
                       G+12/G+20 Residential Tower (አፓርታማ)
@@ -480,7 +480,7 @@ export default function ProjectsPage() {
                     onChange={(e) =>
                       setForm({ ...form, subCity: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   >
                     {Object.entries(subCityLabels).map(([key, val]) => (
                       <option key={key} value={key}>
@@ -501,7 +501,7 @@ export default function ProjectsPage() {
                     onChange={(e) =>
                       setForm({ ...form, location: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   />
                 </div>
 
@@ -514,7 +514,7 @@ export default function ProjectsPage() {
                     onChange={(e) =>
                       setForm({ ...form, constructionStage: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   >
                     {Object.entries(stageLabels).map(([key, val]) => (
                       <option key={key} value={key}>
@@ -536,7 +536,7 @@ export default function ProjectsPage() {
                     onChange={(e) =>
                       setForm({ ...form, progressPercentage: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   />
                 </div>
 
@@ -551,7 +551,7 @@ export default function ProjectsPage() {
                     onChange={(e) =>
                       setForm({ ...form, estimatedDelivery: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   />
                 </div>
 
@@ -568,7 +568,7 @@ export default function ProjectsPage() {
                       onChange={(e) =>
                         setForm({ ...form, coverImage: e.target.value })
                       }
-                      className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                      className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                     />
                     <input
                       type="file"
@@ -600,7 +600,7 @@ export default function ProjectsPage() {
                         onClick={() =>
                           setForm({ ...form, coverImage: preset.url })
                         }
-                        className="rounded bg-white px-2.5 py-1 text-[10px] font-semibold text-indigo-700 border border-indigo-200 hover:bg-indigo-50 transition-colors"
+                        className="rounded bg-white px-2.5 py-1 text-[10px] font-semibold text-primary border border-primary/20 hover:bg-primary/10 transition-colors"
                       >
                         {preset.name}
                       </button>
@@ -621,7 +621,7 @@ export default function ProjectsPage() {
                       onChange={(e) =>
                         setForm({ ...form, newGalleryUrl: e.target.value })
                       }
-                      className="flex-1 h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                      className="flex-1 h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                     />
                     <Button
                       type="button"
@@ -683,7 +683,7 @@ export default function ProjectsPage() {
                     onChange={(e) =>
                       setForm({ ...form, status: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   >
                     {PROJECT_STATUSES.map((s) => (
                       <option key={s} value={s}>
@@ -704,7 +704,7 @@ export default function ProjectsPage() {
                     onChange={(e) =>
                       setForm({ ...form, videoUrl: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   />
                 </div>
 
@@ -723,7 +723,7 @@ export default function ProjectsPage() {
                           className={cn(
                             "flex items-center gap-2 rounded-lg border p-2 text-xs font-medium cursor-pointer transition-all select-none",
                             isChecked
-                              ? "border-indigo-500 bg-indigo-50/80 text-indigo-900"
+                              ? "border-primary bg-primary/10 text-primary"
                               : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
                           )}
                         >
@@ -731,7 +731,7 @@ export default function ProjectsPage() {
                             className={cn(
                               "size-4 rounded border flex items-center justify-center transition-colors",
                               isChecked
-                                ? "border-indigo-600 bg-indigo-600 text-white"
+                                ? "border-primary bg-primary text-white"
                                 : "border-slate-300 bg-white",
                             )}
                           >
@@ -755,12 +755,12 @@ export default function ProjectsPage() {
                     onChange={(e) =>
                       setForm({ ...form, description: e.target.value })
                     }
-                    className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   />
                 </div>
               </div>
 
-              <div className="mt-5 flex justify-end gap-3 border-t border-indigo-100 pt-4">
+              <div className="mt-5 flex justify-end gap-3 border-t border-primary/10 pt-4">
                 <Button
                   type="button"
                   variant="outline"
@@ -772,7 +772,7 @@ export default function ProjectsPage() {
                 <Button
                   type="submit"
                   disabled={saving}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs shadow-sm"
+                  className="font-medium text-xs shadow-sm"
                 >
                   {saving
                     ? "Saving…"
@@ -799,7 +799,7 @@ export default function ProjectsPage() {
               className={cn(
                 "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap",
                 filterCategory === "ALL"
-                  ? "bg-[#233b66] text-white shadow-sm"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
               )}
             >
@@ -810,7 +810,7 @@ export default function ProjectsPage() {
               className={cn(
                 "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap",
                 filterCategory === "RESIDENTIAL_TOWER"
-                  ? "bg-[#233b66] text-white shadow-sm"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
               )}
             >
@@ -826,7 +826,7 @@ export default function ProjectsPage() {
               className={cn(
                 "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap",
                 filterCategory === "LUXURY_VILLA_COMPOUND"
-                  ? "bg-[#233b66] text-white shadow-sm"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
               )}
             >
@@ -842,7 +842,7 @@ export default function ProjectsPage() {
               className={cn(
                 "px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap",
                 filterCategory === "COMMERCIAL_PLAZA"
-                  ? "bg-[#233b66] text-white shadow-sm"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
               )}
             >
@@ -901,7 +901,7 @@ export default function ProjectsPage() {
                       />
                     ) : (
                       <div className="flex h-full w-full flex-col items-center justify-center p-4 text-center">
-                        <Building2 className="size-10 text-indigo-400/60 mb-2" />
+                        <Building2 className="size-10 text-primary/80/60 mb-2" />
                         <span className="text-xs font-semibold text-slate-300">
                           {categoryLabels[
                             project.category ?? "RESIDENTIAL_TOWER"
@@ -931,7 +931,7 @@ export default function ProjectsPage() {
                       <button
                         type="button"
                         onClick={() => openEditForm(project)}
-                        className="rounded-full bg-slate-900/80 p-1.5 text-white hover:bg-indigo-600 transition-colors border border-white/20 backdrop-blur-md"
+                        className="rounded-full bg-slate-900/80 p-1.5 text-white hover:bg-primary transition-colors border border-white/20 backdrop-blur-md"
                         title="Edit Project"
                       >
                         <Pencil className="size-3.5" />
@@ -956,12 +956,12 @@ export default function ProjectsPage() {
                   {/* Card Content Body */}
                   <div className="p-5 flex-1 flex flex-col justify-between">
                     <div>
-                      <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                      <h3 className="text-base font-bold text-slate-900 group-hover:text-primary transition-colors">
                         {project.name}
                       </h3>
 
                       <p className="text-xs text-slate-500 flex items-center gap-1 mt-1">
-                        <MapPin className="size-3.5 text-indigo-500 shrink-0" />
+                        <MapPin className="size-3.5 text-primary shrink-0" />
                         {project.location ??
                           `${subCityLabels[project.subCity ?? "BOLE"] ?? "Addis Ababa"}`}
                       </p>
@@ -981,7 +981,7 @@ export default function ProjectsPage() {
                                 "STRUCTURE_CONCRETE_SLAB"
                             ]?.split("(")[0] ?? "Construction"}
                           </span>
-                          <span className="font-bold text-indigo-600">
+                          <span className="font-bold text-primary">
                             {progress}%
                           </span>
                         </div>
@@ -996,7 +996,7 @@ export default function ProjectsPage() {
 
                     <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
                       <div className="flex items-center gap-3 text-xs font-semibold text-slate-700">
-                        <span className="flex items-center gap-1 text-indigo-600">
+                        <span className="flex items-center gap-1 text-primary">
                           <Building className="size-3.5" />
                           {project._count.buildings} Blocks
                         </span>
@@ -1008,7 +1008,7 @@ export default function ProjectsPage() {
 
                       <Link
                         href={`/projects/${project.id}`}
-                        className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700 hover:underline"
+                        className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:text-primary hover:underline"
                       >
                         Explore Inventory
                         <ChevronRight className="size-3.5" />

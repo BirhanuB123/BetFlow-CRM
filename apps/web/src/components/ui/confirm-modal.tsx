@@ -41,9 +41,9 @@ export function ConfirmModal({
       badgeText: "bg-amber-50 text-amber-700 border-amber-200",
     },
     indigo: {
-      iconBg: "bg-indigo-100 text-indigo-600 border-indigo-200",
-      confirmBtn: "bg-[#233b66] hover:bg-[#1a2d50] text-white shadow-sm",
-      badgeText: "bg-indigo-50 text-indigo-700 border-indigo-200",
+      iconBg: "bg-primary/10 text-primary border-primary/20",
+      confirmBtn: " shadow-sm",
+      badgeText: "bg-primary/10 text-primary border-primary/20",
     },
   }[variant];
 

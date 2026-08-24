@@ -56,7 +56,7 @@ export default function AgentPerformancePage() {
             </Link>
             <div className="h-4 w-px bg-slate-300 hidden sm:block" />
             <div className="flex items-center gap-2 text-slate-800 font-bold text-sm">
-              <Users className="size-4 text-indigo-600" />
+              <Users className="size-4 text-primary" />
               <span>Agent Productivity Analytics</span>
             </div>
           </div>

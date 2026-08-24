@@ -77,7 +77,7 @@ type SortKey = "name" | "company" | "email" | "source" | "status" | "owner";
 
 const statusClass: Record<string, string> = {
   NEW: "bg-blue-50 text-blue-700",
-  CONTACTED: "bg-indigo-50 text-indigo-700",
+  CONTACTED: "bg-primary/10 text-primary",
   QUALIFIED: "bg-emerald-50 text-emerald-700",
   FOLLOW_UP: "bg-amber-50 text-amber-800",
   WON: "bg-green-100 text-green-800",
@@ -424,7 +424,7 @@ export function LeadsView() {
             className={cn(
               "rounded-md px-3 py-1.5 text-sm font-semibold transition-colors border",
               originFilter === "ALL"
-                ? "bg-indigo-50 text-indigo-700 border-indigo-200"
+                ? "bg-primary/10 text-primary border-primary/20"
                 : "bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50",
             )}
           >
@@ -473,13 +473,13 @@ export function LeadsView() {
             onClick={() => setShowFilters((v) => !v)}
             className={cn(
               "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm hover:bg-zinc-100 transition-colors font-medium",
-              showFilters ? "text-indigo-700 bg-indigo-50/50" : "text-zinc-600",
+              showFilters ? "text-primary bg-primary/10" : "text-zinc-600",
             )}
           >
             <FilterIcon className="size-4" />
             Filter
             {activeFilterCount > 0 ? (
-              <span className="rounded-full bg-indigo-600 px-1.5 text-xs text-white font-bold">
+              <span className="rounded-full bg-primary px-1.5 text-xs text-white font-bold">
                 {activeFilterCount}
               </span>
             ) : null}
@@ -521,7 +521,7 @@ export function LeadsView() {
                 setSearch(e.target.value);
                 setPage(0);
               }}
-              className="w-full rounded-md border border-zinc-200 bg-white py-1.5 pl-9 pr-3 text-sm placeholder:text-zinc-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-md border border-zinc-200 bg-white py-1.5 pl-9 pr-3 text-sm placeholder:text-zinc-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
             {search ? (
               <button
@@ -536,7 +536,7 @@ export function LeadsView() {
           <Button
             size="sm"
             onClick={() => setCreateOpen(true)}
-            className="h-9 gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
+            className="h-9 gap-1.5 font-semibold"
           >
             <Plus className="size-4" />
             Create Lead
@@ -546,7 +546,7 @@ export function LeadsView() {
 
       {/* Social Webhook Lead Gen Drawer Banner */}
       {showSocialDrawer ? (
-        <div className="rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 p-4 shadow-sm animate-in fade-in duration-200">
+        <div className="rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 via-primary/10 to-purple-50 p-4 shadow-sm animate-in fade-in duration-200">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
@@ -609,7 +609,7 @@ export function LeadsView() {
                   <button
                     type="button"
                     onClick={() => setStatusFilter(new Set())}
-                    className="text-[10px] text-indigo-600 hover:underline font-normal normal-case"
+                    className="text-[10px] text-primary hover:underline font-normal normal-case"
                   >
                     Clear
                   </button>
@@ -626,13 +626,13 @@ export function LeadsView() {
                       className={cn(
                         "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors text-left",
                         active
-                          ? "bg-indigo-50 text-indigo-700 font-semibold"
+                          ? "bg-primary/10 text-primary font-semibold"
                           : "text-zinc-600 hover:bg-zinc-50",
                       )}
                     >
                       <span>{titleCase(status)}</span>
                       {active ? (
-                        <span className="size-1.5 rounded-full bg-indigo-600" />
+                        <span className="size-1.5 rounded-full bg-primary" />
                       ) : null}
                     </button>
                   );
@@ -647,7 +647,7 @@ export function LeadsView() {
                   <button
                     type="button"
                     onClick={() => setSourceFilter(new Set())}
-                    className="text-[10px] text-indigo-600 hover:underline font-normal normal-case"
+                    className="text-[10px] text-primary hover:underline font-normal normal-case"
                   >
                     Clear
                   </button>
@@ -664,13 +664,13 @@ export function LeadsView() {
                       className={cn(
                         "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors text-left truncate",
                         active
-                          ? "bg-indigo-50 text-indigo-700 font-semibold"
+                          ? "bg-primary/10 text-primary font-semibold"
                           : "text-zinc-600 hover:bg-zinc-50",
                       )}
                     >
                       <span className="truncate">{src.name}</span>
                       {active ? (
-                        <span className="size-1.5 rounded-full bg-indigo-600 shrink-0 ml-1" />
+                        <span className="size-1.5 rounded-full bg-primary shrink-0 ml-1" />
                       ) : null}
                     </button>
                   );
@@ -717,7 +717,7 @@ export function LeadsView() {
                           });
                         }
                       }}
-                      className="rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500"
+                      className="rounded border-zinc-300 text-primary focus:ring-primary"
                     />
                   </th>
                   <th
@@ -728,9 +728,9 @@ export function LeadsView() {
                       <span>Lead Name</span>
                       {sort.key === "name" ? (
                         sort.dir === "asc" ? (
-                          <ArrowUp className="size-3 text-indigo-600" />
+                          <ArrowUp className="size-3 text-primary" />
                         ) : (
-                          <ArrowDown className="size-3 text-indigo-600" />
+                          <ArrowDown className="size-3 text-primary" />
                         )
                       ) : null}
                     </div>
@@ -743,9 +743,9 @@ export function LeadsView() {
                       <span>Company / Organization</span>
                       {sort.key === "company" ? (
                         sort.dir === "asc" ? (
-                          <ArrowUp className="size-3 text-indigo-600" />
+                          <ArrowUp className="size-3 text-primary" />
                         ) : (
-                          <ArrowDown className="size-3 text-indigo-600" />
+                          <ArrowDown className="size-3 text-primary" />
                         )
                       ) : null}
                     </div>
@@ -759,9 +759,9 @@ export function LeadsView() {
                       <span>Channel Source</span>
                       {sort.key === "source" ? (
                         sort.dir === "asc" ? (
-                          <ArrowUp className="size-3 text-indigo-600" />
+                          <ArrowUp className="size-3 text-primary" />
                         ) : (
-                          <ArrowDown className="size-3 text-indigo-600" />
+                          <ArrowDown className="size-3 text-primary" />
                         )
                       ) : null}
                     </div>
@@ -774,9 +774,9 @@ export function LeadsView() {
                       <span>Status Stage</span>
                       {sort.key === "status" ? (
                         sort.dir === "asc" ? (
-                          <ArrowUp className="size-3 text-indigo-600" />
+                          <ArrowUp className="size-3 text-primary" />
                         ) : (
-                          <ArrowDown className="size-3 text-indigo-600" />
+                          <ArrowDown className="size-3 text-primary" />
                         )
                       ) : null}
                     </div>
@@ -790,9 +790,9 @@ export function LeadsView() {
                       <span>Assignee</span>
                       {sort.key === "owner" ? (
                         sort.dir === "asc" ? (
-                          <ArrowUp className="size-3 text-indigo-600" />
+                          <ArrowUp className="size-3 text-primary" />
                         ) : (
-                          <ArrowDown className="size-3 text-indigo-600" />
+                          <ArrowDown className="size-3 text-primary" />
                         )
                       ) : null}
                     </div>
@@ -823,7 +823,7 @@ export function LeadsView() {
                         key={lead.id}
                         className={cn(
                           "transition-colors hover:bg-zinc-50/80 group",
-                          isSelected && "bg-indigo-50/40",
+                          isSelected && "bg-primary/5",
                         )}
                       >
                         <td className="px-3 py-3">
@@ -831,12 +831,12 @@ export function LeadsView() {
                             type="checkbox"
                             checked={isSelected}
                             onChange={() => toggleSet(setSelected, lead.id)}
-                            className="rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500"
+                            className="rounded border-zinc-300 text-primary focus:ring-primary"
                           />
                         </td>
                         <td className="px-3 py-3 font-semibold text-zinc-900">
                           <div className="flex items-center gap-2">
-                            <span className="flex size-7 items-center justify-center rounded-full bg-indigo-100 text-indigo-800 text-[11px] font-extrabold shrink-0">
+                            <span className="flex size-7 items-center justify-center rounded-full bg-primary/10 text-primary text-[11px] font-extrabold shrink-0">
                               {initials(fullName(lead))}
                             </span>
                             <div className="min-w-0">
@@ -985,7 +985,7 @@ export function LeadsView() {
           <div className="w-full max-w-lg rounded-xl border border-zinc-200 bg-white p-6 shadow-xl space-y-4">
             <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
               <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2">
-                <Plus className="size-5 text-indigo-600" />
+                <Plus className="size-5 text-primary" />
                 Add New Demand Lead
               </h2>
               <button
@@ -1007,7 +1007,7 @@ export function LeadsView() {
                     required
                     value={form.firstName}
                     onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                     placeholder="Abebe"
                   />
                 </div>
@@ -1020,7 +1020,7 @@ export function LeadsView() {
                     required
                     value={form.lastName}
                     onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                     placeholder="Bikila"
                   />
                 </div>
@@ -1034,7 +1034,7 @@ export function LeadsView() {
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                     placeholder="abebe@example.com"
                   />
                 </div>
@@ -1046,7 +1046,7 @@ export function LeadsView() {
                     type="tel"
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                     placeholder="+251 91 123 4567"
                   />
                 </div>
@@ -1059,7 +1059,7 @@ export function LeadsView() {
                   type="text"
                   value={form.company}
                   onChange={(e) => setForm({ ...form, company: e.target.value })}
-                  className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                  className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                   placeholder="Bole Real Estate Group"
                 />
               </div>
@@ -1071,7 +1071,7 @@ export function LeadsView() {
                   <select
                     value={form.sourceId}
                     onChange={(e) => setForm({ ...form, sourceId: e.target.value })}
-                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white"
+                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white"
                   >
                     <option value="">Select source...</option>
                     {sources.map((s) => (
@@ -1090,7 +1090,7 @@ export function LeadsView() {
                     onChange={(e) =>
                       setForm({ ...form, status: e.target.value as LeadStatus })
                     }
-                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white font-medium"
+                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white font-medium"
                   >
                     {LEAD_STATUSES.map((st) => (
                       <option key={st} value={st}>
@@ -1113,7 +1113,7 @@ export function LeadsView() {
                   type="submit"
                   size="sm"
                   disabled={creating}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
+                  className="font-semibold"
                 >
                   {creating ? "Creating..." : "Save Lead"}
                 </Button>
@@ -1129,7 +1129,7 @@ export function LeadsView() {
           <div className="w-full max-w-lg rounded-xl border border-zinc-200 bg-white p-6 shadow-xl space-y-4">
             <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
               <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2">
-                <Pencil className="size-4 text-indigo-600" />
+                <Pencil className="size-4 text-primary" />
                 Edit Lead: {fullName(editingLead)}
               </h2>
               <button
@@ -1153,7 +1153,7 @@ export function LeadsView() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, firstName: e.target.value })
                     }
-                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                   />
                 </div>
                 <div>
@@ -1167,7 +1167,7 @@ export function LeadsView() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, lastName: e.target.value })
                     }
-                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                   />
                 </div>
               </div>
@@ -1182,7 +1182,7 @@ export function LeadsView() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, email: e.target.value })
                     }
-                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                   />
                 </div>
                 <div>
@@ -1195,7 +1195,7 @@ export function LeadsView() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, phone: e.target.value })
                     }
-                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                   />
                 </div>
               </div>
@@ -1209,7 +1209,7 @@ export function LeadsView() {
                   onChange={(e) =>
                     setEditForm({ ...editForm, company: e.target.value })
                   }
-                  className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                  className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -1222,7 +1222,7 @@ export function LeadsView() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, sourceId: e.target.value })
                     }
-                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white"
+                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white"
                   >
                     <option value="">Select source...</option>
                     {sources.map((s) => (
@@ -1244,7 +1244,7 @@ export function LeadsView() {
                         status: e.target.value as LeadStatus,
                       })
                     }
-                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white font-medium"
+                    className="w-full rounded-md border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white font-medium"
                   >
                     {LEAD_STATUSES.map((st) => (
                       <option key={st} value={st}>
@@ -1267,7 +1267,7 @@ export function LeadsView() {
                   type="submit"
                   size="sm"
                   disabled={busy}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
+                  className="font-semibold"
                 >
                   {busy ? "Saving..." : "Update Lead"}
                 </Button>

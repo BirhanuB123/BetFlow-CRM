@@ -100,7 +100,7 @@ export default function ContractVerificationPage() {
         {/* Top Header */}
         <div className="flex items-center justify-between border-b border-slate-800 pb-5">
           <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-primary/20 text-primary/80 border border-primary/30">
               <ShieldCheck className="size-6" />
             </div>
             <div>
@@ -161,7 +161,7 @@ export default function ContractVerificationPage() {
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3.5">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                  <User className="size-3 text-indigo-400" /> Buyer (Purchaser)
+                  <User className="size-3 text-primary/80" /> Buyer (Purchaser)
                 </p>
                 <p className="mt-1 text-sm font-bold text-white">
                   {data.buyerName}
@@ -170,7 +170,7 @@ export default function ContractVerificationPage() {
 
               <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3.5">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                  <Building2 className="size-3 text-indigo-400" /> Property Unit
+                  <Building2 className="size-3 text-primary/80" /> Property Unit
                 </p>
                 <p className="mt-1 text-sm font-bold text-white">
                   {data.projectName} · Unit {data.unitNumber}
@@ -179,7 +179,7 @@ export default function ContractVerificationPage() {
 
               <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3.5">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                  <Calendar className="size-3 text-indigo-400" /> Agreement Date
+                  <Calendar className="size-3 text-primary/80" /> Agreement Date
                 </p>
                 <p className="mt-1 text-xs font-semibold text-slate-200">
                   {new Date(data.createdAt).toLocaleDateString()}
@@ -214,7 +214,7 @@ export default function ContractVerificationPage() {
                       className="rounded-xl border border-slate-800 bg-slate-950/80 p-3.5 space-y-1 text-xs"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-indigo-300">
+                        <span className="font-bold text-primary/80">
                           {sig.signerName} ({sig.signerRole})
                         </span>
                         <span className="text-[10px] text-slate-400 font-mono">
@@ -239,7 +239,7 @@ export default function ContractVerificationPage() {
                 type="button"
                 onClick={handleDownloadPdf}
                 disabled={downloading}
-                className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-indigo-500 transition-colors shadow-lg cursor-pointer disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-white hover:bg-primary/90 transition-colors shadow-lg cursor-pointer disabled:opacity-50"
               >
                 <Download className="size-4" />
                 {downloading
