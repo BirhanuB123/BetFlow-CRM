@@ -27,6 +27,7 @@ import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import { formatDate as fmtDate } from "@/lib/date";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 type ApiPayment = {
   id: string;
@@ -103,6 +104,7 @@ const statusClass: Record<string, string> = {
 };
 
 export function PaymentsView() {
+  const { t } = useTranslation();
   const { success, error: toastError } = useToast();
   const [payments, setPayments] = useState<ApiPayment[]>([]);
   const [schedules, setSchedules] = useState<ApiSchedule[]>([]);

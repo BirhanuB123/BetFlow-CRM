@@ -11,7 +11,9 @@ import {
 } from '@nestjs/common';
 import { SiteVisitsService } from './site-visits.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
 import type {
   CreateSiteVisitInput,
@@ -19,7 +21,8 @@ import type {
   UpdateSiteVisitStatusInput,
 } from './site-visits.types';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('Owner', 'Admin', 'Sales Manager', 'Agent')
 @Controller('site-visits')
 export class SiteVisitsController {
   constructor(private readonly siteVisits: SiteVisitsService) {}
@@ -77,6 +80,7 @@ export class SiteVisitsController {
   }
 
   @Delete(':id')
+  @Roles('Owner', 'Admin', 'Sales Manager')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     return this.siteVisits.remove(user.id, id);
   }

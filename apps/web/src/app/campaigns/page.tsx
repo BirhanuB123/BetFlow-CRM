@@ -8,6 +8,7 @@ import { SocialOutreachView } from "@/components/views/social-outreach-view";
 import { SmsAutomationView } from "@/components/views/sms-automation-view";
 import { usePermissions } from "@/hooks/use-permissions";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 type CampaignTab = "social" | "sms";
 
@@ -15,6 +16,7 @@ function CampaignsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { hasModulePermission, loaded } = usePermissions();
+  const { t } = useTranslation();
 
   const canAccessCampaigns = useMemo(() => {
     return hasModulePermission("Marketing & Automation");
@@ -35,8 +37,8 @@ function CampaignsPageContent() {
   if (loaded && !canAccessCampaigns) {
     return (
       <DashboardShell
-        title="Campaigns & Marketing Automation"
-        description="Broadcast outreach and automated SMS buyer nurture campaigns"
+        title={t("campaigns.title")}
+        description={t("campaigns.subtitle")}
         active="Campaigns"
       >
         <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-xs">
@@ -44,7 +46,7 @@ function CampaignsPageContent() {
             <ShieldAlert className="size-7" />
           </div>
           <h3 className="mt-4 text-base font-bold text-slate-900">
-            Access Restricted
+            {t("campaigns.accessRestricted")}
           </h3>
           <p className="mt-1 max-w-md text-xs text-slate-500">
             You do not have permission to view or manage marketing campaigns.
@@ -58,8 +60,8 @@ function CampaignsPageContent() {
 
   return (
     <DashboardShell
-      title="Campaigns & Marketing Automation"
-      description="Manage Telegram broadcasts, Meta lead form outreach, Ethio Telecom bulk SMS, and automated buyer drip sequences."
+      title={t("campaigns.title")}
+      description={t("campaigns.subtitle")}
       active="Campaigns"
     >
       <div className="space-y-6">
@@ -77,7 +79,7 @@ function CampaignsPageContent() {
               )}
             >
               <Megaphone className="size-4" />
-              <span>Social & Channel Outreach</span>
+              <span>{t("campaigns.tabSocial")}</span>
             </button>
 
             <button
@@ -91,7 +93,7 @@ function CampaignsPageContent() {
               )}
             >
               <MessageSquare className="size-4" />
-              <span>SMS & Drip Automation</span>
+              <span>{t("campaigns.tabSms")}</span>
             </button>
           </div>
         </div>
@@ -107,12 +109,13 @@ function CampaignsPageContent() {
 }
 
 export default function CampaignsPage() {
+  const { t } = useTranslation();
   return (
     <Suspense
       fallback={
         <DashboardShell
-          title="Campaigns & Marketing Automation"
-          description="Manage Telegram broadcasts, Meta lead form outreach, Ethio Telecom bulk SMS, and automated buyer drip sequences."
+          title={t("campaigns.title")}
+          description={t("campaigns.subtitle")}
           active="Campaigns"
         >
           <div className="flex min-h-[300px] items-center justify-center">

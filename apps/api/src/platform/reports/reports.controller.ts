@@ -2,8 +2,11 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { InMemoryService } from '../../database/in-memory.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { RequirePermission } from '../../common/decorators/roles.decorator';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@RequirePermission('reports.view')
 @Controller('reports')
 export class ReportsController {
   constructor(

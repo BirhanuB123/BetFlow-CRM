@@ -46,6 +46,7 @@ import { apiFetch, updateSessionCurrency } from "@/lib/api";
 import { useBranding } from "@/lib/branding-context";
 import { CURRENCIES } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 type Tenant = {
   id: string;
@@ -78,7 +79,24 @@ type User = {
 const inputClass =
   "h-10 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#233b66] focus:ring-2 focus:ring-[#233b66]/20";
 
+const ALL_PERMISSIONS = [
+  { key: "leads.manage", module: "Sales & Pipeline" },
+  { key: "reports.view", module: "Reports & Analytics" },
+  { key: "payments.approve", module: "Finance & Payments" },
+  { key: "contracts.manage", module: "Transactions & Contracts" },
+  { key: "reservations.manage", module: "Reservations & Holds" },
+  { key: "site-visits.manage", module: "Site Visits" },
+  { key: "tasks.manage", module: "Activities & Tasks" },
+  { key: "meetings.manage", module: "Activities & Meetings" },
+  { key: "documents.manage", module: "Documents & Assets" },
+  { key: "campaigns.manage", module: "Marketing & Campaigns" },
+  { key: "users.manage", module: "System & Users" },
+  { key: "roles.manage", module: "System & Roles" },
+  { key: "inventory.manage", module: "Property Inventory" },
+];
+
 export default function SettingsPage() {
+  const { t } = useTranslation();
   const { updateSystemName } = useBranding();
   const [activeTab, setActiveTab] = useState<
     "profile" | "tenant" | "rbac" | "users"
@@ -215,6 +233,46 @@ export default function SettingsPage() {
     setIsAdmin(hasAdminAccess);
 
     try {
+      const meData = await apiFetch<{
+        user?: {
+          id: string;
+          firstName: string;
+          lastName: string;
+          email: string;
+          avatarUrl?: string | null;
+        };
+        id?: string;
+        firstName?: string;
+        lastName?: string;
+        email?: string;
+        avatarUrl?: string | null;
+      }>("/auth/me").catch(() => null);
+
+      const meUser = meData?.user ?? meData;
+
+      if (meUser && (meUser.firstName || meUser.lastName || meUser.email)) {
+        setProfileForm({
+          firstName: meUser.firstName || "",
+          lastName: meUser.lastName || "",
+          email: meUser.email || "",
+          avatarUrl: meUser.avatarUrl || "",
+        });
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          parsed.user = {
+            ...parsed.user,
+            firstName: meUser.firstName,
+            lastName: meUser.lastName,
+            avatarUrl: meUser.avatarUrl || "",
+          };
+          const store = window.localStorage.getItem("betflow-auth")
+            ? window.localStorage
+            : window.sessionStorage;
+          store.setItem("betflow-auth", JSON.stringify(parsed));
+          window.dispatchEvent(new Event("storage"));
+        }
+      }
+
       if (hasAdminAccess) {
         const [tenantData, rolesData, usersData] = await Promise.all([
           apiFetch<Tenant>("/tenants"),
@@ -246,6 +304,46 @@ export default function SettingsPage() {
     return map;
   }, [users]);
 
+function compressImageFile(file: File, maxDimension = 256): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxDimension) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          }
+        } else {
+          if (height > maxDimension) {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(reader.result as string);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", 0.85));
+      };
+      img.onerror = () => resolve(reader.result as string);
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = (err) => reject(err);
+    reader.readAsDataURL(file);
+  });
+}
+
   const initials = useMemo(() => {
     const first = profileForm.firstName[0] || "";
     const last = profileForm.lastName[0] || "";
@@ -258,20 +356,23 @@ export default function SettingsPage() {
     setError(null);
     setProfileSaved(false);
     try {
+      const avatarPayload = profileForm.avatarUrl.trim();
       const updatedUser = await apiFetch<{
         id: string;
         email: string;
         firstName: string;
         lastName: string;
-        avatarUrl?: string;
+        avatarUrl?: string | null;
       }>("/auth/profile", {
         method: "PATCH",
         body: JSON.stringify({
           firstName: profileForm.firstName.trim(),
           lastName: profileForm.lastName.trim(),
-          avatarUrl: profileForm.avatarUrl.trim() || undefined,
+          avatarUrl: avatarPayload,
         }),
       });
+
+      const newAvatarUrl = updatedUser.avatarUrl || "";
 
       const raw =
         window.localStorage.getItem("betflow-auth") ??
@@ -282,7 +383,7 @@ export default function SettingsPage() {
           ...parsed.user,
           firstName: updatedUser.firstName,
           lastName: updatedUser.lastName,
-          avatarUrl: updatedUser.avatarUrl,
+          avatarUrl: newAvatarUrl,
         };
         const store = window.localStorage.getItem("betflow-auth")
           ? window.localStorage
@@ -290,6 +391,13 @@ export default function SettingsPage() {
         store.setItem("betflow-auth", JSON.stringify(parsed));
         window.dispatchEvent(new Event("storage"));
       }
+
+      setProfileForm((prev) => ({
+        ...prev,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        avatarUrl: newAvatarUrl,
+      }));
 
       setProfileSaved(true);
       setTimeout(() => setProfileSaved(false), 2500);
@@ -447,6 +555,41 @@ export default function SettingsPage() {
     }
   };
 
+  const handleToggleRolePermission = async (roleId: string, permKey: string) => {
+    const targetRole = roles.find((r) => r.id === roleId);
+    if (!targetRole) return;
+
+    const currentKeys = targetRole.permissionKeys || [];
+    const hasPerm = currentKeys.includes(permKey);
+    const newKeys = hasPerm
+      ? currentKeys.filter((k) => k !== permKey)
+      : [...currentKeys, permKey];
+
+    // Optimistic UI update
+    setRoles((prev) =>
+      prev.map((r) =>
+        r.id === roleId ? { ...r, permissionKeys: newKeys } : r,
+      ),
+    );
+
+    try {
+      await apiFetch(`/roles/${roleId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ permissionKeys: newKeys }),
+      });
+    } catch (err) {
+      // Revert on error
+      setRoles((prev) =>
+        prev.map((r) =>
+          r.id === roleId ? { ...r, permissionKeys: currentKeys } : r,
+        ),
+      );
+      setError(
+        err instanceof Error ? err.message : "Failed to update role permission",
+      );
+    }
+  };
+
   const handleDeleteRole = (id: string) => {
     setConfirmModal({
       isOpen: true,
@@ -588,8 +731,8 @@ export default function SettingsPage() {
 
   return (
     <DashboardShell
-      title="System Settings"
-      description="Personal account security and workspace organization controls."
+      title={t("settings.title")}
+      description={t("settings.subtitle")}
       active="Settings"
     >
       {loading ? (
@@ -802,37 +945,42 @@ export default function SettingsPage() {
                                 type="file"
                                 accept="image/*"
                                 className="hidden"
-                                onChange={(e) => {
+                                onChange={async (e) => {
                                   const file = e.target.files?.[0];
                                   if (!file) return;
-                                  if (file.size > 3 * 1024 * 1024) {
-                                    setError("Profile picture size should be less than 3MB");
+                                  if (file.size > 10 * 1024 * 1024) {
+                                    setError("Profile picture file size should be less than 10MB");
                                     return;
                                   }
-                                  const reader = new FileReader();
-                                  reader.onloadend = () => {
-                                    if (typeof reader.result === "string") {
-                                      setProfileForm((prev) => ({
-                                        ...prev,
-                                        avatarUrl: reader.result as string,
-                                      }));
-                                    }
-                                  };
-                                  reader.readAsDataURL(file);
+                                  try {
+                                    const resizedDataUrl = await compressImageFile(file, 256);
+                                    setProfileForm((prev) => ({
+                                      ...prev,
+                                      avatarUrl: resizedDataUrl,
+                                    }));
+                                  } catch (err) {
+                                    setError("Failed to process uploaded image file");
+                                  } finally {
+                                    e.target.value = "";
+                                  }
                                 }}
                               />
                             </label>
                             {profileForm.avatarUrl ? (
                               <button
                                 type="button"
-                                onClick={() =>
-                                  setProfileForm((prev) => ({ ...prev, avatarUrl: "" }))
-                                }
+                                onClick={() => {
+                                  setProfileForm((prev) => ({ ...prev, avatarUrl: "" }));
+                                }}
                                 className="h-8 rounded-lg border border-red-200 bg-red-50 px-3 text-xs font-bold text-red-600 hover:bg-red-100 transition cursor-pointer"
                               >
                                 Revert to Default Avatar
                               </button>
-                            ) : null}
+                            ) : (
+                              <span className="text-[11px] font-medium text-slate-400 italic">
+                                Default initials avatar active
+                              </span>
+                            )}
                           </div>
                           <input
                             type="url"
@@ -1341,6 +1489,64 @@ export default function SettingsPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+
+              {/* PERMISSION MATRIX */}
+              <div className="border-t border-slate-200/80 p-5 bg-slate-50/40">
+                <div className="mb-4">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="size-4 text-[#233b66]" />
+                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800">
+                      Permission Matrix Policy Editor
+                    </h3>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Directly assign permissions to custom and system roles. Checking or unchecking a matrix cell immediately updates role policies and authorization enforcement.
+                  </p>
+                </div>
+
+                <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-xs">
+                  <table className="w-full text-left text-xs whitespace-nowrap">
+                    <thead className="border-b border-slate-200 bg-slate-100/70 text-slate-700 font-bold uppercase tracking-wider text-[10px]">
+                      <tr>
+                        <th className="px-4 py-3">Permission Key</th>
+                        <th className="px-4 py-3">Feature Module</th>
+                        {roles.map((r) => (
+                          <th key={r.id} className="px-4 py-3 text-center">
+                            <span className="inline-flex items-center rounded bg-[#233b66]/10 px-2 py-0.5 font-bold text-[#233b66]">
+                              {r.name}
+                            </span>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {ALL_PERMISSIONS.map((perm) => (
+                        <tr key={perm.key} className="hover:bg-slate-50/80 transition-colors">
+                          <td className="px-4 py-3 font-bold font-mono text-slate-900 text-[11px]">
+                            {perm.key}
+                          </td>
+                          <td className="px-4 py-3 text-slate-500 font-medium text-[11px]">
+                            {perm.module}
+                          </td>
+                          {roles.map((r) => {
+                            const isAssigned = (r.permissionKeys || []).includes(perm.key);
+                            return (
+                              <td key={r.id} className="px-4 py-3 text-center">
+                                <input
+                                  type="checkbox"
+                                  checked={isAssigned}
+                                  onChange={() => handleToggleRolePermission(r.id, perm.key)}
+                                  className="size-4 rounded border-slate-300 text-[#233b66] focus:ring-[#233b66] cursor-pointer"
+                                />
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </section>
           )}

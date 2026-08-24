@@ -11,6 +11,7 @@ import { useToast } from "@/components/ui/toast";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/language-context";
 import type { PaymentPlanCalculation } from "@betflow/shared";
 
 const UNIT_STATUSES = ["AVAILABLE", "RESERVED", "SOLD"] as const;
@@ -102,6 +103,7 @@ interface UnitsViewProps {
 }
 
 export function UnitsView({ projectId }: UnitsViewProps) {
+  const { t } = useTranslation();
   const { success } = useToast();
   const [selectedUnit, setSelectedUnit] = useState<ApiUnit | null>(null);
   const [units, setUnits] = useState<ApiUnit[]>([]);
@@ -241,15 +243,15 @@ export function UnitsView({ projectId }: UnitsViewProps) {
         <div className="flex items-center gap-3 text-xs font-semibold">
           <span className="flex items-center gap-1 text-emerald-700">
             <span className="size-2.5 rounded-full bg-emerald-500" />
-            Available ({counts.AVAILABLE})
+            {t("units.statusAvailable")} ({counts.AVAILABLE})
           </span>
           <span className="flex items-center gap-1 text-amber-800">
             <span className="size-2.5 rounded-full bg-amber-500" />
-            Reserved ({counts.RESERVED})
+            {t("units.statusReserved")} ({counts.RESERVED})
           </span>
           <span className="flex items-center gap-1 text-rose-800">
             <span className="size-2.5 rounded-full bg-rose-500" />
-            Sold ({counts.SOLD})
+            {t("units.statusSold")} ({counts.SOLD})
           </span>
         </div>
       </div>

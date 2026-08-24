@@ -36,6 +36,7 @@ import { Button } from "@/components/ui/button";
 import { apiFetch, apiUpload, API_BASE_URL } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 const PROJECT_STATUSES = [
   "PLANNING",
@@ -132,6 +133,7 @@ const PRESET_RENDERS = [
 ];
 
 export default function ProjectsPage() {
+  const { t } = useTranslation();
   const [projects, setProjects] = useState<ApiProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -376,8 +378,8 @@ export default function ProjectsPage() {
 
   return (
     <DashboardShell
-      title="Real Estate Project Developments"
-      description="Manage residential towers, luxury villas, commercial plazas, 3D renderings, and construction milestone progress across Addis Ababa."
+      title={t("projects.title")}
+      description={t("projects.subtitle")}
       active="Projects"
     >
       <div className="space-y-6">

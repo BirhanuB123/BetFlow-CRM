@@ -589,3 +589,150 @@ model SignatureAudit {
   @@index([contractId])
 }
 
+// --------------------------------------
+// SaaS Tenant & Settings Models
+// --------------------------------------
+
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String?
+  region    String?  @default("US East")
+  plan      String?  @default("Enterprise Tier")
+  status    String   @default("active")
+  currency  String   @default("ETB")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BrandingSetting {
+  id        String   @id @default(uuid())
+  label     String
+  value     String
+  status    String   @default("draft") // live | draft
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TenantDomain {
+  id        String   @id @default(uuid())
+  domain    String
+  status    String   @default("pending_dns") // verified | pending_dns | failed
+  ssl       String   @default("pending") // active | pending
+  target    String   @default("tenant.betflow.app")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FeatureFlag {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  label       String
+  description String
+  enabled     Boolean  @default(true)
+  scope       String   @default("Tenant")
+  rollout     String   @default("100%")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SubscriptionPlan {
+  id           String   @id @default(uuid())
+  name         String
+  price        Decimal? @db.Decimal(18, 2)
+  billingCycle String   @default("monthly")
+  status       String   @default("available")
+  includes     String[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model FeatureLimit {
+  id        String   @id @default(uuid())
+  feature   String
+  used      Int      @default(0)
+  limit     Int      @default(100)
+  unit      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TenantBillingItem {
+  id        String   @id @default(uuid())
+  invoice   String
+  period    String
+  amount    Decimal  @db.Decimal(18, 2)
+  status    String   @default("paid")
+  dueDate   String
+  createdAt DateTime @default(now())
+}
+
+model TrialPeriod {
+  id              String   @id @default(uuid())
+  status          String   @default("Active")
+  startedAt       String
+  endsAt          String
+  daysRemaining   Int      @default(14)
+  conversionOwner String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model BillingAccount {
+  id             String   @id @default(uuid())
+  accountName    String
+  billingEmail   String
+  taxId          String
+  paymentMethod  String
+  collectionMode String   @default("Invoice")
+  nextCharge     String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model DataTransferJob {
+  id                String   @id @default(uuid())
+  type              String   // export | import | excel_import
+  scope             String
+  requestedByUserId String
+  requestedAt       String
+  status            String   @default("ready")
+  createdAt         DateTime @default(now())
+}
+
+model OnboardingStep {
+  id        String   @id @default(uuid())
+  step      String   @unique
+  owner     String
+  status    String   @default("Not started") // Complete | In progress | Blocked | Not started
+  due       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ExcelImportTemplate {
+  id              String   @id @default(uuid())
+  template        String
+  entity          String
+  requiredColumns String[]
+  lastRun         String
+  status          String   @default("Ready")
+  createdAt       DateTime @default(now())
+}
+
+model NotificationMessage {
+  id           String   @id @default(uuid())
+  channel      String   // sms | telegram | email
+  recipient    String
+  subject      String
+  relatedTo    String?
+  scheduledFor String?
+  status       String   @default("queued") // queued | sent | failed | scheduled
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([channel])
+  @@index([status])
+}
+
+

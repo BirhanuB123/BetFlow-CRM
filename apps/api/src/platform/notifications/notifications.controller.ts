@@ -9,27 +9,41 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import {
-  InMemoryService,
-  type FollowUpReminder,
-  type NotificationMessage,
-  type OverduePaymentAlert,
-} from '../../database/in-memory.service';
 import { NotificationsService } from './notifications.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
 
-type CreateNotificationMessageBody = Omit<NotificationMessage, 'id'>;
-type CreateOverduePaymentAlertBody = Omit<OverduePaymentAlert, 'id'>;
-type CreateFollowUpReminderBody = Omit<FollowUpReminder, 'id'>;
+type CreateNotificationMessageBody = {
+  channel: 'sms' | 'telegram' | 'email';
+  recipient: string;
+  subject: string;
+  relatedTo?: string;
+  scheduledFor?: string;
+  status?: 'queued' | 'sent' | 'failed' | 'scheduled';
+};
+
+type CreateOverduePaymentAlertBody = {
+  customerId: string;
+  reservationId: string;
+  amount: number;
+  overdueBy: string;
+  ownerUserId: string;
+  priority?: 'high' | 'medium' | 'low';
+};
+
+type CreateFollowUpReminderBody = {
+  leadId: string;
+  ownerUserId: string;
+  dueAt: string;
+  reason: string;
+  channel: 'sms' | 'telegram' | 'email';
+  priority?: 'high' | 'medium' | 'low';
+};
 
 @Controller('notifications')
 export class NotificationsController {
-  constructor(
-    private readonly store: InMemoryService,
-    private readonly notifications: NotificationsService,
-  ) {}
+  constructor(private readonly notifications: NotificationsService) {}
 
   // 1. Database-backed in-app inbox endpoints
   @UseGuards(JwtAuthGuard)
@@ -54,10 +68,10 @@ export class NotificationsController {
     return this.notifications.delete(user.id, id);
   }
 
-  // 2. Existing communication channel queue (in-memory mock)
+  // 2. Outbound message queue dispatch log (Prisma-backed)
   @Get()
-  list(@Query('channel') channel?: NotificationMessage['channel']) {
-    return this.store.listNotificationMessages(channel);
+  list(@Query('channel') channel?: string) {
+    return this.notifications.listNotificationMessages(channel);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -66,7 +80,7 @@ export class NotificationsController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: CreateNotificationMessageBody,
   ) {
-    const msg = this.store.createNotificationMessage(body);
+    const msg = await this.notifications.createNotificationMessage(body);
 
     // Write dynamic notification for user
     await this.notifications.create({
@@ -81,9 +95,9 @@ export class NotificationsController {
   @Patch(':id/status')
   updateStatus(
     @Param('id') id: string,
-    @Body('status') status: NotificationMessage['status'],
+    @Body('status') status: string,
   ) {
-    return this.store.updateNotificationStatus(id, status);
+    return this.notifications.updateNotificationStatus(id, status);
   }
 
   @Get('overdue-payments')
@@ -93,16 +107,12 @@ export class NotificationsController {
 
   @Post('overdue-payments')
   async createOverduePayment(@Body() body: CreateOverduePaymentAlertBody) {
-    const alert = this.store.createOverduePaymentAlert(body);
-
     // Database notification for the late payment owner
-    await this.notifications.create({
+    return this.notifications.create({
       userId: body.ownerUserId,
       title: 'Late Payment Alert',
       message: `Payment amount ${body.amount} is overdue by ${body.overdueBy}.`,
     });
-
-    return alert;
   }
 
   @Get('follow-ups')
@@ -112,15 +122,11 @@ export class NotificationsController {
 
   @Post('follow-ups')
   async createFollowUp(@Body() body: CreateFollowUpReminderBody) {
-    const reminder = this.store.createFollowUpReminder(body);
-
     // Database notification for the follow up task owner
-    await this.notifications.create({
+    return this.notifications.create({
       userId: body.ownerUserId,
       title: 'Follow-up Reminder',
       message: `Action required for lead: ${body.reason}`,
     });
-
-    return reminder;
   }
 }

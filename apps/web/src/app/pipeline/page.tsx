@@ -9,12 +9,14 @@ import { LeadsView } from "@/components/views/leads-view";
 import { CustomersView } from "@/components/views/customers-view";
 import { DealsView } from "@/components/views/deals-view";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 type TabKey = "leads" | "customers" | "deals";
 
 function PipelineContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const activeTab: TabKey = useMemo(() => {
     const tabParam = searchParams.get("tab")?.toLowerCase();
@@ -48,7 +50,7 @@ function PipelineContent() {
             )}
           >
             <UserRoundCheck className="size-4" />
-            Leads Pipeline
+            {t("pipeline.tabLeads")}
           </button>
 
           <button
@@ -62,7 +64,7 @@ function PipelineContent() {
             )}
           >
             <UsersRound className="size-4" />
-            Customers & Contacts
+            {t("pipeline.tabCustomers")}
           </button>
 
           <button
@@ -76,7 +78,7 @@ function PipelineContent() {
             )}
           >
             <CircleDollarSign className="size-4" />
-            Deals & Opportunities
+            {t("pipeline.tabDeals")}
           </button>
         </div>
       </div>
@@ -90,10 +92,11 @@ function PipelineContent() {
 }
 
 export default function PipelinePage() {
+  const { t } = useTranslation();
   return (
     <DashboardShell
-      title="Pipeline"
-      description="Manage your complete sales pipeline: leads, customers, and deal opportunities."
+      title={t("pipeline.title")}
+      description={t("pipeline.subtitle")}
       active="Pipeline"
     >
       <Suspense fallback={<div className="p-8 text-sm text-slate-500">Loading pipeline...</div>}>

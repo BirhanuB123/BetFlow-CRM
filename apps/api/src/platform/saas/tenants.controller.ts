@@ -2,29 +2,24 @@ import {
   Body,
   Controller,
   Get,
-  NotFoundException,
   Param,
   Patch,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
-import { Roles } from '../../common/decorators/roles.decorator';
-import { InMemoryService } from '../../database/in-memory.service';
+import { RequirePermission } from '../../common/decorators/roles.decorator';
+import { SaasService } from './saas.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('Owner', 'Admin')
+@RequirePermission('roles.manage')
 @Controller('tenants')
 export class TenantsController {
-  constructor(private readonly store: InMemoryService) {}
+  constructor(private readonly saasService: SaasService) {}
 
   @Get()
   getCurrentTenant() {
-    const tenants = this.store.listTenants();
-    if (!tenants.length) {
-      throw new NotFoundException('No tenants found');
-    }
-    return tenants[0];
+    return this.saasService.getCurrentTenant();
   }
 
   @Patch(':id')
@@ -32,6 +27,6 @@ export class TenantsController {
     @Param('id') id: string,
     @Body() body: { name?: string; currency?: string },
   ) {
-    return this.store.updateTenant(id, body);
+    return this.saasService.updateTenant(id, body);
   }
 }

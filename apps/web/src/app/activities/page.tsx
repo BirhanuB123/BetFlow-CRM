@@ -7,7 +7,6 @@ import {
   CalendarDays,
   PhoneCall,
   Building2,
-  Layers,
 } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
@@ -16,12 +15,14 @@ import { MeetingsView } from "@/components/views/meetings-view";
 import { CallsView } from "@/components/views/calls-view";
 import { SiteVisitsView } from "@/components/views/site-visits-view";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 type ActivityTab = "tasks" | "meetings" | "calls" | "site-visits";
 
 function ActivitiesContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const currentTab = (searchParams.get("tab") as ActivityTab) || "tasks";
 
@@ -45,7 +46,7 @@ function ActivitiesContent() {
           )}
         >
           <ClipboardList className="size-4" />
-          <span>Tasks & Action Items</span>
+          <span>{t("activities.tabTasks")}</span>
         </button>
 
         <button
@@ -58,7 +59,7 @@ function ActivitiesContent() {
           )}
         >
           <CalendarDays className="size-4" />
-          <span>Meetings & Consultations</span>
+          <span>{t("activities.tabMeetings")}</span>
         </button>
 
         <button
@@ -71,7 +72,7 @@ function ActivitiesContent() {
           )}
         >
           <PhoneCall className="size-4" />
-          <span>Call Logs & Telephony</span>
+          <span>{t("activities.tabCalls")}</span>
         </button>
 
         <button
@@ -84,7 +85,7 @@ function ActivitiesContent() {
           )}
         >
           <Building2 className="size-4" />
-          <span>Site Visits & Property Tours</span>
+          <span>{t("activities.tabSiteVisits")}</span>
         </button>
       </div>
 
@@ -100,10 +101,11 @@ function ActivitiesContent() {
 }
 
 export default function ActivitiesPage() {
+  const { t } = useTranslation();
   return (
     <DashboardShell
-      title="Activities Log"
-      description="Unified activity stream and interaction timeline across tasks, client meetings, telephony call logs, and site visits."
+      title={t("activities.title")}
+      description={t("activities.subtitle")}
       active="Activities"
     >
       <Suspense fallback={<div className="p-8 text-center text-xs text-slate-500">Loading activities…</div>}>

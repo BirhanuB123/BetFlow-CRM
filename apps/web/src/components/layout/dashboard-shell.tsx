@@ -698,6 +698,15 @@ export function DashboardShell({
 
   const { hasModulePermission } = usePermissions();
 
+  const visiblePrimaryNavItems = useMemo(() => {
+    return primaryNavItems.filter((item) => {
+      if (item.label === "Reports") {
+        return hasModulePermission("Reports");
+      }
+      return true;
+    });
+  }, [hasModulePermission]);
+
   const visibleNavSections = useMemo(() => {
     return navSections.filter((section) => hasModulePermission(section.title));
   }, [hasModulePermission]);
@@ -823,7 +832,7 @@ export function DashboardShell({
         </div>
 
         <nav className="space-y-1 px-2 pb-2">
-          {primaryNavItems.map((item) => (
+          {visiblePrimaryNavItems.map((item) => (
             <SidebarLink
               key={item.href}
               item={item}
@@ -861,64 +870,16 @@ export function DashboardShell({
           </Dropdown>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col border-t border-white/14 px-2 pt-3">
-          <div className="mb-2.5 flex items-center gap-2.5 px-1 text-[17.5px] font-extrabold text-white group-data-[collapsed=true]/side:lg:justify-center group-data-[collapsed=true]/side:lg:px-0">
-            <div className="grid size-5.5 grid-cols-2 gap-0.5 rounded-md bg-[#ff4e96] p-0.5 shadow-2xs">
-              <span className="rounded-xs bg-white" />
-              <span className="rounded-xs bg-white" />
-              <span className="rounded-xs bg-white" />
-              <span className="rounded-xs bg-white" />
-            </div>
-            <span className="group-data-[collapsed=true]/side:lg:hidden tracking-tight">
-              {t("nav.modules")}
-            </span>
-          </div>
-          <label className="mb-3 flex h-9.5 items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 text-[#d0deeb] focus-within:bg-white/15 focus-within:border-[#70a0ff] focus-within:ring-2 focus-within:ring-[#70a0ff]/30 transition-all group-data-[collapsed=true]/side:lg:hidden">
-            <Search className="size-4 shrink-0 text-[#a4bbde]" />
-            <input
-              aria-label="Search modules"
-              value={moduleQuery}
-              onChange={(event) => setModuleQuery(event.target.value)}
-              className="w-full bg-transparent text-xs sm:text-[14px] font-medium text-white outline-none placeholder:text-[#a4bbde]"
-              placeholder={t("actions.searchModules")}
-            />
-            {moduleQuery ? (
-              <button
-                type="button"
-                onClick={() => setModuleQuery("")}
-                className="text-xs text-[#a4bbde] hover:text-white"
-              >
-                ✕
-              </button>
-            ) : null}
-          </label>
+        <div className="flex min-h-0 flex-1 flex-col border-t border-white/14 px-2 pt-2">
           <nav className="flex-1 space-y-1 overflow-y-auto pr-1">
-            {moduleQuery.trim() === "" ? (
-              visibleNavSections.flatMap((section) => section.items).map((item) => (
-                <SidebarLink
-                  key={item.href}
-                  item={item}
-                  active={active}
-                  onNavigate={() => setNavOpen(false)}
-                />
-              ))
-            ) : (
-              <div className="space-y-1">
-                {filteredModules.map((item) => (
-                  <SidebarLink
-                    key={`${item.href}-${item.label}`}
-                    item={item}
-                    active={active}
-                    onNavigate={() => setNavOpen(false)}
-                  />
-                ))}
-                {filteredModules.length === 0 ? (
-                  <p className="px-2.5 py-2 text-sm text-[#93a3c1]">
-                    No modules found
-                  </p>
-                ) : null}
-              </div>
-            )}
+            {visibleNavSections.flatMap((section) => section.items).map((item) => (
+              <SidebarLink
+                key={item.href}
+                item={item}
+                active={active}
+                onNavigate={() => setNavOpen(false)}
+              />
+            ))}
           </nav>
         </div>
 

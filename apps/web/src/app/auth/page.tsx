@@ -7,6 +7,7 @@ import Image from "next/image";
 
 import { clearSession, getSession } from "@/lib/api";
 import { useBranding } from "@/lib/branding-context";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
@@ -62,6 +63,7 @@ const inputClass =
 export default function AuthPage() {
   const router = useRouter();
   const { systemName } = useBranding();
+  const { t } = useTranslation();
   const [mode, setMode] = useState<Mode>("login");
   const [remember, setRemember] = useState(true);
 
@@ -355,7 +357,7 @@ export default function AuthPage() {
                 {systemName}
               </p>
               <p className="text-xs text-slate-400 font-medium">
-                Real Estate Sales & Contract OS
+                {t("auth.systemSubtitle")}
               </p>
             </div>
           </div>
@@ -366,7 +368,7 @@ export default function AuthPage() {
             <div className="rounded-2xl border border-white/20 bg-slate-900/85 p-5 backdrop-blur-md shadow-2xl max-w-md space-y-3">
               <div className="flex items-center justify-between gap-3">
                 <span className="rounded-full bg-indigo-500/20 px-2.5 py-0.5 text-[10px] font-extrabold text-indigo-300 border border-indigo-500/30 uppercase tracking-wider">
-                  Featured Development
+                  {t("auth.featuredDevelopment")}
                 </span>
                 <span className="text-[11px] font-extrabold text-slate-400">
                   📍 {activePhoto.location}
@@ -388,17 +390,17 @@ export default function AuthPage() {
               <div className="pt-2.5 border-t border-slate-800 flex items-center justify-between text-xs">
                 <span className="text-emerald-400 font-extrabold flex items-center gap-1.5">
                   <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
-                  {activePhoto.statText}
+                  {t("auth.statText")}
                 </span>
               </div>
             </div>
 
             <div className="max-w-xl space-y-2">
               <h2 className="text-2xl font-black tracking-tight text-white leading-tight">
-                Purpose-built CRM & Contract OS for Ethiopian Developers
+                {t("auth.heroHeadline")}
               </h2>
               <p className="text-xs text-slate-400 leading-relaxed font-medium">
-                Real-time unit stacking elevation, atomic inventory locks, automated SHA-256 PDF legal contracts, and payment milestone tracking.
+                {t("auth.heroSubheadline")}
               </p>
             </div>
           </div>
@@ -421,7 +423,7 @@ export default function AuthPage() {
                 {systemName}
               </h1>
               <p className="mt-0.5 text-xs font-medium tracking-wide text-zinc-500">
-                Corporate Portal Access
+                {t("auth.portalAccess")}
               </p>
             </div>
 
@@ -441,7 +443,7 @@ export default function AuthPage() {
                 }`}
               >
                 <LogIn className="size-3.5" />
-                Sign In
+                {t("auth.signIn")}
               </button>
               <button
                 type="button"
@@ -457,7 +459,7 @@ export default function AuthPage() {
                 }`}
               >
                 <UserPlus className="size-3.5" />
-                Register
+                {t("auth.register")}
               </button>
             </div>
 
@@ -474,7 +476,7 @@ export default function AuthPage() {
             {mode === "login" ? (
               <form className="mt-5 grid gap-4" onSubmit={handleLogin}>
                 <label className="block">
-                  <span className={labelClass}>Email</span>
+                  <span className={labelClass}>{t("auth.email")}</span>
                   <input
                     className={inputClass}
                     type="email"
@@ -488,7 +490,7 @@ export default function AuthPage() {
                   />
                 </label>
                 <label className="block">
-                  <span className={labelClass}>Password</span>
+                  <span className={labelClass}>{t("auth.password")}</span>
                   <input
                     className={inputClass}
                     type="password"
@@ -510,7 +512,7 @@ export default function AuthPage() {
                       checked={remember}
                       onChange={(e) => setRemember(e.target.checked)}
                     />
-                    Remember me
+                    {t("auth.rememberMe")}
                   </label>
 
                   <button
@@ -523,7 +525,7 @@ export default function AuthPage() {
                     }}
                     className="text-xs font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
                   >
-                    Forgot password?
+                    {t("auth.forgotPasswordLink")}
                   </button>
                 </div>
 
@@ -533,7 +535,7 @@ export default function AuthPage() {
                     disabled={loading}
                     className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:opacity-60 cursor-pointer shadow-sm"
                   >
-                    {loading ? "Signing in…" : "Sign in"}
+                    {loading ? t("auth.signingIn") : t("auth.signInBtn")}
                     {!loading && <ArrowRight className="size-4" />}
                   </button>
                 </div>
@@ -557,7 +559,7 @@ export default function AuthPage() {
               <form className="mt-5 grid gap-3.5" onSubmit={handleRegister}>
                 <div className="grid grid-cols-2 gap-3">
                   <label className="block">
-                    <span className={labelClass}>First Name</span>
+                    <span className={labelClass}>{t("auth.firstName")}</span>
                     <input
                       className={inputClass}
                       type="text"
@@ -573,7 +575,7 @@ export default function AuthPage() {
                     />
                   </label>
                   <label className="block">
-                    <span className={labelClass}>Last Name</span>
+                    <span className={labelClass}>{t("auth.lastName")}</span>
                     <input
                       className={inputClass}
                       type="text"
@@ -591,7 +593,7 @@ export default function AuthPage() {
                 </div>
 
                 <label className="block">
-                  <span className={labelClass}>Email</span>
+                  <span className={labelClass}>{t("auth.email")}</span>
                   <input
                     className={inputClass}
                     type="email"
@@ -606,7 +608,7 @@ export default function AuthPage() {
                 </label>
 
                 <label className="block">
-                  <span className={labelClass}>Password</span>
+                  <span className={labelClass}>{t("auth.password")}</span>
                   <input
                     className={inputClass}
                     type="password"
@@ -624,7 +626,7 @@ export default function AuthPage() {
                 </label>
 
                 <label className="block">
-                  <span className={labelClass}>Admin Invite Code (Optional)</span>
+                  <span className={labelClass}>{t("auth.inviteCode")}</span>
                   <input
                     className={inputClass}
                     type="text"
@@ -648,7 +650,7 @@ export default function AuthPage() {
                     disabled={loading}
                     className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:opacity-60 cursor-pointer shadow-sm"
                   >
-                    {loading ? "Creating account…" : "Create Account"}
+                    {loading ? t("auth.registering") : t("auth.registerBtn")}
                     {!loading && <ArrowRight className="size-4" />}
                   </button>
                 </div>
@@ -664,7 +666,7 @@ export default function AuthPage() {
                     }}
                     className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
                   >
-                    Sign in
+                    {t("auth.signIn")}
                   </button>
                 </p>
               </form>
@@ -672,7 +674,7 @@ export default function AuthPage() {
               <form className="mt-5 grid gap-4" onSubmit={handleForgotPassword}>
                 <div className="rounded-xl bg-indigo-50 border border-indigo-200/80 p-3.5 text-xs text-indigo-950">
                   <p className="font-bold flex items-center gap-1.5 text-indigo-700">
-                    <KeyRound className="size-4" /> Forgot your password?
+                    <KeyRound className="size-4" /> {t("auth.forgotPassword")}
                   </p>
                   <p className="mt-1 text-zinc-600 font-medium">
                     Enter your account email address below to generate a 6-digit password verification code.
@@ -680,7 +682,7 @@ export default function AuthPage() {
                 </div>
 
                 <label className="block">
-                  <span className={labelClass}>Registered Email</span>
+                  <span className={labelClass}>{t("auth.email")}</span>
                   <input
                     className={inputClass}
                     type="email"
@@ -696,7 +698,7 @@ export default function AuthPage() {
                   disabled={loading}
                   className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:opacity-60 cursor-pointer shadow-sm"
                 >
-                  {loading ? "Requesting code…" : "Send Verification Code"}
+                  {loading ? t("auth.signingIn") : t("auth.forgotBtn")}
                   {!loading && <ArrowRight className="size-4" />}
                 </button>
 
@@ -711,7 +713,7 @@ export default function AuthPage() {
                     }}
                     className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
                   >
-                    Back to Sign in
+                    {t("auth.backToSignIn")}
                   </button>
                 </p>
               </form>
@@ -719,7 +721,7 @@ export default function AuthPage() {
               <form className="mt-5 grid gap-4" onSubmit={handleResetPassword}>
                 <div className="rounded-xl bg-amber-50 p-3.5 text-xs text-amber-900 border border-amber-200">
                   <p className="font-semibold flex items-center gap-1.5 text-amber-800">
-                    <Lock className="size-4" /> Reset Password Verification
+                    <Lock className="size-4" /> {t("auth.resetPassword")}
                   </p>
                   <p className="mt-1 text-amber-700">
                     Enter the 6-digit code sent to your email along with your new password.
@@ -727,7 +729,7 @@ export default function AuthPage() {
                 </div>
 
                 <label className="block">
-                  <span className={labelClass}>Account Email</span>
+                  <span className={labelClass}>{t("auth.email")}</span>
                   <input
                     className={inputClass}
                     type="email"
@@ -741,7 +743,7 @@ export default function AuthPage() {
                 </label>
 
                 <label className="block">
-                  <span className={labelClass}>6-Digit Verification Code</span>
+                  <span className={labelClass}>{t("auth.resetToken")}</span>
                   <input
                     className={inputClass}
                     type="text"
@@ -755,7 +757,7 @@ export default function AuthPage() {
                 </label>
 
                 <label className="block">
-                  <span className={labelClass}>New Password</span>
+                  <span className={labelClass}>{t("auth.newPassword")}</span>
                   <input
                     className={inputClass}
                     type="password"
@@ -766,9 +768,6 @@ export default function AuthPage() {
                     }
                     required
                   />
-                  <span className="mt-1 block text-[10px] text-zinc-400">
-                    Must be at least 8 characters with uppercase, lowercase, and a number or symbol.
-                  </span>
                 </label>
 
                 <button
@@ -776,7 +775,7 @@ export default function AuthPage() {
                   disabled={loading}
                   className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:opacity-60 cursor-pointer shadow-sm"
                 >
-                  {loading ? "Resetting password…" : "Reset Password & Sign In"}
+                  {loading ? t("auth.signingIn") : t("auth.resetBtn")}
                   {!loading && <ArrowRight className="size-4" />}
                 </button>
 
@@ -791,7 +790,7 @@ export default function AuthPage() {
                     }}
                     className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
                   >
-                    Back to Sign in
+                    {t("auth.backToSignIn")}
                   </button>
                 </p>
               </form>

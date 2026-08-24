@@ -48,6 +48,49 @@ export class NotificationsService {
     return { id, deleted: true };
   }
 
+  // --- OUTBOUND MESSAGE QUEUE DISPATCH LOG ---
+
+  async listNotificationMessages(channel?: string) {
+    return this.prisma.notificationMessage.findMany({
+      where: channel ? { channel } : {},
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async createNotificationMessage(data: {
+    channel: string;
+    recipient: string;
+    subject: string;
+    relatedTo?: string;
+    scheduledFor?: string;
+    status?: string;
+  }) {
+    return this.prisma.notificationMessage.create({
+      data: {
+        channel: data.channel,
+        recipient: data.recipient,
+        subject: data.subject,
+        relatedTo: data.relatedTo,
+        scheduledFor: data.scheduledFor,
+        status: data.status || 'queued',
+      },
+    });
+  }
+
+  async updateNotificationStatus(id: string, status: string) {
+    const existing = await this.prisma.notificationMessage.findUnique({
+      where: { id },
+    });
+    if (!existing) {
+      throw new NotFoundException(`Notification ${id} was not found`);
+    }
+
+    return this.prisma.notificationMessage.update({
+      where: { id },
+      data: { status },
+    });
+  }
+
   async listOverduePayments() {
     const now = new Date();
     const schedules = await this.prisma.paymentSchedule.findMany({

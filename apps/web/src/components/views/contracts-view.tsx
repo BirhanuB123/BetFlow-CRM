@@ -32,6 +32,7 @@ import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useTranslation } from "@/lib/i18n/language-context";
 import type { ApiContract, CustomerOption } from "@betflow/shared";
 
 type UnitOption = {
@@ -71,6 +72,7 @@ function fmtDate(iso: string | null) {
 }
 
 export function ContractsView() {
+  const { t } = useTranslation();
   const { success, error: toastError } = useToast();
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 200);

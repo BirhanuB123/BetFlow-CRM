@@ -10,7 +10,9 @@ import {
 } from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
 import type {
   CreateReservationInput,
@@ -18,7 +20,8 @@ import type {
   UpdateReservationStatusInput,
 } from './reservations.types';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('Owner', 'Finance', 'Sales Manager', 'Agent', 'Admin')
 @Controller('reservations')
 export class ReservationsController {
   constructor(private readonly reservations: ReservationsService) {}
@@ -34,12 +37,14 @@ export class ReservationsController {
   }
 
   @Post('process-expirations')
+  @Roles('Owner', 'Finance', 'Sales Manager')
   async processExpirations(@CurrentUser() user: AuthenticatedUser) {
     const count = await this.reservations.processExpiredReservations();
     return { success: true, expiredReservationsCount: count };
   }
 
   @Post()
+  @Roles('Owner', 'Finance', 'Sales Manager', 'Agent')
   create(
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: CreateReservationInput,
@@ -48,6 +53,7 @@ export class ReservationsController {
   }
 
   @Patch(':id/status')
+  @Roles('Owner', 'Finance', 'Sales Manager', 'Agent')
   updateStatus(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
@@ -57,6 +63,7 @@ export class ReservationsController {
   }
 
   @Patch(':id')
+  @Roles('Owner', 'Finance', 'Sales Manager', 'Agent')
   update(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
@@ -66,6 +73,7 @@ export class ReservationsController {
   }
 
   @Delete(':id')
+  @Roles('Owner', 'Finance', 'Sales Manager')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     return this.reservations.remove(user.id, id);
   }

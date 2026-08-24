@@ -53,6 +53,7 @@ function extractUserRolesAndPermissions(userRoles: UserRoleResult[]) {
   return {
     roles,
     permissions: Array.from(permissionsMap.values()),
+    permissionNames: Array.from(permissionsMap.keys()),
   };
 }
 
@@ -292,7 +293,7 @@ export class AuthService {
       },
     });
 
-    const { roles, permissions } = extractUserRolesAndPermissions(user.roles);
+    const { roles, permissions, permissionNames } = extractUserRolesAndPermissions(user.roles);
     const expiresIn = 900; // 15 minutes
     const refreshExpiresIn = 604800; // 7 days
 
@@ -301,6 +302,7 @@ export class AuthService {
         sub: user.id,
         email: user.email,
         roles,
+        permissions: permissionNames,
         type: 'access',
       },
       expiresIn,
@@ -357,7 +359,7 @@ export class AuthService {
       );
     }
 
-    const { roles, permissions } = extractUserRolesAndPermissions(user.roles);
+    const { roles, permissions, permissionNames } = extractUserRolesAndPermissions(user.roles);
     const expiresIn = 900; // 15 minutes
     const refreshExpiresIn = 604800; // 7 days
 
@@ -366,6 +368,7 @@ export class AuthService {
         sub: user.id,
         email: user.email,
         roles,
+        permissions: permissionNames,
         type: 'access',
       },
       expiresIn,
@@ -442,7 +445,11 @@ export class AuthService {
     }
 
     const avatarUrl =
-      body?.avatarUrl !== undefined ? body.avatarUrl : user.avatarUrl;
+      body?.avatarUrl !== undefined
+        ? body.avatarUrl && body.avatarUrl.trim() !== ""
+          ? body.avatarUrl.trim()
+          : null
+        : user.avatarUrl;
 
     const updated = await this.prisma.user.update({
       where: { id: userId },

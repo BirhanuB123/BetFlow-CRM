@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  NotFoundException,
   Param,
   Patch,
   Post,
@@ -11,18 +10,20 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
-import { Roles } from '../../common/decorators/roles.decorator';
-import { InMemoryService } from '../../database/in-memory.service';
+import { RequirePermission } from '../../common/decorators/roles.decorator';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import type { AuthenticatedUser } from '../../core/auth/auth.types';
+import { SaasService } from './saas.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('Owner', 'Admin')
+@RequirePermission('roles.manage')
 @Controller('saas')
 export class SaasController {
-  constructor(private readonly store: InMemoryService) {}
+  constructor(private readonly saasService: SaasService) {}
 
   @Get('branding')
   listBranding() {
-    return this.store.listBrandingSettings();
+    return this.saasService.listBrandingSettings();
   }
 
   @Patch('branding/:id')
@@ -30,32 +31,32 @@ export class SaasController {
     @Param('id') id: string,
     @Body() body: { value: string; status?: 'live' | 'draft' },
   ) {
-    return this.store.updateBrandingSetting(id, body.value, body.status);
+    return this.saasService.updateBrandingSetting(id, body.value, body.status);
   }
 
   @Post('branding/publish')
   publishBranding() {
-    return this.store.publishBrandingSettings();
+    return this.saasService.publishBrandingSettings();
   }
 
   @Get('domains')
   listDomains() {
-    return this.store.listTenantDomains();
+    return this.saasService.listTenantDomains();
   }
 
   @Post('domains')
   createDomain(@Body() body: { domain: string }) {
-    return this.store.createTenantDomain({ domain: body.domain });
+    return this.saasService.createTenantDomain({ domain: body.domain });
   }
 
   @Delete('domains/:id')
   deleteDomain(@Param('id') id: string) {
-    return this.store.deleteTenantDomain(id);
+    return this.saasService.deleteTenantDomain(id);
   }
 
   @Get('feature-flags')
   listFeatureFlags() {
-    return this.store.listFeatureFlags();
+    return this.saasService.listFeatureFlags();
   }
 
   @Patch('feature-flags/:key')
@@ -63,49 +64,44 @@ export class SaasController {
     @Param('key') key: string,
     @Body() body: { enabled: boolean },
   ) {
-    return this.store.toggleFeatureFlag(key, body.enabled);
+    return this.saasService.toggleFeatureFlag(key, body.enabled);
   }
 
   @Get('subscription')
   getSubscription() {
-    return {
-      plans: this.store.listSubscriptionPlans(),
-      limits: this.store.listFeatureLimits(),
-      billingItems: this.store.listTenantBillingItems(),
-      trialPeriod: this.store.getTrialPeriod(),
-      billingAccount: this.store.getBillingAccount(),
-    };
+    return this.saasService.getSubscription();
   }
 
   @Patch('subscription/billing-account')
   updateBillingAccount(@Body() body: any) {
-    return this.store.updateBillingAccount(body);
+    return this.saasService.updateBillingAccount(body);
   }
 
   @Get('data-transfer-jobs')
   listDataTransferJobs() {
-    return this.store.listDataTransferJobs();
+    return this.saasService.listDataTransferJobs();
   }
 
   @Post('data-transfer-jobs')
   createDataTransferJob(
+    @CurrentUser() user: AuthenticatedUser,
     @Body() body: { type: 'export' | 'import' | 'excel_import'; scope: string },
   ) {
-    return this.store.createDataTransferJob({
+    return this.saasService.createDataTransferJob({
       type: body.type,
       scope: body.scope,
-      requestedByUserId: 'user_001', // Mock log-in user ID
+      requestedByUserId: user?.id || 'user_admin_001',
     });
   }
 
   @Get('excel-import-templates')
   listExcelImportTemplates() {
-    return this.store.listExcelImportTemplates();
+    return this.saasService.listExcelImportTemplates();
   }
 
   @Get('onboarding-steps')
   listOnboardingSteps() {
-    return this.store.listOnboardingSteps();
+    return this.saasService.listOnboardingSteps();
   }
 
   @Patch('onboarding-steps/:stepName')
@@ -114,6 +110,6 @@ export class SaasController {
     @Body()
     body: { status: 'Complete' | 'In progress' | 'Blocked' | 'Not started' },
   ) {
-    return this.store.updateOnboardingStep(stepName, body.status);
+    return this.saasService.updateOnboardingStep(stepName, body.status);
   }
 }

@@ -18,6 +18,7 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 type ReportCatalogEntry = {
   id: string;
@@ -44,6 +45,7 @@ function formatDate(value: string | null) {
 }
 
 export default function ReportsCatalogPage() {
+  const { t } = useTranslation();
   const [reports, setReports] = useState<ReportCatalogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -157,8 +159,8 @@ export default function ReportsCatalogPage() {
 
   return (
     <DashboardShell
-      title="Reports & Analytics Catalog"
-      description="Browse, filter, and open live operational analytics reports for your workspace."
+      title={t("reports.title")}
+      description={t("reports.subtitle")}
       active="Reports"
     >
       {/* Toolbar */}

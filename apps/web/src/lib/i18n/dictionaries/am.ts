@@ -59,6 +59,7 @@ export const am: Dictionary = {
     downloadPdf: "ፒዲኤፍ አውርድ",
     print: "አትም (Print)",
     status: "ሁኔታ",
+    reset: "እንደገና አስጀምር", // TODO: review-am
   },
   hero: {
     badge: "የኢንተርፕራይዝ የሪል እስቴት ሽያጭ እና ህንፃ ማኔጅመንት ሲስተም",
@@ -81,7 +82,8 @@ export const am: Dictionary = {
     greetingAfternoon: "እንደምን ዋሉ",
     greetingEvening: "እንደምን አመሹ",
     subtitle: "ዛሬ በሪል እስቴት ሽያጭዎ ላይ የተመዘገቡ አዳዲስ መረጃዎች።",
-    commandCenter: "የማዕከል መቆጣጠሪያ",
+    commandCenter: "የሽያጭ ማዕከል መቆጣጠሪያ", // TODO: review-am
+    overviewForRole: "አጠቃላይ መረጃ ለ", // TODO: review-am
     livePipelineActive: "ቀጥታ የሽያጭ ሂደት ክፍት ነው",
     home: "ዋና ገጽ",
     totalLeads: "ጠቅላላ የገዢዎች መዝገብ",
@@ -93,6 +95,144 @@ export const am: Dictionary = {
     recentActivity: "ያለፉ የቅርብ እንቅስቃሴዎች",
     topPerformers: "ከፍተኛ ሽያጭ ያደረጉ ኪራዮች/ወኪሎች",
     salesForecast: "የወደፊት የሽያጭ ግምት",
+    openTasks: "ያልተጠናቀቁ ተግባራት", // TODO: review-am
+    scheduledMeetings: "የተቀጠሩ ስብሰባዎች እና የቦታ ጉብኝቶች", // TODO: review-am
+    todaysLeads: "የዛሬ ገዢዎች/ሊዶች", // TODO: review-am
+    topDeals: "ከፍተኛ የሽያጭ ስምምነቶች", // TODO: review-am
+    activityLog: "የሲስተም እንቅስቃሴ መዝገብ", // TODO: review-am
+    viewAll: "ሁሉንም ይመልከቱ", // TODO: review-am
+    taskTitle: "የተግባር ርዕስ", // TODO: review-am
+    dueDate: "መጠናቀቂያ ቀን", // TODO: review-am
+    status: "ሁኔታ", // TODO: review-am
+    assignee: "ኃላፊ", // TODO: review-am
+    meetingVisit: "ስብሰባ / ጉብኝት", // TODO: review-am
+    date: "ቀን", // TODO: review-am
+    client: "ደንበኛ", // TODO: review-am
+    leadName: "የገዢ ስም", // TODO: review-am
+    company: "ድርጅት", // TODO: review-am
+    source: "ምንጭ", // TODO: review-am
+    dealName: "የስምምነት ስም", // TODO: review-am
+    value: "ዋጋ", // TODO: review-am
+    stage: "ደረጃ", // TODO: review-am
+    customer: "ደንበኛ", // TODO: review-am
+    noTasks: "ምንም ያልተጠናቀቁ ተግባራት አልተገኙም።", // TODO: review-am
+    noVisits: "ምንም የተቀጠሩ የቦታ ጉብኝቶች የሉም።", // TODO: review-am
+    noLeads: "ዛሬ ምንም አዲስ ገዢ አልተመዘገበም።", // TODO: review-am
+    noDeals: "ምንም ክፍት የሽያጭ ስምምነቶች አልተገኙም።", // TODO: review-am
+    unassigned: "ያልተመደበ", // TODO: review-am
+  },
+  // TODO: review-am
+  auth: {
+    signIn: "ግበይ / ግባ", // TODO: review-am
+    register: "ተመዝገብ", // TODO: review-am
+    forgotPassword: "የይለፍ ቃል ረስተዋል?", // TODO: review-am
+    resetPassword: "የይለፍ ቃል ቀይር", // TODO: review-am
+    email: "ኢሜይል", // TODO: review-am
+    password: "የይለፍ ቃል", // TODO: review-am
+    firstName: "ስም", // TODO: review-am
+    lastName: "የአባት ስም", // TODO: review-am
+    inviteCode: "የግብዣ ኮድ (ከተፈለገ)", // TODO: review-am
+    resetToken: "የማስተካከያ ኮድ", // TODO: review-am
+    newPassword: "አዲስ የይለፍ ቃል", // TODO: review-am
+    rememberMe: "አስታውሰኝ", // TODO: review-am
+    signInBtn: "ወደ ሲስተሙ ግባ", // TODO: review-am
+    registerBtn: "የድርጅት መለያ ፍጠር", // TODO: review-am
+    forgotBtn: "የማስተካከያ መመሪያ ላክ", // TODO: review-am
+    resetBtn: "የይለፍ ቃል ቀይር", // TODO: review-am
+    backToSignIn: "ወደ መግቢያ ገጽ ተመለስ", // TODO: review-am
+    forgotPasswordLink: "የይለፍ ቃል ረስተዋል?", // TODO: review-am
+    featuredDevelopment: "ዋና የህንፃ ፕሮጀክት", // TODO: review-am
+    systemSubtitle: "የሪል እስቴት ሽያጭ እና የውል ሲስተም", // TODO: review-am
+    heroHeadline: "ለኢትዮጵያ ሪል እስቴት አልሚዎች የተዘጋጀ የተቀናጀ CRM እና የውል ሲስተም", // TODO: review-am
+    heroSubheadline: "የህንፃ ክፍሎች ወለል ማትሪክስ፣ የቀጥታ መያዣዎች፣ በSHA-256 የተጠበቁ ህጋዊ ፒዲኤፍ ውሎች እና የክፍያ ደረጃዎች ክትትል ።", // TODO: review-am
+    statText: "በሽያጭ ላይ ያለ · ክፍሎች ተቆልፈዋል", // TODO: review-am
+    portalAccess: "የድርጅቱ ፖርታል መግቢያ", // TODO: review-am
+    signingIn: "በመግባት ላይ...", // TODO: review-am
+    signedInRedirecting: "ገብተዋል። በማዞር ላይ...", // TODO: review-am
+    registering: "መለያ በመፍጠር ላይ...", // TODO: review-am
+    accountActivated: "መለያው ተ ενεργታቷል! ወደ ዳሽቦርድ በማዞር ላይ...", // TODO: review-am
+    pendingApproval: "ምዝገባው ተሳክቷል! ከመግባትዎ በፊት በአስተዳዳሪው መጽደቅ አለበት።", // TODO: review-am
+    registeredSignIn: "መለያው ተመዝግቧል! እባክዎ ይግቡ።", // TODO: review-am
+    resetInstructionsSent: "መመሪያ ተልኳል! እባክዎን ኢሜይልዎን ይመልከቱ።", // TODO: review-am
+    resetSuccess: "የይለፍ ቃል በተሳካ ሁኔታ ተቀይሯል! አሁን ባዲሱ የይለፍ ቃል መግባት ይችላሉ።", // TODO: review-am
+  },
+  // TODO: review-am
+  pipeline: {
+    title: "የሽያጭ ሂደት (Pipeline)",
+    subtitle: "የገዢዎችን፣ የደንበኞችን እና የሽያጭ ስምምነቶችን ሂደት ይከታተሉ።", // TODO: review-am
+    tabLeads: "የሊዶች መዝገብ", // TODO: review-am
+    tabCustomers: "ደንበኞች እና ግንኙነቶች", // TODO: review-am
+    tabDeals: "የሽያጭ ስምምነቶች", // TODO: review-am
+  },
+  // TODO: review-am
+  transactions: {
+    title: "ክፍያዎች እና ፋይናንስ",
+    subtitle: "የክፍሎች መያዣዎችን፣ ህጋዊ ውሎችን እና የባንክ ክፍያ ደረጃዎችን ይከታተሉ።", // TODO: review-am
+    tabReservations: "የክፍሎች መያዣዎች", // TODO: review-am
+    tabContracts: "የሽያጭ ውሎች", // TODO: review-am
+    tabPayments: "የክፍያ መርሃ ግብሮች እና ደረሰኞች", // TODO: review-am
+  },
+  // TODO: review-am
+  projects: {
+    title: "የህንፃ ፕሮጀክቶች እና ልማቶች",
+    subtitle: "የህንፃ ወለሎችን፣ የኮንስትራክሽን ደረጃዎችን እና የክፍሎችን ስርጭት ይከታተሉ።", // TODO: review-am
+    newProject: "አዲስ ፕሮጀክት", // TODO: review-am
+    searchProjects: "ፕሮጀክቶችን ይፈልጉ...", // TODO: review-am
+    allCategories: "ሁሉም ምድቦች", // TODO: review-am
+    buildings: "ህንፃዎች", // TODO: review-am
+    units: "ክፍሎች", // TODO: review-am
+    progress: "የግንባታ ሂደት", // TODO: review-am
+    statusPlanning: "በእቅድ ላይ", // TODO: review-am
+    statusActive: "በግንባታ ላይ", // TODO: review-am
+    statusSelling: "በሽያጭ ላይ", // TODO: review-am
+    statusCompleted: "የተጠናቀቀ", // TODO: review-am
+    statusOnHold: "በጊዜያዊ እገዳ ላይ", // TODO: review-am
+  },
+  // TODO: review-am
+  reports: {
+    title: "የሪፖርቶች እና አናሊቲክስ ማውጫ",
+    subtitle: "የሽያጭ ሪፖርቶችን፣ የክፍሎች ይዞታዎችን እና የፋይናንስ ግምቶችን ይመልከቱ።", // TODO: review-am
+    searchReports: "ሪፖርቶችን ይፈልጉ...", // TODO: review-am
+    allReports: "ሁሉም ሪፖርቶች", // TODO: review-am
+    favorites: "የተመረጡ", // TODO: review-am
+    exportCsv: "CSV መረጃ ላክ", // TODO: review-am
+    printCatalog: "ማውጫውን አትም", // TODO: review-am
+  },
+  // TODO: review-am
+  settings: {
+    title: "የሲስተም ማስተካከያዎች",
+    subtitle: "የግል መለያ ደህንነት እና የድርጅት መቆጣጠሪያዎች።", // TODO: review-am
+    profile: "የግል መረጃ", // TODO: review-am
+    workspace: "የድርጅት ማስተካከያ", // TODO: review-am
+    roles: "ሚናዎች እና ፈቃዶች", // TODO: review-am
+    users: "የቡድን አባላት", // TODO: review-am
+  },
+  // TODO: review-am
+  activities: {
+    title: "የእንቅስቃሴዎች መዝገብ",
+    subtitle: "የተግባራት፣ የስብሰባዎች፣ የስልክ ጥሪዎች እና የቦታ ጉብኝቶች የተቀናጀ መዝገብ።", // TODO: review-am
+    tabTasks: "ተግባራት እና ስራዎች", // TODO: review-am
+    tabMeetings: "ስብሰባዎች እና ምክክሮች", // TODO: review-am
+    tabCalls: "የስልክ ጥሪዎች መዝገብ", // TODO: review-am
+    tabSiteVisits: "የቦታ ጉብኝቶች", // TODO: review-am
+  },
+  // TODO: review-am
+  campaigns: {
+    title: "ካምፔኖች እና ማርኬቲንግ አውቶሜሽን",
+    subtitle: "የቴሌግራም መልእክቶች፣ የፌስቡክ/ኢንስታግራም ገዢዎች እና የኤስኤምኤስ አውቶሜሽኖችን ይቆጣጠሩ።", // TODO: review-am
+    tabSocial: "ማህበራዊ ሚዲያ እና ካምፔኖች", // TODO: review-am
+    tabSms: "ኤስኤምኤስ እና አውቶሜሽን", // TODO: review-am
+    accessRestricted: "መዳረሻ ተከልክሏል", // TODO: review-am
+  },
+  // TODO: review-am
+  documents: {
+    title: "የሰነዶች መዝገብ እና KYC ማረጋገጫ",
+    subtitle: "የገዢዎች መታወቂያ፣ የባለቤትነት ካርታ፣ የቲን ሰነዶች እና ህጋዊ ማስረጃዎች መዝገብ።", // TODO: review-am
+  },
+  // TODO: review-am
+  portal: {
+    title: "የገዢዎች ፖርታል",
+    subtitle: "የተያዙ ክፍሎችን፣ የክፍያ ደረጃዎችን፣ የተፈረሙ ውሎችን ይመልከቱ እና የባንክ ገቢ ደረሰኞችን ይስቀሉ።", // TODO: review-am
   },
   leads: {
     title: "የገዢዎች መዝገብ እና የሽያጭ ሂደት",
@@ -114,6 +254,10 @@ export const am: Dictionary = {
     statusWon: "የተሳካ (ተገዝቷል)",
     statusLost: "ያልተሳካ",
     convertToCustomer: "ወደ ደበኝነት ለውጥ",
+    allLeads: "ሁሉም ሊዶች", // TODO: review-am
+    diasporaLeads: "የዲያስፖራ ሊዶች", // TODO: review-am
+    localLeads: "የሀገር ውስጥ ሊዶች", // TODO: review-am
+    searchLeads: "ሊዶችን ይፈልጉ...", // TODO: review-am
   },
   units: {
     title: "የህንፃ ክፍሎች ማትሪክስ እና ወለል እይታ",
@@ -130,10 +274,11 @@ export const am: Dictionary = {
     statusReserved: "በቅድመ ይዞታ ላይ",
     holdUnit: "ጊዜያዊ መያዣ አድርግ",
     reserveUnit: "በቅድመ ይዞታ ያዝ",
+    searchUnits: "ክፍሎችን ይፈልጉ...", // TODO: review-am
   },
   contracts: {
     title: "የሽያጭ ውሎች እና ዲጂታል ፊርማ",
-    subtitle: "የህንፃ ሽያጭ ውሎችን ያዘጋጁ፣ የጸደቁበትን ደረጃ ይከታተሉ እና ዲጂታል ፊርማ ይውሰዱ።",
+    subtitle: "የህንፃ ሽያጭ ውሎችን ያዘጋጁ፣ የፀደቁበትን ደረጃ ይከታተሉ እና ዲጂታል ፊርማ ይውሰዱ።",
     newContract: "አዲስ የሽያጭ ውል",
     contractNumber: "የውል ቁጥር",
     buyerName: "የገዢው ስም",
@@ -146,6 +291,7 @@ export const am: Dictionary = {
     statusCompleted: "የተጠናቀቀ",
     signContract: "ውሉን በዲጂታል ፈርም",
     downloadAgreement: "የፒዲኤፍ ውል አውርድ",
+    searchContracts: "ውሎችን ይፈልጉ...", // TODO: review-am
   },
   deals: {
     title: "የሽያጭ ካንባን ሂደት",
@@ -158,6 +304,8 @@ export const am: Dictionary = {
     stageClosedLost: "ያልተሳካ ሽያጭ",
     dealValue: "የስምምነቱ ዋጋ",
     probability: "የመሸጥ እድል (%)",
+    newDeal: "አዲስ የሽያጭ ስምምነት", // TODO: review-am
+    searchDeals: "ስምምነቶችን ይፈልጉ...", // TODO: review-am
   },
   payments: {
     title: "የባንክ ክፍያ መርሃ ግብሮች እና ደረጃዎች",
@@ -172,6 +320,8 @@ export const am: Dictionary = {
     statusPartial: "በከፊል የተከፈለ",
     statusPending: "ያልተከፈለ",
     statusOverdue: "ቀኑ ያለፈበት",
+    newPayment: "ክፍያ መዝግብ", // TODO: review-am
+    searchPayments: "ክፍያዎችን ይፈልጉ...", // TODO: review-am
   },
   language: {
     selectLanguage: "ቋንቋ",

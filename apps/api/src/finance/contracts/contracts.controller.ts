@@ -14,7 +14,9 @@ import { Throttle } from '@nestjs/throttler';
 import type { Response, Request } from 'express';
 import { ContractsService } from './contracts.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
 import { ContractBuilderService } from './contract-builder.service';
 import type {
@@ -26,7 +28,8 @@ import type {
   UpdateContractInput,
 } from './contracts.types';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('Owner', 'Finance', 'Sales Manager', 'Agent', 'Admin')
 @Controller('contracts')
 export class ContractsController {
   constructor(
@@ -36,6 +39,7 @@ export class ContractsController {
 
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('generate')
+  @Roles('Owner', 'Finance', 'Sales Manager')
   generate(
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: GenerateContractInput,
@@ -49,6 +53,7 @@ export class ContractsController {
   }
 
   @Post('approvals/:id/review')
+  @Roles('Owner', 'Finance', 'Admin')
   reviewApproval(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
@@ -75,6 +80,7 @@ export class ContractsController {
 
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post(':id/signatures')
+  @Roles('Owner', 'Finance', 'Sales Manager')
   sign(
     @Param('id') id: string,
     @Body() body: ContractSignatureInput,
@@ -104,6 +110,7 @@ export class ContractsController {
   }
 
   @Post()
+  @Roles('Owner', 'Finance', 'Sales Manager')
   create(
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: CreateContractInput,
@@ -112,6 +119,7 @@ export class ContractsController {
   }
 
   @Patch(':id')
+  @Roles('Owner', 'Finance', 'Sales Manager')
   update(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
@@ -121,6 +129,7 @@ export class ContractsController {
   }
 
   @Delete(':id')
+  @Roles('Owner', 'Finance')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     return this.contracts.remove(user.id, id);
   }

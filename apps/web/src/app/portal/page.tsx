@@ -21,6 +21,7 @@ import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
 import { apiFetch } from "@/lib/api";
+import { useTranslation } from "@/lib/i18n/language-context";
 import type {
   BankSlipSubmissionResult,
   BankSlipUploadInput,
@@ -129,6 +130,7 @@ type InvoiceItem = {
 };
 
 export default function CustomerPortalPage() {
+  const { t } = useTranslation();
   const [meData, setMeData] = useState<PortalMeData | null>(null);
   const [schedulesData, setSchedulesData] =
     useState<PaymentSchedulesData | null>(null);
@@ -274,8 +276,8 @@ export default function CustomerPortalPage() {
 
   return (
     <DashboardShell
-      title="Customer Portal"
-      description="Self-service portal for buyers to track active deals, reserved units, contracts, and payment schedules."
+      title={t("portal.title")}
+      description={t("portal.subtitle")}
       active="Customer portal"
     >
       {/* Header Profile / Welcome Banner */}

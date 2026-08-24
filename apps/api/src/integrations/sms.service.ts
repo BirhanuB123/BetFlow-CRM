@@ -380,38 +380,61 @@ export class EthioTelecomSmsService {
   }
 
   /**
-   * Get real CRM system database contacts (Leads + Customers)
+   * Get real CRM system database contacts (Leads + Customers) from Prisma
    */
   async getSmsContacts(): Promise<SmsContact[]> {
-    const leads = this.inMemory.listLeads();
-    const customers = this.inMemory.listCustomers();
+    const leads = await this.prisma.lead.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+    const customers = await this.prisma.customer.findMany({
+      include: {
+        account: { select: { name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
 
     const leadContacts: SmsContact[] = leads.map((l) => {
       let segment: SmsContact['segment'] = 'COLD_LEADS';
-      if (l.stage === 'tour_scheduled') segment = 'SITE_VISITORS';
-      else if (l.stage === 'proposal' || l.stage === 'qualified')
+      const statusLower = (l.status || '').toLowerCase();
+      if (statusLower.includes('tour') || statusLower.includes('visit')) {
+        segment = 'SITE_VISITORS';
+      } else if (
+        statusLower.includes('proposal') ||
+        statusLower.includes('qualified') ||
+        statusLower.includes('warm')
+      ) {
         segment = 'WARM_LEADS';
+      }
+
+      const fullName =
+        [l.firstName, l.lastName].filter(Boolean).join(' ') || 'Unnamed Lead';
 
       return {
         id: l.id,
-        name: l.name,
+        name: fullName,
         phone: this.formatEthioPhone(l.phone || '0911550182'),
-        email: l.email,
+        email: l.email || '',
         type: 'LEAD',
         segment,
-        details: `${l.company} (${l.stage.replace('_', ' ')}) · Budget: ETB ${(l.budget || 1500000).toLocaleString()}`,
+        details: `${l.company || 'Individual'} (${(l.status || 'NEW').replace('_', ' ')})`,
       };
     });
 
-    const customerContacts: SmsContact[] = customers.map((c) => ({
-      id: c.id,
-      name: c.name,
-      phone: this.formatEthioPhone(c.phone || '0922550118'),
-      email: c.email,
-      type: 'CUSTOMER',
-      segment: 'RESERVATION_CLIENTS',
-      details: `${c.type.toUpperCase()} (${c.status})`,
-    }));
+    const customerContacts: SmsContact[] = customers.map((c) => {
+      const fullName =
+        [c.firstName, c.lastName].filter(Boolean).join(' ') ||
+        'Unnamed Customer';
+
+      return {
+        id: c.id,
+        name: fullName,
+        phone: this.formatEthioPhone(c.phone || '0922550118'),
+        email: c.email || '',
+        type: 'CUSTOMER',
+        segment: 'RESERVATION_CLIENTS',
+        details: `${c.account?.name || 'Individual Customer'} (ACTIVE)`,
+      };
+    });
 
     return [...leadContacts, ...customerContacts];
   }
@@ -556,7 +579,7 @@ export class EthioTelecomSmsService {
   /**
    * Send an SMS alert via AfroMessage or Ethio Telecom API Gateway with Dual-Gateway Failover
    */
-  async sendSms(dto: SmsSendDto) {
+  async sendSms(dto: SmsSendDto, actorUserId?: string) {
     const formattedPhone = this.formatEthioPhone(dto.recipientPhone);
     const triggerType = dto.triggerType || 'MANUAL_BROADCAST';
     const metadata = this.getSmsMetadata(dto.body);
@@ -711,7 +734,7 @@ export class EthioTelecomSmsService {
     // Record activity in CRM system database audit log
     try {
       this.inMemory.recordActivity({
-        actorUserId: 'user_001',
+        actorUserId: actorUserId || 'user_001',
         action: `Dispatched SMS (${triggerType}) to ${dto.recipientName} (+${formattedPhone}) [${metadata.encoding}, ${gatewayUsed}]`,
         target: formattedPhone,
         type: 'call',
@@ -870,6 +893,7 @@ export class EthioTelecomSmsService {
   async enrollLead(
     campaignId: string,
     dto: EnrollLeadDto,
+    actorUserId?: string,
   ): Promise<{ success: boolean; message: string; campaign: DripCampaign }> {
     const campaign = this.dripCampaigns.find((c) => c.id === campaignId);
     if (!campaign)
@@ -880,7 +904,7 @@ export class EthioTelecomSmsService {
     // Record activity log in system database
     try {
       this.inMemory.recordActivity({
-        actorUserId: 'user_001',
+        actorUserId: actorUserId || 'user_001',
         action: `Enrolled ${dto.clientName} (+${this.formatEthioPhone(dto.clientPhone)}) into '${campaign.name}' sequence`,
         target: campaign.id,
         type: 'assignment',
@@ -892,12 +916,15 @@ export class EthioTelecomSmsService {
     // Immediately dispatch step 1 SMS if step 1 delay is 0
     const step1 = campaign.steps.find((s) => s.stepNumber === 1);
     if (step1 && step1.delayDays === 0) {
-      await this.sendSms({
-        recipientName: dto.clientName,
-        recipientPhone: dto.clientPhone,
-        body: step1.smsTemplate.replaceAll('{clientName}', dto.clientName),
-        triggerType: 'DRIP_CAMPAIGN',
-      });
+      await this.sendSms(
+        {
+          recipientName: dto.clientName,
+          recipientPhone: dto.clientPhone,
+          body: step1.smsTemplate.replaceAll('{clientName}', dto.clientName),
+          triggerType: 'DRIP_CAMPAIGN',
+        },
+        actorUserId,
+      );
     }
 
     return {
