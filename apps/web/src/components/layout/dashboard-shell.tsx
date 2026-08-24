@@ -254,23 +254,23 @@ const sectionTitleMap: Record<string, string> = {
 const itemBadges: Record<string, { label: string; cls: string }> = {
   Pipeline: {
     label: "12",
-    cls: "bg-emerald-500/25 text-emerald-300 border-emerald-400/40",
+    cls: "bg-success/25 text-success border-success",
   },
   Leads: {
     label: "12",
-    cls: "bg-emerald-500/25 text-emerald-300 border-emerald-400/40",
+    cls: "bg-success/25 text-success border-success",
   },
   Tasks: {
     label: "5",
-    cls: "bg-amber-500/25 text-amber-300 border-amber-400/40",
+    cls: "bg-warning/25 text-warning border-warning/40/40",
   },
   Deals: {
     label: "New",
-    cls: "bg-blue-500/25 text-blue-300 border-blue-400/40",
+    cls: "bg-info/25 text-info border-info",
   },
   "Social Outreach": {
     label: "Live",
-    cls: "bg-purple-500/25 text-purple-300 border-purple-400/40",
+    cls: "bg-info/25 text-info border-info",
   },
 };
 
@@ -974,7 +974,7 @@ export function DashboardShell({
                 </h1>
                 {roleText ? (
                   <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-600 border border-slate-200">
-                    <span className="size-1.5 rounded-full bg-emerald-500" />
+                    <span className="size-1.5 rounded-full bg-success" />
                     {roleText}
                   </span>
                 ) : null}
@@ -1030,7 +1030,7 @@ export function DashboardShell({
                 )}
               >
                 <ShoppingBag className="size-4" />
-                <span className="absolute top-1 right-1 size-1.5 rounded-full bg-emerald-500" />
+                <span className="absolute top-1 right-1 size-1.5 rounded-full bg-success" />
               </Link>
               <Link
                 href="/settings"
@@ -1130,8 +1130,8 @@ export function DashboardShell({
                     <h2 className="truncate text-lg sm:text-xl font-extrabold tracking-tight text-white">
                       {greeting}, {displayName.split(" ")[0]}!
                     </h2>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold text-emerald-300 border border-emerald-400/30">
-                      <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="inline-flex items-center gap-1 rounded-full bg-success/20 px-2.5 py-0.5 text-[10px] font-bold text-success border border-success">
+                      <span className="size-1.5 rounded-full bg-success animate-pulse" />
                       Live Pipeline Active
                     </span>
                   </div>

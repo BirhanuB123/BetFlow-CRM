@@ -62,7 +62,7 @@ export default function AgentPerformancePage() {
           </div>
         </div>
       {error && (
-        <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <p className="mb-4 rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </p>
       )}

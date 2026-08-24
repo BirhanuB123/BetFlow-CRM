@@ -21,10 +21,10 @@ const colorMap: Record<
 > = {
   navy:    { bg: "bg-primary/10",  icon: "text-[#233b66]",  pill: "bg-primary/10 text-[#233b66]" },
   indigo:  { bg: "bg-primary/10",     icon: "text-primary",  pill: "bg-primary/10 text-primary" },
-  emerald: { bg: "bg-emerald-50",    icon: "text-emerald-600", pill: "bg-emerald-50 text-emerald-700" },
-  amber:   { bg: "bg-amber-50",      icon: "text-amber-600",   pill: "bg-amber-50 text-amber-700" },
-  rose:    { bg: "bg-rose-50",       icon: "text-rose-600",    pill: "bg-rose-50 text-rose-700" },
-  blue:    { bg: "bg-blue-50",       icon: "text-blue-600",    pill: "bg-blue-50 text-blue-700" },
+  emerald: { bg: "bg-success/10",    icon: "text-success", pill: "bg-success/10 text-success" },
+  amber:   { bg: "bg-warning/10",      icon: "text-warning",   pill: "bg-warning/10 text-warning" },
+  rose:    { bg: "bg-destructive/10",       icon: "text-destructive",    pill: "bg-destructive/10 text-destructive" },
+  blue:    { bg: "bg-info/10",       icon: "text-info",    pill: "bg-info/10 text-info" },
 };
 
 export function StatCard({
@@ -75,8 +75,8 @@ export function StatCard({
             <span
               className={cn(
                 "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-semibold",
-                trend === "up" && "bg-emerald-50 text-emerald-700",
-                trend === "down" && "bg-rose-50 text-rose-700",
+                trend === "up" && "bg-success/10 text-success",
+                trend === "down" && "bg-destructive/10 text-destructive",
                 trend === "flat" && "bg-slate-100 text-slate-500",
               )}
             >

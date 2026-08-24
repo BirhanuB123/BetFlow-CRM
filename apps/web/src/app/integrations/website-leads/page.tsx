@@ -103,7 +103,7 @@ export default function WebsiteLeadsPage() {
         <section className="rounded-xl border border-zinc-200 bg-white">
           <div className="flex items-center justify-between border-b border-zinc-200 px-5 py-4">
             <div className="flex items-center gap-2">
-              <Globe className="size-4 text-blue-500" />
+              <Globe className="size-4 text-info" />
               <h2 className="font-semibold">Capture Endpoint</h2>
             </div>
             <button
@@ -120,7 +120,7 @@ export default function WebsiteLeadsPage() {
               <p className="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-1">
                 Method
               </p>
-              <span className="inline-block rounded-md bg-emerald-50 px-2 py-0.5 text-sm font-mono font-bold text-emerald-700">
+              <span className="inline-block rounded-md bg-success/10 px-2 py-0.5 text-sm font-mono font-bold text-success">
                 POST
               </span>
             </div>
@@ -138,7 +138,7 @@ export default function WebsiteLeadsPage() {
                   title="Copy URL"
                 >
                   {copied ? (
-                    <CheckCircle className="size-4 text-emerald-500" />
+                    <CheckCircle className="size-4 text-success" />
                   ) : (
                     <Copy className="size-4" />
                   )}
@@ -168,7 +168,7 @@ export default function WebsiteLeadsPage() {
               ].map((f) => (
                 <span
                   key={f}
-                  className={`rounded-full px-2 py-0.5 text-xs font-mono ${f.endsWith("*") ? "bg-blue-50 text-blue-700" : "bg-zinc-100 text-zinc-600"}`}
+                  className={`rounded-full px-2 py-0.5 text-xs font-mono ${f.endsWith("*") ? "bg-info/10 text-info" : "bg-zinc-100 text-zinc-600"}`}
                 >
                   {f}
                 </span>
@@ -180,11 +180,11 @@ export default function WebsiteLeadsPage() {
         {/* Code snippet */}
         <section className="rounded-xl border border-zinc-200 bg-white">
           <div className="flex items-center gap-2 border-b border-zinc-200 px-5 py-4">
-            <Code2 className="size-4 text-violet-500" />
+            <Code2 className="size-4 text-info" />
             <h2 className="font-semibold">Example Payload</h2>
           </div>
           <div className="relative p-5">
-            <pre className="overflow-auto rounded-lg bg-zinc-950 p-4 text-xs leading-relaxed text-emerald-300">
+            <pre className="overflow-auto rounded-lg bg-zinc-950 p-4 text-xs leading-relaxed text-success">
               <code>
                 {`fetch("${apiUrl}", {\n  method: "POST",\n  headers: { "Content-Type": "application/json" },\n  body: JSON.stringify(`}
                 {"\n"}
@@ -242,7 +242,7 @@ export default function WebsiteLeadsPage() {
             },
           ].map((item) => (
             <li key={item.step} className="flex items-start gap-4 px-5 py-4">
-              <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-600">
+              <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-info/10 text-sm font-bold text-info">
                 {item.step}
               </span>
               <div>
@@ -259,7 +259,7 @@ export default function WebsiteLeadsPage() {
             href="https://developers.betflow.app/website-leads"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline"
+            className="inline-flex items-center gap-1 text-sm text-info hover:underline"
           >
             <ExternalLink className="size-3" />
             Full integration documentation

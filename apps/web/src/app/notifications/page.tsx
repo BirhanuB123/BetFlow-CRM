@@ -25,9 +25,9 @@ type InboxNotification = {
 };
 
 const channelClass = {
-  SMS: "bg-emerald-50 text-emerald-700",
-  Telegram: "bg-blue-50 text-blue-700",
-  Email: "bg-violet-50 text-violet-700",
+  SMS: "bg-success/10 text-success",
+  Telegram: "bg-info/10 text-info",
+  Email: "bg-info/10 text-info",
 };
 
 export default function NotificationsPage() {
@@ -137,7 +137,7 @@ export default function NotificationsPage() {
       </div>
 
       {error && (
-        <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <p className="mt-4 rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </p>
       )}
@@ -167,7 +167,7 @@ export default function NotificationsPage() {
                     "rounded-md px-2 py-1 text-xs font-medium",
                     item.isRead
                       ? "bg-zinc-100 text-zinc-600"
-                      : "bg-teal-50 text-teal-700 font-semibold",
+                      : "bg-success text-success font-semibold",
                   )}
                 >
                   {item.isRead ? "Read" : "Unread"}
@@ -191,7 +191,7 @@ export default function NotificationsPage() {
                   <Button
                     size="icon-sm"
                     variant="ghost"
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
                     title="Delete"
                     onClick={() => deleteNotification(item.id)}
                   >

@@ -17,8 +17,8 @@ type BrandingSetting = {
 };
 
 const statusClass = {
-  live: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  draft: "bg-amber-50 text-amber-800 border-amber-200",
+  live: "bg-success/10 text-success border-success/20",
+  draft: "bg-warning/10 text-warning border-warning/20",
 };
 
 export default function BrandingPage() {
@@ -147,13 +147,13 @@ export default function BrandingPage() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div className="mb-4 rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       )}
 
       {successMsg && (
-        <div className="mb-4 flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-600">
+        <div className="mb-4 flex items-center gap-2 rounded-md border border-success/20 bg-success/10 px-4 py-3 text-sm text-success">
           <Check className="size-4 shrink-0" />
           <span>{successMsg}</span>
         </div>

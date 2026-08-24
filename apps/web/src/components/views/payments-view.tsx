@@ -97,10 +97,10 @@ const methodLabels: Record<string, string> = {
 };
 
 const statusClass: Record<string, string> = {
-  PAID: "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold",
-  PARTIALLY_PAID: "bg-blue-50 text-blue-700 border-blue-200 font-semibold",
-  PENDING: "bg-amber-50 text-amber-700 border-amber-200",
-  OVERDUE: "bg-rose-50 text-rose-700 border-rose-200 font-bold",
+  PAID: "bg-success/10 text-success border-success/20 font-bold",
+  PARTIALLY_PAID: "bg-info/10 text-info border-info/20 font-semibold",
+  PENDING: "bg-warning/10 text-warning border-warning/20",
+  OVERDUE: "bg-destructive/10 text-destructive border-destructive/20 font-bold",
 };
 
 export function PaymentsView() {
@@ -211,7 +211,7 @@ export function PaymentsView() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <div className="flex size-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
+              <div className="flex size-9 items-center justify-center rounded-lg bg-success/10 text-success">
                 <Coins className="size-5" />
               </div>
               <div>
@@ -258,7 +258,7 @@ export function PaymentsView() {
                 setSelectedScheduleId(null);
                 setShowPaymentForm(true);
               }}
-              className="h-9.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 shadow-sm gap-1.5"
+              className="h-9.5 font-semibold text-xs px-4 shadow-sm gap-1.5"
             >
               <Plus className="size-4" />
               Record Payment
@@ -273,7 +273,7 @@ export function PaymentsView() {
           <div className="w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Receipt className="size-5 text-emerald-600" />
+                <Receipt className="size-5 text-success" />
                 Record Buyer Payment Receipt
               </h3>
               <button
@@ -296,7 +296,7 @@ export function PaymentsView() {
                   onChange={(e) =>
                     setForm({ ...form, contractId: e.target.value })
                   }
-                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-emerald-600"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-success"
                 >
                   <option value="">Select buyer contract…</option>
                   {contracts.map((c) => (
@@ -323,7 +323,7 @@ export function PaymentsView() {
                       setForm({ ...form, amount: e.target.value })
                     }
                     placeholder="Payment amount"
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs font-extrabold text-emerald-800 outline-none focus:border-emerald-600"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs font-extrabold text-success outline-none focus:border-success"
                   />
                 </div>
 
@@ -337,7 +337,7 @@ export function PaymentsView() {
                     onChange={(e) =>
                       setForm({ ...form, method: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-emerald-600"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-success"
                   >
                     {Object.entries(methodLabels).map(([key, label]) => (
                       <option key={key} value={key}>
@@ -359,7 +359,7 @@ export function PaymentsView() {
                     setForm({ ...form, receiptNumber: e.target.value })
                   }
                   placeholder="e.g. CBE-FT2026-00123"
-                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-emerald-600 font-mono"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-success font-mono"
                 />
               </div>
 
@@ -374,7 +374,7 @@ export function PaymentsView() {
                     setForm({ ...form, notes: e.target.value })
                   }
                   placeholder="Bank deposit confirmation, teller notes..."
-                  className="w-full rounded-lg border border-slate-300 p-2.5 text-xs outline-none focus:border-emerald-600"
+                  className="w-full rounded-lg border border-slate-300 p-2.5 text-xs outline-none focus:border-success"
                 />
               </div>
 
@@ -391,7 +391,7 @@ export function PaymentsView() {
                   type="submit"
                   size="sm"
                   disabled={saving}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+                  className="font-semibold"
                 >
                   {saving ? "Saving..." : "Verify & Save Payment"}
                 </Button>
@@ -402,7 +402,7 @@ export function PaymentsView() {
       )}
 
       {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-semibold text-rose-700 shadow-2xs">
+        <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-xs font-semibold text-destructive shadow-2xs">
           {error}
         </div>
       )}
@@ -446,7 +446,7 @@ export function PaymentsView() {
                       >
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <span className="flex size-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 font-extrabold text-[11px]">
+                            <span className="flex size-7 items-center justify-center rounded-lg bg-success/10 text-success font-extrabold text-[11px]">
                               {sched.percentage}%
                             </span>
                             <div>
@@ -479,11 +479,11 @@ export function PaymentsView() {
 
                         <td className="px-4 py-3">
                           <div>
-                            <span className="font-extrabold text-emerald-700 block">
+                            <span className="font-extrabold text-success block">
                               {formatCurrency(paid)} paid
                             </span>
                             {rem > 0 && (
-                              <span className="text-[10px] text-rose-600 font-semibold">
+                              <span className="text-[10px] text-destructive font-semibold">
                                 {formatCurrency(rem)} remaining
                               </span>
                             )}
@@ -496,7 +496,7 @@ export function PaymentsView() {
                               {fmtDate(sched.dueDate)}
                             </span>
                             {sched.isOverGrace && (
-                              <span className="text-[10px] text-rose-600 font-bold flex items-center gap-0.5">
+                              <span className="text-[10px] text-destructive font-bold flex items-center gap-0.5">
                                 <AlertTriangle className="size-3" />
                                 Overdue (+{sched.lateDaysAfterGrace}d)
                               </span>
@@ -520,7 +520,7 @@ export function PaymentsView() {
                             <Button
                               size="xs"
                               onClick={() => openDepositModalForSchedule(sched)}
-                              className="bg-emerald-600 hover:bg-emerald-700 text-white h-7 text-[11px] px-2.5 shadow-2xs gap-1"
+                              className="h-7 text-[11px] px-2.5 shadow-2xs gap-1"
                             >
                               <Plus className="size-3" />
                               Log Payment
@@ -571,7 +571,7 @@ export function PaymentsView() {
                       <tr key={p.id} className="hover:bg-slate-50/80">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <span className="flex size-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 font-extrabold text-[11px]">
+                            <span className="flex size-7 items-center justify-center rounded-lg bg-success/10 text-success font-extrabold text-[11px]">
                               💳
                             </span>
                             <div>
@@ -599,7 +599,7 @@ export function PaymentsView() {
                           )}
                         </td>
 
-                        <td className="px-4 py-3 font-extrabold text-emerald-700">
+                        <td className="px-4 py-3 font-extrabold text-success">
                           {formatCurrency(p.amount)}
                         </td>
 
@@ -612,8 +612,8 @@ export function PaymentsView() {
                         </td>
 
                         <td className="px-4 py-3">
-                          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-xs font-bold text-emerald-700">
-                            <ShieldCheck className="size-3 text-emerald-600" />
+                          <span className="inline-flex items-center gap-1 rounded-md bg-success/10 border border-success/20 px-2 py-0.5 text-xs font-bold text-success">
+                            <ShieldCheck className="size-3 text-success" />
                             VERIFIED
                           </span>
                         </td>

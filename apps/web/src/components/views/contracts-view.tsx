@@ -43,10 +43,10 @@ type UnitOption = {
 };
 
 const statusClass: Record<string, string> = {
-  ACTIVE: "bg-blue-50 text-blue-700 border-blue-200",
-  PENDING_SIGNATURE: "bg-amber-50 text-amber-700 border-amber-200",
-  SIGNED: "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold",
-  CANCELLED: "bg-rose-50 text-rose-700 border-rose-200",
+  ACTIVE: "bg-info/10 text-info border-info/20",
+  PENDING_SIGNATURE: "bg-warning/10 text-warning border-warning/20",
+  SIGNED: "bg-success/10 text-success border-success/20 font-bold",
+  CANCELLED: "bg-destructive/10 text-destructive border-destructive/20",
 };
 
 const contractTypeLabels: Record<string, string> = {
@@ -521,7 +521,7 @@ export function ContractsView() {
                       setForm({ ...form, downPaymentAmt: e.target.value })
                     }
                     placeholder="e.g. 30% initial deposit"
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs font-extrabold text-emerald-800 outline-none focus:border-[#233b66]"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs font-extrabold text-success outline-none focus:border-[#233b66]"
                   />
                 </div>
               </div>
@@ -600,7 +600,7 @@ export function ContractsView() {
       )}
 
       {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-semibold text-rose-700 shadow-2xs">
+        <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-xs font-semibold text-destructive shadow-2xs">
           {error}
         </div>
       )}
@@ -707,7 +707,7 @@ export function ContractsView() {
                               onClick={() =>
                                 handleStatusChange(primary.id, "SIGNED")
                               }
-                              className="bg-emerald-600 hover:bg-emerald-700 text-white h-7 text-[11px] px-2.5 shadow-2xs gap-1"
+                              className="h-7 text-[11px] px-2.5 shadow-2xs gap-1"
                             >
                               <FileCheck2 className="size-3" />
                               Mark Signed
@@ -717,7 +717,7 @@ export function ContractsView() {
                           <button
                             type="button"
                             onClick={() => handleDelete(primary.id)}
-                            className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                            className="rounded-lg p-1.5 text-slate-400 hover:bg-destructive/10 hover:text-destructive transition-colors"
                             title="Delete Contract"
                           >
                             <Trash2 className="size-3.5" />
@@ -774,7 +774,7 @@ export function ContractsView() {
                 </div>
                 <div>
                   <span className="text-slate-400 block font-semibold">Down Payment</span>
-                  <span className="font-extrabold text-emerald-700">
+                  <span className="font-extrabold text-success">
                     {formatCurrency(activeModalContract.downPaymentAmt || 0)}
                   </span>
                 </div>
@@ -798,7 +798,7 @@ export function ContractsView() {
               {activeModalContract.notes && (
                 <div>
                   <span className="text-slate-400 block font-semibold">Special Terms</span>
-                  <p className="font-medium text-slate-800 bg-amber-50/60 p-2.5 rounded border border-amber-100">
+                  <p className="font-medium text-slate-800 bg-warning/10/60 p-2.5 rounded border border-warning/20">
                     {activeModalContract.notes}
                   </p>
                 </div>

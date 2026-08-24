@@ -60,7 +60,7 @@ export default function PricingPage() {
               <ul className="mt-5 space-y-3">
                 {plan.includes.map((item) => (
                   <li key={item} className="flex gap-2 text-sm text-zinc-600">
-                    <Check className="mt-0.5 size-4 text-emerald-600" />
+                    <Check className="mt-0.5 size-4 text-success" />
                     {item}
                   </li>
                 ))}

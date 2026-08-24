@@ -29,15 +29,15 @@ type ActivityTimelineProps = {
 // Color the node by the kind of event so a timeline scans quickly.
 function dotClass(action: string): string {
   if (action.endsWith(".created") || action.endsWith(".registered"))
-    return "bg-emerald-500";
-  if (action.endsWith(".deleted")) return "bg-rose-500";
+    return "bg-success";
+  if (action.endsWith(".deleted")) return "bg-destructive";
   if (
     action.includes("signed") ||
     action.includes("status") ||
     action.includes("stage")
   )
-    return "bg-amber-500";
-  return "bg-sky-500";
+    return "bg-warning";
+  return "bg-info";
 }
 
 function timeAgo(iso: string): string {
@@ -107,7 +107,7 @@ export function ActivityTimeline({
       </div>
 
       {error ? (
-        <p className="px-4 py-6 text-sm text-red-600">{error}</p>
+        <p className="px-4 py-6 text-sm text-destructive">{error}</p>
       ) : loading && entries.length === 0 ? (
         <p className="px-4 py-6 text-sm text-zinc-500">Loading activity…</p>
       ) : entries.length === 0 ? (

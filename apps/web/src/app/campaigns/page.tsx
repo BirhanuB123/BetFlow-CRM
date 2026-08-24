@@ -42,7 +42,7 @@ function CampaignsPageContent() {
         active="Campaigns"
       >
         <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-xs">
-          <div className="flex size-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-warning/10 text-warning">
             <ShieldAlert className="size-7" />
           </div>
           <h3 className="mt-4 text-base font-bold text-slate-900">

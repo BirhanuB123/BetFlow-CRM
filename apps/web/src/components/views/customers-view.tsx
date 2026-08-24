@@ -507,7 +507,7 @@ export function CustomersView() {
                 </span>
                 <button
                   onClick={handleBulkDelete}
-                  className="text-xs text-red-600 hover:text-red-800 font-medium flex items-center gap-1 hover:underline ml-2"
+                  className="text-xs text-destructive hover:text-destructive font-medium flex items-center gap-1 hover:underline ml-2"
                 >
                   <Trash2 className="size-3" />
                   Delete
@@ -603,7 +603,7 @@ export function CustomersView() {
         )}
 
         {error && (
-          <p className="border-b border-zinc-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          <p className="border-b border-zinc-200 bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {error}
           </p>
         )}
@@ -649,7 +649,7 @@ export function CustomersView() {
                       type="checkbox"
                       checked={allRowsSelected}
                       onChange={toggleSelectAllRows}
-                      className="rounded border-zinc-300 text-primary focus:ring-indigo-600 size-3.5 cursor-pointer accent-primary"
+                      className="rounded border-zinc-300 text-primary focus:ring-primary size-3.5 cursor-pointer accent-primary"
                     />
                   </th>
                   <th className="px-4 py-2.5">
@@ -684,7 +684,7 @@ export function CustomersView() {
                           checked={isSelected}
                           onChange={() => toggleSelectRow(customer.id)}
                           className={cn(
-                            "rounded border-zinc-300 text-primary focus:ring-indigo-600 size-3.5 cursor-pointer accent-primary transition-opacity",
+                            "rounded border-zinc-300 text-primary focus:ring-primary size-3.5 cursor-pointer accent-primary transition-opacity",
                             isSelected
                               ? "opacity-100"
                               : "opacity-0 group-hover:opacity-100",
@@ -740,7 +740,7 @@ export function CustomersView() {
                           </button>
                           <button
                             onClick={(e) => handleDelete(customer.id, e)}
-                            className="text-zinc-400 hover:text-red-600 p-1.5 rounded hover:bg-red-50 transition-colors"
+                            className="text-zinc-400 hover:text-destructive p-1.5 rounded hover:bg-destructive/10 transition-colors"
                             title="Delete contact"
                             aria-label="Delete contact"
                           >

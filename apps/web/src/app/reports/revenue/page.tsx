@@ -154,7 +154,7 @@ export default function RevenueReportPage() {
         </div>
 
         {error && (
-          <p className="rounded-lg border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-600">
+          <p className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-xs font-semibold text-destructive">
             {error}
           </p>
         )}
@@ -240,13 +240,13 @@ export default function RevenueReportPage() {
                 </span>,
                 <span
                   key="collected"
-                  className="font-semibold text-emerald-600"
+                  className="font-semibold text-success"
                 >
                   {row.collected}
                 </span>,
                 <span
                   key="outstanding"
-                  className="font-semibold text-amber-600"
+                  className="font-semibold text-warning"
                 >
                   {row.outstanding}
                 </span>,

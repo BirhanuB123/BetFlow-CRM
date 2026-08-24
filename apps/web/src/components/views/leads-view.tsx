@@ -76,12 +76,12 @@ type ApiLead = {
 type SortKey = "name" | "company" | "email" | "source" | "status" | "owner";
 
 const statusClass: Record<string, string> = {
-  NEW: "bg-blue-50 text-blue-700",
+  NEW: "bg-info/10 text-info",
   CONTACTED: "bg-primary/10 text-primary",
-  QUALIFIED: "bg-emerald-50 text-emerald-700",
-  FOLLOW_UP: "bg-amber-50 text-amber-800",
-  WON: "bg-green-100 text-green-800",
-  LOST: "bg-rose-50 text-rose-700",
+  QUALIFIED: "bg-success/10 text-success",
+  FOLLOW_UP: "bg-warning/10 text-warning",
+  WON: "bg-success/10 text-success",
+  LOST: "bg-destructive/10 text-destructive",
 };
 
 const PAGE_SIZE = 10;
@@ -127,16 +127,16 @@ function SocialSourceBadge({
   let bg = "bg-zinc-100 text-zinc-700 border-zinc-200";
   let icon = "🌐";
   if (lower.includes("facebook") || lower.includes("meta")) {
-    bg = "bg-blue-50 text-blue-700 border-blue-200 font-semibold";
+    bg = "bg-info/10 text-info border-info/20 font-semibold";
     icon = "🟦";
   } else if (lower.includes("instagram")) {
     bg = "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200 font-semibold";
     icon = "📸";
   } else if (lower.includes("telegram")) {
-    bg = "bg-sky-50 text-sky-700 border-sky-200 font-semibold";
+    bg = "bg-info/10 text-info border-info/20 font-semibold";
     icon = "✈️";
   } else if (lower.includes("referral")) {
-    bg = "bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold";
+    bg = "bg-success/10 text-success border-success/20 font-semibold";
     icon = "🤝";
   }
   return (
@@ -436,8 +436,8 @@ export function LeadsView() {
             className={cn(
               "rounded-md px-3 py-1.5 text-sm font-semibold transition-colors border flex items-center gap-1",
               originFilter === "DIASPORA"
-                ? "bg-amber-100 text-amber-900 border-amber-300 font-bold"
-                : "bg-amber-50/60 text-amber-800 border-amber-200 hover:bg-amber-100/70",
+                ? "bg-warning/10 text-warning border-warning/30 font-bold"
+                : "bg-warning/10/60 text-warning border-warning/20 hover:bg-warning/10/70",
             )}
           >
             <span>🌍</span> Diaspora Leads
@@ -448,8 +448,8 @@ export function LeadsView() {
             className={cn(
               "rounded-md px-3 py-1.5 text-sm font-semibold transition-colors border flex items-center gap-1",
               originFilter === "LOCAL"
-                ? "bg-emerald-100 text-emerald-900 border-emerald-300 font-bold"
-                : "bg-emerald-50/60 text-emerald-800 border-emerald-200 hover:bg-emerald-100/70",
+                ? "bg-success/10 text-success border-success/30 font-bold"
+                : "bg-success/10/60 text-success border-success/20 hover:bg-success/10/70",
             )}
           >
             <span>🇪🇹</span> Local Leads
@@ -460,8 +460,8 @@ export function LeadsView() {
             className={cn(
               "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-semibold transition-colors border ml-1",
               showSocialDrawer
-                ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-                : "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100",
+                ? "bg-info text-white border-info shadow-sm"
+                : "bg-info/10 text-info border-info/20 hover:bg-info/10",
             )}
           >
             <Webhook className="size-3.5" />
@@ -546,14 +546,14 @@ export function LeadsView() {
 
       {/* Social Webhook Lead Gen Drawer Banner */}
       {showSocialDrawer ? (
-        <div className="rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 via-primary/10 to-purple-50 p-4 shadow-sm animate-in fade-in duration-200">
+        <div className="rounded-lg border border-info/20 bg-gradient-to-r from-info via-primary/10 to-info p-4 shadow-sm animate-in fade-in duration-200">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="flex size-6 items-center justify-center rounded-full bg-blue-600 text-white text-xs font-bold">
+                <span className="flex size-6 items-center justify-center rounded-full bg-info text-white text-xs font-bold">
                   ⚡
                 </span>
-                <h3 className="text-sm font-bold text-blue-950">
+                <h3 className="text-sm font-bold text-info">
                   Ethio-Real Estate Social Lead Automation Endpoint
                 </h3>
               </div>
@@ -571,11 +571,11 @@ export function LeadsView() {
                   setCopiedUrl(true);
                   setTimeout(() => setCopiedUrl(false), 2000);
                 }}
-                className="flex items-center gap-1.5 rounded-md border border-blue-200 bg-white px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50 shadow-2xs transition-colors"
+                className="flex items-center gap-1.5 rounded-md border border-info/20 bg-white px-3 py-1.5 text-xs font-semibold text-info hover:bg-info/10 shadow-2xs transition-colors"
               >
                 {copiedUrl ? (
                   <>
-                    <Check className="size-3.5 text-emerald-600" />
+                    <Check className="size-3.5 text-success" />
                     <span>Copied Webhook URL</span>
                   </>
                 ) : (
@@ -688,7 +688,7 @@ export function LeadsView() {
                 <AccessRestricted requiredPermission="leads.manage" />
               </div>
             ) : (
-              <div className="p-4 text-xs font-medium text-rose-600 bg-rose-50 border-b border-rose-100">
+              <div className="p-4 text-xs font-medium text-destructive bg-destructive/10 border-b border-destructive/20">
                 {error}
               </div>
             )
@@ -856,12 +856,12 @@ export function LeadsView() {
                         </td>
                         <td className="px-3 py-3">
                           {isDiaspora ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800 border border-amber-200/80">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2 py-0.5 text-[11px] font-bold text-warning border border-warning/20">
                               <span>{lead.diasporaTag?.flag || "🌍"}</span>
                               <span>{lead.diasporaTag?.originCountry}</span>
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-800 border border-emerald-200/60">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-[11px] font-medium text-success border border-success/20/60">
                               <span>🇪🇹</span> Local Ethiopia
                             </span>
                           )}
@@ -889,14 +889,14 @@ export function LeadsView() {
                               <span
                                 className={cn(
                                   "rounded px-1.5 py-0.5 text-[11px] font-extrabold text-white",
-                                  lead.aiScore.intent === "HOT" && "bg-rose-600",
-                                  lead.aiScore.intent === "WARM" && "bg-amber-500",
-                                  lead.aiScore.intent === "COLD" && "bg-blue-600",
+                                  lead.aiScore.intent === "HOT" && "bg-destructive",
+                                  lead.aiScore.intent === "WARM" && "bg-warning",
+                                  lead.aiScore.intent === "COLD" && "bg-info",
                                 )}
                               >
                                 {lead.aiScore.score}
                               </span>
-                              <span className="text-[11px] font-semibold text-purple-700 underline underline-offset-2 decoration-purple-300 group-hover/ai:decoration-purple-600">
+                              <span className="text-[11px] font-semibold text-info underline underline-offset-2 decoration-purple-300 group-hover/ai:decoration-purple-600">
                                 {lead.aiScore.intent}
                               </span>
                             </button>
@@ -914,7 +914,7 @@ export function LeadsView() {
                                 type="button"
                                 title="Convert to Customer"
                                 onClick={() => setConvertLead(lead)}
-                                className="rounded p-1 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-800 transition-colors"
+                                className="rounded p-1 text-success hover:bg-success/10 hover:text-success transition-colors"
                               >
                                 <UserRoundCheck className="size-4" />
                               </button>
@@ -931,7 +931,7 @@ export function LeadsView() {
                               type="button"
                               title="Delete Lead"
                               onClick={() => handleDelete(lead.id, fullName(lead))}
-                              className="rounded p-1 text-zinc-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                              className="rounded p-1 text-zinc-400 hover:bg-destructive/10 hover:text-destructive transition-colors"
                             >
                               <Trash2 className="size-4" />
                             </button>
@@ -1347,7 +1347,7 @@ function LeadConvertModal({
       <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-xl space-y-4">
         <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
           <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2">
-            <UserRoundCheck className="size-5 text-emerald-600" />
+            <UserRoundCheck className="size-5 text-success" />
             Convert Lead to Customer
           </h2>
           <button
@@ -1359,11 +1359,11 @@ function LeadConvertModal({
           </button>
         </div>
         <p className="text-xs text-zinc-600 leading-relaxed">
-          Converting <strong className="text-zinc-900">{fullName(lead)}</strong> will automatically create a new active Customer profile, copy all contact information, and update the lead status to <strong className="text-emerald-700 font-semibold">WON</strong>.
+          Converting <strong className="text-zinc-900">{fullName(lead)}</strong> will automatically create a new active Customer profile, copy all contact information, and update the lead status to <strong className="text-success font-semibold">WON</strong>.
         </p>
-        <div className="rounded-lg bg-emerald-50 p-3 text-xs text-emerald-900 border border-emerald-200">
+        <div className="rounded-lg bg-success/10 p-3 text-xs text-success border border-success/20">
           <p className="font-bold mb-1">Target Customer Details:</p>
-          <ul className="space-y-0.5 text-[11px] text-emerald-800">
+          <ul className="space-y-0.5 text-[11px] text-success">
             <li>• Name: {fullName(lead)}</li>
             <li>• Email: {lead.email || "N/A"}</li>
             <li>• Phone: {lead.phone || "N/A"}</li>
@@ -1379,7 +1379,7 @@ function LeadConvertModal({
             size="sm"
             onClick={handleConvert}
             disabled={converting}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+            className="font-semibold"
           >
             {converting ? "Converting..." : "Confirm & Convert"}
           </Button>
@@ -1429,23 +1429,23 @@ function AiScoringDrawer({
       </div>
 
       {/* Score Ring / Badge */}
-      <div className="my-5 flex items-center justify-between rounded-lg bg-purple-50/70 p-4 border border-purple-100">
+      <div className="my-5 flex items-center justify-between rounded-lg bg-info/10/70 p-4 border border-info">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-purple-700">
+          <p className="text-xs font-semibold uppercase tracking-wider text-info">
             Lead Score
           </p>
-          <p className="text-3xl font-extrabold text-purple-900 mt-0.5">
+          <p className="text-3xl font-extrabold text-info mt-0.5">
             {score.score}{" "}
-            <span className="text-sm font-normal text-purple-600">/ 100</span>
+            <span className="text-sm font-normal text-info">/ 100</span>
           </p>
         </div>
         <div className="text-right">
           <span
             className={cn(
               "inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide",
-              score.intent === "HOT" && "bg-rose-600 text-white",
-              score.intent === "WARM" && "bg-amber-500 text-white",
-              score.intent === "COLD" && "bg-blue-600 text-white",
+              score.intent === "HOT" && "bg-destructive text-white",
+              score.intent === "WARM" && "bg-warning text-white",
+              score.intent === "COLD" && "bg-info text-white",
             )}
           >
             {score.intent} Intent
@@ -1470,7 +1470,7 @@ function AiScoringDrawer({
               key={idx}
               className="flex items-center gap-2 rounded-md bg-zinc-50 px-2.5 py-1.5 text-zinc-700 border border-zinc-100"
             >
-              <span className="size-1.5 rounded-full bg-purple-600 shrink-0" />
+              <span className="size-1.5 rounded-full bg-info shrink-0" />
               <span>{factor}</span>
             </li>
           ))}
@@ -1478,11 +1478,11 @@ function AiScoringDrawer({
       </div>
 
       {/* Suggested Next Action */}
-      <div className="mb-5 rounded-lg bg-amber-50/80 p-3.5 border border-amber-200/60">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-amber-900 mb-1 flex items-center gap-1.5">
+      <div className="mb-5 rounded-lg bg-warning/10 p-3.5 border border-warning/20/60">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-warning mb-1 flex items-center gap-1.5">
           <span>💡</span> Recommended Smart Action
         </h3>
-        <p className="text-xs leading-relaxed text-amber-900/90 font-medium">
+        <p className="text-xs leading-relaxed text-warning/90 font-medium">
           {score.suggestedNextAction}
         </p>
       </div>

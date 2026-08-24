@@ -208,21 +208,21 @@ export default function CustomerPortalPage() {
       case "ACTIVE":
       case "SIGNED":
         return (
-          <span className="rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">
+          <span className="rounded-md bg-success/10 px-2 py-1 text-xs font-medium text-success">
             {status}
           </span>
         );
       case "PENDING":
       case "RESERVED":
         return (
-          <span className="rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-800">
+          <span className="rounded-md bg-warning/10 px-2 py-1 text-xs font-medium text-warning">
             {status}
           </span>
         );
       case "LATE":
       case "OVERDUE":
         return (
-          <span className="rounded-md bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700">
+          <span className="rounded-md bg-destructive/10 px-2 py-1 text-xs font-medium text-destructive">
             {status}
           </span>
         );
@@ -283,7 +283,7 @@ export default function CustomerPortalPage() {
       {/* Header Profile / Welcome Banner */}
       <div className="mb-6 flex flex-col justify-between gap-4 rounded-xl border border-zinc-200 bg-white p-5 sm:flex-row sm:items-center">
         <div className="flex items-center gap-3">
-          <div className="flex size-12 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+          <div className="flex size-12 items-center justify-center rounded-full bg-info/10 text-info">
             <UserCheck className="size-6" />
           </div>
           <div>
@@ -302,7 +302,7 @@ export default function CustomerPortalPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">
+          <span className="inline-flex items-center gap-1.5 rounded-lg border border-success/20 bg-success/10 px-3 py-1.5 text-xs font-medium text-success">
             <ShieldCheck className="size-3.5" />
             Verified Customer Access
           </span>
@@ -320,7 +320,7 @@ export default function CustomerPortalPage() {
           onClick={() => setActiveTab("overview")}
           className={`border-b-2 px-4 py-2.5 transition-colors ${
             activeTab === "overview"
-              ? "border-blue-600 text-blue-600 font-semibold"
+              ? "border-info text-info font-semibold"
               : "border-transparent text-zinc-500 hover:text-zinc-800"
           }`}
         >
@@ -331,7 +331,7 @@ export default function CustomerPortalPage() {
           onClick={() => setActiveTab("schedules")}
           className={`border-b-2 px-4 py-2.5 transition-colors ${
             activeTab === "schedules"
-              ? "border-blue-600 text-blue-600 font-semibold"
+              ? "border-info text-info font-semibold"
               : "border-transparent text-zinc-500 hover:text-zinc-800"
           }`}
         >
@@ -342,7 +342,7 @@ export default function CustomerPortalPage() {
           onClick={() => setActiveTab("contracts")}
           className={`border-b-2 px-4 py-2.5 transition-colors ${
             activeTab === "contracts"
-              ? "border-blue-600 text-blue-600 font-semibold"
+              ? "border-info text-info font-semibold"
               : "border-transparent text-zinc-500 hover:text-zinc-800"
           }`}
         >
@@ -353,7 +353,7 @@ export default function CustomerPortalPage() {
           onClick={() => setActiveTab("invoices")}
           className={`border-b-2 px-4 py-2.5 transition-colors ${
             activeTab === "invoices"
-              ? "border-blue-600 text-blue-600 font-semibold"
+              ? "border-info text-info font-semibold"
               : "border-transparent text-zinc-500 hover:text-zinc-800"
           }`}
         >
@@ -364,7 +364,7 @@ export default function CustomerPortalPage() {
           onClick={() => setActiveTab("api")}
           className={`border-b-2 px-4 py-2.5 transition-colors ${
             activeTab === "api"
-              ? "border-blue-600 text-blue-600 font-semibold"
+              ? "border-info text-info font-semibold"
               : "border-transparent text-zinc-500 hover:text-zinc-800"
           }`}
         >
@@ -373,7 +373,7 @@ export default function CustomerPortalPage() {
       </div>
 
       {error && (
-        <div className="mb-6 rounded-lg bg-rose-50 p-4 text-sm text-rose-700">
+        <div className="mb-6 rounded-lg bg-destructive/10 p-4 text-sm text-destructive">
           {error}
         </div>
       )}
@@ -495,13 +495,13 @@ export default function CustomerPortalPage() {
             </div>
             <div className="rounded-xl border border-zinc-200 bg-white p-4">
               <p className="text-sm text-zinc-500">Total Paid</p>
-              <p className="mt-2 text-2xl font-bold text-emerald-600">
+              <p className="mt-2 text-2xl font-bold text-success">
                 {formatCurrency(schedulesData?.summary?.totalPaid ?? 90000)}
               </p>
             </div>
             <div className="rounded-xl border border-zinc-200 bg-white p-4">
               <p className="text-sm text-zinc-500">Overdue / Exposure</p>
-              <p className="mt-2 text-2xl font-bold text-rose-600">
+              <p className="mt-2 text-2xl font-bold text-destructive">
                 {formatCurrency(schedulesData?.summary?.totalOverdue ?? 0)}
               </p>
             </div>
@@ -699,7 +699,7 @@ export default function CustomerPortalPage() {
               >
                 <div className="flex items-center gap-3">
                   <span
-                    className={`rounded px-2 py-0.5 font-mono text-xs font-bold ${ep.method === "POST" ? "bg-emerald-100 text-emerald-800" : "bg-blue-100 text-blue-800"}`}
+                    className={`rounded px-2 py-0.5 font-mono text-xs font-bold ${ep.method === "POST" ? "bg-success/10 text-success" : "bg-info/10 text-info"}`}
                   >
                     {ep.method}
                   </span>
@@ -807,8 +807,8 @@ export default function CustomerPortalPage() {
 
               {/* Success Notification */}
               {slipResult ? (
-                <div className="rounded-lg bg-emerald-50 p-3.5 border border-emerald-200 text-xs text-emerald-900 space-y-1">
-                  <p className="font-bold flex items-center gap-1 text-emerald-800">
+                <div className="rounded-lg bg-success/10 p-3.5 border border-success/20 text-xs text-success space-y-1">
+                  <p className="font-bold flex items-center gap-1 text-success">
                     <CheckCircle2 className="size-4" /> Bank Slip Submitted!
                   </p>
                   <p>
@@ -820,7 +820,7 @@ export default function CustomerPortalPage() {
                       {slipResult.referenceNumber}
                     </code>
                   </p>
-                  <p className="text-[11px] text-emerald-700">
+                  <p className="text-[11px] text-success">
                     Finance team has been notified to verify your payment.
                   </p>
                 </div>

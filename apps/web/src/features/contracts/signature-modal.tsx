@@ -175,7 +175,7 @@ export function SignatureModal({
           </div>
 
           {error && (
-            <p className="text-xs text-rose-600 font-medium">{error}</p>
+            <p className="text-xs text-destructive font-medium">{error}</p>
           )}
 
           <div className="flex items-center justify-end gap-2 border-t border-zinc-100 pt-3">

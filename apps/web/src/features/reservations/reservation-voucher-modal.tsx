@@ -38,11 +38,11 @@ export type ApiReservation = {
 };
 
 const statusClass: Record<string, string> = {
-  PENDING: "bg-amber-50 text-amber-700 border-amber-200 font-medium",
-  APPROVED: "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold",
+  PENDING: "bg-warning/10 text-warning border-warning/20 font-medium",
+  APPROVED: "bg-success/10 text-success border-success/20 font-bold",
   CONVERTED_TO_CONTRACT:
     "bg-primary/10 text-primary border-primary/20 font-bold",
-  CANCELLED: "bg-rose-50 text-rose-700 border-rose-200",
+  CANCELLED: "bg-destructive/10 text-destructive border-destructive/20",
   EXPIRED: "bg-slate-100 text-slate-600 border-slate-200",
 };
 
@@ -136,17 +136,17 @@ export function ReservationVoucherModal({
 
             <div className="rounded-xl border border-slate-100 p-3.5 bg-slate-50/60">
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                <Coins className="size-3 text-emerald-600" />
+                <Coins className="size-3 text-success" />
                 Deposit Paid (ETB)
               </p>
-              <p className="mt-1 text-sm font-bold text-emerald-700">
+              <p className="mt-1 text-sm font-bold text-success">
                 {formatCurrency(voucher.amount)}
               </p>
             </div>
 
             <div className="rounded-xl border border-slate-100 p-3.5 bg-slate-50/60">
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                <CalendarDays className="size-3 text-amber-500" />
+                <CalendarDays className="size-3 text-warning" />
                 Hold Expiration
               </p>
               <p className="mt-1 text-xs font-bold text-slate-900">
@@ -189,7 +189,7 @@ export function ReservationVoucherModal({
 
           <div className="flex items-center justify-between rounded-xl bg-slate-100/70 px-4 py-2 text-[11px] text-slate-500">
             <span className="flex items-center gap-1">
-              <ShieldCheck className="size-3.5 text-emerald-600" />
+              <ShieldCheck className="size-3.5 text-success" />
               Official BetFlow CRM Property Lock Record
             </span>
             <span className="font-mono">

@@ -516,7 +516,7 @@ export function DealsView() {
       )}
 
       {error && (
-        <p className="rounded-lg border border-rose-200 bg-rose-50 p-3.5 text-xs font-semibold text-rose-700">
+        <p className="rounded-lg border border-destructive/20 bg-destructive/10 p-3.5 text-xs font-semibold text-destructive">
           {error}
         </p>
       )}
@@ -621,7 +621,7 @@ export function DealsView() {
                               <button
                                 type="button"
                                 onClick={() => handleDeleteDeal(deal.id)}
-                                className="text-slate-400 hover:text-rose-600 p-0.5 cursor-pointer"
+                                className="text-slate-400 hover:text-destructive p-0.5 cursor-pointer"
                                 title="Delete deal"
                                 aria-label="Delete deal"
                               >
@@ -642,7 +642,7 @@ export function DealsView() {
                             <span className="font-extrabold text-primary">
                               {formatValue(deal.value)}
                             </span>
-                            <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded">
+                            <span className="text-[11px] font-semibold text-success bg-success/10 border border-success/20 px-1.5 py-0.5 rounded">
                               {Math.round(
                                 (Number(deal.value) || 0) *
                                   (stage.probability / 100),
@@ -722,7 +722,7 @@ export function DealsView() {
                       {deal.stage?.name}
                     </span>,
                     `${deal.stage?.probability ?? 0}%`,
-                    <span key="weighted" className="font-bold text-emerald-600">
+                    <span key="weighted" className="font-bold text-success">
                       {formatValue(weighted)}
                     </span>,
                     <div key="actions" className="flex items-center gap-2">
@@ -745,7 +745,7 @@ export function DealsView() {
                       <button
                         type="button"
                         onClick={() => handleDeleteDeal(deal.id)}
-                        className="inline-flex items-center gap-1 rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-xs font-bold text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-1 rounded-md border border-destructive/20 bg-destructive/10 px-2 py-1 text-xs font-bold text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
                       >
                         <Trash2 className="size-3" />
                       </button>

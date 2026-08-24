@@ -126,12 +126,12 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
           <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4 text-xs">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1.5">
-                <span className="size-3 rounded-full bg-red-500/80 inline-block" />
-                <span className="size-3 rounded-full bg-amber-500/80 inline-block" />
-                <span className="size-3 rounded-full bg-emerald-500/80 inline-block" />
+                <span className="size-3 rounded-full bg-destructive inline-block" />
+                <span className="size-3 rounded-full bg-warning/80 inline-block" />
+                <span className="size-3 rounded-full bg-success/80 inline-block" />
               </div>
               <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-slate-800 text-slate-300 font-mono text-[11px]">
-                <Database className="size-3.5 text-emerald-400" />
+                <Database className="size-3.5 text-success" />
                 <span>
                   betflow-crm.app — {isLiveDb ? "PostgreSQL Real-Time Database Connection" : "Interactive Demo Workspace Sandbox"}
                 </span>
@@ -139,8 +139,8 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
             </div>
             <div className="flex items-center gap-2">
               <span className="relative flex size-2">
-                <span className={`absolute inline-flex h-full w-full animate-ping rounded-full ${isLiveDb ? "bg-emerald-400 opacity-75" : "bg-primary opacity-75"}`}></span>
-                <span className={`relative inline-flex size-2 rounded-full ${isLiveDb ? "bg-emerald-500" : "bg-primary"}`}></span>
+                <span className={`absolute inline-flex h-full w-full animate-ping rounded-full ${isLiveDb ? "bg-success opacity-75" : "bg-primary opacity-75"}`}></span>
+                <span className={`relative inline-flex size-2 rounded-full ${isLiveDb ? "bg-success" : "bg-primary"}`}></span>
               </span>
               <span className="text-[11px] font-bold text-slate-300">
                 {isLiveDb ? "🟢 Live Database Sync" : "🔵 Demo Sandbox Records"}
@@ -228,7 +228,7 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
                 {/* Concrete Operational Benefit Bullets */}
                 <div className="rounded-xl border border-primary/30 bg-primary/20 p-3.5 text-xs space-y-2">
                   <p className="font-extrabold text-primary/80 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                    <CheckCircle2 className="size-3.5 text-emerald-400" />
+                    <CheckCircle2 className="size-3.5 text-success" />
                     Pillar 1: Organize — Lead Intake & Buyer CRM Benefits
                   </p>
                   <div className="grid sm:grid-cols-3 gap-2.5 text-slate-300">
@@ -248,7 +248,7 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
                       Real-time buyer lead records with status progression and source attribution.
                     </p>
                   </div>
-                  <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold text-emerald-300 border border-emerald-500/40">
+                  <span className="rounded-full bg-success/20 px-2.5 py-1 text-[10px] font-bold text-success border border-success/40">
                     LEADS ({realLeads.length} RECORDS)
                   </span>
                 </div>
@@ -294,9 +294,9 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
             {activeTab === "units" && (
               <div className="space-y-4">
                 {/* Concrete Operational Benefit Bullets */}
-                <div className="rounded-xl border border-purple-500/30 bg-purple-950/40 p-3.5 text-xs space-y-2">
-                  <p className="font-extrabold text-purple-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                    <CheckCircle2 className="size-3.5 text-emerald-400" />
+                <div className="rounded-xl border border-info bg-info p-3.5 text-xs space-y-2">
+                  <p className="font-extrabold text-info uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <CheckCircle2 className="size-3.5 text-success" />
                     Pillar 1: Organize — Inventory Stacking Benefits
                   </p>
                   <div className="grid sm:grid-cols-3 gap-2.5 text-slate-300">
@@ -309,14 +309,14 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
                 <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
                   <div>
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                      <Grid className="size-4 text-purple-400" />
+                      <Grid className="size-4 text-info" />
                       Property Inventory Matrix (Interactive Stacking Plan)
                     </h3>
                     <p className="text-xs text-slate-400 mt-0.5 font-medium">
                       Floor-by-floor building elevation matrix and unit status locks.
                     </p>
                   </div>
-                  <span className="rounded-full bg-purple-500/20 px-2.5 py-1 text-[10px] font-bold text-purple-300 border border-purple-500/40">
+                  <span className="rounded-full bg-info/20 px-2.5 py-1 text-[10px] font-bold text-info border border-info">
                     INVENTORY MATRIX ({realUnits.length} UNITS)
                   </span>
                 </div>
@@ -329,7 +329,7 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
                     >
                       <div>
                         <div className="flex items-center justify-between gap-2">
-                          <span className="rounded bg-purple-500/20 px-2 py-0.5 text-xs font-black text-purple-300 border border-purple-500/30">
+                          <span className="rounded bg-info/20 px-2 py-0.5 text-xs font-black text-info border border-info">
                             Unit {unit.unitNumber}
                           </span>
                           <StatusPill status={unit.status} size="sm" />
@@ -337,7 +337,7 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
                         <p className="text-xs font-semibold text-slate-300 mt-2 truncate">
                           {unit.type}
                         </p>
-                        <p className="text-sm font-black text-emerald-400 mt-1">
+                        <p className="text-sm font-black text-success mt-1">
                           {formatCurrency(unit.price)}
                         </p>
                       </div>
@@ -345,7 +345,7 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
                         <span>{unit.area ? `${unit.area} sqm` : "Standard Floorplan"}</span>
                         <Link
                           href="/units"
-                          className="text-purple-400 hover:text-purple-300 font-bold"
+                          className="text-info hover:text-info font-bold"
                         >
                           Details →
                         </Link>
@@ -360,9 +360,9 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
             {activeTab === "pipeline" && (
               <div className="space-y-4">
                 {/* Concrete Operational Benefit Bullets */}
-                <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/40 p-3.5 text-xs space-y-2">
-                  <p className="font-extrabold text-emerald-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                    <CheckCircle2 className="size-3.5 text-emerald-400" />
+                <div className="rounded-xl border border-success/30 bg-success p-3.5 text-xs space-y-2">
+                  <p className="font-extrabold text-success uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <CheckCircle2 className="size-3.5 text-success" />
                     Pillar 2: Engage — Sales Pipeline Benefits
                   </p>
                   <div className="grid sm:grid-cols-3 gap-2.5 text-slate-300">
@@ -375,14 +375,14 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
                 <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
                   <div>
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                      <CircleDollarSign className="size-4 text-emerald-400" />
+                      <CircleDollarSign className="size-4 text-success" />
                       Sales Opportunity Pipeline (Forecast Matrix)
                     </h3>
                     <p className="text-xs text-slate-400 mt-0.5 font-medium">
                       Live deal stages, probability weightings, and revenue forecasts.
                     </p>
                   </div>
-                  <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold text-emerald-300 border border-emerald-500/40">
+                  <span className="rounded-full bg-success/20 px-2.5 py-1 text-[10px] font-bold text-success border border-success/40">
                     RAW PIPELINE (
                     {formatCurrency(
                       realForecast?.totalRawPipeline ||
@@ -408,7 +408,7 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
                         <p className="text-xs text-slate-400 font-semibold mt-1">
                           {deal.customer?.firstName} {deal.customer?.lastName}
                         </p>
-                        <p className="text-sm font-black text-emerald-400 mt-2">
+                        <p className="text-sm font-black text-success mt-2">
                           {formatCurrency(deal.value)}
                         </p>
                       </div>
@@ -433,9 +433,9 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
             {activeTab === "visits" && (
               <div className="space-y-4">
                 {/* Concrete Operational Benefit Bullets */}
-                <div className="rounded-xl border border-amber-500/30 bg-amber-950/40 p-3.5 text-xs space-y-2">
-                  <p className="font-extrabold text-amber-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                    <CheckCircle2 className="size-3.5 text-emerald-400" />
+                <div className="rounded-xl border border-warning/30 bg-warning p-3.5 text-xs space-y-2">
+                  <p className="font-extrabold text-warning uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <CheckCircle2 className="size-3.5 text-success" />
                     Pillar 2: Engage — Site Visit Scheduler Benefits
                   </p>
                   <div className="grid sm:grid-cols-3 gap-2.5 text-slate-300">
@@ -448,14 +448,14 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
                 <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
                   <div>
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                      <CalendarDays className="size-4 text-amber-400" />
+                      <CalendarDays className="size-4 text-warning" />
                       Site Visit Calendar & Tour Records
                     </h3>
                     <p className="text-xs text-slate-400 mt-0.5 font-medium">
                       Scheduled property tours and agent dispatch records.
                     </p>
                   </div>
-                  <span className="rounded-full bg-amber-500/20 px-2.5 py-1 text-[10px] font-bold text-amber-300 border border-amber-500/40">
+                  <span className="rounded-full bg-warning/20 px-2.5 py-1 text-[10px] font-bold text-warning border border-warning/40">
                     SITE TOURS ({realVisits.length} VISITS)
                   </span>
                 </div>
@@ -476,7 +476,7 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
                         </span>
                         <StatusPill status={visit.status} size="sm" />
                       </div>
-                      <p className="text-xs text-amber-400 font-bold mt-2">
+                      <p className="text-xs text-warning font-bold mt-2">
                         🗓️ {fmtDate(visit.date)}
                       </p>
                     </div>
@@ -489,9 +489,9 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
             {activeTab === "payments" && (
               <div className="space-y-4">
                 {/* Concrete Operational Benefit Bullets */}
-                <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/40 p-3.5 text-xs space-y-2">
-                  <p className="font-extrabold text-emerald-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                    <CheckCircle2 className="size-3.5 text-emerald-400" />
+                <div className="rounded-xl border border-success/30 bg-success p-3.5 text-xs space-y-2">
+                  <p className="font-extrabold text-success uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <CheckCircle2 className="size-3.5 text-success" />
                     Pillar 3: Close — Contracts & Payment Schedule Benefits
                   </p>
                   <div className="grid sm:grid-cols-3 gap-2.5 text-slate-300">
@@ -504,14 +504,14 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
                 <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
                   <div>
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                      <Coins className="size-4 text-emerald-400" />
+                      <Coins className="size-4 text-success" />
                       Installment Payment Milestones & Receipts
                     </h3>
                     <p className="text-xs text-slate-400 mt-0.5 font-medium">
                       Track construction milestones, downpayments, and bank slips.
                     </p>
                   </div>
-                  <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold text-emerald-300 border border-emerald-500/40">
+                  <span className="rounded-full bg-success/20 px-2.5 py-1 text-[10px] font-bold text-success border border-success/40">
                     SCHEDULED MILESTONES ({realSchedules.length})
                   </span>
                 </div>
@@ -528,7 +528,7 @@ export function LiveWorkspacePreview({ activeTab, onTabChange }: LiveWorkspacePr
                         </span>
                         <StatusPill status={sch.status} size="sm" />
                       </div>
-                      <p className="text-sm font-black text-emerald-400 mt-2">
+                      <p className="text-sm font-black text-success mt-2">
                         {formatCurrency(sch.amount)}
                       </p>
                     </div>

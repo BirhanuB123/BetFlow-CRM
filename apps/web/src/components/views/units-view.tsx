@@ -82,16 +82,16 @@ type StackingBuilding = {
 };
 
 const statusClass: Record<string, string> = {
-  AVAILABLE: "bg-emerald-100 text-emerald-700 border-emerald-300",
-  RESERVED: "bg-amber-100 text-amber-800 border-amber-300",
-  SOLD: "bg-rose-100 text-rose-800 border-rose-300",
+  AVAILABLE: "bg-success/10 text-success border-success/30",
+  RESERVED: "bg-warning/10 text-warning border-warning/30",
+  SOLD: "bg-destructive/10 text-destructive border-destructive/30",
 };
 
 const statusTileBg: Record<string, string> = {
   AVAILABLE:
-    "bg-emerald-50 text-emerald-900 border-emerald-300 hover:bg-emerald-100",
-  RESERVED: "bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100",
-  SOLD: "bg-rose-50 text-rose-900 border-rose-300 hover:bg-rose-100",
+    "bg-success/10 text-success border-success/30 hover:bg-success/10",
+  RESERVED: "bg-warning/10 text-warning border-warning/30 hover:bg-warning/10",
+  SOLD: "bg-destructive/10 text-destructive border-destructive/30 hover:bg-destructive/10",
 };
 
 function formatPrice(value: string | number) {
@@ -241,23 +241,23 @@ export function UnitsView({ projectId }: UnitsViewProps) {
 
         {/* Legend */}
         <div className="flex items-center gap-3 text-xs font-semibold">
-          <span className="flex items-center gap-1 text-emerald-700">
-            <span className="size-2.5 rounded-full bg-emerald-500" />
+          <span className="flex items-center gap-1 text-success">
+            <span className="size-2.5 rounded-full bg-success" />
             {t("units.statusAvailable")} ({counts.AVAILABLE})
           </span>
-          <span className="flex items-center gap-1 text-amber-800">
-            <span className="size-2.5 rounded-full bg-amber-500" />
+          <span className="flex items-center gap-1 text-warning">
+            <span className="size-2.5 rounded-full bg-warning" />
             {t("units.statusReserved")} ({counts.RESERVED})
           </span>
-          <span className="flex items-center gap-1 text-rose-800">
-            <span className="size-2.5 rounded-full bg-rose-500" />
+          <span className="flex items-center gap-1 text-destructive">
+            <span className="size-2.5 rounded-full bg-destructive" />
             {t("units.statusSold")} ({counts.SOLD})
           </span>
         </div>
       </div>
 
       {error && (
-        <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-600">
+        <p className="rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-xs text-destructive">
           {error}
         </p>
       )}
@@ -286,7 +286,7 @@ export function UnitsView({ projectId }: UnitsViewProps) {
                         {b.name}
                       </h3>
                       {b.project?.stageInfo && (
-                        <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 border border-blue-200">
+                        <span className="inline-flex items-center rounded-full bg-info/10 px-2.5 py-0.5 text-xs font-semibold text-info border border-info/20">
                           {b.project.stageInfo.badge} ({b.project.stageInfo.progressPercentage}%)
                         </span>
                       )}
@@ -336,7 +336,7 @@ export function UnitsView({ projectId }: UnitsViewProps) {
                             </div>
                             {u.stageInfo && (
                               <div className="mt-1">
-                                <span className="inline-block rounded bg-blue-100/80 px-1.5 py-0.5 text-[9px] font-semibold text-blue-800">
+                                <span className="inline-block rounded bg-info/10/80 px-1.5 py-0.5 text-[9px] font-semibold text-info">
                                   {u.stageInfo.badge}
                                 </span>
                               </div>
@@ -430,7 +430,7 @@ export function UnitsView({ projectId }: UnitsViewProps) {
                 <div key="project-stage">
                   <div className="font-medium text-slate-800">{unit.floor.building.project.name}</div>
                   {unit.stageInfo && (
-                    <div className="text-[10px] font-semibold text-blue-600">
+                    <div className="text-[10px] font-semibold text-info">
                       {unit.stageInfo.badge} ({unit.stageInfo.progressPercentage}%)
                     </div>
                   )}
@@ -543,7 +543,7 @@ export function UnitsView({ projectId }: UnitsViewProps) {
                   </div>
                   <div className="flex justify-between items-center border-t border-primary/20 pt-2 text-slate-900 font-bold">
                     <span>Installment Amount:</span>
-                    <span className="text-emerald-700 text-sm">{formatPrice(planCalc.installmentAmount || 0)}</span>
+                    <span className="text-success text-sm">{formatPrice(planCalc.installmentAmount || 0)}</span>
                   </div>
                 </div>
               )}

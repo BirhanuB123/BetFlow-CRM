@@ -78,22 +78,22 @@ const channelConfig: Record<
 > = {
   TELEGRAM: {
     label: "Telegram Channel",
-    badge: "bg-sky-50 text-sky-700 border-sky-200 font-bold",
+    badge: "bg-info/10 text-info border-info/20 font-bold",
     icon: Send,
   },
   SMS: {
     label: "SMS Direct Alert",
-    badge: "bg-purple-50 text-purple-700 border-purple-200 font-medium",
+    badge: "bg-info/10 text-info border-info font-medium",
     icon: Smartphone,
   },
   FACEBOOK: {
     label: "Meta Lead Broadcast",
-    badge: "bg-blue-50 text-blue-700 border-blue-200 font-medium",
+    badge: "bg-info/10 text-info border-info/20 font-medium",
     icon: Share2,
   },
   WHATSAPP: {
     label: "WhatsApp Business Bot",
-    badge: "bg-emerald-50 text-emerald-700 border-emerald-200 font-medium",
+    badge: "bg-success/10 text-success border-success/20 font-medium",
     icon: MessageSquare,
   },
 };
@@ -223,7 +223,7 @@ export function SocialOutreachView() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <div className="flex size-9 items-center justify-center rounded-lg bg-sky-50 text-sky-700">
+              <div className="flex size-9 items-center justify-center rounded-lg bg-info/10 text-info">
                 <Megaphone className="size-5" />
               </div>
               <div>
@@ -473,13 +473,13 @@ export function SocialOutreachView() {
                         {c.recipients.toLocaleString()}
                       </td>
 
-                      <td className="px-4 py-3 font-extrabold text-emerald-700">
+                      <td className="px-4 py-3 font-extrabold text-success">
                         {c.clicks} clicks
                       </td>
 
                       <td className="px-4 py-3">
-                        <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
-                          <CheckCircle2 className="size-3 text-emerald-600" />
+                        <span className="inline-flex items-center gap-1 rounded-md bg-success/10 border border-success/20 px-2 py-0.5 text-[11px] font-bold text-success">
+                          <CheckCircle2 className="size-3 text-success" />
                           {c.status}
                         </span>
                       </td>
@@ -551,24 +551,24 @@ export function SocialOutreachView() {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-sky-200 bg-sky-50/50 p-4">
-                <p className="text-[11px] font-bold text-sky-900 mb-1.5">
+              <div className="rounded-xl border border-info/20 bg-info/10 p-4">
+                <p className="text-[11px] font-bold text-info mb-1.5">
                   Message Body Sent to Channel:
                 </p>
-                <p className="text-xs font-mono text-slate-800 leading-relaxed whitespace-pre-line bg-white p-3 rounded-lg border border-sky-100">
+                <p className="text-xs font-mono text-slate-800 leading-relaxed whitespace-pre-line bg-white p-3 rounded-lg border border-info/20">
                   {activePreviewModal.messagePreview ||
                     "No text preview recorded."}
                 </p>
               </div>
 
-              <div className="flex items-center justify-between rounded-xl bg-emerald-50 px-4 py-3 border border-emerald-200 text-emerald-900">
+              <div className="flex items-center justify-between rounded-xl bg-success/10 px-4 py-3 border border-success/20 text-success">
                 <div>
                   <p className="text-[11px] font-bold">Link Engagements</p>
-                  <p className="text-xs text-emerald-700">
+                  <p className="text-xs text-success">
                     {activePreviewModal.clicks} Verified Clicks
                   </p>
                 </div>
-                <span className="text-base font-bold text-emerald-700">
+                <span className="text-base font-bold text-success">
                   {Math.round(
                     (activePreviewModal.clicks /
                       Math.max(1, activePreviewModal.recipients)) *

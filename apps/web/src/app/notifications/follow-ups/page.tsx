@@ -62,9 +62,9 @@ type LeadOption = {
 };
 
 const statusClass: Record<string, string> = {
-  PENDING: "bg-blue-50 text-blue-700 border-blue-200",
-  COMPLETED: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  OVERDUE: "bg-rose-50 text-rose-700 border-rose-200",
+  PENDING: "bg-info/10 text-info border-info/20",
+  COMPLETED: "bg-success/10 text-success border-success/20",
+  OVERDUE: "bg-destructive/10 text-destructive border-destructive/20",
   SKIPPED: "bg-slate-100 text-slate-700 border-slate-200",
 };
 
@@ -505,7 +505,7 @@ export default function FollowUpsPage() {
         </section>
 
         {error && (
-          <p className="rounded-lg border border-rose-200 bg-rose-50 p-3.5 text-xs font-semibold text-rose-700">
+          <p className="rounded-lg border border-destructive/20 bg-destructive/10 p-3.5 text-xs font-semibold text-destructive">
             {error}
           </p>
         )}
@@ -680,7 +680,7 @@ export default function FollowUpsPage() {
                         <td className="px-5 py-3 text-slate-600 font-medium">
                           <span
                             className={cn(
-                              isOverdue && "text-rose-600 font-bold",
+                              isOverdue && "text-destructive font-bold",
                             )}
                           >
                             {fmtDateTime(call.dueDate)}
@@ -730,7 +730,7 @@ export default function FollowUpsPage() {
                             <button
                               type="button"
                               onClick={() => handleDelete(call.id)}
-                              className="rounded p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                              className="rounded p-1.5 text-slate-400 hover:bg-destructive/10 hover:text-destructive transition-colors"
                               title="Delete reminder"
                             >
                               <Trash2 className="size-3.5" />
@@ -831,7 +831,7 @@ export default function FollowUpsPage() {
                   <Button
                     type="submit"
                     disabled={saving}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs shadow-sm"
+                    className="font-medium text-xs shadow-sm"
                   >
                     {saving ? "Saving…" : "Mark Completed"}
                   </Button>

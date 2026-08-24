@@ -229,10 +229,10 @@ export default function SalesReportPage() {
       value: "$250,000",
       detail: "Active contracts",
       badge: "+14.2% vs last mo.",
-      badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      badgeColor: "bg-success/10 text-success border-success/20",
       icon: DollarSign,
-      iconBg: "bg-emerald-500/10 text-emerald-600 border-emerald-200",
-      accentBar: "from-emerald-500 to-teal-500",
+      iconBg: "bg-success/10 text-success border-success/20",
+      accentBar: "from-success to-success",
     },
     {
       label: "Collected",
@@ -242,27 +242,27 @@ export default function SalesReportPage() {
       badgeColor: "bg-primary/10 text-primary border-primary/20",
       icon: PiggyBank,
       iconBg: "bg-primary/10 text-primary border-primary/20",
-      accentBar: "from-indigo-500 to-blue-500",
+      accentBar: "from-primary to-info",
     },
     {
       label: "Sales Velocity",
       value: "$93,000",
       detail: "Projected revenue / day",
       badge: "High Pace",
-      badgeColor: "bg-amber-50 text-amber-700 border-amber-200",
+      badgeColor: "bg-warning/10 text-warning border-warning/20",
       icon: Zap,
-      iconBg: "bg-amber-500/10 text-amber-600 border-amber-200",
-      accentBar: "from-amber-500 to-orange-500",
+      iconBg: "bg-warning/10 text-warning border-warning/20",
+      accentBar: "from-warning to-warning",
     },
     {
       label: "Open Leads",
       value: "3",
       detail: "Awaiting conversion",
       badge: "Active Pipeline",
-      badgeColor: "bg-sky-50 text-sky-700 border-sky-200",
+      badgeColor: "bg-info/10 text-info border-info/20",
       icon: Users,
-      iconBg: "bg-sky-500/10 text-sky-600 border-sky-200",
-      accentBar: "from-sky-500 to-cyan-500",
+      iconBg: "bg-info/10 text-info border-info/20",
+      accentBar: "from-info to-info",
     },
   ];
 
@@ -350,7 +350,7 @@ export default function SalesReportPage() {
         </div>
 
         {error && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-semibold text-rose-700 shadow-xs">
+          <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-xs font-semibold text-destructive shadow-xs">
             {error}
           </div>
         )}
@@ -373,7 +373,7 @@ export default function SalesReportPage() {
                   badgeColor: "bg-slate-100 text-slate-700 border-slate-200",
                   icon: TrendingUp,
                   iconBg: "bg-primary/10 text-primary border-primary/20",
-                  accentBar: "from-indigo-500 to-blue-500",
+                  accentBar: "from-primary to-info",
                 };
                 const IconComponent = config.icon;
 
@@ -428,7 +428,7 @@ export default function SalesReportPage() {
         </div>
 
         {/* Goal Achievement & Performance Progress Banner */}
-        <div className="relative overflow-hidden rounded-xl border border-primary/10 bg-gradient-to-r from-indigo-900 via-[#1e293b] to-slate-900 p-6 text-white shadow-sm">
+        <div className="relative overflow-hidden rounded-xl border border-primary/10 bg-gradient-to-r from-primary via-[#1e293b] to-slate-900 p-6 text-white shadow-sm">
           <div className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full bg-primary/20 blur-3xl" />
 
           <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
@@ -440,7 +440,7 @@ export default function SalesReportPage() {
               <div className="flex items-center gap-2">
                 <h3 className="text-xl font-bold tracking-tight text-white">
                   Revenue Target:{" "}
-                  <span className="text-emerald-400">
+                  <span className="text-success">
                     {formatCurrency(revenueTarget)}
                   </span>
                 </h3>
@@ -462,7 +462,7 @@ export default function SalesReportPage() {
                     />
                     <button
                       type="submit"
-                      className="rounded bg-emerald-600 p-1 text-white hover:bg-emerald-500"
+                      className="rounded bg-success p-1 text-white hover:bg-success"
                     >
                       <Check className="size-3.5" />
                     </button>
@@ -491,13 +491,13 @@ export default function SalesReportPage() {
             <div className="w-full max-w-xs space-y-2 rounded-lg bg-white/10 p-3.5 backdrop-blur-xs border border-white/10">
               <div className="flex justify-between text-xs font-semibold">
                 <span className="text-slate-300">Progress</span>
-                <span className="text-emerald-400 font-bold">
+                <span className="text-success font-bold">
                   {targetProgressPct.toFixed(1)}%
                 </span>
               </div>
               <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-800">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-indigo-400 via-teal-400 to-emerald-400 transition-all duration-500"
+                  className="h-full rounded-full bg-gradient-to-r from-primary via-success to-success transition-all duration-500"
                   style={{
                     width: `${Math.min(100, Math.max(0, targetProgressPct))}%`,
                   }}
@@ -518,7 +518,7 @@ export default function SalesReportPage() {
           <div className="flex flex-col gap-3 border-b border-slate-200/80 bg-slate-50/70 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <Trophy className="size-4.5 text-amber-500" />
+                <Trophy className="size-4.5 text-warning" />
                 <h2 className="text-sm font-bold text-slate-900">
                   Top Sales Contributors
                 </h2>
@@ -536,7 +536,7 @@ export default function SalesReportPage() {
                 placeholder="Search agent name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-8.5 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-indigo-100"
+                className="h-8.5 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary"
               />
             </div>
           </div>
@@ -578,14 +578,14 @@ export default function SalesReportPage() {
                         key={agent.agentId || agent.agent}
                         className={cn(
                           "transition-colors hover:bg-slate-50/80",
-                          isTopPerformer && "bg-amber-50/30",
+                          isTopPerformer && "bg-warning/10/30",
                         )}
                       >
                         {/* Rank Badge */}
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-1.5">
                             {index === 0 ? (
-                              <span className="flex size-6 items-center justify-center rounded-full bg-amber-100 text-amber-700 font-extrabold text-xs shadow-2xs border border-amber-200">
+                              <span className="flex size-6 items-center justify-center rounded-full bg-warning/10 text-warning font-extrabold text-xs shadow-2xs border border-warning/20">
                                 👑 1
                               </span>
                             ) : (
@@ -603,9 +603,9 @@ export default function SalesReportPage() {
                               className={cn(
                                 "flex size-8 items-center justify-center rounded-full font-extrabold text-xs text-white shadow-2xs",
                                 index === 0
-                                  ? "bg-gradient-to-tr from-amber-500 to-orange-400"
+                                  ? "bg-gradient-to-tr from-warning to-warning"
                                   : index === 1
-                                    ? "bg-gradient-to-tr from-indigo-500 to-blue-500"
+                                    ? "bg-gradient-to-tr from-primary to-info"
                                     : "bg-gradient-to-tr from-slate-600 to-slate-500",
                               )}
                             >
@@ -617,8 +617,8 @@ export default function SalesReportPage() {
                                   {agent.agent}
                                 </span>
                                 {isTopPerformer && (
-                                  <span className="inline-flex items-center rounded-md bg-amber-100 border border-amber-200 px-2 py-0.5 text-[10px] font-extrabold text-amber-800 shadow-2xs">
-                                    <Award className="size-3 mr-1 text-amber-600" />
+                                  <span className="inline-flex items-center rounded-md bg-warning/10 border border-warning/20 px-2 py-0.5 text-[10px] font-extrabold text-warning shadow-2xs">
+                                    <Award className="size-3 mr-1 text-warning" />
                                     Top Contributor
                                   </span>
                                 )}
@@ -654,7 +654,7 @@ export default function SalesReportPage() {
                         {/* Revenue */}
                         <td className="px-5 py-3.5 text-right font-extrabold text-slate-900">
                           {agent.revenue !== "$0" ? (
-                            <span className="text-emerald-600 font-bold">
+                            <span className="text-success font-bold">
                               {agent.revenue}
                             </span>
                           ) : (
@@ -672,7 +672,7 @@ export default function SalesReportPage() {
                                 className={cn(
                                   "h-full rounded-full transition-all",
                                   conversionNum > 25
-                                    ? "bg-emerald-500"
+                                    ? "bg-success"
                                     : conversionNum > 0
                                       ? "bg-primary"
                                       : "bg-slate-300",
@@ -686,7 +686,7 @@ export default function SalesReportPage() {
                               className={cn(
                                 "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-bold",
                                 conversionNum > 25
-                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                  ? "bg-success/10 text-success border-success/20"
                                   : conversionNum > 0
                                     ? "bg-primary/10 text-primary border-primary/20"
                                     : "bg-slate-100 text-slate-600 border-slate-200",

@@ -44,10 +44,10 @@ type CustomerOption = { id: string; firstName: string; lastName: string };
 type LeadOption = { id: string; firstName: string; lastName: string };
 
 const statusClass: Record<string, string> = {
-  SCHEDULED: "bg-blue-50 text-blue-700 border-blue-200",
-  COMPLETED: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  CANCELLED: "bg-rose-50 text-rose-700 border-rose-200",
-  NO_SHOW: "bg-amber-50 text-amber-700 border-amber-200",
+  SCHEDULED: "bg-info/10 text-info border-info/20",
+  COMPLETED: "bg-success/10 text-success border-success/20",
+  CANCELLED: "bg-destructive/10 text-destructive border-destructive/20",
+  NO_SHOW: "bg-warning/10 text-warning border-warning/20",
 };
 
 const meetingTypeIcons: Record<string, typeof Building> = {
@@ -404,7 +404,7 @@ export function MeetingsView() {
         )}
 
         {error && (
-          <p className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-700">
+          <p className="mt-4 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-xs font-medium text-destructive">
             {error}
           </p>
         )}
@@ -506,7 +506,7 @@ export function MeetingsView() {
                             <div className="flex flex-col gap-0.5">
                               <span className="font-semibold text-slate-900">{dt.gc}</span>
                               {dt.ecText && (
-                                <span className="text-[10px] font-bold text-blue-800 bg-blue-50 px-1.5 py-0.2 rounded w-fit border border-blue-200">
+                                <span className="text-[10px] font-bold text-info bg-info/10 px-1.5 py-0.2 rounded w-fit border border-info/20">
                                   🇪🇹 {dt.ecText}
                                 </span>
                               )}
@@ -564,7 +564,7 @@ export function MeetingsView() {
                                 onClick={() =>
                                   changeStatus(meeting.id, "COMPLETED")
                                 }
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white h-7 text-[11px] px-2"
+                                className="h-7 text-[11px] px-2"
                               >
                                 Complete
                               </Button>
@@ -574,7 +574,7 @@ export function MeetingsView() {
                                 onClick={() =>
                                   changeStatus(meeting.id, "NO_SHOW")
                                 }
-                                className="border-amber-300 text-amber-800 hover:bg-amber-50 h-7 text-[11px] px-2"
+                                className="border-warning/30 text-warning hover:bg-warning/10 h-7 text-[11px] px-2"
                               >
                                 No-show
                               </Button>
@@ -584,7 +584,7 @@ export function MeetingsView() {
                           <button
                             type="button"
                             onClick={() => handleDelete(meeting.id)}
-                            className="rounded p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                            className="rounded p-1.5 text-slate-400 hover:bg-destructive/10 hover:text-destructive transition-colors"
                             title="Delete meeting"
                           >
                             <Trash2 className="size-3.5" />

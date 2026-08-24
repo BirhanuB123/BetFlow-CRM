@@ -18,13 +18,14 @@ const noHardcodedColorsRule = {
     if (
       filename.endsWith('globals.css') ||
       filename.endsWith('button.tsx') ||
-      filename.endsWith('badge.tsx')
+      filename.endsWith('badge.tsx') ||
+      filename.endsWith('status-pill.tsx')
     ) {
       return {};
     }
 
     const forbiddenRegex =
-      /\b(bg-indigo-[^\s"'\`]+|text-indigo-[^\s"'\`]+|border-indigo-[^\s"'\`]+|accent-indigo-[^\s"'\`]+|bg-\[\#[0-9a-fA-F]{3,8}\]|hover:bg-\[\#[0-9a-fA-F]{3,8}\])\b/g;
+      /\b((bg|text|border|accent|ring|from|to|via)-(indigo|violet|purple|blue|sky|cyan|emerald|green|teal|amber|orange|rose|red)-[0-9]{2,3}(\/[0-9]{1,3})?|(bg|text|border|hover:bg|hover:text)-\[\#[0-9a-fA-F]{3,8}\])\b/g;
 
     function checkValue(node, value) {
       if (typeof value !== 'string') return;

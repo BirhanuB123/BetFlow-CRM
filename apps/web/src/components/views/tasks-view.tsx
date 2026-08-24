@@ -67,12 +67,12 @@ const statusClass: Record<string, string> = {
   TODO: "bg-slate-100 text-slate-700 border-slate-200",
   IN_PROGRESS:
     "bg-primary/10 text-[#233b66] border-primary/20 font-semibold",
-  DONE: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  DONE: "bg-success/10 text-success border-success/20",
 };
 
 const priorityClass: Record<string, string> = {
-  HIGH: "bg-rose-50 text-rose-700 border-rose-200 font-bold",
-  MEDIUM: "bg-amber-50 text-amber-700 border-amber-200 font-medium",
+  HIGH: "bg-destructive/10 text-destructive border-destructive/20 font-bold",
+  MEDIUM: "bg-warning/10 text-warning border-warning/20 font-medium",
   LOW: "bg-slate-100 text-slate-600 border-slate-200 font-normal",
 };
 
@@ -416,7 +416,7 @@ export function TasksView() {
         <div className="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs">
           <div className="flex items-center justify-between text-slate-500 text-xs mb-1 font-medium">
             <span>Open Tasks</span>
-            <Clock className="size-4 text-blue-600" />
+            <Clock className="size-4 text-info" />
           </div>
           <p className="text-xl font-extrabold text-slate-900 font-mono">
             {metrics.open}
@@ -426,9 +426,9 @@ export function TasksView() {
         <div className="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs">
           <div className="flex items-center justify-between text-slate-500 text-xs mb-1 font-medium">
             <span>High Priority</span>
-            <AlertTriangle className="size-4 text-rose-600" />
+            <AlertTriangle className="size-4 text-destructive" />
           </div>
-          <p className="text-xl font-extrabold text-rose-600 font-mono">
+          <p className="text-xl font-extrabold text-destructive font-mono">
             {metrics.high}
           </p>
         </div>
@@ -436,9 +436,9 @@ export function TasksView() {
         <div className="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs">
           <div className="flex items-center justify-between text-slate-500 text-xs mb-1 font-medium">
             <span>Due Today</span>
-            <Sparkles className="size-4 text-amber-500" />
+            <Sparkles className="size-4 text-warning" />
           </div>
-          <p className="text-xl font-extrabold text-amber-600 font-mono">
+          <p className="text-xl font-extrabold text-warning font-mono">
             {metrics.dueToday}
           </p>
         </div>
@@ -446,9 +446,9 @@ export function TasksView() {
         <div className="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs">
           <div className="flex items-center justify-between text-slate-500 text-xs mb-1 font-medium">
             <span>Completed</span>
-            <CheckCircle2 className="size-4 text-emerald-600" />
+            <CheckCircle2 className="size-4 text-success" />
           </div>
-          <p className="text-xl font-extrabold text-emerald-600 font-mono">
+          <p className="text-xl font-extrabold text-success font-mono">
             {metrics.done}
           </p>
         </div>
@@ -682,7 +682,7 @@ export function TasksView() {
                 size="xs"
                 variant="outline"
                 onClick={() => void handleBulkStatusChange("DONE")}
-                className="bg-white hover:bg-emerald-50 hover:text-emerald-700 border-slate-300 text-slate-700 text-[11px]"
+                className="bg-white hover:bg-success/10 hover:text-success border-slate-300 text-slate-700 text-[11px]"
               >
                 Mark Selected Done
               </Button>
@@ -690,7 +690,7 @@ export function TasksView() {
                 size="xs"
                 variant="outline"
                 onClick={() => void handleBulkDelete()}
-                className="bg-white hover:bg-rose-50 hover:text-rose-700 border-slate-300 text-rose-600 text-[11px]"
+                className="bg-white hover:bg-destructive/10 hover:text-destructive border-slate-300 text-destructive text-[11px]"
               >
                 <Trash2 className="size-3 mr-1" /> Delete Selected
               </Button>
@@ -700,7 +700,7 @@ export function TasksView() {
 
         {/* Error / Loading / Table */}
         {error && (
-          <div className="p-4 text-xs text-rose-600 bg-rose-50 border-b border-rose-100">
+          <div className="p-4 text-xs text-destructive bg-destructive/10 border-b border-destructive/20">
             {error}
           </div>
         )}
@@ -841,7 +841,7 @@ export function TasksView() {
                               onClick={() =>
                                 void changeStatus(task.id, "DONE")
                               }
-                              className="bg-emerald-600 hover:bg-emerald-700 text-white h-7 text-[11px] px-2 shadow-2xs font-medium"
+                              className="h-7 text-[11px] px-2 shadow-2xs font-medium"
                             >
                               Mark Done
                             </Button>
@@ -850,7 +850,7 @@ export function TasksView() {
                           <button
                             type="button"
                             onClick={(e) => void handleDeleteSingle(task.id, e)}
-                            className="rounded p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                            className="rounded p-1.5 text-slate-400 hover:bg-destructive/10 hover:text-destructive transition-colors"
                             title="Delete task"
                           >
                             <Trash2 className="size-3.5" />

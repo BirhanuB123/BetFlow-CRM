@@ -137,7 +137,7 @@ export default function DealDetailPage() {
         </div>
 
         {error && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-semibold text-rose-700 shadow-2xs">
+          <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-xs font-semibold text-destructive shadow-2xs">
             {error}
           </div>
         )}
@@ -265,7 +265,7 @@ export default function DealDetailPage() {
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
                         <div>
                           <span className="text-slate-400 block font-semibold">Deposit Amount</span>
-                          <span className="font-extrabold text-emerald-700">
+                          <span className="font-extrabold text-success">
                             {formatCurrency(deal.reservation.amount)}
                           </span>
                         </div>
@@ -318,7 +318,7 @@ export default function DealDetailPage() {
                         </div>
                         <div>
                           <span className="text-slate-400 block font-semibold">Down Payment</span>
-                          <span className="font-extrabold text-emerald-700">
+                          <span className="font-extrabold text-success">
                             {formatCurrency(deal.contract.downPaymentAmt || 0)}
                           </span>
                         </div>
@@ -366,13 +366,13 @@ export default function DealDetailPage() {
                               <td className="px-4 py-2.5 font-bold text-slate-900 font-mono">
                                 {p.receiptNumber || `REC-${p.id.slice(0, 8)}`}
                               </td>
-                              <td className="px-4 py-2.5 font-extrabold text-emerald-700">
+                              <td className="px-4 py-2.5 font-extrabold text-success">
                                 {formatCurrency(p.amount)}
                               </td>
                               <td className="px-4 py-2.5 text-slate-600">{p.method}</td>
                               <td className="px-4 py-2.5 text-slate-600">{fmtDate(p.date)}</td>
                               <td className="px-4 py-2.5">
-                                <span className="inline-flex items-center gap-1 text-emerald-700 font-bold text-xs">
+                                <span className="inline-flex items-center gap-1 text-success font-bold text-xs">
                                   <ShieldCheck className="size-3" /> VERIFIED
                                 </span>
                               </td>
@@ -387,7 +387,7 @@ export default function DealDetailPage() {
                         No payment receipts logged for this deal yet.
                       </p>
                       <Link href="/transactions?tab=payments">
-                        <Button size="sm" className="bg-emerald-600 text-white text-xs">
+                        <Button size="sm" className="bg-success text-white text-xs">
                           Record Payment Receipt
                         </Button>
                       </Link>

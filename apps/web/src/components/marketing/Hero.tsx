@@ -37,8 +37,8 @@ export function Hero({ selectedWorkflows, onToggleWorkflow }: HeroProps) {
             <div className="flex flex-wrap items-center gap-3">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-bold text-primary/80 shadow-xs">
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-success"></span>
                 </span>
                 <span>{t("hero.badge")}</span>
               </div>
@@ -50,7 +50,7 @@ export function Hero({ selectedWorkflows, onToggleWorkflow }: HeroProps) {
 
             <h1 className="text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl leading-[1.15]">
               {t("hero.titleStart")}{" "}
-              <span className="bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary via-info to-success bg-clip-text text-transparent">
                 {t("hero.titleBrand")}
               </span>
             </h1>
@@ -60,7 +60,7 @@ export function Hero({ selectedWorkflows, onToggleWorkflow }: HeroProps) {
               {t("hero.subtitle")}
             </p>
             <p className="text-xs sm:text-sm font-semibold text-primary/80/90 flex items-center gap-2">
-              <span className="size-1.5 rounded-full bg-emerald-400 inline-block" />
+              <span className="size-1.5 rounded-full bg-success inline-block" />
               Empowering sales teams with real-time unit locks, automated legal PDF contracts, and milestone tracking.
             </p>
 
@@ -125,7 +125,7 @@ export function Hero({ selectedWorkflows, onToggleWorkflow }: HeroProps) {
 
             {/* Security Disclaimer Banner (Safely scoped, zero exposed credentials) */}
             <div className="inline-flex items-center gap-2.5 rounded-xl border border-slate-800 bg-slate-900/90 px-4 py-2 text-xs text-slate-400 shadow-xs">
-              <ShieldCheck className="size-4 text-emerald-400 shrink-0" />
+              <ShieldCheck className="size-4 text-success shrink-0" />
               <span>
                 No credit card required · Instant sandbox access with zero setup.
               </span>
@@ -151,7 +151,7 @@ export function Hero({ selectedWorkflows, onToggleWorkflow }: HeroProps) {
                   <span className="rounded-md bg-slate-950/90 backdrop-blur-md border border-slate-800 px-2.5 py-1 text-[11px] font-extrabold text-white">
                     Bole Medhanialem Tower
                   </span>
-                  <span className="rounded-md bg-emerald-500/90 backdrop-blur-md px-2.5 py-1 text-[11px] font-extrabold text-white">
+                  <span className="rounded-md bg-success/90 backdrop-blur-md px-2.5 py-1 text-[11px] font-extrabold text-white">
                     84% SOLD OUT
                   </span>
                 </div>

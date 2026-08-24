@@ -131,8 +131,8 @@ export function Footer() {
 
         <div className="border-t border-slate-200 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
           <p>© {new Date().getFullYear()} BetFlow S.C. All rights reserved.</p>
-          <div className="flex items-center gap-2 text-[11px] text-emerald-600 font-extrabold">
-            <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+          <div className="flex items-center gap-2 text-[11px] text-success font-extrabold">
+            <span className="size-2 rounded-full bg-success animate-pulse" />
             <span>All Systems Operational (NestJS + Prisma + PostgreSQL)</span>
           </div>
         </div>

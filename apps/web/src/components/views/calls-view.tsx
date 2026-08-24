@@ -217,8 +217,8 @@ export function CallsView() {
               Call Logs & Telephony
             </h2>
             {socketConnected && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800 border border-emerald-200">
-                <span className="size-1.5 rounded-full bg-emerald-500 animate-ping" />
+              <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-0.5 text-[11px] font-semibold text-success border border-success/20">
+                <span className="size-1.5 rounded-full bg-success animate-ping" />
                 Real-Time Socket Connected
               </span>
             )}
@@ -320,7 +320,7 @@ export function CallsView() {
                           Lead: {call.leadName}
                         </span>
                       ) : call.customerName ? (
-                        <span className="font-medium text-emerald-700">
+                        <span className="font-medium text-success">
                           Customer: {call.customerName}
                         </span>
                       ) : (
@@ -330,10 +330,10 @@ export function CallsView() {
 
                     <td className="py-3.5 px-4">
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                        {call.callType === "OUTBOUND" && <PhoneOutgoing className="size-3 text-blue-600" />}
-                        {call.callType === "INBOUND" && <PhoneIncoming className="size-3 text-emerald-600" />}
-                        {call.callType === "TELEGRAM" && <Send className="size-3 text-cyan-600" />}
-                        {call.callType === "WHATSAPP" && <MessageCircle className="size-3 text-emerald-500" />}
+                        {call.callType === "OUTBOUND" && <PhoneOutgoing className="size-3 text-info" />}
+                        {call.callType === "INBOUND" && <PhoneIncoming className="size-3 text-success" />}
+                        {call.callType === "TELEGRAM" && <Send className="size-3 text-info" />}
+                        {call.callType === "WHATSAPP" && <MessageCircle className="size-3 text-success" />}
                         {call.callType}
                       </span>
                     </td>
@@ -357,12 +357,12 @@ export function CallsView() {
 
                     <td className="py-3.5 px-4">
                       {call.status === "COMPLETED" ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800">
-                          <CheckCircle2 className="size-3 text-emerald-600" /> Completed
+                        <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-0.5 text-[11px] font-semibold text-success">
+                          <CheckCircle2 className="size-3 text-success" /> Completed
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800">
-                          <Clock className="size-3 text-amber-600" /> Pending
+                        <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2.5 py-0.5 text-[11px] font-semibold text-warning">
+                          <Clock className="size-3 text-warning" /> Pending
                         </span>
                       )}
                     </td>
@@ -373,7 +373,7 @@ export function CallsView() {
                           <button
                             onClick={() => handleCompleteCall(call.id)}
                             title="Mark as Completed"
-                            className="rounded-lg bg-emerald-50 p-1.5 text-emerald-600 hover:bg-emerald-100 transition-colors"
+                            className="rounded-lg bg-success/10 p-1.5 text-success hover:bg-success/10 transition-colors"
                           >
                             <Check className="size-4" />
                           </button>
@@ -381,7 +381,7 @@ export function CallsView() {
                         <button
                           onClick={() => handleDeleteCall(call.id)}
                           title="Delete Call Log"
-                          className="rounded-lg bg-rose-50 p-1.5 text-rose-600 hover:bg-rose-100 transition-colors"
+                          className="rounded-lg bg-destructive/10 p-1.5 text-destructive hover:bg-destructive/10 transition-colors"
                         >
                           <Trash2 className="size-4" />
                         </button>

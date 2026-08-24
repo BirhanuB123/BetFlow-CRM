@@ -75,7 +75,7 @@ export function ConnectionErrorDisplay({
   return (
     <main className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-[#0b0f17] p-4 text-slate-100 selection:bg-[#0E6E63]/30 selection:text-[#2dd4bf] sm:p-6 lg:p-8 font-sans">
       {/* Dynamic Glow Orbs Background */}
-      <div className="pointer-events-none absolute -top-40 left-1/2 h-[550px] w-[550px] -translate-x-1/2 rounded-full bg-radial from-rose-500/15 via-[#0E6E63]/10 to-transparent blur-[70px] animate-pulse" />
+      <div className="pointer-events-none absolute -top-40 left-1/2 h-[550px] w-[550px] -translate-x-1/2 rounded-full bg-radial from-destructive via-[#0E6E63]/10 to-transparent blur-[70px] animate-pulse" />
       <div className="pointer-events-none absolute -bottom-20 right-10 h-[380px] w-[380px] rounded-full bg-radial from-[#0E6E63]/20 to-transparent blur-[60px]" />
 
       {/* Background Mesh Grid */}
@@ -108,16 +108,16 @@ export function ConnectionErrorDisplay({
 
         {/* Radar Icon Wrapper */}
         <div className="relative mx-auto mb-6 flex h-20 w-20 items-center justify-center">
-          <div className="absolute inset-0 rounded-full border border-rose-500/30 bg-rose-500/10 shadow-[0_0_25px_rgba(244,63,94,0.25)]" />
-          <div className="absolute -inset-2.5 rounded-full border border-dashed border-rose-500/25 animate-[spin_15s_linear_infinite]" />
-          <WifiOff className="relative z-10 size-9 text-rose-400" />
+          <div className="absolute inset-0 rounded-full border border-destructive/30 bg-destructive/10 shadow-[0_0_25px_rgba(244,63,94,0.25)]" />
+          <div className="absolute -inset-2.5 rounded-full border border-dashed border-destructive/25 animate-[spin_15s_linear_infinite]" />
+          <WifiOff className="relative z-10 size-9 text-destructive" />
         </div>
 
         {/* Error Code Pill */}
-        <div className="mx-auto mb-3 flex w-max items-center gap-2 rounded-full border border-rose-500/30 bg-rose-500/10 px-3.5 py-1 text-xs font-mono font-medium text-rose-300 shadow-sm">
+        <div className="mx-auto mb-3 flex w-max items-center gap-2 rounded-full border border-destructive/30 bg-destructive/10 px-3.5 py-1 text-xs font-mono font-medium text-destructive shadow-sm">
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75"></span>
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500"></span>
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive opacity-75"></span>
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-destructive"></span>
           </span>
           {errorCode}
         </div>
@@ -139,7 +139,7 @@ export function ConnectionErrorDisplay({
               URL
             </span>
             <span
-              className="truncate font-mono text-xs text-sky-400"
+              className="truncate font-mono text-xs text-info"
               title={url}
             >
               {url}
@@ -152,7 +152,7 @@ export function ConnectionErrorDisplay({
             title="Copy URL"
           >
             {copied ? (
-              <Check className="size-3.5 text-emerald-400" />
+              <Check className="size-3.5 text-success" />
             ) : (
               <Copy className="size-3.5" />
             )}

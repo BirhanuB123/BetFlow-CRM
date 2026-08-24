@@ -64,9 +64,9 @@ const CATEGORIES = [
   "OTHER",
 ];
 const statusClass: Record<DocumentStatus, string> = {
-  PENDING_REVIEW: "bg-amber-50 text-amber-700 border border-amber-200",
-  VERIFIED: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-  REJECTED: "bg-rose-50 text-rose-700 border border-rose-200",
+  PENDING_REVIEW: "bg-warning/10 text-warning border border-warning/20",
+  VERIFIED: "bg-success/10 text-success border border-success/20",
+  REJECTED: "bg-destructive/10 text-destructive border border-destructive/20",
   EXPIRED: "bg-slate-100 text-slate-700 border border-slate-200",
 };
 
@@ -285,7 +285,7 @@ export default function DocumentsPage() {
     >
       <div className="space-y-6">
         {/* Ethiopian KYC Compliance Presets Widget */}
-        <section className="rounded-xl border border-primary/20 bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-950 p-5 shadow-lg text-white">
+        <section className="rounded-xl border border-primary/20 bg-gradient-to-r from-primary via-slate-900 to-slate-950 p-5 shadow-lg text-white">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-primary/60 pb-4">
             <div>
               <h2 className="text-sm font-bold tracking-wide flex items-center gap-2 text-primary/80">
@@ -333,8 +333,8 @@ export default function DocumentsPage() {
                   className={cn(
                     "text-xs font-extrabold px-3 py-1 rounded-full border",
                     kycStatus.isKycComplete
-                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
-                      : "bg-amber-500/20 text-amber-300 border-amber-500/40",
+                      ? "bg-success/20 text-success border-success/40"
+                      : "bg-warning/20 text-warning border-warning/40",
                   )}
                 >
                   {kycStatus.isKycComplete
@@ -348,7 +348,7 @@ export default function DocumentsPage() {
                 <div
                   className={cn(
                     "h-full transition-all",
-                    kycStatus.isKycComplete ? "bg-emerald-500" : "bg-primary",
+                    kycStatus.isKycComplete ? "bg-success" : "bg-primary",
                   )}
                   style={{ width: `${kycStatus.completionPercentage}%` }}
                 />
@@ -375,11 +375,11 @@ export default function DocumentsPage() {
                         className={cn(
                           "text-[10px] font-bold px-2 py-0.5 rounded border",
                           req.status === "VERIFIED" &&
-                            "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+                            "bg-success/20 text-success border-success/40",
                           req.status === "PENDING_REVIEW" &&
-                            "bg-amber-500/20 text-amber-300 border-amber-500/40",
+                            "bg-warning/20 text-warning border-warning/40",
                           req.status === "EXPIRED" &&
-                            "bg-rose-500/20 text-rose-300 border-rose-500/40",
+                            "bg-destructive/20 text-destructive border-destructive/40",
                           req.status === "MISSING" &&
                             "bg-slate-800 text-slate-400 border-slate-700",
                         )}
@@ -542,7 +542,7 @@ export default function DocumentsPage() {
         )}
 
         {error && (
-          <p className="rounded-lg border border-rose-200 bg-rose-50 p-3.5 text-xs font-semibold text-rose-700">
+          <p className="rounded-lg border border-destructive/20 bg-destructive/10 p-3.5 text-xs font-semibold text-destructive">
             {error}
           </p>
         )}
@@ -655,7 +655,7 @@ export default function DocumentsPage() {
                     <>
                       <button
                         type="button"
-                        className="rounded-md p-1.5 text-emerald-600 hover:bg-emerald-50"
+                        className="rounded-md p-1.5 text-success hover:bg-success/10"
                         onClick={() => void review(doc.id, "VERIFIED")}
                         title="Approve & Verify"
                       >
@@ -663,7 +663,7 @@ export default function DocumentsPage() {
                       </button>
                       <button
                         type="button"
-                        className="rounded-md p-1.5 text-rose-600 hover:bg-rose-50"
+                        className="rounded-md p-1.5 text-destructive hover:bg-destructive/10"
                         onClick={() => void review(doc.id, "REJECTED")}
                         title="Reject"
                       >
@@ -673,7 +673,7 @@ export default function DocumentsPage() {
                   )}
                   <button
                     type="button"
-                    className="rounded-md p-1.5 text-rose-600 hover:bg-rose-50"
+                    className="rounded-md p-1.5 text-destructive hover:bg-destructive/10"
                     onClick={() => void remove(doc.id)}
                     title="Delete document"
                   >
@@ -742,7 +742,7 @@ export default function DocumentsPage() {
                   </span>
                 </div>
                 {previewDoc.rejectionReason && (
-                  <div className="rounded-lg bg-rose-50 border border-rose-200 p-2.5 text-rose-700 mt-2">
+                  <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-2.5 text-destructive mt-2">
                     <span className="font-bold block">Rejection Reason:</span>
                     {previewDoc.rejectionReason}
                   </div>

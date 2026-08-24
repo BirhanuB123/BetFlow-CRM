@@ -60,14 +60,14 @@ type SubscriptionData = {
 };
 
 const statusClass = {
-  current: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  current: "bg-success/10 text-success border-success/20",
   available: "bg-zinc-100 text-zinc-600 border-zinc-200",
-  paid: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  due: "bg-amber-50 text-amber-800 border-amber-200",
-  failed: "bg-red-50 text-red-700 border-red-200",
-  Active: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  Expired: "bg-red-50 text-red-700 border-red-200",
-  Converted: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  paid: "bg-success/10 text-success border-success/20",
+  due: "bg-warning/10 text-warning border-warning/20",
+  failed: "bg-destructive/10 text-destructive border-destructive/20",
+  Active: "bg-success/10 text-success border-success/20",
+  Expired: "bg-destructive/10 text-destructive border-destructive/20",
+  Converted: "bg-success/10 text-success border-success/20",
 };
 
 export default function SubscriptionPage() {
@@ -117,7 +117,7 @@ export default function SubscriptionPage() {
         description="Plan selection and feature usage for this tenant."
         active="Plans"
       >
-        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div className="rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error || "Failed to load subscription details"}
         </div>
       </DashboardShell>

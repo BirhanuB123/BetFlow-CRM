@@ -17,9 +17,9 @@ type OnboardingStep = {
 };
 
 const statusClass = {
-  Complete: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  "In progress": "bg-blue-50 text-blue-700 border-blue-200",
-  Blocked: "bg-red-50 text-red-700 border-red-200",
+  Complete: "bg-success/10 text-success border-success/20",
+  "In progress": "bg-info/10 text-info border-info/20",
+  Blocked: "bg-destructive/10 text-destructive border-destructive/20",
   "Not started": "bg-zinc-100 text-zinc-600 border-zinc-200",
 };
 
@@ -116,13 +116,13 @@ export default function OnboardingPage() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div className="mb-4 rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       )}
 
       {successMsg && (
-        <div className="mb-4 flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-600">
+        <div className="mb-4 flex items-center gap-2 rounded-md border border-success/20 bg-success/10 px-4 py-3 text-sm text-success">
           <Check className="size-4 shrink-0" />
           <span>{successMsg}</span>
         </div>

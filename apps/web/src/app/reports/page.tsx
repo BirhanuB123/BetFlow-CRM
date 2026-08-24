@@ -217,7 +217,7 @@ export default function ReportsCatalogPage() {
       <div className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
         {error && (
           <div className="p-4">
-            <p className="rounded-lg border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs font-semibold text-rose-700">
+            <p className="rounded-lg border border-destructive/20 bg-destructive/10 px-3.5 py-2.5 text-xs font-semibold text-destructive">
               {error}
             </p>
           </div>
@@ -308,8 +308,8 @@ export default function ReportsCatalogPage() {
                             className={cn(
                               "size-4 shrink-0 transition-colors",
                               favorites.has(report.id)
-                                ? "fill-amber-400 text-amber-400"
-                                : "text-slate-300 hover:text-amber-400",
+                                ? "fill-amber-400 text-warning"
+                                : "text-slate-300 hover:text-warning",
                             )}
                           />
                         </button>

@@ -18,7 +18,7 @@ export function AccessRestricted({
 }: AccessRestrictedProps) {
   return (
     <div className="flex min-h-[380px] w-full flex-col items-center justify-center rounded-2xl border border-slate-200/80 bg-white p-8 text-center shadow-xs">
-      <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 border border-amber-500/20 shadow-2xs">
+      <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-warning/10 text-warning border border-warning/20 shadow-2xs">
         <Lock className="size-8" />
       </div>
 
@@ -32,7 +32,7 @@ export function AccessRestricted({
 
       {requiredPermission && (
         <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 border border-slate-200">
-          <ShieldAlert className="size-3.5 text-amber-600" />
+          <ShieldAlert className="size-3.5 text-warning" />
           <span>Required permission: <strong className="text-slate-900">{requiredPermission}</strong></span>
         </div>
       )}
