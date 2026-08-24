@@ -306,7 +306,7 @@ export function ContractsView() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <div className="flex size-9 items-center justify-center rounded-lg bg-[#233b66]/10 text-[#233b66]">
+              <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-[#233b66]">
                 <ScrollText className="size-5" />
               </div>
               <div>
@@ -371,16 +371,16 @@ export function ContractsView() {
             <Link href="/contracts/builder">
               <Button
                 variant="outline"
-                className="h-9.5 border-indigo-200 bg-indigo-50/60 text-indigo-700 hover:bg-indigo-100 font-semibold text-xs px-3.5 shadow-2xs gap-1.5"
+                className="h-9.5 border-primary/20 bg-primary/10 text-primary hover:bg-primary/20 font-semibold text-xs px-3.5 shadow-2xs gap-1.5"
               >
-                <FileSignature className="size-4 text-indigo-600" />
+                <FileSignature className="size-4 text-primary" />
                 Legal Template Builder
               </Button>
             </Link>
 
             <Button
               onClick={() => setShowForm(true)}
-              className="h-9.5 bg-[#233b66] hover:bg-[#1a2d50] text-white font-semibold text-xs px-4 shadow-sm gap-1.5"
+              className="h-9.5 font-semibold text-xs px-4 shadow-sm gap-1.5"
             >
               <Plus className="size-4" />
               Generate Sales Contract
@@ -504,7 +504,7 @@ export function ContractsView() {
                       setForm({ ...form, totalAmt: e.target.value })
                     }
                     placeholder="Total agreement amount"
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs font-extrabold text-indigo-900 outline-none focus:border-[#233b66]"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs font-extrabold text-primary outline-none focus:border-[#233b66]"
                   />
                 </div>
 
@@ -589,7 +589,7 @@ export function ContractsView() {
                   type="submit"
                   size="sm"
                   disabled={saving}
-                  className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-semibold"
+                  className="font-semibold"
                 >
                   {saving ? "Generating Contract…" : "Save Contract"}
                 </Button>
@@ -645,7 +645,7 @@ export function ContractsView() {
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <div className="flex size-7 items-center justify-center rounded-lg bg-indigo-50 text-indigo-700 font-extrabold text-[11px]">
+                          <div className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary font-extrabold text-[11px]">
                             📜
                           </div>
                           <div>
@@ -676,7 +676,7 @@ export function ContractsView() {
                         </span>
                       </td>
 
-                      <td className="px-4 py-3 font-extrabold text-indigo-900">
+                      <td className="px-4 py-3 font-extrabold text-primary">
                         {formatCurrency(primary.totalAmt)}
                       </td>
 
@@ -695,7 +695,7 @@ export function ContractsView() {
                           <button
                             type="button"
                             onClick={() => setActiveModalContract(primary)}
-                            className="rounded-lg bg-slate-100 p-1.5 text-slate-600 hover:bg-[#233b66] hover:text-white transition-colors"
+                            className="rounded-lg bg-slate-100 p-1.5 text-slate-600 hover:bg-primary hover:text-primary-foreground transition-colors"
                             title="View Full Contract Document"
                           >
                             <Eye className="size-3.5" />
@@ -768,7 +768,7 @@ export function ContractsView() {
                 </div>
                 <div>
                   <span className="text-slate-400 block font-semibold">Total Price</span>
-                  <span className="font-extrabold text-indigo-900">
+                  <span className="font-extrabold text-primary">
                     {formatCurrency(activeModalContract.totalAmt)}
                   </span>
                 </div>

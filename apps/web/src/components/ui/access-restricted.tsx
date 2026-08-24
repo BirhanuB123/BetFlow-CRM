@@ -47,7 +47,7 @@ export function AccessRestricted({
 
         <a
           href="mailto:admin@betflow.example?subject=Access%20Request"
-          className="inline-flex h-9 items-center justify-center rounded-lg bg-[#233b66] hover:bg-[#182a4a] px-4 text-xs font-bold text-white transition-colors shadow-2xs"
+          className="inline-flex h-9 items-center justify-center rounded-lg bg-primary hover:bg-primary/90 px-4 text-xs font-bold text-primary-foreground transition-colors shadow-2xs"
         >
           <Mail className="mr-1.5 size-3.5" />
           Contact Workspace Admin

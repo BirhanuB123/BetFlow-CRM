@@ -55,7 +55,7 @@ export default function ConversionReportPage() {
             </Link>
             <div className="h-4 w-px bg-slate-300 hidden sm:block" />
             <div className="flex items-center gap-2 text-slate-800 font-bold text-sm">
-              <Filter className="size-4 text-indigo-600" />
+              <Filter className="size-4 text-primary" />
               <span>Lead Conversion Analytics</span>
             </div>
           </div>

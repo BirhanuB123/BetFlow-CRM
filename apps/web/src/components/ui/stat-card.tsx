@@ -19,8 +19,8 @@ const colorMap: Record<
   NonNullable<StatCardProps["color"]>,
   { bg: string; icon: string; pill: string }
 > = {
-  navy:    { bg: "bg-[#233b66]/10",  icon: "text-[#233b66]",  pill: "bg-[#233b66]/10 text-[#233b66]" },
-  indigo:  { bg: "bg-indigo-50",     icon: "text-indigo-600",  pill: "bg-indigo-50 text-indigo-700" },
+  navy:    { bg: "bg-primary/10",  icon: "text-[#233b66]",  pill: "bg-primary/10 text-[#233b66]" },
+  indigo:  { bg: "bg-primary/10",     icon: "text-primary",  pill: "bg-primary/10 text-primary" },
   emerald: { bg: "bg-emerald-50",    icon: "text-emerald-600", pill: "bg-emerald-50 text-emerald-700" },
   amber:   { bg: "bg-amber-50",      icon: "text-amber-600",   pill: "bg-amber-50 text-amber-700" },
   rose:    { bg: "bg-rose-50",       icon: "text-rose-600",    pill: "bg-rose-50 text-rose-700" },

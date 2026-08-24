@@ -17,7 +17,7 @@ export function CtaBanner() {
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/dashboard"
-            className="group inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-8 text-sm font-extrabold text-white shadow-lg hover:bg-indigo-500 active:scale-[0.98] transition-all w-full sm:w-auto cursor-pointer"
+            className="group inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-8 text-sm font-extrabold text-white shadow-lg hover:bg-primary/90 active:scale-[0.98] transition-all w-full sm:w-auto cursor-pointer"
           >
             <span>Start Free 14-Day Trial</span>
             <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
@@ -25,9 +25,9 @@ export function CtaBanner() {
 
           <Link
             href="#workspace-preview"
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-indigo-500/40 bg-indigo-600/20 px-6 text-sm font-bold text-indigo-200 hover:bg-indigo-600/30 hover:text-white transition-all w-full sm:w-auto cursor-pointer"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-primary/40 bg-primary/20 px-6 text-sm font-bold text-primary-foreground/90 hover:bg-primary/30 hover:text-white transition-all w-full sm:w-auto cursor-pointer"
           >
-            <Sparkles className="size-4 text-indigo-400" />
+            <Sparkles className="size-4 text-primary/80" />
             <span>Explore Live Workspace</span>
           </Link>
         </div>

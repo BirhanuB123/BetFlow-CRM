@@ -21,7 +21,7 @@ export function Footer() {
                 alt="BetFlow CRM"
                 width={36}
                 height={36}
-                className="rounded-lg bg-indigo-600 p-1 shadow-xs"
+                className="rounded-lg bg-primary p-1 shadow-xs"
               />
               <div>
                 <p className="text-base font-black text-slate-900 tracking-tight">
@@ -48,22 +48,22 @@ export function Footer() {
             </p>
             <ul className="space-y-2 text-xs font-medium">
               <li>
-                <Link href="/pipeline?tab=leads" className="hover:text-indigo-600 transition-colors">
+                <Link href="/pipeline?tab=leads" className="hover:text-primary transition-colors">
                   Lead Intake CRM
                 </Link>
               </li>
               <li>
-                <Link href="/units" className="hover:text-indigo-600 transition-colors">
+                <Link href="/units" className="hover:text-primary transition-colors">
                   Unit Stacking Elevation
                 </Link>
               </li>
               <li>
-                <Link href="/properties" className="hover:text-indigo-600 transition-colors">
+                <Link href="/properties" className="hover:text-primary transition-colors">
                   Property Catalog
                 </Link>
               </li>
               <li>
-                <Link href="/customers" className="hover:text-indigo-600 transition-colors">
+                <Link href="/customers" className="hover:text-primary transition-colors">
                   Buyer Directory
                 </Link>
               </li>
@@ -77,22 +77,22 @@ export function Footer() {
             </p>
             <ul className="space-y-2 text-xs font-medium">
               <li>
-                <Link href="/site-visits" className="hover:text-indigo-600 transition-colors">
+                <Link href="/site-visits" className="hover:text-primary transition-colors">
                   Site Visit Scheduler
                 </Link>
               </li>
               <li>
-                <Link href="/pipeline" className="hover:text-indigo-600 transition-colors">
+                <Link href="/pipeline" className="hover:text-primary transition-colors">
                   Sales Kanban Pipeline
                 </Link>
               </li>
               <li>
-                <Link href="/activities" className="hover:text-indigo-600 transition-colors">
+                <Link href="/activities" className="hover:text-primary transition-colors">
                   Follow-up Reminders
                 </Link>
               </li>
               <li>
-                <Link href="/forecasting" className="hover:text-indigo-600 transition-colors">
+                <Link href="/forecasting" className="hover:text-primary transition-colors">
                   Revenue Forecasting
                 </Link>
               </li>
@@ -106,22 +106,22 @@ export function Footer() {
             </p>
             <ul className="space-y-2 text-xs font-medium">
               <li>
-                <Link href="/transactions?tab=contracts" className="hover:text-indigo-600 transition-colors">
+                <Link href="/transactions?tab=contracts" className="hover:text-primary transition-colors">
                   PDF Legal Contracts
                 </Link>
               </li>
               <li>
-                <Link href="/payments" className="hover:text-indigo-600 transition-colors">
+                <Link href="/payments" className="hover:text-primary transition-colors">
                   Milestone Payments
                 </Link>
               </li>
               <li>
-                <Link href="/portal" className="hover:text-indigo-600 transition-colors">
+                <Link href="/portal" className="hover:text-primary transition-colors">
                   Buyer Portal
                 </Link>
               </li>
               <li>
-                <Link href="/support" className="hover:text-indigo-600 transition-colors">
+                <Link href="/support" className="hover:text-primary transition-colors">
                   Client Support
                 </Link>
               </li>

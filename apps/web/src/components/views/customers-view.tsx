@@ -86,7 +86,7 @@ function FilterAccordion({
           <span>{title}</span>
         </div>
         {selectedCount > 0 && (
-          <span className="size-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center">
+          <span className="size-5 rounded-full bg-primary text-white text-[11px] font-bold flex items-center justify-center">
             {selectedCount}
           </span>
         )}
@@ -100,20 +100,20 @@ function FilterAccordion({
                 key={item}
                 className={cn(
                   "flex items-center gap-2.5 cursor-pointer group rounded px-2 py-1.5 transition-colors select-none",
-                  isChecked ? "bg-indigo-50/80" : "hover:bg-zinc-100/70",
+                  isChecked ? "bg-primary/10" : "hover:bg-zinc-100/70",
                 )}
               >
                 <input
                   type="checkbox"
                   checked={isChecked}
                   onChange={() => onToggleFilter(item)}
-                  className="rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500 size-3.5 cursor-pointer accent-indigo-600"
+                  className="rounded border-zinc-300 text-primary focus:ring-primary size-3.5 cursor-pointer accent-primary"
                 />
                 <span
                   className={cn(
                     "text-[13px] transition-colors",
                     isChecked
-                      ? "text-indigo-950 font-medium"
+                      ? "text-primary font-medium"
                       : "text-zinc-600 group-hover:text-zinc-900",
                   )}
                 >
@@ -339,7 +339,7 @@ export function CustomersView() {
               <h3 className="text-sm font-semibold text-zinc-800">
                 Filter Customers by
                 {selectedFilters.size > 0 && (
-                  <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-[#233b66] text-white">
+                  <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-primary text-primary-foreground">
                     {selectedFilters.size}
                   </span>
                 )}
@@ -362,7 +362,7 @@ export function CustomersView() {
                 value={filterSearch}
                 onChange={(e) => setFilterSearch(e.target.value)}
                 placeholder="Search filters or contacts"
-                className="w-full rounded border border-zinc-300 bg-white py-2 pl-9 pr-8 text-[13px] text-zinc-900 placeholder:text-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded border border-zinc-300 bg-white py-2 pl-9 pr-8 text-[13px] text-zinc-900 placeholder:text-zinc-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
               {filterSearch && (
                 <button
@@ -485,7 +485,7 @@ export function CustomersView() {
                 <Filter className="size-3.5 mr-1" />
                 Filter
                 {selectedFilters.size > 0 && (
-                  <span className="ml-1.5 px-1.5 py-0.2 bg-indigo-600 text-white rounded-full text-[10px] font-bold">
+                  <span className="ml-1.5 px-1.5 py-0.2 bg-primary text-white rounded-full text-[10px] font-bold">
                     {selectedFilters.size}
                   </span>
                 )}
@@ -501,7 +501,7 @@ export function CustomersView() {
             </div>
 
             {selectedRowIds.size > 0 && (
-              <div className="flex items-center gap-2 bg-[#233b66]/10 border border-[#233b66]/20 rounded px-2.5 py-1">
+              <div className="flex items-center gap-2 bg-primary/10 border border-primary/20 rounded px-2.5 py-1">
                 <span className="text-xs font-semibold text-[#233b66]">
                   {selectedRowIds.size} selected
                 </span>
@@ -518,7 +518,7 @@ export function CustomersView() {
           <Button
             onClick={() => setShowForm((value) => !value)}
             size="sm"
-            className="h-8 bg-[#233b66] hover:bg-[#1d3257] text-white rounded shadow-sm text-[13px] px-4 font-medium"
+            className="h-8 rounded shadow-sm text-[13px] px-4 font-medium"
           >
             <Plus className="size-3.5 mr-1" />
             {showForm ? "Cancel" : "Create Customer"}
@@ -527,19 +527,19 @@ export function CustomersView() {
 
         {/* Active Filter Chips */}
         {selectedFilters.size > 0 && (
-          <div className="flex items-center flex-wrap gap-2 px-4 py-2 bg-indigo-50/40 border-b border-zinc-200 text-xs">
+          <div className="flex items-center flex-wrap gap-2 px-4 py-2 bg-primary/5 border-b border-zinc-200 text-xs">
             <span className="font-semibold text-zinc-600">
               Active Filters:
             </span>
             {Array.from(selectedFilters).map((item) => (
               <span
                 key={item}
-                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-medium bg-indigo-100 text-indigo-900 border border-indigo-200"
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-medium bg-primary/10 text-primary border border-primary/20"
               >
                 {item}
                 <button
                   onClick={() => handleToggleFilter(item)}
-                  className="hover:bg-indigo-200 rounded-full p-0.5 transition-colors text-indigo-700"
+                  className="hover:bg-primary/20 rounded-full p-0.5 transition-colors text-primary"
                 >
                   <X className="size-3" />
                 </button>
@@ -547,7 +547,7 @@ export function CustomersView() {
             ))}
             <button
               onClick={clearAllFilters}
-              className="text-indigo-600 hover:text-indigo-800 font-semibold ml-2 underline underline-offset-2"
+              className="text-primary hover:text-primary font-semibold ml-2 underline underline-offset-2"
             >
               Clear All ({selectedFilters.size})
             </button>
@@ -558,7 +558,7 @@ export function CustomersView() {
         {showForm && (
           <form
             onSubmit={handleCreate}
-            className="grid gap-3 border-b border-zinc-200 bg-indigo-50/50 p-4 sm:grid-cols-4"
+            className="grid gap-3 border-b border-zinc-200 bg-primary/10 p-4 sm:grid-cols-4"
           >
             <input
               required
@@ -594,7 +594,7 @@ export function CustomersView() {
                 type="submit"
                 disabled={saving}
                 size="sm"
-                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                className=""
               >
                 {saving ? "Saving..." : "Save Customer"}
               </Button>
@@ -634,7 +634,7 @@ export function CustomersView() {
                   onClick={clearAllFilters}
                   variant="outline"
                   size="sm"
-                  className="mt-4 border-indigo-200 text-indigo-600 hover:bg-indigo-50"
+                  className="mt-4 border-primary/20 text-primary hover:bg-primary/10"
                 >
                   Clear Filters
                 </Button>
@@ -649,11 +649,11 @@ export function CustomersView() {
                       type="checkbox"
                       checked={allRowsSelected}
                       onChange={toggleSelectAllRows}
-                      className="rounded border-zinc-300 text-indigo-600 focus:ring-indigo-600 size-3.5 cursor-pointer accent-indigo-600"
+                      className="rounded border-zinc-300 text-primary focus:ring-indigo-600 size-3.5 cursor-pointer accent-primary"
                     />
                   </th>
                   <th className="px-4 py-2.5">
-                    <div className="flex items-center group cursor-pointer hover:text-indigo-600">
+                    <div className="flex items-center group cursor-pointer hover:text-primary">
                       Contact Name{" "}
                       <span className="text-zinc-300 ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                         ↓
@@ -675,7 +675,7 @@ export function CustomersView() {
                       key={customer.id}
                       className={cn(
                         "transition-colors group cursor-pointer",
-                        isSelected ? "bg-indigo-50/40" : "hover:bg-[#f8f9fa]",
+                        isSelected ? "bg-primary/5" : "hover:bg-[#f8f9fa]",
                       )}
                     >
                       <td className="px-4 py-2.5 text-center">
@@ -684,7 +684,7 @@ export function CustomersView() {
                           checked={isSelected}
                           onChange={() => toggleSelectRow(customer.id)}
                           className={cn(
-                            "rounded border-zinc-300 text-indigo-600 focus:ring-indigo-600 size-3.5 cursor-pointer accent-indigo-600 transition-opacity",
+                            "rounded border-zinc-300 text-primary focus:ring-indigo-600 size-3.5 cursor-pointer accent-primary transition-opacity",
                             isSelected
                               ? "opacity-100"
                               : "opacity-0 group-hover:opacity-100",
@@ -694,9 +694,9 @@ export function CustomersView() {
                       <td className="px-4 py-2.5">
                         <Link
                           href={`/customers/${customer.id}`}
-                          className="font-medium text-indigo-600 hover:text-indigo-800 hover:underline inline-flex items-center gap-1.5"
+                          className="font-medium text-primary hover:text-primary hover:underline inline-flex items-center gap-1.5"
                         >
-                          <div className="size-6 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 text-[10px] font-bold">
+                          <div className="size-6 rounded-full bg-primary/10 border border-primary/10 flex items-center justify-center text-primary text-[10px] font-bold">
                             {customer.firstName[0]}
                             {customer.lastName[0]}
                           </div>
@@ -732,7 +732,7 @@ export function CustomersView() {
                                 phone: customer.phone || "",
                               });
                             }}
-                            className="text-zinc-400 hover:text-indigo-600 p-1.5 rounded hover:bg-indigo-50 transition-colors"
+                            className="text-zinc-400 hover:text-primary p-1.5 rounded hover:bg-primary/10 transition-colors"
                             title="Edit contact details"
                             aria-label="Edit contact details"
                           >
@@ -823,7 +823,7 @@ export function CustomersView() {
                     required
                     value={editCustomerForm.firstName}
                     onChange={(e) => setEditCustomerForm({ ...editCustomerForm, firstName: e.target.value })}
-                    className="w-full h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-900 focus:border-indigo-600 focus:outline-none"
+                    className="w-full h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-900 focus:border-primary focus:outline-none"
                   />
                 </div>
                 <div>
@@ -833,7 +833,7 @@ export function CustomersView() {
                     required
                     value={editCustomerForm.lastName}
                     onChange={(e) => setEditCustomerForm({ ...editCustomerForm, lastName: e.target.value })}
-                    className="w-full h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-900 focus:border-indigo-600 focus:outline-none"
+                    className="w-full h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-900 focus:border-primary focus:outline-none"
                   />
                 </div>
               </div>
@@ -844,7 +844,7 @@ export function CustomersView() {
                   type="email"
                   value={editCustomerForm.email || ""}
                   onChange={(e) => setEditCustomerForm({ ...editCustomerForm, email: e.target.value })}
-                  className="w-full h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-900 focus:border-indigo-600 focus:outline-none"
+                  className="w-full h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-900 focus:border-primary focus:outline-none"
                 />
               </div>
 
@@ -854,7 +854,7 @@ export function CustomersView() {
                   type="tel"
                   value={editCustomerForm.phone || ""}
                   onChange={(e) => setEditCustomerForm({ ...editCustomerForm, phone: e.target.value })}
-                  className="w-full h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-900 focus:border-indigo-600 focus:outline-none"
+                  className="w-full h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-900 focus:border-primary focus:outline-none"
                 />
               </div>
 
@@ -871,7 +871,7 @@ export function CustomersView() {
                   type="submit"
                   disabled={saving}
                   size="sm"
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                  className=""
                 >
                   {saving ? "Saving Changes…" : "Update Contact"}
                 </Button>

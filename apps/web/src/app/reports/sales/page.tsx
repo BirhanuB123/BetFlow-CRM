@@ -239,9 +239,9 @@ export default function SalesReportPage() {
       value: "$12,937,000",
       detail: "Completed payments",
       badge: "51.7% of Target",
-      badgeColor: "bg-indigo-50 text-indigo-700 border-indigo-200",
+      badgeColor: "bg-primary/10 text-primary border-primary/20",
       icon: PiggyBank,
-      iconBg: "bg-indigo-500/10 text-indigo-600 border-indigo-200",
+      iconBg: "bg-primary/10 text-primary border-primary/20",
       accentBar: "from-indigo-500 to-blue-500",
     },
     {
@@ -284,7 +284,7 @@ export default function SalesReportPage() {
               <span>Back to Reports</span>
             </Link>
             <div className="h-4 w-px bg-slate-200 hidden sm:block" />
-            <div className="flex size-9 items-center justify-center rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600">
+            <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 border border-primary/10 text-primary">
               <TrendingUp className="size-5" />
             </div>
             <div>
@@ -305,7 +305,7 @@ export default function SalesReportPage() {
               <select
                 value={timeRange}
                 onChange={(e) => setTimeRange(e.target.value)}
-                className="bg-transparent font-medium text-indigo-600 outline-none cursor-pointer"
+                className="bg-transparent font-medium text-primary outline-none cursor-pointer"
               >
                 <option value="This Month">This Month</option>
                 <option value="This Quarter">This Quarter</option>
@@ -334,7 +334,7 @@ export default function SalesReportPage() {
               onClick={handleExportCSV}
               className="h-9 text-xs font-semibold border-slate-200 text-slate-700 hover:bg-slate-50"
             >
-              <Download className="size-3.5 mr-1.5 text-indigo-600" />
+              <Download className="size-3.5 mr-1.5 text-primary" />
               Export CSV
             </Button>
 
@@ -372,7 +372,7 @@ export default function SalesReportPage() {
                   badge: "Active",
                   badgeColor: "bg-slate-100 text-slate-700 border-slate-200",
                   icon: TrendingUp,
-                  iconBg: "bg-indigo-500/10 text-indigo-600 border-indigo-200",
+                  iconBg: "bg-primary/10 text-primary border-primary/20",
                   accentBar: "from-indigo-500 to-blue-500",
                 };
                 const IconComponent = config.icon;
@@ -428,13 +428,13 @@ export default function SalesReportPage() {
         </div>
 
         {/* Goal Achievement & Performance Progress Banner */}
-        <div className="relative overflow-hidden rounded-xl border border-indigo-100 bg-gradient-to-r from-indigo-900 via-[#1e293b] to-slate-900 p-6 text-white shadow-sm">
-          <div className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full bg-indigo-500/20 blur-3xl" />
+        <div className="relative overflow-hidden rounded-xl border border-primary/10 bg-gradient-to-r from-indigo-900 via-[#1e293b] to-slate-900 p-6 text-white shadow-sm">
+          <div className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full bg-primary/20 blur-3xl" />
 
           <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-1">
-              <div className="flex items-center gap-2 text-indigo-400 font-semibold text-xs uppercase tracking-wider">
-                <Sparkles className="size-4 text-indigo-300" />
+              <div className="flex items-center gap-2 text-primary/80 font-semibold text-xs uppercase tracking-wider">
+                <Sparkles className="size-4 text-primary/80" />
                 <span>{timeRange} Target & Pace Tracking</span>
               </div>
               <div className="flex items-center gap-2">
@@ -458,7 +458,7 @@ export default function SalesReportPage() {
                       type="number"
                       value={targetInput}
                       onChange={(e) => setTargetInput(e.target.value)}
-                      className="h-7 w-28 rounded border border-indigo-400 bg-slate-800 px-2 text-xs font-bold text-white outline-none"
+                      className="h-7 w-28 rounded border border-primary/40 bg-slate-800 px-2 text-xs font-bold text-white outline-none"
                     />
                     <button
                       type="submit"
@@ -536,7 +536,7 @@ export default function SalesReportPage() {
                 placeholder="Search agent name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-8.5 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                className="h-8.5 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-indigo-100"
               />
             </div>
           </div>
@@ -544,7 +544,7 @@ export default function SalesReportPage() {
           {/* Contributors Table */}
           {loading ? (
             <div className="p-8 text-center text-xs font-semibold text-slate-500">
-              <RefreshCw className="mx-auto mb-2 size-5 animate-spin text-indigo-600" />
+              <RefreshCw className="mx-auto mb-2 size-5 animate-spin text-primary" />
               Loading sales team contributors…
             </div>
           ) : filteredAgents.length === 0 ? (
@@ -646,7 +646,7 @@ export default function SalesReportPage() {
 
                         {/* Reservations */}
                         <td className="px-5 py-3.5 text-center">
-                          <span className="inline-flex items-center rounded-lg bg-indigo-50 border border-indigo-200 px-2.5 py-1 text-xs font-bold text-indigo-700">
+                          <span className="inline-flex items-center rounded-lg bg-primary/10 border border-primary/20 px-2.5 py-1 text-xs font-bold text-primary">
                             {agent.reservations}
                           </span>
                         </td>
@@ -674,7 +674,7 @@ export default function SalesReportPage() {
                                   conversionNum > 25
                                     ? "bg-emerald-500"
                                     : conversionNum > 0
-                                      ? "bg-indigo-500"
+                                      ? "bg-primary"
                                       : "bg-slate-300",
                                 )}
                                 style={{
@@ -688,7 +688,7 @@ export default function SalesReportPage() {
                                 conversionNum > 25
                                   ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                                   : conversionNum > 0
-                                    ? "bg-indigo-50 text-indigo-700 border-indigo-200"
+                                    ? "bg-primary/10 text-primary border-primary/20"
                                     : "bg-slate-100 text-slate-600 border-slate-200",
                               )}
                             >

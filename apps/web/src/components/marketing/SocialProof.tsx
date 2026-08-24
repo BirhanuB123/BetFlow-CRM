@@ -46,7 +46,7 @@ export function SocialProof() {
     <section className="py-20 bg-slate-100 border-t border-slate-200 text-slate-900">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 space-y-12">
         <div className="text-center max-w-2xl mx-auto space-y-3">
-          <span className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-4 py-1.5 text-xs font-extrabold text-indigo-700 uppercase tracking-wider">
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-extrabold text-primary uppercase tracking-wider">
             Verified Customer Results
           </span>
           <h2 className="text-3xl font-black text-slate-900 sm:text-4xl">
@@ -60,7 +60,7 @@ export function SocialProof() {
               key={item.id}
               className="lg:col-span-12 rounded-2xl border border-slate-200 bg-white p-8 shadow-lg space-y-6"
             >
-              <Quote className="size-10 text-indigo-500 opacity-60" />
+              <Quote className="size-10 text-primary opacity-60" />
               <blockquote className="text-lg sm:text-xl font-bold text-slate-800 leading-relaxed italic">
                 "{item.quote}"
               </blockquote>
@@ -76,7 +76,7 @@ export function SocialProof() {
                       className="rounded-full object-cover border border-slate-200"
                     />
                   ) : (
-                    <div className="size-12 rounded-full bg-indigo-100 text-indigo-700 font-black flex items-center justify-center text-base">
+                    <div className="size-12 rounded-full bg-primary/10 text-primary font-black flex items-center justify-center text-base">
                       {item.authorName.charAt(0)}
                     </div>
                   )}
@@ -85,14 +85,14 @@ export function SocialProof() {
                       {item.authorName}
                     </h4>
                     <p className="text-xs font-medium text-slate-500">
-                      {item.authorTitle} • <span className="font-bold text-indigo-600">{item.companyName}</span>
+                      {item.authorTitle} • <span className="font-bold text-primary">{item.companyName}</span>
                     </p>
                   </div>
                 </div>
 
                 {item.statHighlight && (
                   <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-2 text-right">
-                    <p className="text-xl font-black text-indigo-600">
+                    <p className="text-xl font-black text-primary">
                       {item.statHighlight.value}
                     </p>
                     <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">

@@ -230,7 +230,7 @@ export function CallsView() {
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#233b66] px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#1a2c4e] transition-colors"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-xs hover:bg-primary/90 transition-colors"
         >
           <Plus className="size-4" />
           Log / Schedule Call
@@ -340,7 +340,7 @@ export function CallsView() {
 
                     <td className="py-3.5 px-4">
                       {call.callResult ? (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-indigo-50 px-2 py-0.5 text-[11px] font-medium text-indigo-700">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
                           {call.callResult.replace(/_/g, " ")}
                         </span>
                       ) : (
@@ -560,7 +560,7 @@ export function CallsView() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="rounded-xl bg-[#233b66] px-5 py-2 text-xs font-semibold text-white shadow-md hover:bg-[#1a2c4e] disabled:opacity-50 transition-colors"
+                  className="rounded-xl bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground shadow-md hover:bg-primary/90 disabled:opacity-50 transition-colors"
                 >
                   {submitting ? "Saving Call Log…" : "Save Call Log"}
                 </button>

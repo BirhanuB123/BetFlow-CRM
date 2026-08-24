@@ -545,7 +545,7 @@ export default function CustomerPortalPage() {
                     key="slip"
                     size="sm"
                     variant="outline"
-                    className="h-7 text-xs gap-1 text-[#233b66] border-[#233b66]/30 hover:bg-[#233b66]/5"
+                    className="h-7 text-xs gap-1 text-[#233b66] border-primary/30 hover:bg-primary/5"
                     onClick={() => openBankSlipModal(s)}
                   >
                     <Upload className="size-3" /> Upload Slip
@@ -838,7 +838,7 @@ export default function CustomerPortalPage() {
               <Button
                 onClick={handleBankSlipSubmit}
                 disabled={submittingSlip || !refNo}
-                className="h-9 bg-[#233b66] hover:bg-[#1a2d50] text-white gap-1"
+                className="h-9 gap-1"
               >
                 <Send className="size-3.5" />
                 {submittingSlip ? "Uploading…" : "Submit Slip"}

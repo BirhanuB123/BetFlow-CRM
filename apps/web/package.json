@@ -6,7 +6,8 @@
     "dev": "next dev --webpack -p 3001",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "lint:colors": "node scripts/check-color-tokens.js"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

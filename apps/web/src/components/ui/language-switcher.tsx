@@ -52,7 +52,7 @@ export function LanguageSwitcher({
         aria-label="Select language"
         aria-expanded={open}
       >
-        <Globe className={cn("size-3.5", isDark ? "text-indigo-400" : "text-[#233b66]")} />
+        <Globe className={cn("size-3.5", isDark ? "text-primary/80" : "text-[#233b66]")} />
         <span className="font-bold">{lang === "am" ? "🇪🇹 አማርኛ" : "🇺🇸 EN"}</span>
         <ChevronDown className="size-3 opacity-60" />
       </button>
@@ -76,8 +76,8 @@ export function LanguageSwitcher({
               "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer",
               lang === "en"
                 ? isDark
-                  ? "bg-indigo-600/30 text-indigo-300 font-bold"
-                  : "bg-indigo-50 text-[#233b66] font-bold"
+                  ? "bg-primary/30 text-primary/80 font-bold"
+                  : "bg-primary/10 text-[#233b66] font-bold"
                 : isDark
                 ? "hover:bg-slate-900 hover:text-white"
                 : "hover:bg-slate-100 hover:text-slate-900",
@@ -87,7 +87,7 @@ export function LanguageSwitcher({
               <span>🇺🇸</span>
               <span>English</span>
             </span>
-            {lang === "en" && <Check className="size-3.5 text-indigo-400" />}
+            {lang === "en" && <Check className="size-3.5 text-primary/80" />}
           </button>
 
           <button
@@ -97,8 +97,8 @@ export function LanguageSwitcher({
               "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer",
               lang === "am"
                 ? isDark
-                  ? "bg-indigo-600/30 text-indigo-300 font-bold"
-                  : "bg-indigo-50 text-[#233b66] font-bold"
+                  ? "bg-primary/30 text-primary/80 font-bold"
+                  : "bg-primary/10 text-[#233b66] font-bold"
                 : isDark
                 ? "hover:bg-slate-900 hover:text-white"
                 : "hover:bg-slate-100 hover:text-slate-900",
@@ -108,7 +108,7 @@ export function LanguageSwitcher({
               <span>🇪🇹</span>
               <span>አማርኛ</span>
             </span>
-            {lang === "am" && <Check className="size-3.5 text-indigo-400" />}
+            {lang === "am" && <Check className="size-3.5 text-primary/80" />}
           </button>
         </div>
       )}

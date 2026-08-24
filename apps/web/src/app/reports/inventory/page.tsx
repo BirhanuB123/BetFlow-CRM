@@ -156,7 +156,7 @@ export default function InventoryReportPage() {
                 | Confidential Executive Report
               </p>
             </div>
-            <div className="text-right text-xs font-semibold text-indigo-700">
+            <div className="text-right text-xs font-semibold text-primary">
               BetFlow System Report
             </div>
           </div>
@@ -174,7 +174,7 @@ export default function InventoryReportPage() {
             </Link>
             <div className="h-4 w-px bg-slate-300 hidden sm:block" />
             <div className="flex items-center gap-2 text-slate-800 font-bold text-sm">
-              <Building2 className="size-4.5 text-indigo-600" />
+              <Building2 className="size-4.5 text-primary" />
               <span>Project Inventory Analytics</span>
             </div>
           </div>
@@ -184,7 +184,7 @@ export default function InventoryReportPage() {
               onClick={handleExportCSV}
               className="h-9 text-xs font-semibold border-slate-300 text-slate-700 hover:bg-slate-50"
             >
-              <Download className="size-3.5 mr-1.5 text-indigo-600" />
+              <Download className="size-3.5 mr-1.5 text-primary" />
               Export CSV
             </Button>
             <Button
@@ -205,7 +205,7 @@ export default function InventoryReportPage() {
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 Total Units
               </p>
-              <Package className="size-4 text-indigo-500" />
+              <Package className="size-4 text-primary" />
             </div>
             <p className="mt-2 text-2xl font-bold text-slate-900">{totalAll}</p>
             <p className="mt-1 text-xs text-slate-400 font-medium">
@@ -248,12 +248,12 @@ export default function InventoryReportPage() {
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 Sold Units
               </p>
-              <DollarSign className="size-4 text-indigo-600" />
+              <DollarSign className="size-4 text-primary" />
             </div>
-            <p className="mt-2 text-2xl font-bold text-indigo-600">
+            <p className="mt-2 text-2xl font-bold text-primary">
               {totalSold}
             </p>
-            <p className="mt-1 text-xs text-indigo-700 font-medium">
+            <p className="mt-1 text-xs text-primary font-medium">
               Contracted & closed
             </p>
           </div>
@@ -307,7 +307,7 @@ export default function InventoryReportPage() {
                         className="hover:bg-slate-50/60 transition-colors"
                       >
                         <td className="px-5 py-3 font-bold text-slate-800 flex items-center gap-2">
-                          <Building2 className="size-4 text-indigo-500" />
+                          <Building2 className="size-4 text-primary" />
                           {row.project}
                         </td>
                         <td className="px-5 py-3 font-semibold text-slate-700">
@@ -324,7 +324,7 @@ export default function InventoryReportPage() {
                           </span>
                         </td>
                         <td className="px-5 py-3">
-                          <span className="inline-flex items-center rounded-md bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-xs font-bold text-indigo-700">
+                          <span className="inline-flex items-center rounded-md bg-primary/10 border border-primary/20 px-2 py-0.5 text-xs font-bold text-primary">
                             {row.sold}
                           </span>
                         </td>
@@ -335,7 +335,7 @@ export default function InventoryReportPage() {
                           <div className="flex items-center justify-end gap-2">
                             <div className="w-24 bg-slate-100 h-2 rounded-full overflow-hidden">
                               <div
-                                className="bg-indigo-600 h-full rounded-full"
+                                className="bg-primary h-full rounded-full"
                                 style={{ width: `${soldPercent}%` }}
                               />
                             </div>

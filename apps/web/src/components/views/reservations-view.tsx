@@ -68,7 +68,7 @@ const statusClass: Record<string, string> = {
   PENDING: "bg-amber-50 text-amber-700 border-amber-200 font-medium",
   APPROVED: "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold",
   CONVERTED_TO_CONTRACT:
-    "bg-indigo-50 text-indigo-700 border-indigo-200 font-bold",
+    "bg-primary/10 text-primary border-primary/20 font-bold",
   CANCELLED: "bg-rose-50 text-rose-700 border-rose-200",
   EXPIRED: "bg-slate-100 text-slate-600 border-slate-200",
 };
@@ -248,7 +248,7 @@ export function ReservationsView() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <div className="flex size-9 items-center justify-center rounded-lg bg-[#233b66]/10 text-[#233b66]">
+              <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-[#233b66]">
                 <FilePlus2 className="size-5" />
               </div>
               <div>
@@ -313,7 +313,7 @@ export function ReservationsView() {
             <Button
               onClick={() => setShowForm(true)}
               disabled={availableUnits.length === 0 || customers.length === 0}
-              className="h-9.5 bg-[#233b66] hover:bg-[#1a2d50] text-white font-semibold text-xs px-4 shadow-sm gap-1.5"
+              className="h-9.5 font-semibold text-xs px-4 shadow-sm gap-1.5"
             >
               <Plus className="size-4" />
               New Unit Reservation
@@ -419,7 +419,7 @@ export function ReservationsView() {
                             href={`/customers/${reservation.customer.id}`}
                             className="flex items-center gap-2 group/buyer"
                           >
-                            <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#233b66]/10 text-[#233b66] font-bold text-[10px]">
+                            <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[#233b66] font-bold text-[10px]">
                               {getInitials(
                                 reservation.customer.firstName,
                                 reservation.customer.lastName,
@@ -512,7 +512,7 @@ export function ReservationsView() {
                             <button
                               type="button"
                               onClick={() => setActiveVoucher(reservation)}
-                              className="rounded-lg bg-slate-100 p-1.5 text-slate-600 hover:bg-[#233b66] hover:text-white transition-colors"
+                              className="rounded-lg bg-slate-100 p-1.5 text-slate-600 hover:bg-primary hover:text-primary-foreground transition-colors"
                               title="View Unit Lock Voucher"
                             >
                               <Eye className="size-3.5" />
@@ -539,7 +539,7 @@ export function ReservationsView() {
                                     `/transactions?tab=contracts&unitId=${reservation.unit.id}&customerId=${reservation.customer.id}&reservationId=${reservation.id}`,
                                   );
                                 }}
-                                className="bg-[#233b66] hover:bg-[#1a2d50] text-white h-7 text-[11px] px-2.5 shadow-2xs gap-1"
+                                className="h-7 text-[11px] px-2.5 shadow-2xs gap-1"
                                 title="Convert this hold into a legal Sales Contract"
                               >
                                 <FileSignature className="size-3" />

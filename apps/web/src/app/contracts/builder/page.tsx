@@ -190,9 +190,9 @@ export default function ContractBuilderPage() {
             <span className="text-slate-300 font-bold">•</span>
             <Link
               href="/transactions?tab=contracts"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50/80 px-3.5 py-1.5 text-xs font-bold text-indigo-700 hover:bg-indigo-100 transition-all shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-3.5 py-1.5 text-xs font-bold text-primary hover:bg-primary/20 transition-all shadow-2xs cursor-pointer"
             >
-              <ScrollText className="size-3.5 text-indigo-600" />
+              <ScrollText className="size-3.5 text-primary" />
               <span>Back to Sales Contracts</span>
             </Link>
           </div>
@@ -315,7 +315,7 @@ export default function ContractBuilderPage() {
             <Button
               onClick={handleGenerate}
               disabled={generating || !selectedCustomerId || !selectedUnitId}
-              className="w-full h-10 bg-[#233b66] hover:bg-[#1a2d50] text-white gap-2 font-semibold"
+              className="w-full h-10 gap-2 font-semibold"
             >
               <FileCheck className="size-4" />
               {generating ? "Building Contract..." : "Generate Sales Agreement"}
@@ -340,7 +340,7 @@ export default function ContractBuilderPage() {
                 </Button>
                 <Button
                   onClick={() => setIsSignatureModalOpen(true)}
-                  className="h-9 text-xs gap-1.5 font-semibold bg-[#233b66] hover:bg-[#1a2d50] text-white"
+                  className="h-9 text-xs gap-1.5 font-semibold"
                 >
                   <PenTool className="size-4" /> Sign Digitally
                 </Button>

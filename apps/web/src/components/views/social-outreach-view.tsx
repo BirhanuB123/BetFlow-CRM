@@ -287,7 +287,7 @@ export function SocialOutreachView() {
 
             <Button
               onClick={() => setShowComposer(true)}
-              className="h-9.5 bg-[#233b66] hover:bg-[#1a2d50] text-white font-semibold text-xs px-4 shadow-sm gap-1.5"
+              className="h-9.5 font-semibold text-xs px-4 shadow-sm gap-1.5"
             >
               <Plus className="size-4" />
               New Broadcast Post
@@ -392,7 +392,7 @@ export function SocialOutreachView() {
                   type="submit"
                   size="sm"
                   disabled={sending}
-                  className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-semibold text-xs px-5 shadow-sm gap-1.5"
+                  className="font-semibold text-xs px-5 shadow-sm gap-1.5"
                 >
                   <Send className="size-3.5" />
                   {sending ? "Publishing..." : "Publish Broadcast"}
@@ -582,7 +582,7 @@ export function SocialOutreachView() {
             <div className="mt-6 flex justify-end">
               <Button
                 onClick={() => setActivePreviewModal(null)}
-                className="bg-[#233b66] hover:bg-[#1a2d50] text-white text-xs px-5"
+                className="text-xs px-5"
               >
                 Close Preview
               </Button>

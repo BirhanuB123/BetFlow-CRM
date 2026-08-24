@@ -277,7 +277,7 @@ export default function CustomerDetailPage() {
         <div className="flex items-center justify-between">
           <Link
             href="/pipeline?tab=customers"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-indigo-600 transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-primary transition-colors"
           >
             <ArrowLeft className="size-4" />
             Back to Customer Directory
@@ -357,7 +357,7 @@ export default function CustomerDetailPage() {
                             <Mail className="size-3.5 text-slate-400" />
                             <a
                               href={`mailto:${customer.email}`}
-                              className="text-slate-700 hover:text-indigo-600 transition"
+                              className="text-slate-700 hover:text-primary transition"
                             >
                               {customer.email}
                             </a>
@@ -380,7 +380,7 @@ export default function CustomerDetailPage() {
                             <Phone className="size-3.5 text-slate-400" />
                             <a
                               href={`tel:${customer.phone}`}
-                              className="text-slate-700 hover:text-indigo-600 transition"
+                              className="text-slate-700 hover:text-primary transition"
                             >
                               {customer.phone}
                             </a>
@@ -399,8 +399,8 @@ export default function CustomerDetailPage() {
                         )}
 
                         {customer.account && (
-                          <div className="flex items-center gap-1.5 rounded-lg border border-indigo-200/80 bg-indigo-50/60 px-2.5 py-1 text-indigo-700 font-bold">
-                            <Building2 className="size-3.5 text-indigo-500" />
+                          <div className="flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-2.5 py-1 text-primary font-bold">
+                            <Building2 className="size-3.5 text-primary" />
                             <Link
                               href={`/accounts/${customer.account.id}`}
                               className="hover:underline"
@@ -449,7 +449,7 @@ export default function CustomerDetailPage() {
                     <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
                       Collected
                     </span>
-                    <div className="flex size-7 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100">
+                    <div className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/10">
                       <CheckCircle2 className="size-3.5" />
                     </div>
                   </div>
@@ -502,14 +502,14 @@ export default function CustomerDetailPage() {
               <section className="rounded-xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
                 <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/70 p-4">
                   <div className="flex items-center gap-2">
-                    <WalletCards className="size-4 text-indigo-600" />
+                    <WalletCards className="size-4 text-primary" />
                     <h3 className="text-sm font-bold text-slate-900">
                       Deals ({customer.deals.length})
                     </h3>
                   </div>
                   <Link
                     href="/pipeline?tab=deals"
-                    className="text-xs font-semibold text-indigo-600 hover:underline"
+                    className="text-xs font-semibold text-primary hover:underline"
                   >
                     Manage Deals →
                   </Link>
@@ -541,19 +541,19 @@ export default function CustomerDetailPage() {
                       ) : (
                         "—"
                       ),
-                      <span key="v" className="font-extrabold text-indigo-600">
+                      <span key="v" className="font-extrabold text-primary">
                         {money(deal.value)}
                       </span>,
                       <span
                         key="s"
-                        className="inline-flex items-center rounded-md bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-xs font-bold text-indigo-700"
+                        className="inline-flex items-center rounded-md bg-primary/10 border border-primary/20 px-2 py-0.5 text-xs font-bold text-primary"
                       >
                         {deal.stage.name}
                       </span>,
                       <div key="p" className="flex items-center gap-2">
                         <div className="w-12 h-1.5 rounded-full bg-slate-100 overflow-hidden">
                           <div
-                            className="h-full rounded-full bg-indigo-600"
+                            className="h-full rounded-full bg-primary"
                             style={{ width: `${deal.stage.probability}%` }}
                           />
                         </div>
@@ -577,7 +577,7 @@ export default function CustomerDetailPage() {
                   </div>
                   <Link
                     href="/transactions?tab=contracts"
-                    className="text-xs font-semibold text-indigo-600 hover:underline"
+                    className="text-xs font-semibold text-primary hover:underline"
                   >
                     View Contracts →
                   </Link>
@@ -621,7 +621,7 @@ export default function CustomerDetailPage() {
                   </div>
                   <Link
                     href="/transactions?tab=reservations"
-                    className="text-xs font-semibold text-indigo-600 hover:underline"
+                    className="text-xs font-semibold text-primary hover:underline"
                   >
                     View Reservations →
                   </Link>
@@ -665,7 +665,7 @@ export default function CustomerDetailPage() {
                   </div>
                   <Link
                     href="/transactions?tab=payments"
-                    className="text-xs font-semibold text-indigo-600 hover:underline"
+                    className="text-xs font-semibold text-primary hover:underline"
                   >
                     Payment Ledger →
                   </Link>

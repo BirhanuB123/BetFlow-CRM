@@ -129,7 +129,7 @@ export default function RevenueReportPage() {
             </Link>
             <div className="h-4 w-px bg-slate-300 hidden sm:block" />
             <div className="flex items-center gap-2 text-slate-800 font-bold text-sm">
-              <DollarSign className="size-4.5 text-indigo-600" />
+              <DollarSign className="size-4.5 text-primary" />
               <span>Commercial Revenue Analytics</span>
             </div>
           </div>
@@ -139,7 +139,7 @@ export default function RevenueReportPage() {
               onClick={handleExportCSV}
               className="h-9 text-xs font-semibold border-slate-300 text-slate-700 hover:bg-slate-50"
             >
-              <Download className="size-3.5 mr-1.5 text-indigo-600" />
+              <Download className="size-3.5 mr-1.5 text-primary" />
               Export CSV
             </Button>
             <Button
@@ -165,7 +165,7 @@ export default function RevenueReportPage() {
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                  <TrendingUp className="size-4 text-indigo-600" />
+                  <TrendingUp className="size-4 text-primary" />
                   Time-Series Revenue Trends
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
@@ -235,7 +235,7 @@ export default function RevenueReportPage() {
                 <span key="period" className="font-bold text-slate-800">
                   {row.period}
                 </span>,
-                <span key="booked" className="font-semibold text-indigo-600">
+                <span key="booked" className="font-semibold text-primary">
                   {row.booked}
                 </span>,
                 <span

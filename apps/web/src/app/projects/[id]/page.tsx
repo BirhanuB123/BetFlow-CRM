@@ -161,7 +161,7 @@ function money(v: string) {
   return formatCurrency(v);
 }
 const input =
-  "h-9 rounded-md border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-400 shadow-2xs";
+  "h-9 rounded-md border border-slate-200 bg-white px-3 text-sm outline-none focus:border-primary/40 shadow-2xs";
 
 const unitStatusClass: Record<string, string> = {
   AVAILABLE: "bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold",
@@ -348,7 +348,7 @@ function FloorSection({
             <Button
               type="submit"
               size="sm"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs h-8"
+              className="text-xs h-8"
             >
               Save
             </Button>
@@ -374,18 +374,18 @@ function FloorSection({
               ) : (
                 <ChevronRight className="size-4 text-slate-400" />
               )}
-              <Layers className="size-4 text-indigo-500" />
+              <Layers className="size-4 text-primary" />
               <span className="text-sm font-semibold text-slate-800">
                 {floor.name || `Floor ${floor.floorNumber}`}
               </span>
-              <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700">
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
                 {floor._count.units} units
               </span>
             </button>
             <button
               type="button"
               onClick={() => setEditingFloor(true)}
-              className="text-slate-400 hover:text-indigo-600 transition-colors p-1"
+              className="text-slate-400 hover:text-primary transition-colors p-1"
               title="Edit Floor"
             >
               <Pencil className="size-3.5" />
@@ -420,7 +420,7 @@ function FloorSection({
                   {editingUnitId === u.id ? (
                     <form
                       onSubmit={saveUnitEdit}
-                      className="grid gap-2 sm:grid-cols-5 items-center bg-indigo-50/50 p-2 rounded-md"
+                      className="grid gap-2 sm:grid-cols-5 items-center bg-primary/10 p-2 rounded-md"
                     >
                       <input
                         required
@@ -494,7 +494,7 @@ function FloorSection({
                         <Button
                           type="submit"
                           size="sm"
-                          className="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] h-8 px-2.5"
+                          className="text-[11px] h-8 px-2.5"
                         >
                           Save
                         </Button>
@@ -532,7 +532,7 @@ function FloorSection({
                       <button
                         type="button"
                         onClick={() => startEditUnit(u)}
-                        className="text-slate-400 hover:text-indigo-600 transition-colors p-1"
+                        className="text-slate-400 hover:text-primary transition-colors p-1"
                         title="Edit Unit"
                       >
                         <Pencil className="size-3.5" />
@@ -555,7 +555,7 @@ function FloorSection({
           {showForm ? (
             <form
               onSubmit={addUnit}
-              className="mt-3 grid gap-2 sm:grid-cols-4 rounded-lg bg-white p-3 border border-indigo-100"
+              className="mt-3 grid gap-2 sm:grid-cols-4 rounded-lg bg-white p-3 border border-primary/10"
             >
               <input
                 required
@@ -600,7 +600,7 @@ function FloorSection({
                 <Button
                   type="submit"
                   size="sm"
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs"
+                  className="text-xs"
                 >
                   Add unit
                 </Button>
@@ -619,7 +619,7 @@ function FloorSection({
             <button
               type="button"
               onClick={() => setShowForm(true)}
-              className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:underline"
+              className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
             >
               <Plus className="size-3.5" /> Add Unit to Floor
             </button>
@@ -727,7 +727,7 @@ function BuildingSection({
             onSubmit={saveBuildingEdit}
             className="flex flex-1 items-center gap-2"
           >
-            <Building className="size-4 text-indigo-600" />
+            <Building className="size-4 text-primary" />
             <input
               required
               className={cn(input, "flex-1")}
@@ -738,7 +738,7 @@ function BuildingSection({
             <Button
               type="submit"
               size="sm"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs h-8"
+              className="text-xs h-8"
             >
               Save
             </Button>
@@ -764,19 +764,19 @@ function BuildingSection({
               ) : (
                 <ChevronRight className="size-4 text-slate-400" />
               )}
-              <Building className="size-4 text-indigo-600" />
+              <Building className="size-4 text-primary" />
               <span className="font-bold text-slate-900">{building.name}</span>
               <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
                 {building._count.floors} floors
               </span>
-              <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700">
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
                 {building.unitsCount} units
               </span>
             </button>
             <button
               type="button"
               onClick={() => setEditingBuilding(true)}
-              className="text-slate-400 hover:text-indigo-600 transition-colors p-1"
+              className="text-slate-400 hover:text-primary transition-colors p-1"
               title="Edit Building Name"
             >
               <Pencil className="size-4" />
@@ -840,7 +840,7 @@ function BuildingSection({
                 <Button
                   type="submit"
                   size="sm"
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs"
+                  className="text-xs"
                 >
                   Add floor
                 </Button>
@@ -859,7 +859,7 @@ function BuildingSection({
             <button
               type="button"
               onClick={() => setShowForm(true)}
-              className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:underline"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
             >
               <Plus className="size-3.5" /> Add Floor Level to Building
             </button>
@@ -954,7 +954,7 @@ function ConstructionMilestonesWidget({
       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
         <div>
           <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-            <Sparkles className="size-4 text-indigo-600" />
+            <Sparkles className="size-4 text-primary" />
             Construction Milestones (የግንባታ ደረጃ)
           </h3>
           <p className="text-[11px] text-slate-500 mt-0.5">
@@ -964,7 +964,7 @@ function ConstructionMilestonesWidget({
         <button
           type="button"
           onClick={() => setIsEditing(!isEditing)}
-          className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 hover:underline flex items-center gap-1"
+          className="text-xs font-semibold text-primary hover:text-primary hover:underline flex items-center gap-1"
         >
           <Pencil className="size-3" />
           {isEditing ? "Cancel" : "Update Stage"}
@@ -978,14 +978,14 @@ function ConstructionMilestonesWidget({
       {isEditing ? (
         <form
           onSubmit={handleSave}
-          className="space-y-3 bg-indigo-50/50 p-3 rounded-lg border border-indigo-100"
+          className="space-y-3 bg-primary/10 p-3 rounded-lg border border-primary/10"
         >
           <div>
             <label className="block text-[11px] font-bold text-slate-700 mb-1">
               Current Milestone Stage
             </label>
             <select
-              className="w-full h-8 rounded-md border border-slate-300 bg-white px-2 text-xs text-slate-900 focus:outline-none focus:border-indigo-500"
+              className="w-full h-8 rounded-md border border-slate-300 bg-white px-2 text-xs text-slate-900 focus:outline-none focus:border-primary"
               value={stage}
               onChange={(e) => {
                 const newStage = e.target.value;
@@ -1014,7 +1014,7 @@ function ConstructionMilestonesWidget({
               max="100"
               value={progress}
               onChange={(e) => setProgress(e.target.value)}
-              className="w-full accent-indigo-600 cursor-pointer"
+              className="w-full accent-primary cursor-pointer"
             />
           </div>
 
@@ -1032,7 +1032,7 @@ function ConstructionMilestonesWidget({
               type="submit"
               disabled={saving}
               size="sm"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs h-7"
+              className="text-xs h-7"
             >
               {saving ? "Saving…" : "Save Progress"}
             </Button>
@@ -1046,7 +1046,7 @@ function ConstructionMilestonesWidget({
               <span className="font-bold text-slate-700">
                 Overall Site Progress
               </span>
-              <span className="font-extrabold text-indigo-600">
+              <span className="font-extrabold text-primary">
                 {currentProgress}%
               </span>
             </div>
@@ -1070,7 +1070,7 @@ function ConstructionMilestonesWidget({
                   className={cn(
                     "flex items-center justify-between p-2.5 rounded-lg border text-xs transition-all",
                     isCurrent
-                      ? "border-indigo-300 bg-indigo-50/80 font-semibold text-indigo-950 shadow-2xs"
+                      ? "border-primary/30 bg-primary/10 font-semibold text-primary shadow-2xs"
                       : isPast
                         ? "border-slate-200 bg-emerald-50/40 text-slate-700"
                         : "border-slate-100 bg-white text-slate-400 opacity-75",
@@ -1083,7 +1083,7 @@ function ConstructionMilestonesWidget({
                         isPast
                           ? "bg-emerald-600 text-white"
                           : isCurrent
-                            ? "bg-indigo-600 text-white ring-2 ring-indigo-200"
+                            ? "bg-primary text-white ring-2 ring-indigo-200"
                             : "bg-slate-200 text-slate-500",
                       )}
                     >
@@ -1091,7 +1091,7 @@ function ConstructionMilestonesWidget({
                     </div>
                     <div>
                       <p className="font-bold leading-tight">
-                        <span className="text-indigo-600 mr-1">
+                        <span className="text-primary mr-1">
                           [{stg.amharic}]
                         </span>
                         {stg.name}
@@ -1102,7 +1102,7 @@ function ConstructionMilestonesWidget({
                     className={cn(
                       "text-[10px] font-extrabold px-2 py-0.5 rounded-full border shrink-0",
                       isCurrent
-                        ? "bg-indigo-600 text-white border-indigo-600"
+                        ? "bg-primary text-white border-primary"
                         : isPast
                           ? "bg-emerald-100 text-emerald-800 border-emerald-200"
                           : "bg-slate-100 text-slate-500 border-slate-200",
@@ -1341,7 +1341,7 @@ export default function ProjectDetailPage() {
             <Button
               onClick={() => setShowEditModal(true)}
               variant="outline"
-              className="h-8 text-xs border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+              className="h-8 text-xs border-primary/20 text-primary hover:bg-primary/10"
             >
               <Pencil className="size-3.5 mr-1" /> Edit Specs & Renderings
             </Button>
@@ -1374,11 +1374,11 @@ export default function ProjectDetailPage() {
           {showEditModal && (
             <form
               onSubmit={handleUpdateProject}
-              className="rounded-xl border border-indigo-200 bg-gradient-to-b from-indigo-50/40 to-slate-50/50 p-5 shadow-lg space-y-4"
+              className="rounded-xl border border-primary/20 bg-gradient-to-b from-indigo-50/40 to-slate-50/50 p-5 shadow-lg space-y-4"
             >
-              <div className="flex items-center justify-between border-b border-indigo-100 pb-3">
-                <h3 className="text-sm font-bold text-indigo-950 flex items-center gap-2">
-                  <Pencil className="size-4 text-indigo-600" />
+              <div className="flex items-center justify-between border-b border-primary/10 pb-3">
+                <h3 className="text-sm font-bold text-primary flex items-center gap-2">
+                  <Pencil className="size-4 text-primary" />
                   Edit Real Estate Project Details & Renderings
                 </h3>
                 <button
@@ -1402,7 +1402,7 @@ export default function ProjectDetailPage() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, name: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   />
                 </div>
 
@@ -1415,7 +1415,7 @@ export default function ProjectDetailPage() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, category: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   >
                     <option value="RESIDENTIAL_TOWER">
                       G+12/G+20 Residential Tower
@@ -1442,7 +1442,7 @@ export default function ProjectDetailPage() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, subCity: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   >
                     {Object.entries(subCityLabels).map(([key, val]) => (
                       <option key={key} value={key}>
@@ -1462,7 +1462,7 @@ export default function ProjectDetailPage() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, location: e.target.value })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   />
                 </div>
 
@@ -1478,7 +1478,7 @@ export default function ProjectDetailPage() {
                         constructionStage: e.target.value,
                       })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   >
                     {Object.entries(stageLabels).map(([key, val]) => (
                       <option key={key} value={key}>
@@ -1503,7 +1503,7 @@ export default function ProjectDetailPage() {
                         progressPercentage: e.target.value,
                       })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   />
                 </div>
 
@@ -1520,7 +1520,7 @@ export default function ProjectDetailPage() {
                         estimatedDelivery: e.target.value,
                       })
                     }
-                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   />
                 </div>
 
@@ -1536,7 +1536,7 @@ export default function ProjectDetailPage() {
                       onChange={(e) =>
                         setEditForm({ ...editForm, coverImage: e.target.value })
                       }
-                      className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                      className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                     />
                     <input
                       type="file"
@@ -1567,7 +1567,7 @@ export default function ProjectDetailPage() {
                         onClick={() =>
                           setEditForm({ ...editForm, coverImage: preset.url })
                         }
-                        className="rounded bg-white px-2.5 py-1 text-[10px] font-semibold text-indigo-700 border border-indigo-200 hover:bg-indigo-50 transition-colors"
+                        className="rounded bg-white px-2.5 py-1 text-[10px] font-semibold text-primary border border-primary/20 hover:bg-primary/10 transition-colors"
                       >
                         {preset.name}
                       </button>
@@ -1585,12 +1585,12 @@ export default function ProjectDetailPage() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, description: e.target.value })
                     }
-                    className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    className="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 border-t border-indigo-100 pt-3">
+              <div className="flex justify-end gap-3 border-t border-primary/10 pt-3">
                 <Button
                   type="button"
                   variant="outline"
@@ -1602,7 +1602,7 @@ export default function ProjectDetailPage() {
                 <Button
                   type="submit"
                   disabled={saving}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs"
+                  className="text-xs"
                 >
                   {saving ? "Saving Changes…" : "Save Project Changes"}
                 </Button>
@@ -1623,7 +1623,7 @@ export default function ProjectDetailPage() {
                   />
                 ) : (
                   <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white">
-                    <Building2 className="size-12 text-indigo-400 mb-2" />
+                    <Building2 className="size-12 text-primary/80 mb-2" />
                     <p className="text-xs font-semibold text-slate-300">
                       {categoryLabels[
                         project.category ?? "RESIDENTIAL_TOWER"
@@ -1651,7 +1651,7 @@ export default function ProjectDetailPage() {
                   </div>
 
                   <p className="mt-1 text-xs text-slate-500 flex items-center gap-1">
-                    <MapPin className="size-3.5 text-indigo-500" />
+                    <MapPin className="size-3.5 text-primary" />
                     {project.location ??
                       `${subCityLabels[project.subCity ?? "BOLE"] ?? "Addis Ababa"}`}
                   </p>
@@ -1670,7 +1670,7 @@ export default function ProjectDetailPage() {
                           key={am}
                           className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-700 border border-slate-200"
                         >
-                          <CheckCircle2 className="size-3 text-indigo-600" />
+                          <CheckCircle2 className="size-3 text-primary" />
                           {am}
                         </span>
                       ))}
@@ -1707,11 +1707,11 @@ export default function ProjectDetailPage() {
                     </p>
                   </div>
 
-                  <div className="rounded-lg bg-indigo-50 p-2.5 border border-indigo-100">
-                    <p className="text-[10px] font-semibold text-indigo-700 uppercase">
+                  <div className="rounded-lg bg-primary/10 p-2.5 border border-primary/10">
+                    <p className="text-[10px] font-semibold text-primary uppercase">
                       Sold Units
                     </p>
-                    <p className="text-sm font-extrabold text-indigo-900 mt-0.5">
+                    <p className="text-sm font-extrabold text-primary mt-0.5">
                       {project.soldUnitsCount ?? 0} Units
                     </p>
                   </div>
@@ -1730,7 +1730,7 @@ export default function ProjectDetailPage() {
                   className={cn(
                     "px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5",
                     activeTab === "INVENTORY"
-                      ? "bg-indigo-600 text-white shadow-sm"
+                      ? "bg-primary text-white shadow-sm"
                       : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
                   )}
                 >
@@ -1746,7 +1746,7 @@ export default function ProjectDetailPage() {
                   className={cn(
                     "px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5",
                     activeTab === "STACKING"
-                      ? "bg-indigo-600 text-white shadow-sm"
+                      ? "bg-primary text-white shadow-sm"
                       : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
                   )}
                 >
@@ -1759,7 +1759,7 @@ export default function ProjectDetailPage() {
                   className={cn(
                     "px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5",
                     activeTab === "GALLERY"
-                      ? "bg-indigo-600 text-white shadow-sm"
+                      ? "bg-primary text-white shadow-sm"
                       : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
                   )}
                 >
@@ -1784,7 +1784,7 @@ export default function ProjectDetailPage() {
                       </div>
                       <Button
                         onClick={() => setShowBuildingForm((v) => !v)}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs"
+                        className="text-xs"
                       >
                         <Plus className="size-3.5 mr-1" /> Add Building Block
                       </Button>
@@ -1824,7 +1824,7 @@ export default function ProjectDetailPage() {
                           <Button
                             type="submit"
                             size="sm"
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs"
+                            className="text-xs"
                           >
                             Create Building
                           </Button>

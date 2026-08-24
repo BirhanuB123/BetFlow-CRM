@@ -30,9 +30,9 @@ export default function SignedContractsPage() {
             <span className="text-slate-300 font-bold">•</span>
             <Link
               href="/transactions?tab=contracts"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50/80 px-3.5 py-1.5 text-xs font-bold text-indigo-700 hover:bg-indigo-100 transition-all shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-3.5 py-1.5 text-xs font-bold text-primary hover:bg-primary/20 transition-all shadow-2xs cursor-pointer"
             >
-              <ScrollText className="size-3.5 text-indigo-600" />
+              <ScrollText className="size-3.5 text-primary" />
               <span>Back to Sales Contracts</span>
             </Link>
           </div>

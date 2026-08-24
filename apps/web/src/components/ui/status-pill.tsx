@@ -65,8 +65,8 @@ export function StatusPill({
     case "COLD_LEADS":
     case "SITE_VISITORS":
     case "OTHER":
-      bgClass = "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/60";
-      pulseDotClass = "bg-indigo-500";
+      bgClass = "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary/80 border-primary/20 dark:border-primary/60";
+      pulseDotClass = "bg-primary";
       break;
   }
 

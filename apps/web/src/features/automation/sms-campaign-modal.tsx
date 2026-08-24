@@ -228,7 +228,7 @@ export function SmsCampaignModal({
             <Button
               type="submit"
               disabled={sendingSms}
-              className="h-9 px-5 bg-[#233b66] hover:bg-[#1d3257] text-white font-bold text-xs"
+              className="h-9 px-5 font-bold text-xs"
             >
               {sendingSms ? "Dispatching..." : "Send via Shortcode 8844"}
             </Button>

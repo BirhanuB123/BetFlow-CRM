@@ -220,7 +220,7 @@ export function MeetingsView() {
             disabled={
               !showForm && customers.length === 0 && leads.length === 0
             }
-            className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium shadow-sm transition-all"
+            className="font-medium shadow-sm transition-all"
           >
             {showForm ? (
               <X className="size-4 mr-1.5" />
@@ -235,7 +235,7 @@ export function MeetingsView() {
         {showForm && (
           <form
             onSubmit={handleCreate}
-            className="mt-6 rounded-xl border border-[#233b66]/20 bg-gradient-to-b from-[#233b66]/5 to-slate-50/50 p-5 shadow-inner"
+            className="mt-6 rounded-xl border border-primary/20 bg-gradient-to-b from-[#233b66]/5 to-slate-50/50 p-5 shadow-inner"
           >
             <h3 className="text-xs font-bold text-[#233b66] uppercase tracking-wider mb-4">
               Meeting Appointment Details
@@ -383,7 +383,7 @@ export function MeetingsView() {
               </div>
             </div>
 
-            <div className="mt-5 flex justify-end gap-3 border-t border-[#233b66]/20 pt-4">
+            <div className="mt-5 flex justify-end gap-3 border-t border-primary/20 pt-4">
               <Button
                 type="button"
                 variant="outline"
@@ -395,7 +395,7 @@ export function MeetingsView() {
               <Button
                 type="submit"
                 disabled={saving}
-                className="bg-[#233b66] hover:bg-[#1a2d50] text-white font-medium text-xs shadow-sm"
+                className="font-medium text-xs shadow-sm"
               >
                 {saving ? "Scheduling…" : "Save & Book Meeting"}
               </Button>

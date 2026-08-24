@@ -52,7 +52,7 @@ export function CreateReservationModal({
   return (
     <form
       onSubmit={onSubmit}
-      className="mt-6 rounded-xl border border-[#233b66]/20 bg-gradient-to-br from-[#233b66]/5 via-indigo-50/30 to-slate-50/50 p-5 shadow-inner transition-all"
+      className="mt-6 rounded-xl border border-primary/20 bg-gradient-to-br from-[#233b66]/5 via-primary/10/30 to-slate-50/50 p-5 shadow-inner transition-all"
     >
       <OfflineDraftBanner
         isOffline={isOffline}
@@ -254,7 +254,7 @@ export function CreateReservationModal({
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-[#233b66] hover:bg-[#1a2d50] text-white px-5 py-2 text-xs font-semibold shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+          className="rounded-lg px-5 py-2 text-xs font-semibold shadow-sm transition-all disabled:opacity-50 cursor-pointer"
         >
           {saving ? "Locking Inventory..." : "Lock Unit & Issue Hold"}
         </button>

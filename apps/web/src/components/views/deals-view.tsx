@@ -253,7 +253,7 @@ export function DealsView() {
           <div className="w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Pencil className="size-4 text-indigo-600" />
+                <Pencil className="size-4 text-primary" />
                 Edit Deal Opportunity
               </h3>
               <button
@@ -277,7 +277,7 @@ export function DealsView() {
                     setEditingDeal({ ...editingDeal, name: e.target.value })
                   }
                   placeholder="e.g. Saron Taddesse - Penthouse Deal"
-                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-primary"
                 />
               </div>
 
@@ -295,7 +295,7 @@ export function DealsView() {
                     setEditingDeal({ ...editingDeal, value: e.target.value })
                   }
                   placeholder="Payment / deal value amount"
-                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500 font-mono font-bold text-indigo-900"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-primary font-mono font-bold text-primary"
                 />
               </div>
 
@@ -313,7 +313,7 @@ export function DealsView() {
                       customerId: e.target.value,
                     })
                   }
-                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-primary"
                 >
                   <option value="">Select customer…</option>
                   {customers.map((customer) => (
@@ -338,7 +338,7 @@ export function DealsView() {
                       stageId: e.target.value,
                     })
                   }
-                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-primary"
                 >
                   <option value="">Select stage…</option>
                   {stages.map((stage) => (
@@ -361,7 +361,7 @@ export function DealsView() {
                 <Button
                   type="submit"
                   disabled={saving}
-                  className="h-9 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white"
+                  className="h-9 text-xs font-semibold"
                 >
                   {saving ? "Saving Changes…" : "Update Deal"}
                 </Button>
@@ -415,7 +415,7 @@ export function DealsView() {
               className={cn(
                 "flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-bold transition-colors cursor-pointer",
                 viewMode === "KANBAN"
-                  ? "bg-white text-indigo-700 shadow-xs"
+                  ? "bg-white text-primary shadow-xs"
                   : "text-slate-600 hover:text-slate-900",
               )}
             >
@@ -428,7 +428,7 @@ export function DealsView() {
               className={cn(
                 "flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-bold transition-colors cursor-pointer",
                 viewMode === "BOARD"
-                  ? "bg-white text-indigo-700 shadow-xs"
+                  ? "bg-white text-primary shadow-xs"
                   : "text-slate-600 hover:text-slate-900",
               )}
             >
@@ -456,14 +456,14 @@ export function DealsView() {
       {showForm && (
         <form
           onSubmit={handleCreate}
-          className="grid gap-3.5 rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4"
+          className="grid gap-3.5 rounded-xl border border-primary/10 bg-primary/5 p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4"
         >
           <input
             required
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             placeholder="Deal Opportunity Name *"
-            className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500"
+            className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-primary"
           />
           <input
             required
@@ -473,14 +473,14 @@ export function DealsView() {
             value={form.value}
             onChange={(e) => setForm({ ...form, value: e.target.value })}
             placeholder="Deal Value ($) *"
-            className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500"
+            className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-primary"
           />
           <select
             required
             aria-label="Customer option"
             value={form.customerId}
             onChange={(e) => setForm({ ...form, customerId: e.target.value })}
-            className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500"
+            className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-primary"
           >
             <option value="">Select customer…</option>
             {customers.map((customer) => (
@@ -494,7 +494,7 @@ export function DealsView() {
             aria-label="Stage option"
             value={form.stageId}
             onChange={(e) => setForm({ ...form, stageId: e.target.value })}
-            className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-indigo-500"
+            className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-primary"
           >
             <option value="">Select stage…</option>
             {stages.map((stage) => (
@@ -558,7 +558,7 @@ export function DealsView() {
                         <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
                           {stage.name}
                         </h2>
-                        <span className="inline-flex items-center justify-center rounded-full bg-indigo-100 px-2 py-0.5 text-[11px] font-bold text-indigo-700">
+                        <span className="inline-flex items-center justify-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary">
                           {stageDeals.length}
                         </span>
                       </div>
@@ -570,7 +570,7 @@ export function DealsView() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <span className="text-xs font-bold text-indigo-900 block">
+                      <span className="text-xs font-bold text-primary block">
                         {formatValue(stageTotalVal)}
                       </span>
                     </div>
@@ -588,14 +588,14 @@ export function DealsView() {
                             setDraggingDealId(deal.id);
                           }}
                           className={cn(
-                            "group relative rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition-all hover:border-indigo-300 hover:shadow-md cursor-grab active:cursor-grabbing",
+                            "group relative rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition-all hover:border-primary/30 hover:shadow-md cursor-grab active:cursor-grabbing",
                             draggingDealId === deal.id &&
-                              "opacity-50 border-dashed border-indigo-500",
+                              "opacity-50 border-dashed border-primary",
                           )}
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex items-center gap-1.5 min-w-0">
-                              <GripVertical className="size-4 text-slate-300 group-hover:text-indigo-400 shrink-0" />
+                              <GripVertical className="size-4 text-slate-300 group-hover:text-primary/80 shrink-0" />
                               <h3 className="font-bold text-slate-900 text-xs truncate">
                                 {deal.name}
                               </h3>
@@ -612,7 +612,7 @@ export function DealsView() {
                                     stageId: deal.stage.id,
                                   })
                                 }
-                                className="text-slate-400 hover:text-indigo-600 p-0.5 cursor-pointer"
+                                className="text-slate-400 hover:text-primary p-0.5 cursor-pointer"
                                 title="Edit deal details & payment amount"
                                 aria-label="Edit deal"
                               >
@@ -639,7 +639,7 @@ export function DealsView() {
                           </p>
 
                           <div className="mt-3.5 flex items-center justify-between border-t border-slate-100 pt-2.5 text-xs">
-                            <span className="font-extrabold text-indigo-600">
+                            <span className="font-extrabold text-primary">
                               {formatValue(deal.value)}
                             </span>
                             <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded">
@@ -656,7 +656,7 @@ export function DealsView() {
                             aria-label="Move stage"
                             value={deal.stage.id}
                             onChange={(e) => moveStage(deal.id, e.target.value)}
-                            className="mt-3 h-7 w-full rounded-md border border-slate-200 bg-slate-50 px-2 text-[11px] font-semibold text-slate-700 outline-none hover:border-indigo-300"
+                            className="mt-3 h-7 w-full rounded-md border border-slate-200 bg-slate-50 px-2 text-[11px] font-semibold text-slate-700 outline-none hover:border-primary/30"
                           >
                             {stages.map((option) => (
                               <option key={option.id} value={option.id}>
@@ -709,7 +709,7 @@ export function DealsView() {
                     val * ((deal.stage?.probability ?? 0) / 100),
                   );
                   return [
-                    <span key="name" className="font-bold text-indigo-600">
+                    <span key="name" className="font-bold text-primary">
                       {deal.name}
                     </span>,
                     `${deal.customer?.firstName ?? ""} ${deal.customer?.lastName ?? ""}`,
@@ -717,7 +717,7 @@ export function DealsView() {
                     formatValue(deal.value),
                     <span
                       key="stage"
-                      className="inline-flex items-center rounded-md bg-indigo-50 border border-indigo-100 px-2 py-0.5 text-xs font-bold text-indigo-700"
+                      className="inline-flex items-center rounded-md bg-primary/10 border border-primary/10 px-2 py-0.5 text-xs font-bold text-primary"
                     >
                       {deal.stage?.name}
                     </span>,
@@ -737,7 +737,7 @@ export function DealsView() {
                             stageId: deal.stage?.id ?? "",
                           })
                         }
-                        className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-bold text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-bold text-slate-700 hover:border-primary/30 hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer"
                       >
                         <Pencil className="size-3" />
                         <span>Edit</span>

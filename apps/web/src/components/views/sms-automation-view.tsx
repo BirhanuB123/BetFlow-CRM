@@ -547,7 +547,7 @@ export function SmsAutomationView() {
                 <Button
                   type="button"
                   onClick={() => setShowComposer(true)}
-                  className="bg-[#233b66] hover:bg-[#1d3257] text-white font-medium text-xs h-9 px-4 shadow-xs flex items-center gap-1.5"
+                  className="font-medium text-xs h-9 px-4 shadow-xs flex items-center gap-1.5"
                 >
                   <Send className="size-3.5" />
                   <span>Compose Quick SMS</span>
@@ -660,7 +660,7 @@ export function SmsAutomationView() {
             <div className="space-y-6">
               <div className="grid gap-4 md:grid-cols-3">
                 {/* Rule 1: Site Visit Reminder */}
-                <div className="flex flex-col justify-between rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-[#233b66]/30">
+                <div className="flex flex-col justify-between rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-primary/30">
                   <div>
                     <div className="flex items-center justify-between">
                       <div className="flex size-9 items-center justify-center rounded-lg bg-sky-50 text-sky-600">
@@ -714,7 +714,7 @@ export function SmsAutomationView() {
                 </div>
 
                 {/* Rule 2: Hold Expiry Warning */}
-                <div className="flex flex-col justify-between rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-[#233b66]/30">
+                <div className="flex flex-col justify-between rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-primary/30">
                   <div>
                     <div className="flex items-center justify-between">
                       <div className="flex size-9 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
@@ -768,7 +768,7 @@ export function SmsAutomationView() {
                 </div>
 
                 {/* Rule 3: Payment Milestone Due */}
-                <div className="flex flex-col justify-between rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-[#233b66]/30">
+                <div className="flex flex-col justify-between rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-primary/30">
                   <div>
                     <div className="flex items-center justify-between">
                       <div className="flex size-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
@@ -838,7 +838,7 @@ export function SmsAutomationView() {
                 </div>
                 <Button
                   onClick={() => setShowNewCampaignModal(true)}
-                  className="bg-[#233b66] hover:bg-[#1d3257] text-white text-xs font-bold h-8.5 px-3.5"
+                  className="text-xs font-bold h-8.5 px-3.5"
                 >
                   <Plus className="size-3.5 mr-1" /> New Drip Sequence
                 </Button>
@@ -897,7 +897,7 @@ export function SmsAutomationView() {
                           size="xs"
                           variant="outline"
                           onClick={() => setShowEnrollModal(camp.id)}
-                          className="h-8 text-xs font-semibold text-[#233b66] border-indigo-200 bg-indigo-50/50 hover:bg-indigo-100"
+                          className="h-8 text-xs font-semibold text-[#233b66] border-primary/20 bg-primary/10 hover:bg-primary/20"
                         >
                           <UserPlus className="size-3 mr-1" /> Enroll Buyer ({camp.enrolledCount})
                         </Button>
@@ -980,7 +980,7 @@ export function SmsAutomationView() {
                       className={cn(
                         "rounded-md px-3 py-1 text-xs font-bold transition-colors cursor-pointer",
                         templateLang === "am"
-                          ? "bg-[#233b66] text-white"
+                          ? "bg-primary text-primary-foreground"
                           : "bg-slate-100 text-slate-600 hover:bg-slate-200",
                       )}
                     >
@@ -992,7 +992,7 @@ export function SmsAutomationView() {
                       className={cn(
                         "rounded-md px-3 py-1 text-xs font-bold transition-colors cursor-pointer",
                         templateLang === "en"
-                          ? "bg-[#233b66] text-white"
+                          ? "bg-primary text-primary-foreground"
                           : "bg-slate-100 text-slate-600 hover:bg-slate-200",
                       )}
                     >
@@ -1242,7 +1242,7 @@ export function SmsAutomationView() {
                     <Button
                       type="submit"
                       size="sm"
-                      className="bg-[#233b66] hover:bg-[#1d3257] text-white font-bold text-xs px-5 shadow-xs"
+                      className="font-bold text-xs px-5 shadow-xs"
                     >
                       Send SMS (ETB 0.35)
                     </Button>
@@ -1340,7 +1340,7 @@ export function SmsAutomationView() {
                     <Button
                       type="submit"
                       size="sm"
-                      className="bg-[#233b66] hover:bg-[#1d3257] text-white font-bold text-xs px-5 shadow-xs"
+                      className="font-bold text-xs px-5 shadow-xs"
                     >
                       Save Drip Campaign
                     </Button>
@@ -1437,7 +1437,7 @@ export function SmsAutomationView() {
                     <Button
                       type="submit"
                       size="sm"
-                      className="bg-[#233b66] hover:bg-[#1d3257] text-white font-bold text-xs px-5 shadow-xs"
+                      className="font-bold text-xs px-5 shadow-xs"
                     >
                       Add Step to Sequence
                     </Button>
@@ -1527,7 +1527,7 @@ export function SmsAutomationView() {
                     <Button
                       type="submit"
                       size="sm"
-                      className="bg-[#233b66] hover:bg-[#1d3257] text-white font-bold text-xs px-5 shadow-xs"
+                      className="font-bold text-xs px-5 shadow-xs"
                     >
                       Enroll Buyer Now
                     </Button>
@@ -1659,7 +1659,7 @@ export function SmsAutomationView() {
 
                     <Button
                       type="submit"
-                      className="h-9 px-5 bg-[#233b66] hover:bg-[#1d3257] text-white font-bold text-xs"
+                      className="h-9 px-5 font-bold text-xs"
                     >
                       Save Rule Changes
                     </Button>

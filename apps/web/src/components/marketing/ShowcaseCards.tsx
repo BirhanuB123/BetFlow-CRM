@@ -23,7 +23,7 @@ export function ShowcaseCards() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 space-y-24">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <span className="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-1.5 text-xs font-extrabold text-indigo-300 uppercase tracking-wider">
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-extrabold text-primary/80 uppercase tracking-wider">
             Three Core Real Estate Sales Pillars
           </span>
           <h2 className="text-3xl font-black text-white sm:text-4xl lg:text-5xl tracking-tight">
@@ -55,8 +55,8 @@ export function ShowcaseCards() {
                       : "lg:col-span-6 lg:col-start-7"
                   }`}
                 >
-                  <div className="inline-flex items-center gap-2 rounded-lg bg-indigo-600/20 border border-indigo-500/30 px-3 py-1 text-xs font-bold text-indigo-300">
-                    <Icon className="size-4 text-indigo-400" />
+                  <div className="inline-flex items-center gap-2 rounded-lg bg-primary/20 border border-primary/30 px-3 py-1 text-xs font-bold text-primary/80">
+                    <Icon className="size-4 text-primary/80" />
                     <span>{pillar.badge}</span>
                   </div>
 
@@ -64,7 +64,7 @@ export function ShowcaseCards() {
                     <h3 className="text-2xl sm:text-3xl font-black text-white">
                       {pillar.title}: <span className="text-slate-300 font-bold">{pillar.subtitle}</span>
                     </h3>
-                    <p className="text-sm font-semibold text-indigo-400 mt-1">
+                    <p className="text-sm font-semibold text-primary/80 mt-1">
                       {pillar.tagline}
                     </p>
                   </div>
@@ -92,10 +92,10 @@ export function ShowcaseCards() {
                       <Link
                         key={lIdx}
                         href={link.href}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-300 hover:text-white bg-indigo-950/60 border border-indigo-800/60 rounded-lg px-3 py-1.5 transition-colors"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-primary/80 hover:text-white bg-primary/20 border border-primary/60 rounded-lg px-3 py-1.5 transition-colors"
                       >
                         <span>{link.label}</span>
-                        <ArrowRight className="size-3 text-indigo-400" />
+                        <ArrowRight className="size-3 text-primary/80" />
                       </Link>
                     ))}
                   </div>
@@ -118,7 +118,7 @@ export function ShowcaseCards() {
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
 
                       <div className="absolute bottom-4 left-4 right-4 p-4 rounded-xl bg-slate-950/90 backdrop-blur-md border border-slate-800 text-xs">
-                        <span className="rounded bg-indigo-600/30 border border-indigo-500/40 px-2 py-0.5 text-[10px] font-extrabold text-indigo-300 uppercase">
+                        <span className="rounded bg-primary/30 border border-primary/40 px-2 py-0.5 text-[10px] font-extrabold text-primary/80 uppercase">
                           {pillar.title} Pillar Showcase
                         </span>
                         <h4 className="text-sm font-extrabold text-white mt-1">
