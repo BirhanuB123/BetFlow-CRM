@@ -27,6 +27,7 @@ import {
   Sparkles,
   Image as ImageIcon,
   X,
+  ZoomIn,
 } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
@@ -1131,6 +1132,7 @@ export default function ProjectDetailPage() {
   const [showBuildingForm, setShowBuildingForm] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [previewImage, setPreviewImage] = useState<{ url: string; title?: string } | null>(null);
 
   const [buildingForm, setBuildingForm] = useState({
     name: "",
@@ -1307,7 +1309,7 @@ export default function ProjectDetailPage() {
       const fullUrl = `${API_BASE_URL.replace("/api", "")}${res.url}`;
 
       if (type === "cover") {
-        setEditForm({ ...editForm, coverImage: fullUrl });
+        setEditForm((prev) => ({ ...prev, coverImage: fullUrl }));
       } else {
         setEditForm((prev) => ({
           ...prev,
@@ -1316,6 +1318,41 @@ export default function ProjectDetailPage() {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to upload image");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRemoveDirectGalleryPhoto = async (indexToRemove: number) => {
+    if (!project) return;
+    if (!window.confirm("Are you sure you want to delete this gallery image?")) return;
+    const updatedGallery = (project.gallery ?? []).filter((_, i) => i !== indexToRemove);
+    try {
+      setSaving(true);
+      await apiFetch<ProjectDetail>(`/projects/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ gallery: updatedGallery }),
+      });
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete photo");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRemoveDirectCoverImage = async () => {
+    if (!project) return;
+    if (!window.confirm("Are you sure you want to remove the cover render image?")) return;
+    try {
+      setSaving(true);
+      await apiFetch<ProjectDetail>(`/projects/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ coverImage: null }),
+      });
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to remove cover image");
     } finally {
       setSaving(false);
     }
@@ -1554,6 +1591,18 @@ export default function ProjectDetailPage() {
                     >
                       <ImageIcon className="size-4 mr-1.5" /> Upload
                     </label>
+                    {editForm.coverImage && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() =>
+                          setEditForm({ ...editForm, coverImage: "" })
+                        }
+                        className="text-xs h-9 border-destructive/30 text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="size-3.5 mr-1" /> Clear
+                      </Button>
+                    )}
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -1573,6 +1622,73 @@ export default function ProjectDetailPage() {
                       </button>
                     ))}
                   </div>
+                </div>
+
+                {/* Media & Gallery Photos Uploader */}
+                <div className="sm:col-span-3 space-y-2">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    Media & Gallery Photos
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      placeholder="Paste image rendering URL (e.g. site progress photo)..."
+                      value={editForm.newGalleryUrl}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, newGalleryUrl: e.target.value })
+                      }
+                      className="flex-1 h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
+                    />
+                    <Button
+                      type="button"
+                      onClick={addGalleryPhoto}
+                      variant="outline"
+                      className="text-xs h-9 border-slate-300"
+                    >
+                      <Plus className="size-3.5 mr-1" /> Add URL
+                    </Button>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) void handleFileUpload(file, "gallery");
+                      }}
+                      className="hidden"
+                      id="edit-gallery-upload"
+                    />
+                    <label
+                      htmlFor="edit-gallery-upload"
+                      className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer shadow-2xs transition-colors h-9"
+                    >
+                      <ImageIcon className="size-4 mr-1.5" /> Upload File
+                    </label>
+                  </div>
+
+                  {editForm.galleryUrls.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {editForm.galleryUrls.map((url, index) => (
+                        <div
+                          key={url + index}
+                          className="relative size-16 rounded-md border border-slate-300 overflow-hidden group"
+                        >
+                          <img
+                            src={url}
+                            alt="Gallery"
+                            className="h-full w-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeGalleryPhoto(index)}
+                            className="absolute top-0.5 right-0.5 rounded-full bg-destructive p-0.5 text-white opacity-90 hover:opacity-100 transition-opacity"
+                            title="Delete photo"
+                          >
+                            <X className="size-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="sm:col-span-3">
@@ -1616,11 +1732,27 @@ export default function ProjectDetailPage() {
               {/* Cover Render Image */}
               <div className="relative h-56 lg:h-auto bg-slate-900 overflow-hidden">
                 {project.coverImage ? (
-                  <img
-                    src={project.coverImage}
-                    alt={project.name}
-                    className="h-full w-full object-cover"
-                  />
+                  <div
+                    onClick={() =>
+                      setPreviewImage({
+                        url: project.coverImage!,
+                        title: `${project.name} - Cover Render`,
+                      })
+                    }
+                    className="group relative h-full w-full cursor-pointer overflow-hidden"
+                    title="Click to view high-resolution image"
+                  >
+                    <img
+                      src={project.coverImage}
+                      alt={project.name}
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-900/80 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-sm border border-white/20">
+                        <ZoomIn className="size-3.5" /> View Full Image
+                      </span>
+                    </div>
+                  </div>
                 ) : (
                   <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-slate-900 via-primary to-slate-900 text-white">
                     <Building2 className="size-12 text-primary/80 mb-2" />
@@ -1878,15 +2010,39 @@ export default function ProjectDetailPage() {
 
                   {project.coverImage && (
                     <div>
-                      <p className="text-xs font-semibold text-slate-700 mb-2">
-                        3D Architectural Cover Render
-                      </p>
-                      <div className="h-64 w-full rounded-lg overflow-hidden border border-slate-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs font-semibold text-slate-700">
+                          3D Architectural Cover Render
+                        </p>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleRemoveDirectCoverImage}
+                          className="h-7 text-[11px] border-destructive/30 text-destructive hover:bg-destructive/10"
+                        >
+                          <Trash2 className="size-3 mr-1" /> Delete Cover Image
+                        </Button>
+                      </div>
+                      <div
+                        onClick={() =>
+                          setPreviewImage({
+                            url: project.coverImage!,
+                            title: `${project.name} - 3D Architectural Cover Render`,
+                          })
+                        }
+                        className="relative h-64 w-full rounded-lg overflow-hidden border border-slate-200 group cursor-pointer"
+                        title="Click to view full size"
+                      >
                         <img
                           src={project.coverImage}
                           alt={project.name}
-                          className="h-full w-full object-cover"
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                         />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-900/80 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-sm border border-white/20">
+                            <ZoomIn className="size-3.5" /> View Full Image
+                          </span>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -1900,13 +2056,44 @@ export default function ProjectDetailPage() {
                         {project.gallery.map((url, i) => (
                           <div
                             key={url + i}
-                            className="h-36 rounded-lg border border-slate-200 overflow-hidden"
+                            className="relative h-36 rounded-lg border border-slate-200 overflow-hidden group shadow-xs cursor-pointer"
                           >
                             <img
                               src={url}
                               alt={`Gallery ${i}`}
-                              className="h-full w-full object-cover"
+                              onClick={() =>
+                                setPreviewImage({
+                                  url,
+                                  title: `${project.name} - Gallery Photo #${i + 1}`,
+                                })
+                              }
+                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                              title="Click to view high-resolution image"
                             />
+                            <div
+                              onClick={() =>
+                                setPreviewImage({
+                                  url,
+                                  title: `${project.name} - Gallery Photo #${i + 1}`,
+                                })
+                              }
+                              className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                            >
+                              <span className="inline-flex items-center gap-1 rounded-full bg-slate-900/80 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+                                <ZoomIn className="size-3" /> Zoom
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                void handleRemoveDirectGalleryPhoto(i);
+                              }}
+                              className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 rounded bg-destructive/90 px-2 py-1 text-[10px] font-semibold text-white shadow-md hover:bg-destructive transition-colors opacity-90 sm:opacity-0 sm:group-hover:opacity-100"
+                              title="Delete photo"
+                            >
+                              <Trash2 className="size-3" /> Delete
+                            </button>
                           </div>
                         ))}
                       </div>
@@ -1951,6 +2138,56 @@ export default function ProjectDetailPage() {
                 entityType="Project"
                 entityId={project.id}
                 title="Project activity log"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Lightbox / Fullscreen Image Preview Modal */}
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-955/90 backdrop-blur-md p-4 transition-all animate-in fade-in duration-200"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div
+            className="relative flex flex-col max-w-5xl w-full max-h-[90vh] bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-800 bg-slate-900/90 text-white">
+              <div className="flex items-center gap-2.5">
+                <ImageIcon className="size-4 text-primary" />
+                <span className="text-xs font-bold text-slate-200 truncate">
+                  {previewImage.title || "Image Preview"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href={previewImage.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
+                  title="Open full size image in new tab"
+                >
+                  <ExternalLink className="size-3.5" /> Open Original
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setPreviewImage(null)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                  title="Close (Esc)"
+                >
+                  <X className="size-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* High-res Image Display */}
+            <div className="flex-1 flex items-center justify-center p-6 bg-slate-950/80 overflow-auto">
+              <img
+                src={previewImage.url}
+                alt={previewImage.title || "Full Preview"}
+                className="max-h-[75vh] max-w-full object-contain rounded-lg shadow-2xl select-none"
               />
             </div>
           </div>
