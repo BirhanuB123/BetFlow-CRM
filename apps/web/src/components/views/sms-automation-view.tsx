@@ -92,19 +92,29 @@ export function SmsAutomationView() {
 
   // System Stats State
   const [stats, setStats] = useState<SmsStats>({
-    totalSent: 3,
-    delivered: 3,
+    totalSent: 0,
+    delivered: 0,
     failed: 0,
-    deliveryRate: 100,
-    totalCostBirr: 1.05,
-    gatewayProvider: "Ethio Telecom Shortcode 8844 Gateway",
+    deliveryRate: 0,
+    totalCostBirr: 0,
+    gatewayProvider: "Ethio Telecom Shortcode Gateway (Syncing...)",
     shortcode: "8844",
-    isLive: true,
-    activeCampaignsCount: 2,
+    isLive: false,
+    activeCampaignsCount: 0,
   });
 
   // Contacts from CRM Database
   const [contacts, setContacts] = useState<SmsContact[]>([]);
+
+  // Section Error State
+  const [sectionErrors, setSectionErrors] = useState<{
+    stats?: boolean;
+    contacts?: boolean;
+    logs?: boolean;
+    drip?: boolean;
+    rules?: boolean;
+    templates?: boolean;
+  }>({});
 
   // Automated Trigger Rules State
   const [rules, setRules] = useState<TriggerRulesMap>({
@@ -126,9 +136,7 @@ export function SmsAutomationView() {
   });
 
   // Drip Campaigns State
-  const [dripCampaigns, setDripCampaigns] = useState<DripCampaign[]>(
-    PRESEEDED_DRIP_CAMPAIGNS,
-  );
+  const [dripCampaigns, setDripCampaigns] = useState<DripCampaign[]>([]);
 
   // Outbox Logs State
   const [logs, setLogs] = useState<SmsLog[]>([]);
@@ -202,37 +210,40 @@ export function SmsAutomationView() {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
 
-    try {
-      const [
-        fetchedStats,
-        fetchedContacts,
-        fetchedLogs,
-        fetchedCampaigns,
-        fetchedRules,
-        fetchedTemplates,
-      ] = await Promise.all([
-        fetchSmsStats(),
-        fetchSmsContacts(),
-        fetchOutboxLogs(),
-        fetchDripCampaigns(),
-        fetchRulesApi(),
-        fetchSmsTemplatesApi(),
-      ]);
+    const results = await Promise.allSettled([
+      fetchSmsStats(),
+      fetchSmsContacts(),
+      fetchOutboxLogs(),
+      fetchDripCampaigns(),
+      fetchRulesApi(),
+      fetchSmsTemplatesApi(),
+    ]);
 
-      setStats(fetchedStats);
-      setContacts(fetchedContacts);
-      setLogs(fetchedLogs);
-      setDripCampaigns(fetchedCampaigns);
-      setRules(fetchedRules);
-      setTemplates(fetchedTemplates);
+    const errors: typeof sectionErrors = {};
 
-      if (isRefresh) showToast("SMS & Drip Gateway synced with Ethio Telecom");
-    } catch (err: any) {
-      showToast(`Sync Notice: Using cached state (${err.message})`);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
+    if (results[0].status === "fulfilled") setStats(results[0].value);
+    else errors.stats = true;
+
+    if (results[1].status === "fulfilled") setContacts(results[1].value);
+    else errors.contacts = true;
+
+    if (results[2].status === "fulfilled") setLogs(results[2].value);
+    else errors.logs = true;
+
+    if (results[3].status === "fulfilled") setDripCampaigns(results[3].value);
+    else errors.drip = true;
+
+    if (results[4].status === "fulfilled") setRules(results[4].value);
+    else errors.rules = true;
+
+    if (results[5].status === "fulfilled") setTemplates(results[5].value);
+    else errors.templates = true;
+
+    setSectionErrors(errors);
+    if (isRefresh) showToast("SMS & Drip Gateway synced with Ethio Telecom");
+
+    setLoading(false);
+    setRefreshing(false);
   };
 
   useEffect(() => {
@@ -512,7 +523,7 @@ export function SmsAutomationView() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <MessageSquare className="size-5 text-[#233b66]" />
+                  <MessageSquare className="size-5 text-primary" />
                   <h2 className="text-base font-bold text-slate-900">
                     Ethio Telecom Bulk SMS & Drip Engine
                   </h2>
@@ -595,6 +606,13 @@ export function SmsAutomationView() {
           </StatRow>
 
           {/* Tab Navigation */}
+          {sectionErrors.stats && (
+            <div className="rounded-xl border border-warning/30 bg-warning/10 p-3 text-xs font-semibold text-warning flex items-center gap-2">
+              <AlertTriangle className="size-4 shrink-0" />
+              <span>Couldn't load live gateway stats from server.</span>
+            </div>
+          )}
+
           <div className="flex items-center justify-between border-b border-slate-200">
             <div className="flex items-center gap-2">
               <button
@@ -603,7 +621,7 @@ export function SmsAutomationView() {
                 className={cn(
                   "flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-bold transition-all",
                   activeTab === "rules"
-                    ? "border-[#233b66] text-[#233b66]"
+                    ? "border-primary text-primary"
                     : "border-transparent text-slate-500 hover:text-slate-900",
                 )}
               >
@@ -617,7 +635,7 @@ export function SmsAutomationView() {
                 className={cn(
                   "flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-bold transition-all",
                   activeTab === "drip"
-                    ? "border-[#233b66] text-[#233b66]"
+                    ? "border-primary text-primary"
                     : "border-transparent text-slate-500 hover:text-slate-900",
                 )}
               >
@@ -631,7 +649,7 @@ export function SmsAutomationView() {
                 className={cn(
                   "flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-bold transition-all",
                   activeTab === "templates"
-                    ? "border-[#233b66] text-[#233b66]"
+                    ? "border-primary text-primary"
                     : "border-transparent text-slate-500 hover:text-slate-900",
                 )}
               >
@@ -645,7 +663,7 @@ export function SmsAutomationView() {
                 className={cn(
                   "flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-bold transition-all",
                   activeTab === "outbox"
-                    ? "border-[#233b66] text-[#233b66]"
+                    ? "border-primary text-primary"
                     : "border-transparent text-slate-500 hover:text-slate-900",
                 )}
               >
@@ -658,6 +676,12 @@ export function SmsAutomationView() {
           {/* TAB 1: AUTOMATED TRIGGER RULES */}
           {activeTab === "rules" && (
             <div className="space-y-6">
+              {sectionErrors.rules && (
+                <div className="rounded-xl border border-warning/30 bg-warning/10 p-3 text-xs font-semibold text-warning flex items-center gap-2">
+                  <AlertTriangle className="size-4 shrink-0" />
+                  <span>Couldn't load live trigger rules from server.</span>
+                </div>
+              )}
               <div className="grid gap-4 md:grid-cols-3">
                 {/* Rule 1: Site Visit Reminder */}
                 <div className="flex flex-col justify-between rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-primary/30">
@@ -706,7 +730,7 @@ export function SmsAutomationView() {
                     <button
                       type="button"
                       onClick={() => openEditRuleModal("siteVisit")}
-                      className="text-xs font-bold text-[#233b66] hover:underline flex items-center gap-1"
+                      className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
                     >
                       <Edit3 className="size-3" /> Edit Rule
                     </button>
@@ -760,7 +784,7 @@ export function SmsAutomationView() {
                     <button
                       type="button"
                       onClick={() => openEditRuleModal("holdExpiry")}
-                      className="text-xs font-bold text-[#233b66] hover:underline flex items-center gap-1"
+                      className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
                     >
                       <Edit3 className="size-3" /> Edit Rule
                     </button>
@@ -814,7 +838,7 @@ export function SmsAutomationView() {
                     <button
                       type="button"
                       onClick={() => openEditRuleModal("paymentDue")}
-                      className="text-xs font-bold text-[#233b66] hover:underline flex items-center gap-1"
+                      className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
                     >
                       <Edit3 className="size-3" /> Edit Rule
                     </button>
@@ -827,6 +851,12 @@ export function SmsAutomationView() {
           {/* TAB 2: DRIP SEQUENCES */}
           {activeTab === "drip" && (
             <div className="space-y-6">
+              {sectionErrors.drip && (
+                <div className="rounded-xl border border-warning/30 bg-warning/10 p-3 text-xs font-semibold text-warning flex items-center gap-2">
+                  <AlertTriangle className="size-4 shrink-0" />
+                  <span>Couldn't load live drip sequences from server.</span>
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-bold text-slate-900">
@@ -897,7 +927,7 @@ export function SmsAutomationView() {
                           size="xs"
                           variant="outline"
                           onClick={() => setShowEnrollModal(camp.id)}
-                          className="h-8 text-xs font-semibold text-[#233b66] border-primary/20 bg-primary/10 hover:bg-primary/20"
+                          className="h-8 text-xs font-semibold text-primary border-primary/20 bg-primary/10 hover:bg-primary/20"
                         >
                           <UserPlus className="size-3 mr-1" /> Enroll Buyer ({camp.enrolledCount})
                         </Button>
@@ -926,7 +956,7 @@ export function SmsAutomationView() {
                             key={st.id}
                             className="relative rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs space-y-1.5"
                           >
-                            <div className="flex items-center justify-between text-[11px] font-bold text-[#233b66]">
+                            <div className="flex items-center justify-between text-[11px] font-bold text-primary">
                               <span>Step {st.stepNumber || idx + 1}: Day {st.delayDays}</span>
                               <button
                                 type="button"
@@ -945,7 +975,7 @@ export function SmsAutomationView() {
                         <button
                           type="button"
                           onClick={() => setShowAddStepModal(camp.id)}
-                          className="flex min-h-[90px] flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white p-3 text-xs font-bold text-slate-500 hover:border-[#233b66] hover:text-[#233b66] transition-colors cursor-pointer"
+                          className="flex min-h-[90px] flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white p-3 text-xs font-bold text-slate-500 hover:border-primary hover:text-primary transition-colors cursor-pointer"
                         >
                           <Plus className="size-4 mb-1" />
                           Add Step
@@ -1008,7 +1038,7 @@ export function SmsAutomationView() {
                       className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-xs space-y-2"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-[#233b66] text-xs">
+                        <span className="font-bold text-primary text-xs">
                           {tpl.title}
                         </span>
                         <span className="font-mono text-[10px] text-slate-400">
@@ -1031,7 +1061,7 @@ export function SmsAutomationView() {
                             }));
                             setShowComposer(true);
                           }}
-                          className="h-7 text-[11px] font-semibold text-[#233b66]"
+                          className="h-7 text-[11px] font-semibold text-primary"
                         >
                           Use Template in Composer
                         </Button>
@@ -1046,6 +1076,12 @@ export function SmsAutomationView() {
           {/* TAB 4: OUTBOX LOGS */}
           {activeTab === "outbox" && (
             <div className="space-y-4">
+              {sectionErrors.logs && (
+                <div className="rounded-xl border border-warning/30 bg-warning/10 p-3 text-xs font-semibold text-warning flex items-center gap-2">
+                  <AlertTriangle className="size-4 shrink-0" />
+                  <span>Couldn't load live outbox logs from server.</span>
+                </div>
+              )}
               {/* Outbox Filters */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="relative flex-1 max-w-md">
@@ -1055,7 +1091,7 @@ export function SmsAutomationView() {
                     placeholder="Search recipient name, phone, or message body…"
                     value={outboxSearch}
                     onChange={(e) => setOutboxSearch(e.target.value)}
-                    className="h-9 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-xs outline-none focus:border-[#233b66]"
+                    className="h-9 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-xs outline-none focus:border-primary"
                   />
                 </div>
 
@@ -1064,7 +1100,7 @@ export function SmsAutomationView() {
                   <select
                     value={outboxStatusFilter}
                     onChange={(e) => setOutboxStatusFilter(e.target.value)}
-                    className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-[#233b66]"
+                    className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-primary"
                   >
                     <option value="ALL">All Statuses</option>
                     <option value="DELIVERED">Delivered</option>
@@ -1135,7 +1171,7 @@ export function SmsAutomationView() {
               <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div className="flex items-center gap-2">
-                    <Send className="size-5 text-[#233b66]" />
+                    <Send className="size-5 text-primary" />
                     <h3 className="text-base font-bold text-slate-900">
                       Ethio Telecom Direct SMS Composer
                     </h3>
@@ -1156,7 +1192,7 @@ export function SmsAutomationView() {
                     <select
                       value={composerForm.selectedContactId}
                       onChange={(e) => handleContactSelect(e.target.value)}
-                      className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66]"
+                      className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
                     >
                       <option value="">Custom Manual Phone Entry…</option>
                       {contacts.map((c) => (
@@ -1182,7 +1218,7 @@ export function SmsAutomationView() {
                             recipientName: e.target.value,
                           })
                         }
-                        className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66]"
+                        className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
                       />
                     </div>
 
@@ -1201,7 +1237,7 @@ export function SmsAutomationView() {
                             recipientPhone: e.target.value,
                           })
                         }
-                        className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66] font-mono"
+                        className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary font-mono"
                       />
                     </div>
                   </div>
@@ -1220,7 +1256,7 @@ export function SmsAutomationView() {
                           body: e.target.value,
                         })
                       }
-                      className="w-full rounded-lg border border-slate-300 p-3 text-xs outline-none focus:border-[#233b66] font-mono"
+                      className="w-full rounded-lg border border-slate-300 p-3 text-xs outline-none focus:border-primary font-mono"
                     />
                     <div className="flex items-center justify-between text-[11px] text-slate-400 mt-1">
                       <span>
@@ -1284,7 +1320,7 @@ export function SmsAutomationView() {
                           name: e.target.value,
                         })
                       }
-                      className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66]"
+                      className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
                     />
                   </div>
 
@@ -1301,7 +1337,7 @@ export function SmsAutomationView() {
                             .value as DripCampaign["targetSegment"],
                         })
                       }
-                      className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66]"
+                      className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
                     >
                       <option value="COLD_LEADS">Cold Leads (New Inquiries)</option>
                       <option value="WARM_LEADS">Warm Leads (Active Prospects)</option>
@@ -1324,7 +1360,7 @@ export function SmsAutomationView() {
                         })
                       }
                       placeholder="Brief overview of campaign objective..."
-                      className="w-full rounded-lg border border-slate-300 p-2.5 text-xs outline-none focus:border-[#233b66]"
+                      className="w-full rounded-lg border border-slate-300 p-2.5 text-xs outline-none focus:border-primary"
                     />
                   </div>
 
@@ -1383,7 +1419,7 @@ export function SmsAutomationView() {
                             dayOffset: Number(e.target.value),
                           })
                         }
-                        className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66]"
+                        className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
                       />
                     </div>
 
@@ -1401,7 +1437,7 @@ export function SmsAutomationView() {
                             timeOfDay: e.target.value,
                           })
                         }
-                        className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66]"
+                        className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
                       />
                     </div>
                   </div>
@@ -1421,7 +1457,7 @@ export function SmsAutomationView() {
                         })
                       }
                       placeholder="Write message text for this step..."
-                      className="w-full rounded-lg border border-slate-300 p-3 text-xs outline-none focus:border-[#233b66] font-mono"
+                      className="w-full rounded-lg border border-slate-300 p-3 text-xs outline-none focus:border-primary font-mono"
                     />
                   </div>
 
@@ -1473,7 +1509,7 @@ export function SmsAutomationView() {
                       onChange={(e) =>
                         handleEnrollContactSelect(e.target.value)
                       }
-                      className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66]"
+                      className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
                     >
                       <option value="">Manual Entry…</option>
                       {contacts.map((c) => (
@@ -1495,7 +1531,7 @@ export function SmsAutomationView() {
                       onChange={(e) =>
                         setEnrollForm({ ...enrollForm, name: e.target.value })
                       }
-                      className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66]"
+                      className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
                     />
                   </div>
 
@@ -1511,7 +1547,7 @@ export function SmsAutomationView() {
                       onChange={(e) =>
                         setEnrollForm({ ...enrollForm, phone: e.target.value })
                       }
-                      className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66] font-mono"
+                      className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary font-mono"
                     />
                   </div>
 
@@ -1595,7 +1631,7 @@ export function SmsAutomationView() {
                           timing: e.target.value,
                         })
                       }
-                      className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66]"
+                      className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
                     />
                   </div>
 
@@ -1642,7 +1678,7 @@ export function SmsAutomationView() {
                           template: e.target.value,
                         })
                       }
-                      className="w-full rounded-lg border border-slate-300 p-3 text-xs outline-none focus:border-[#233b66] font-mono leading-relaxed"
+                      className="w-full rounded-lg border border-slate-300 p-3 text-xs outline-none focus:border-primary font-mono leading-relaxed"
                       required
                     />
                   </div>

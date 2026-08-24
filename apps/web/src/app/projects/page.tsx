@@ -29,6 +29,7 @@ import {
   Pencil,
   Trash2,
   Image as ImageIcon,
+  ZoomIn,
 } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
@@ -143,6 +144,7 @@ export default function ProjectsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [previewImage, setPreviewImage] = useState<{ url: string; title?: string } | null>(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -586,6 +588,16 @@ export default function ProjectsPage() {
                     >
                       <ImageIcon className="size-4 mr-1.5" /> Upload
                     </label>
+                    {form.coverImage && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setForm({ ...form, coverImage: "" })}
+                        className="text-xs h-9 border-destructive/30 text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="size-3.5 mr-1" /> Clear
+                      </Button>
+                    )}
                   </div>
 
                   {/* Preset Selector Buttons */}
@@ -894,11 +906,28 @@ export default function ProjectsPage() {
                   {/* Card Cover Render */}
                   <div className="relative h-44 w-full bg-gradient-to-br from-slate-900 via-primary to-slate-900 overflow-hidden">
                     {project.coverImage ? (
-                      <img
-                        src={project.coverImage}
-                        alt={project.name}
-                        className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPreviewImage({
+                            url: project.coverImage!,
+                            title: `${project.name} - Cover Render`,
+                          });
+                        }}
+                        className="relative h-full w-full cursor-pointer overflow-hidden group/img"
+                        title="Click to view full image"
+                      >
+                        <img
+                          src={project.coverImage}
+                          alt={project.name}
+                          className="h-full w-full object-cover group-hover/img:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-slate-900/80 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm border border-white/20">
+                            <ZoomIn className="size-3" /> Zoom
+                          </span>
+                        </div>
+                      </div>
                     ) : (
                       <div className="flex h-full w-full flex-col items-center justify-center p-4 text-center">
                         <Building2 className="size-10 text-primary/80/60 mb-2" />
@@ -1021,6 +1050,57 @@ export default function ProjectsPage() {
           </div>
         )}
       </div>
+
+      {/* Lightbox / Fullscreen Image Preview Modal */}
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4 transition-all animate-in fade-in duration-200"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div
+            className="relative flex flex-col max-w-5xl w-full max-h-[90vh] bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-800 bg-slate-900/90 text-white">
+              <div className="flex items-center gap-2.5">
+                <ImageIcon className="size-4 text-primary" />
+                <span className="text-xs font-bold text-slate-200 truncate">
+                  {previewImage.title || "Image Preview"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href={previewImage.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
+                  title="Open full size image in new tab"
+                >
+                  <ExternalLink className="size-3.5" /> Open Original
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setPreviewImage(null)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                  title="Close (Esc)"
+                >
+                  <X className="size-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* High-res Image Display */}
+            <div className="flex-1 flex items-center justify-center p-6 bg-slate-950/80 overflow-auto">
+              <img
+                src={previewImage.url}
+                alt={previewImage.title || "Full Preview"}
+                className="max-h-[75vh] max-w-full object-contain rounded-lg shadow-2xl select-none"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardShell>
   );
 }

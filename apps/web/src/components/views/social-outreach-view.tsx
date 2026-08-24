@@ -33,44 +33,7 @@ type BroadcastCampaign = {
   messagePreview?: string;
 };
 
-const INITIAL_CAMPAIGNS: BroadcastCampaign[] = [
-  {
-    id: "bc-001",
-    title: "Bole Tower Site Progress & 80% Completion Milestone Update",
-    channel: "TELEGRAM",
-    segment: "All Telegram Channel Subscribers (2,450)",
-    recipients: 2450,
-    sentAt: "2026-07-20T10:30:00Z",
-    clicks: 680,
-    status: "SENT",
-    messagePreview:
-      "🏢 Bole Tower Construction Update: We have officially reached 80% structural completion! Roofing and window fitting are currently underway. 3-Bed corner units now available for reservation.",
-  },
-  {
-    id: "bc-002",
-    title: "Exclusive Launch: 3-Bedroom Penthouse Units in Kazanchis",
-    channel: "TELEGRAM",
-    segment: "Qualified Diaspora Buyers (420)",
-    recipients: 420,
-    sentAt: "2026-07-15T14:00:00Z",
-    clicks: 195,
-    status: "SENT",
-    messagePreview:
-      "🔥 Exclusive Diaspora Launch: Luxury 3-Bedroom Penthouses in Kazanchis with panoramic Addis views. 30% Downpayment, USD / EUR payment support, 24 months interest-free installments.",
-  },
-  {
-    id: "bc-003",
-    title: "CBE 30/70 Mortgage Pro-Forma Application Guidance",
-    channel: "SMS",
-    segment: "Active Reservation Clients (88)",
-    recipients: 88,
-    sentAt: "2026-07-10T09:15:00Z",
-    clicks: 64,
-    status: "SENT",
-    messagePreview:
-      "🏦 BetFlow Reminder: Final deadline to submit CBE 30/70 bank mortgage pro-forma paperwork for your reserved unit is next Friday. Tap link for step-by-step checklist.",
-  },
-];
+
 
 const channelConfig: Record<
   BroadcastCampaign["channel"],
@@ -100,8 +63,7 @@ const channelConfig: Record<
 
 export function SocialOutreachView() {
   const { success, error: toastError } = useToast();
-  const [campaigns, setCampaigns] =
-    useState<BroadcastCampaign[]>(INITIAL_CAMPAIGNS);
+  const [campaigns, setCampaigns] = useState<BroadcastCampaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 200);
@@ -122,7 +84,7 @@ export function SocialOutreachView() {
     setLoading(true);
     try {
       const data = await apiFetch<any[]>("/campaigns");
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         const normalized = data.map((item, idx): BroadcastCampaign => {
           const rawChannel = String(item.channel || item.type || "TELEGRAM").toUpperCase();
           const validChannel: BroadcastCampaign["channel"] = (
@@ -144,9 +106,11 @@ export function SocialOutreachView() {
           };
         });
         setCampaigns(normalized);
+      } else {
+        setCampaigns([]);
       }
     } catch {
-      // Fallback to initial seed data
+      setCampaigns([]);
     } finally {
       setLoading(false);
     }
@@ -174,33 +138,38 @@ export function SocialOutreachView() {
     e.preventDefault();
     setSending(true);
     try {
-      const newCampaign: BroadcastCampaign = {
-        id: `bc-${Date.now()}`,
+      const payload = {
         title: form.title,
         channel: form.channel,
         segment: form.segment,
-        recipients:
-          form.channel === "TELEGRAM"
-            ? 2450
-            : form.channel === "SMS"
-              ? 880
-              : 520,
-        sentAt: new Date().toISOString(),
-        clicks: 0,
-        status: "SENT",
-        messagePreview: form.message,
+        message: form.message,
       };
 
-      try {
-        await apiFetch("/campaigns", {
-          method: "POST",
-          body: JSON.stringify(newCampaign),
-        });
-      } catch {
-        // Fallback local update
-      }
+      const res = await apiFetch<any>("/campaigns", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
 
-      setCampaigns((prev) => [newCampaign, ...prev]);
+      const rawChannel = String(res?.channel || res?.type || form.channel).toUpperCase();
+      const validChannel: BroadcastCampaign["channel"] = (
+        ["TELEGRAM", "SMS", "FACEBOOK", "WHATSAPP"] as const
+      ).includes(rawChannel as any)
+        ? (rawChannel as BroadcastCampaign["channel"])
+        : form.channel;
+
+      const created: BroadcastCampaign = {
+        id: res?.id || `bc-${Date.now()}`,
+        title: res?.title || res?.name || form.title,
+        channel: validChannel,
+        segment: res?.segment || form.segment,
+        recipients: typeof res?.recipients === "number" ? res.recipients : 0,
+        sentAt: res?.sentAt || new Date().toISOString(),
+        clicks: typeof res?.clicks === "number" ? res.clicks : 0,
+        status: res?.status === "DRAFT" || res?.status === "SCHEDULED" ? res.status : "SENT",
+        messagePreview: res?.messagePreview || form.message,
+      };
+
+      setCampaigns((prev) => [created, ...prev]);
       setShowComposer(false);
       setForm({
         title: "",
@@ -246,7 +215,7 @@ export function SocialOutreachView() {
                 placeholder="Search broadcast title…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="h-9.5 w-full rounded-lg border border-slate-200 bg-slate-50/50 pl-9 pr-8 text-xs text-slate-900 placeholder:text-slate-400 focus:border-[#233b66] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#233b66] transition-all"
+                className="h-9.5 w-full rounded-lg border border-slate-200 bg-slate-50/50 pl-9 pr-8 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-primary focus:ring-primary transition-all"
               />
               {search && (
                 <button
@@ -276,7 +245,7 @@ export function SocialOutreachView() {
                   className={cn(
                     "rounded-md px-3 py-1 text-xs font-bold transition-colors cursor-pointer",
                     channelFilter === item.id
-                      ? "bg-white text-[#233b66] shadow-xs"
+                      ? "bg-white text-primary shadow-xs"
                       : "text-slate-600 hover:text-slate-900",
                   )}
                 >
@@ -302,7 +271,7 @@ export function SocialOutreachView() {
           <div className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl transition-all">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <Sparkles className="size-5 text-[#233b66]" />
+                <Sparkles className="size-5 text-primary" />
                 <h3 className="text-base font-bold text-slate-900">
                   Compose Channel Broadcast Message
                 </h3>
@@ -326,7 +295,7 @@ export function SocialOutreachView() {
                   placeholder="e.g. Kazanchis Penthouse Launch Announcement"
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66]"
+                  className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
                 />
               </div>
 
@@ -343,7 +312,7 @@ export function SocialOutreachView() {
                         channel: e.target.value as BroadcastCampaign["channel"],
                       })
                     }
-                    className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66]"
+                    className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
                   >
                     <option value="TELEGRAM">Telegram Official Channel</option>
                     <option value="SMS">Ethio Telecom SMS Bulk</option>
@@ -360,7 +329,7 @@ export function SocialOutreachView() {
                     type="text"
                     value={form.segment}
                     onChange={(e) => setForm({ ...form, segment: e.target.value })}
-                    className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-[#233b66]"
+                    className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
                   />
                 </div>
               </div>
@@ -375,7 +344,7 @@ export function SocialOutreachView() {
                   placeholder="Write message copy with emojis and unit details..."
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  className="w-full rounded-lg border border-slate-300 p-3 text-xs outline-none focus:border-[#233b66]"
+                  className="w-full rounded-lg border border-slate-300 p-3 text-xs outline-none focus:border-primary"
                 />
               </div>
 
@@ -423,7 +392,7 @@ export function SocialOutreachView() {
                   <th className="px-4 py-3">Channel</th>
                   <th className="px-4 py-3">Audience Segment</th>
                   <th className="px-4 py-3">Recipients</th>
-                  <th className="px-4 py-3">Link Clicks</th>
+                  <th className="px-4 py-3">Engagement</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
@@ -440,7 +409,7 @@ export function SocialOutreachView() {
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <div className="flex size-7 items-center justify-center rounded-lg bg-slate-100 text-[#233b66] font-bold">
+                          <div className="flex size-7 items-center justify-center rounded-lg bg-slate-100 text-primary font-bold">
                             <Icon className="size-4" />
                           </div>
                           <div>
@@ -473,8 +442,8 @@ export function SocialOutreachView() {
                         {c.recipients.toLocaleString()}
                       </td>
 
-                      <td className="px-4 py-3 font-extrabold text-success">
-                        {c.clicks} clicks
+                      <td className="px-4 py-3 font-medium text-slate-500">
+                        {c.clicks > 0 ? `${c.clicks} clicks` : "Not tracked"}
                       </td>
 
                       <td className="px-4 py-3">
@@ -509,7 +478,7 @@ export function SocialOutreachView() {
           <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl transition-all">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <Megaphone className="size-5 text-[#233b66]" />
+                <Megaphone className="size-5 text-primary" />
                 <h3 className="text-base font-bold text-slate-900">
                   Broadcast Post Details
                 </h3>
@@ -561,21 +530,25 @@ export function SocialOutreachView() {
                 </p>
               </div>
 
-              <div className="flex items-center justify-between rounded-xl bg-success/10 px-4 py-3 border border-success/20 text-success">
+              <div className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3 border border-slate-200/80 text-slate-700">
                 <div>
-                  <p className="text-[11px] font-bold">Link Engagements</p>
-                  <p className="text-xs text-success">
-                    {activePreviewModal.clicks} Verified Clicks
+                  <p className="text-[11px] font-bold text-slate-900">Link Engagement</p>
+                  <p className="text-xs text-slate-500">
+                    {activePreviewModal.clicks > 0
+                      ? `${activePreviewModal.clicks} Measured Clicks`
+                      : "Webhook link tracking not configured for this channel"}
                   </p>
                 </div>
-                <span className="text-base font-bold text-success">
-                  {Math.round(
-                    (activePreviewModal.clicks /
-                      Math.max(1, activePreviewModal.recipients)) *
-                      100,
-                  )}
-                  % CTR
-                </span>
+                {activePreviewModal.clicks > 0 && (
+                  <span className="text-base font-bold text-slate-900">
+                    {Math.round(
+                      (activePreviewModal.clicks /
+                        Math.max(1, activePreviewModal.recipients)) *
+                        100,
+                    )}
+                    % CTR
+                  </span>
+                )}
               </div>
             </div>
 
