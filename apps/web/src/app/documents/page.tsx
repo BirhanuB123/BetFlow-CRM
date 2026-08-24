@@ -29,6 +29,7 @@ import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
 import { apiDownload, apiFetch, apiUpload } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/language-context";
 import type { DocumentStatus, DocumentRecord } from "@betflow/shared";
 
 
@@ -97,6 +98,7 @@ function documentSize(bytes?: number | null) {
 }
 
 export default function DocumentsPage() {
+  const { t } = useTranslation();
   const [documents, setDocuments] = useState<DocumentRecord[]>([]);
   const [options, setOptions] = useState<Record<EntityType, EntityOption[]>>({
     CUSTOMER: [],
@@ -277,8 +279,8 @@ export default function DocumentsPage() {
 
   return (
     <DashboardShell
-      title="Document Management Center & Ethiopian KYC Vault"
-      description="Securely upload, store, categorize, and verify real estate contracts, Ethiopian KYC records, payment receipts, and floor plans."
+      title={t("documents.title")}
+      description={t("documents.subtitle")}
       active="Documents"
     >
       <div className="space-y-6">

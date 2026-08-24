@@ -121,7 +121,10 @@ export class RolesService {
     return [];
   }
 
-  async updateRole(id: string, body: { name: string; description?: string }) {
+  async updateRole(
+    id: string,
+    body: { name?: string; description?: string; permissionKeys?: string[] },
+  ) {
     const existing = await this.prisma.role.findFirst({ where: { id } });
     if (!existing) {
       throw new NotFoundException(`Role ${id} was not found`);
@@ -130,10 +133,25 @@ export class RolesService {
     const role = await this.prisma.role.update({
       where: { id },
       data: {
-        name: body.name,
-        description: body.description,
+        ...(body.name ? { name: body.name } : {}),
+        ...(body.description !== undefined ? { description: body.description } : {}),
       },
     });
+
+    if (body.permissionKeys) {
+      const permissions = await this.prisma.permission.findMany({
+        where: { name: { in: body.permissionKeys } },
+      });
+      await this.prisma.rolePermission.deleteMany({ where: { roleId: id } });
+      if (permissions.length > 0) {
+        await this.prisma.rolePermission.createMany({
+          data: permissions.map((p) => ({
+            roleId: id,
+            permissionId: p.id,
+          })),
+        });
+      }
+    }
 
     await this.prisma.auditLog.create({
       data: {
@@ -143,6 +161,7 @@ export class RolesService {
         newValues: {
           name: role.name,
           description: role.description || '',
+          permissionKeys: body.permissionKeys,
         },
       },
     });

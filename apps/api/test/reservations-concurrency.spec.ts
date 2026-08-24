@@ -2,6 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException } from '@nestjs/common';
 import { ReservationsService } from '../src/real-estate/reservations/reservations.service';
 import { PrismaService } from '../src/database/prisma.service';
+import { RedisCacheService } from '../src/database/redis-cache.service';
+import { InventoryGateway } from '../src/real-estate/units/inventory.gateway';
+import { EthioTelecomSmsService } from '../src/integrations/sms.service';
 
 describe('ReservationsService — Double Booking Concurrency', () => {
   let service: ReservationsService;
@@ -41,10 +44,17 @@ describe('ReservationsService — Double Booking Concurrency', () => {
         findFirst: jest.fn().mockImplementation(async ({ where }: { where: { id: string } }) => {
           return { id: where.id, unitNumber: 'A-101', type: 'APARTMENT', status: unitStatus };
         }),
+        update: jest.fn().mockImplementation(async ({ data }: any) => {
+          unitStatus = data.status;
+          return { id: mockUnitId, unitNumber: 'A-101', type: 'APARTMENT', status: unitStatus };
+        }),
       },
       auditLog: {
         create: jest.fn().mockResolvedValue({ id: 'audit-1' }),
       },
+      $queryRaw: jest.fn().mockImplementation(async () => [
+        { id: mockUnitId, status: unitStatus, unitNumber: 'A-101' },
+      ]),
       $transaction: jest.fn().mockImplementation(async (cb: (tx: any) => Promise<any>) => cb(prisma)),
     };
 
@@ -52,6 +62,18 @@ describe('ReservationsService — Double Booking Concurrency', () => {
       providers: [
         ReservationsService,
         { provide: PrismaService, useValue: prisma },
+        {
+          provide: RedisCacheService,
+          useValue: { get: jest.fn(), set: jest.fn(), del: jest.fn(), invalidatePattern: jest.fn().mockResolvedValue(true) },
+        },
+        {
+          provide: InventoryGateway,
+          useValue: { broadcastUnitStatusChange: jest.fn(), broadcastReservationEvent: jest.fn(), notifyUnitStatusChange: jest.fn() },
+        },
+        {
+          provide: EthioTelecomSmsService,
+          useValue: { sendSms: jest.fn() },
+        },
       ],
     }).compile();
 
@@ -67,8 +89,8 @@ describe('ReservationsService — Double Booking Concurrency', () => {
 
     expect(result).toBeDefined();
     expect(result.unit.status).toBe('RESERVED');
-    expect(prisma.unit.updateMany).toHaveBeenCalledWith({
-      where: { id: mockUnitId, status: 'AVAILABLE' },
+    expect(prisma.unit.update).toHaveBeenCalledWith({
+      where: { id: mockUnitId },
       data: { status: 'RESERVED' },
     });
   });

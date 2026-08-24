@@ -68,6 +68,18 @@ export interface ApiFetchOptions extends RequestInit {
   suppressAuthRedirect?: boolean;
 }
 
+export class ApiError extends Error {
+  status: number;
+  isForbidden: boolean;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.isForbidden = status === 403;
+  }
+}
+
 export async function apiFetch<T>(
   path: string,
   options: ApiFetchOptions = {},
@@ -124,7 +136,10 @@ export async function apiFetch<T>(
           : String(json.message);
       }
     } catch {}
-    throw new Error(parsedMessage || `Request failed (${response.status})`);
+    throw new ApiError(
+      parsedMessage || `Request failed (${response.status})`,
+      response.status,
+    );
   }
 
   return (await response.json()) as T;

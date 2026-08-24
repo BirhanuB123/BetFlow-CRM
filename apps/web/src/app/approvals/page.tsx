@@ -7,6 +7,7 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
+import { useTranslation } from "@/lib/i18n/language-context";
 import type { ApprovalRequestItem } from "@betflow/shared";
 
 function fmt(val: number, curr: "ETB" | "USD") {
@@ -15,6 +16,7 @@ function fmt(val: number, curr: "ETB" | "USD") {
 }
 
 export default function ApprovalWorkflowsPage() {
+  const { t } = useTranslation();
   const [approvals, setApprovals] = useState<ApprovalRequestItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +59,7 @@ export default function ApprovalWorkflowsPage() {
 
   return (
     <DashboardShell
-      title="Manager Approval Workflows"
+      title={t("nav.approvals")}
       description="Multi-tier approval queue for custom discounts, non-standard terms, and high-value contracts."
       active="Approval workflows"
     >

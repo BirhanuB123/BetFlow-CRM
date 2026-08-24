@@ -9,12 +9,14 @@ import { ReservationsView } from "@/components/views/reservations-view";
 import { ContractsView } from "@/components/views/contracts-view";
 import { PaymentsView } from "@/components/views/payments-view";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 type TabKey = "reservations" | "contracts" | "payments";
 
 function TransactionsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const activeTab: TabKey = useMemo(() => {
     const tabParam = searchParams.get("tab")?.toLowerCase();
@@ -48,7 +50,7 @@ function TransactionsContent() {
             )}
           >
             <BookmarkCheck className="size-4" />
-            Unit Reservations & Holds
+            {t("transactions.tabReservations")}
           </button>
 
           <button
@@ -62,7 +64,7 @@ function TransactionsContent() {
             )}
           >
             <ScrollText className="size-4" />
-            Sales Contracts
+            {t("transactions.tabContracts")}
           </button>
 
           <button
@@ -76,7 +78,7 @@ function TransactionsContent() {
             )}
           >
             <Coins className="size-4" />
-            Payment Schedules & Receipts
+            {t("transactions.tabPayments")}
           </button>
         </div>
       </div>
@@ -90,10 +92,11 @@ function TransactionsContent() {
 }
 
 export default function TransactionsPage() {
+  const { t } = useTranslation();
   return (
     <DashboardShell
-      title="Transactions & Finance"
-      description="Manage unit holding deposits, legal sales contracts, and payment milestone collections."
+      title={t("transactions.title")}
+      description={t("transactions.subtitle")}
       active="Transactions"
     >
       <Suspense fallback={<div className="p-8 text-sm text-slate-500">Loading transactions...</div>}>

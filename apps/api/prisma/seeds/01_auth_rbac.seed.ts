@@ -19,6 +19,11 @@ export async function seedAuthAndRbac(prisma: PrismaClient) {
       'Tenant setup, users, roles, and SaaS controls.',
     ],
     [
+      'role_sales_manager_001',
+      'Sales Manager',
+      'Lead oversight, inventory allocation, team task management, and sales reports.',
+    ],
+    [
       'role_agent_001',
       'Agent',
       'Lead, customer, deal, and site visit workflows.',
@@ -27,6 +32,11 @@ export async function seedAuthAndRbac(prisma: PrismaClient) {
       'role_finance_001',
       'Finance',
       'Payment schedules, receipts, approvals, and billing.',
+    ],
+    [
+      'role_marketing_001',
+      'Marketing',
+      'Campaigns, lead sources, and marketing analytics.',
     ],
   ];
 
@@ -75,6 +85,48 @@ export async function seedAuthAndRbac(prisma: PrismaClient) {
       'Reports',
       'View dashboards, forecasts, and exports.',
     ],
+    [
+      'perm_reservations_manage',
+      'reservations.manage',
+      'Reservations',
+      'Manage unit reservations and holds.',
+    ],
+    [
+      'perm_contracts_manage',
+      'contracts.manage',
+      'Contracts',
+      'Manage legal sales contracts and approvals.',
+    ],
+    [
+      'perm_site_visits_manage',
+      'site-visits.manage',
+      'SiteVisits',
+      'Schedule and log site visits and tours.',
+    ],
+    [
+      'perm_tasks_manage',
+      'tasks.manage',
+      'Tasks',
+      'Create and assign tasks and action items.',
+    ],
+    [
+      'perm_meetings_manage',
+      'meetings.manage',
+      'Meetings',
+      'Schedule and record client meetings.',
+    ],
+    [
+      'perm_documents_manage',
+      'documents.manage',
+      'Documents',
+      'Upload and verify buyer KYC documents.',
+    ],
+    [
+      'perm_campaigns_manage',
+      'campaigns.manage',
+      'Marketing',
+      'Manage marketing campaigns and drip sequences.',
+    ],
   ];
 
   for (const [id, name, module, description] of permissions) {
@@ -85,8 +137,59 @@ export async function seedAuthAndRbac(prisma: PrismaClient) {
     });
   }
 
-  for (const [roleId] of roles) {
-    for (const [permissionId] of permissions) {
+  const rolePermissionsMap: Record<string, string[]> = {
+    role_owner_001: [
+      'perm_users_manage',
+      'perm_roles_manage',
+      'perm_leads_manage',
+      'perm_inventory_manage',
+      'perm_payments_approve',
+      'perm_reports_view',
+      'perm_reservations_manage',
+      'perm_contracts_manage',
+      'perm_site_visits_manage',
+      'perm_tasks_manage',
+      'perm_meetings_manage',
+      'perm_documents_manage',
+      'perm_campaigns_manage',
+    ],
+    role_admin_001: [
+      'perm_users_manage',
+      'perm_roles_manage',
+      'perm_reports_view',
+      'perm_documents_manage',
+    ],
+    role_sales_manager_001: [
+      'perm_leads_manage',
+      'perm_inventory_manage',
+      'perm_reports_view',
+      'perm_site_visits_manage',
+      'perm_tasks_manage',
+      'perm_meetings_manage',
+    ],
+    role_agent_001: [
+      'perm_leads_manage',
+      'perm_site_visits_manage',
+      'perm_tasks_manage',
+      'perm_meetings_manage',
+    ],
+    role_finance_001: [
+      'perm_payments_approve',
+      'perm_contracts_manage',
+      'perm_reservations_manage',
+      'perm_reports_view',
+    ],
+    role_marketing_001: [
+      'perm_campaigns_manage',
+      'perm_leads_manage',
+      'perm_reports_view',
+    ],
+  };
+
+  await prisma.rolePermission.deleteMany({});
+
+  for (const [roleId, permIds] of Object.entries(rolePermissionsMap)) {
+    for (const permissionId of permIds) {
       await prisma.rolePermission.upsert({
         where: {
           roleId_permissionId: {
@@ -150,6 +253,22 @@ export async function seedAuthAndRbac(prisma: PrismaClient) {
     roleId: 'role_owner_001',
   });
 
+  const admin = await upsertUser({
+    id: 'user_admin_001',
+    email: 'sysadmin@betflow.example',
+    firstName: 'Alex',
+    lastName: 'Vance',
+    roleId: 'role_admin_001',
+  });
+
+  const salesManager = await upsertUser({
+    id: 'user_sales_mgr_001',
+    email: 'salesmgr@betflow.example',
+    firstName: 'Marcus',
+    lastName: 'Brody',
+    roleId: 'role_sales_manager_001',
+  });
+
   const agent = await upsertUser({
     id: 'user_agent_001',
     email: 'agent@betflow.example',
@@ -166,5 +285,13 @@ export async function seedAuthAndRbac(prisma: PrismaClient) {
     roleId: 'role_finance_001',
   });
 
-  return { owner, agent, finance };
+  const marketing = await upsertUser({
+    id: 'user_marketing_001',
+    email: 'marketing@betflow.example',
+    firstName: 'Sarah',
+    lastName: 'Jenkins',
+    roleId: 'role_marketing_001',
+  });
+
+  return { owner, admin, salesManager, agent, finance, marketing };
 }

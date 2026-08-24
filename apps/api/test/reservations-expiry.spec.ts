@@ -2,6 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ReservationsService } from '../src/real-estate/reservations/reservations.service';
 import { ReservationsCronService } from '../src/real-estate/reservations/reservations-cron.service';
 import { PrismaService } from '../src/database/prisma.service';
+import { RedisCacheService } from '../src/database/redis-cache.service';
+import { InventoryGateway } from '../src/real-estate/units/inventory.gateway';
+import { EthioTelecomSmsService } from '../src/integrations/sms.service';
 
 describe('ReservationsCronService — Automated Expiry', () => {
   let cronService: ReservationsCronService;
@@ -30,6 +33,9 @@ describe('ReservationsCronService — Automated Expiry', () => {
       auditLog: {
         create: jest.fn().mockResolvedValue({ id: 'audit-expired-1' }),
       },
+      user: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
       $transaction: jest.fn().mockImplementation(async (cb: (tx: any) => Promise<any>) => cb(prisma)),
     };
 
@@ -38,11 +44,24 @@ describe('ReservationsCronService — Automated Expiry', () => {
         ReservationsService,
         ReservationsCronService,
         { provide: PrismaService, useValue: prisma },
+        {
+          provide: RedisCacheService,
+          useValue: { get: jest.fn(), set: jest.fn(), del: jest.fn(), invalidatePattern: jest.fn().mockResolvedValue(true) },
+        },
+        {
+          provide: InventoryGateway,
+          useValue: { notifyUnitStatusChange: jest.fn() },
+        },
+        {
+          provide: EthioTelecomSmsService,
+          useValue: { sendSms: jest.fn() },
+        },
       ],
     }).compile();
 
     reservationsService = module.get<ReservationsService>(ReservationsService);
     cronService = module.get<ReservationsCronService>(ReservationsCronService);
+    jest.spyOn(reservationsService, 'processMultiStageExpiryWarnings').mockResolvedValue(0);
   });
 
   it('should process expired reservations and release unit status to AVAILABLE', async () => {

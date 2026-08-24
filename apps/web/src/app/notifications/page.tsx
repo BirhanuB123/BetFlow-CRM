@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/language-context";
 import {
   notificationMessages,
   notificationMetrics,
@@ -30,6 +31,7 @@ const channelClass = {
 };
 
 export default function NotificationsPage() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"inbox" | "logs">("inbox");
   const [inbox, setInbox] = useState<InboxNotification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -94,7 +96,7 @@ export default function NotificationsPage() {
 
   return (
     <DashboardShell
-      title="Notifications"
+      title={t("nav.notifications")}
       description="SMS reminders, Telegram notifications, and email alerts."
       active="Notifications"
     >

@@ -17,7 +17,9 @@ import {
   EnrollLeadDto,
   UpdateRuleDto,
 } from './sms.service';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import type { AuthenticatedUser } from '../core/auth/auth.types';
 
 @Controller('sms')
 @UseGuards(JwtAuthGuard)
@@ -63,8 +65,11 @@ export class SmsController {
 
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('send')
-  async sendSms(@Body() dto: SmsSendDto) {
-    return this.smsService.sendSms(dto);
+  async sendSms(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: SmsSendDto,
+  ) {
+    return this.smsService.sendSms(dto, user?.id);
   }
 
   // --- AUTOMATED RULES ENDPOINTS ---
@@ -109,9 +114,10 @@ export class SmsController {
 
   @Post('drip-campaigns/:id/enroll')
   async enrollLead(
+    @CurrentUser() user: AuthenticatedUser,
     @Param('id') campaignId: string,
     @Body() dto: EnrollLeadDto,
   ) {
-    return this.smsService.enrollLead(campaignId, dto);
+    return this.smsService.enrollLead(campaignId, dto, user?.id);
   }
 }

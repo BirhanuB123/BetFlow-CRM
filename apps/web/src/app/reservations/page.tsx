@@ -2,9 +2,11 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 export default function LegacyReservationsPage() {
   const router = useRouter();
+  const { t } = useTranslation();
 
   useEffect(() => {
     router.replace("/transactions?tab=reservations");
@@ -12,7 +14,7 @@ export default function LegacyReservationsPage() {
 
   return (
     <div className="flex h-screen items-center justify-center bg-slate-50 text-slate-500 text-xs font-semibold">
-      Redirecting to Transactions & Finance (Reservations)
+      {t("transactions.tabReservations")}...
     </div>
   );
 }

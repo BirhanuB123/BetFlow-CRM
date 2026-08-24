@@ -16,13 +16,14 @@ export type AuthenticatedUser = {
   id: string;
   email: string;
   roles: string[];
-  permissions?: UserPermissionItem[];
+  permissions: string[];
 };
 
 export type JwtPayload = {
   sub: string;
   email: string;
   roles?: string[];
+  permissions?: string[];
   type?: "access" | "refresh";
   iat: number;
   exp: number;
@@ -32,6 +33,9 @@ export type AuthenticatedRequest = {
   headers: {
     authorization?: string;
   };
+  url?: string;
+  originalUrl?: string;
+  path?: string;
   user?: AuthenticatedUser;
 };
 

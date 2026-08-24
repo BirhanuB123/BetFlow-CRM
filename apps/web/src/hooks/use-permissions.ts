@@ -14,6 +14,48 @@ type ProfileResponse = {
   permissions?: UserPermissionItem[];
 };
 
+const ROLE_SECTION_ACCESS: Record<string, string[]> = {
+  Owner: [
+    "Sales & Pipeline",
+    "Activities & Engagement",
+    "Property Inventory",
+    "Transactions & Finance",
+    "Marketing & Automation",
+    "System & Assets",
+  ],
+  Admin: [
+    "Sales & Pipeline",
+    "Activities & Engagement",
+    "Property Inventory",
+    "Transactions & Finance",
+    "Marketing & Automation",
+    "System & Assets",
+  ],
+  "Sales Manager": [
+    "Sales & Pipeline",
+    "Activities & Engagement",
+    "Property Inventory",
+    "Transactions & Finance",
+    "Marketing & Automation",
+  ],
+  Agent: [
+    "Sales & Pipeline",
+    "Activities & Engagement",
+    "Property Inventory",
+    "Transactions & Finance",
+  ],
+  Finance: [
+    "Sales & Pipeline",
+    "Activities & Engagement",
+    "Transactions & Finance",
+  ],
+  Marketing: [
+    "Sales & Pipeline",
+    "Activities & Engagement",
+    "Marketing & Automation",
+  ],
+};
+
 const MODULE_MAP: Record<string, string[]> = {
   "Sales & Pipeline": [
     "sales & pipeline",
@@ -32,6 +74,7 @@ const MODULE_MAP: Record<string, string[]> = {
     "meetings",
     "calls",
     "visits",
+    "site-visits",
   ],
   "Property Inventory": [
     "property inventory",
@@ -109,7 +152,7 @@ export function usePermissions() {
         setLoaded(true);
       })
       .catch(() => {
-        // Fail open policy: set loaded to true with null permissions
+        // Fail open policy: set loaded to true with null permissions/roles
         if (isMounted) {
           setLoaded(true);
         }
@@ -134,38 +177,53 @@ export function usePermissions() {
 
   const hasModulePermission = useCallback(
     (sectionTitle: string): boolean => {
-      // Fail open: if permissions couldn't be loaded or resolved, allow access
-      if (!loaded && permissions === null && roles === null) {
+      // Fail open if roles or permissions haven't loaded yet
+      if (!roles || roles.length === 0) {
         return true;
       }
 
-      // If user is Admin or Owner, allow access to all sections
+      // Owner and Admin always have access
       if (isAdminOrOwner) {
         return true;
       }
 
-      // If permissions list is null/undefined or empty, fail open
-      if (!permissions || permissions.length === 0) {
-        return true;
+      const sectionPermMap: Record<string, string[]> = {
+        "Reports": ["reports.view"],
+        "Sales & Pipeline": ["leads.manage"],
+        "Activities & Engagement": ["tasks.manage", "meetings.manage", "site-visits.manage"],
+        "Property Inventory": ["inventory.manage"],
+        "Transactions & Finance": ["payments.approve", "contracts.manage", "reservations.manage"],
+        "Marketing & Automation": ["campaigns.manage"],
+        "System & Assets": ["documents.manage", "users.manage", "roles.manage"],
+      };
+
+      // 1. Check fine-grained permission array strings if present
+      if (permissions && permissions.length > 0) {
+        const permStrings = permissions.map((p) =>
+          typeof p === "string" ? p : p.name,
+        );
+
+        const requiredPerms = sectionPermMap[sectionTitle];
+        if (requiredPerms && requiredPerms.length > 0) {
+          const hasPerm = requiredPerms.some((req) =>
+            permStrings.some(
+              (p) => p === req || p.startsWith(req.split(".")[0]),
+            ),
+          );
+          if (hasPerm) return true;
+        }
       }
 
-      const targetModules = MODULE_MAP[sectionTitle] || [
-        sectionTitle.toLowerCase(),
-      ];
-
-      // Check if user has any permission matching the section or target modules
-      return permissions.some((p) => {
-        const permModule = (p.module || "").toLowerCase();
-        const permName = (p.name || "").toLowerCase();
-        return targetModules.some(
-          (mod) =>
-            permModule === mod ||
-            permModule.includes(mod) ||
-            permName.startsWith(mod),
-        );
+      // 2. Check role-based section fallback
+      const hasRoleAccess = roles.some((roleName) => {
+        const allowedSections = ROLE_SECTION_ACCESS[roleName];
+        if (!allowedSections) return false;
+        return allowedSections.includes(sectionTitle);
       });
+
+      return hasRoleAccess;
     },
-    [permissions, roles, loaded, isAdminOrOwner],
+    [roles, permissions, isAdminOrOwner],
   );
 
   return {

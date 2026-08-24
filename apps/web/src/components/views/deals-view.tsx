@@ -28,6 +28,7 @@ import { useToast } from "@/components/ui/toast";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/language-context";
 import type {
   DealStage as Stage,
   ApiDeal,
@@ -40,6 +41,7 @@ function formatValue(value: string | number) {
 }
 
 export function DealsView() {
+  const { t } = useTranslation();
   const { success, error: toastError } = useToast();
   const [viewMode, setViewMode] = useState<"KANBAN" | "BOARD">("KANBAN");
   const [confirmModal, setConfirmModal] = useState<{

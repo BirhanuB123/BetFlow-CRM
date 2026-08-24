@@ -24,11 +24,13 @@ import {
   Check,
 } from "lucide-react";
 
+import { AccessRestricted } from "@/components/ui/access-restricted";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 const LEAD_STATUSES = [
   "NEW",
@@ -148,11 +150,13 @@ function SocialSourceBadge({
 }
 
 export function LeadsView() {
+  const { t } = useTranslation();
   const toast = useToast();
   const [leads, setLeads] = useState<ApiLead[]>([]);
   const [sources, setSources] = useState<LeadSource[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isForbidden, setIsForbidden] = useState(false);
 
   const [search, setSearch] = useState("");
   const [originFilter, setOriginFilter] = useState<"ALL" | "DIASPORA" | "LOCAL">("ALL");
@@ -194,6 +198,7 @@ export function LeadsView() {
   const loadLeads = useCallback(async () => {
     try {
       setError(null);
+      setIsForbidden(false);
       const [leadData, sourceData] = await Promise.all([
         apiFetch<ApiLead[]>("/leads"),
         apiFetch<LeadSource[]>("/leads/sources"),
@@ -201,6 +206,9 @@ export function LeadsView() {
       setLeads(leadData);
       setSources(sourceData);
     } catch (err) {
+      if (err instanceof ApiError && err.isForbidden) {
+        setIsForbidden(true);
+      }
       setError(err instanceof Error ? err.message : "Failed to load leads.");
     } finally {
       setLoading(false);
@@ -675,9 +683,15 @@ export function LeadsView() {
         {/* Table Panel */}
         <div className="min-w-0 flex-1 rounded-lg border border-zinc-200 bg-white shadow-xs overflow-hidden">
           {error ? (
-            <div className="p-4 text-xs font-medium text-rose-600 bg-rose-50 border-b border-rose-100">
-              {error}
-            </div>
+            isForbidden || error.toLowerCase().includes("permission") || error.toLowerCase().includes("forbidden") ? (
+              <div className="p-6">
+                <AccessRestricted requiredPermission="leads.manage" />
+              </div>
+            ) : (
+              <div className="p-4 text-xs font-medium text-rose-600 bg-rose-50 border-b border-rose-100">
+                {error}
+              </div>
+            )
           ) : null}
 
           <div className="overflow-x-auto">

@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
+import { RequirePermission } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
@@ -21,29 +21,29 @@ export class RolesController {
   constructor(private readonly roles: RolesService) {}
 
   @Get()
-  @Roles('Owner', 'Admin')
+  @RequirePermission('roles.manage')
   list(@CurrentUser() user: AuthenticatedUser) {
     return this.roles.listRoles();
   }
 
   @Post()
-  @Roles('Owner', 'Admin')
+  @RequirePermission('roles.manage')
   create(@CurrentUser() user: AuthenticatedUser, @Body() body: CreateRoleBody) {
     return this.roles.createRole({ ...body });
   }
 
   @Patch(':id')
-  @Roles('Owner', 'Admin')
+  @RequirePermission('roles.manage')
   update(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
-    @Body() body: { name: string; description?: string },
+    @Body() body: { name?: string; description?: string; permissionKeys?: string[] },
   ) {
     return this.roles.updateRole(id, body);
   }
 
   @Delete(':id')
-  @Roles('Owner', 'Admin')
+  @RequirePermission('roles.manage')
   remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     return this.roles.deleteRole(id);
   }

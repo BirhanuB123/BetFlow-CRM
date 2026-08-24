@@ -1,13 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import {
   AlertCircle,
+  ArrowLeft,
   CheckCircle2,
   Download,
   FileCheck,
   FileText,
   PenTool,
+  ScrollText,
   ShieldAlert,
   ShieldCheck,
 } from "lucide-react";
@@ -173,7 +176,36 @@ export default function ContractBuilderPage() {
       description="Automated Ethiopian real estate sales agreement generator, PDF engine & audit trail."
       active="Contract builder"
     >
-      <div className="grid gap-6 lg:grid-cols-12">
+      <div className="space-y-6">
+        {/* Navigation Breadcrumb Bar with Back Options */}
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200/90 bg-white p-3.5 shadow-2xs">
+          <div className="flex items-center gap-2.5">
+            <Link
+              href="/transactions"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-[#233b66] transition-all shadow-2xs cursor-pointer"
+            >
+              <ArrowLeft className="size-3.5 text-slate-500" />
+              <span>Back to Transactions</span>
+            </Link>
+            <span className="text-slate-300 font-bold">•</span>
+            <Link
+              href="/transactions?tab=contracts"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50/80 px-3.5 py-1.5 text-xs font-bold text-indigo-700 hover:bg-indigo-100 transition-all shadow-2xs cursor-pointer"
+            >
+              <ScrollText className="size-3.5 text-indigo-600" />
+              <span>Back to Sales Contracts</span>
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-extrabold text-emerald-700 border border-emerald-200">
+              <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+              SHA-256 PDF Engine Ready
+            </span>
+          </div>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-12">
         {/* Left Input Configuration Column */}
         <div className="lg:col-span-5 space-y-4">
           <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-2xs space-y-4">
@@ -476,6 +508,7 @@ export default function ContractBuilderPage() {
           )}
         </div>
       </div>
+    </div>
 
       {/* Signature Modal */}
       {generatedResult && (

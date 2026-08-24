@@ -26,6 +26,7 @@ import { CardSkeleton } from "@/components/ui/skeleton-loaders";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 type Assignee = { id: string; firstName: string; lastName: string } | null;
 type PersonRef = { id: string; firstName: string; lastName: string } | null;
@@ -176,6 +177,7 @@ function Card({
   href: string;
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation();
   return (
     <section className="flex flex-col min-w-0 rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden transition-all hover:shadow-md h-[340px]">
       <div className="flex h-13 items-center justify-between border-b border-slate-200/80 bg-slate-50/60 px-5">
@@ -189,7 +191,7 @@ function Card({
           href={href}
           className="flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors"
         >
-          View all
+          {t("dashboard.viewAll")}
           <ArrowUpRight className="size-3.5" />
         </Link>
       </div>
@@ -210,21 +212,22 @@ function Empty({ label }: { label: string }) {
 }
 
 function OperationalGrid({ tasks, visits, todaysLeads, deals }: any) {
+  const { t } = useTranslation();
   return (
     <div className="grid gap-6 xl:grid-cols-2">
       {/* 1. Open Tasks */}
-      <Card title="Open Tasks" icon={ClipboardList} href="/tasks">
+      <Card title={t("dashboard.openTasks")} icon={ClipboardList} href="/tasks">
         {tasks.length === 0 ? (
-          <Empty label="No open tasks found." />
+          <Empty label={t("dashboard.noTasks")} />
         ) : (
           <div className="flex flex-col h-full">
             <table className="w-full text-left text-xs whitespace-nowrap">
               <thead className="bg-slate-50/80 text-slate-600 font-semibold border-b border-slate-200 sticky top-0">
                 <tr>
-                  <th className="px-5 py-3">Task Title</th>
-                  <th className="px-5 py-3">Due Date</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3">Assignee</th>
+                  <th className="px-5 py-3">{t("dashboard.taskTitle")}</th>
+                  <th className="px-5 py-3">{t("dashboard.dueDate")}</th>
+                  <th className="px-5 py-3">{t("dashboard.status")}</th>
+                  <th className="px-5 py-3">{t("dashboard.assignee")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -245,7 +248,7 @@ function OperationalGrid({ tasks, visits, todaysLeads, deals }: any) {
                     <td className="px-5 py-3 text-slate-600">
                       {task.assignee
                         ? `${task.assignee.firstName} ${task.assignee.lastName}`
-                        : "Unassigned"}
+                        : t("dashboard.unassigned")}
                     </td>
                   </tr>
                 ))}
@@ -257,21 +260,21 @@ function OperationalGrid({ tasks, visits, todaysLeads, deals }: any) {
 
       {/* 2. Scheduled Meetings */}
       <Card
-        title="Scheduled Meetings & Site Visits"
+        title={t("dashboard.scheduledMeetings")}
         icon={CalendarDays}
         href="/site-visits"
       >
         {visits.length === 0 ? (
-          <Empty label="No scheduled site visits." />
+          <Empty label={t("dashboard.noVisits")} />
         ) : (
           <div className="flex flex-col h-full">
             <table className="w-full text-left text-xs whitespace-nowrap">
               <thead className="bg-slate-50/80 text-slate-600 font-semibold border-b border-slate-200 sticky top-0">
                 <tr>
-                  <th className="px-5 py-3">Meeting / Visit</th>
-                  <th className="px-5 py-3">Date</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3">Client</th>
+                  <th className="px-5 py-3">{t("dashboard.meetingVisit")}</th>
+                  <th className="px-5 py-3">{t("dashboard.date")}</th>
+                  <th className="px-5 py-3">{t("dashboard.status")}</th>
+                  <th className="px-5 py-3">{t("dashboard.client")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -284,7 +287,7 @@ function OperationalGrid({ tasks, visits, todaysLeads, deals }: any) {
                       Site Visit with{" "}
                       {visit.customer?.firstName ||
                         visit.lead?.firstName ||
-                        "Client"}
+                        t("dashboard.client")}
                     </td>
                     <td className="px-5 py-3 text-slate-500 font-medium">
                       {fmtDate(visit.date)}
@@ -312,18 +315,18 @@ function OperationalGrid({ tasks, visits, todaysLeads, deals }: any) {
       </Card>
 
       {/* 3. Recent Leads */}
-      <Card title="Today's Active Leads" icon={UserRoundCheck} href="/pipeline?tab=leads">
+      <Card title={t("dashboard.todaysLeads")} icon={UserRoundCheck} href="/pipeline?tab=leads">
         {todaysLeads.length === 0 && leadsCount(todaysLeads, deals) === 0 ? (
-          <Empty label="No new leads recorded today." />
+          <Empty label={t("dashboard.noLeads")} />
         ) : (
           <div className="flex flex-col h-full">
             <table className="w-full text-left text-xs whitespace-nowrap">
               <thead className="bg-slate-50/80 text-slate-600 font-semibold border-b border-slate-200 sticky top-0">
                 <tr>
-                  <th className="px-5 py-3">Lead Name</th>
-                  <th className="px-5 py-3">Company</th>
-                  <th className="px-5 py-3">Source</th>
-                  <th className="px-5 py-3">Status</th>
+                  <th className="px-5 py-3">{t("dashboard.leadName")}</th>
+                  <th className="px-5 py-3">{t("dashboard.company")}</th>
+                  <th className="px-5 py-3">{t("dashboard.source")}</th>
+                  <th className="px-5 py-3">{t("dashboard.status")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -357,18 +360,18 @@ function OperationalGrid({ tasks, visits, todaysLeads, deals }: any) {
       </Card>
 
       {/* 4. Top Active Deals */}
-      <Card title="Top Sales Pipeline Deals" icon={WalletCards} href="/pipeline?tab=deals">
+      <Card title={t("dashboard.topDeals")} icon={WalletCards} href="/pipeline?tab=deals">
         {deals.length === 0 ? (
-          <Empty label="No active deals found." />
+          <Empty label={t("dashboard.noDeals")} />
         ) : (
           <div className="flex flex-col h-full">
             <table className="w-full text-left text-xs whitespace-nowrap">
               <thead className="bg-slate-50/80 text-slate-600 font-semibold border-b border-slate-200 sticky top-0">
                 <tr>
-                  <th className="px-5 py-3">Deal Name</th>
-                  <th className="px-5 py-3">Value</th>
-                  <th className="px-5 py-3">Stage</th>
-                  <th className="px-5 py-3">Customer</th>
+                  <th className="px-5 py-3">{t("dashboard.dealName")}</th>
+                  <th className="px-5 py-3">{t("dashboard.value")}</th>
+                  <th className="px-5 py-3">{t("dashboard.stage")}</th>
+                  <th className="px-5 py-3">{t("dashboard.customer")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -405,6 +408,7 @@ function leadsCount(todays: any[], deals: any[]) {
 }
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [visits, setVisits] = useState<SiteVisit[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
@@ -495,8 +499,8 @@ export default function DashboardPage() {
 
   return (
     <DashboardShell
-      title="Sales Operations Command Center"
-      description={`System-wide overview for ${primaryRole} role.`}
+      title={t("dashboard.commandCenter")}
+      description={`${t("dashboard.overviewForRole")} ${primaryRole}.`}
       active="Dashboard"
     >
       {error && (

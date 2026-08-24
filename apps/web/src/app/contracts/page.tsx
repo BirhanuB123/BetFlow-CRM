@@ -2,9 +2,11 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 export default function LegacyContractsPage() {
   const router = useRouter();
+  const { t } = useTranslation();
 
   useEffect(() => {
     router.replace("/transactions?tab=contracts");
@@ -12,7 +14,7 @@ export default function LegacyContractsPage() {
 
   return (
     <div className="flex h-screen items-center justify-center bg-slate-50 text-slate-500 text-xs font-semibold">
-      Redirecting to Transactions & Finance (Contracts)…
+      {t("contracts.title")}...
     </div>
   );
 }
