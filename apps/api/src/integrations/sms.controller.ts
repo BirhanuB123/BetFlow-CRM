@@ -6,6 +6,7 @@ import {
   Put,
   Body,
   Param,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
@@ -19,6 +20,7 @@ import {
 } from './sms.service';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { Public } from '../common/decorators/public.decorator';
 import type { AuthenticatedUser } from '../core/auth/auth.types';
 
 @Controller('sms')
@@ -70,6 +72,18 @@ export class SmsController {
     @Body() dto: SmsSendDto,
   ) {
     return this.smsService.sendSms(dto, user?.id);
+  }
+
+  @Public()
+  @Post('afromessage/callback')
+  async afroMessagePostCallback(@Body() body: any, @Query() query: any) {
+    return this.smsService.handleAfroMessageCallback({ ...query, ...body });
+  }
+
+  @Public()
+  @Get('afromessage/callback')
+  async afroMessageGetCallback(@Query() query: any) {
+    return this.smsService.handleAfroMessageCallback(query);
   }
 
   // --- AUTOMATED RULES ENDPOINTS ---

@@ -572,25 +572,37 @@ export function SmsAutomationView() {
             <StatCard
               label="Total SMS Dispatched"
               value={stats.totalSent.toString()}
-              detail="Ethio Telecom Shortcode 8844"
+              detail={stats.gatewayProvider}
               icon={Send}
               color="navy"
-              trend="up"
-              trendLabel="Live Gateway"
+              trend={stats.isLive ? "up" : "down"}
+              trendLabel={stats.isLive ? "Active Gateway" : "Inactive"}
             />
             <StatCard
               label="Delivery Success Rate"
               value={`${stats.deliveryRate}%`}
               detail={`${stats.delivered} delivered / ${stats.failed} failed`}
               icon={CheckCircle2}
-              color="emerald"
-              trend="up"
-              trendLabel="High Delivery"
+              color={stats.deliveryRate >= 90 ? "emerald" : "amber"}
+              trend={stats.deliveryRate >= 90 ? "up" : "down"}
+              trendLabel={stats.deliveryRate >= 90 ? "Verified Delivery" : "Pending Callback"}
             />
             <StatCard
-              label="Total Outbox Cost"
-              value={`ETB ${stats.totalCostBirr.toFixed(2)}`}
-              detail="Fixed rate ETB 0.35 / SMS"
+              label={
+                stats.accountBalanceBirr !== undefined && stats.accountBalanceBirr !== null
+                  ? "AfroMessage Balance"
+                  : "Total Outbox Cost"
+              }
+              value={
+                stats.accountBalanceBirr !== undefined && stats.accountBalanceBirr !== null
+                  ? `ETB ${stats.accountBalanceBirr.toFixed(2)}`
+                  : `ETB ${stats.totalCostBirr.toFixed(2)}`
+              }
+              detail={
+                stats.accountBalanceBirr !== undefined && stats.accountBalanceBirr !== null
+                  ? "Real-Time Gateway Credit"
+                  : "Estimated Outbox Expenditure"
+              }
               icon={Coins}
               color="amber"
             />

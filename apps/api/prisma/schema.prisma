@@ -735,4 +735,28 @@ model NotificationMessage {
   @@index([status])
 }
 
+model SmsOutbox {
+  id            String    @id @default(uuid())
+  recipientName String
+  phone         String
+  body          String
+  channel       String    @default("SMS")
+  triggerType   String    @default("MANUAL_BROADCAST")
+  status        String    @default("DELIVERED")
+  costEthioBirr Decimal?  @db.Decimal(10, 2)
+  gatewayUsed   String?
+  attemptsCount Int       @default(1)
+  encoding      String?
+  segmentCount  Int       @default(1)
+  sentAt        DateTime  @default(now())
+  deliveredAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([phone])
+  @@index([status])
+  @@index([sentAt])
+}
+
+
 

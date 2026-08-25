@@ -213,64 +213,7 @@ export type SmsContact = {
 export class EthioTelecomSmsService {
   private readonly logger = new Logger(EthioTelecomSmsService.name);
 
-  // In-memory SMS outbox logs store for API delivery reports
-  private smsOutboxLogs: Array<{
-    id: string;
-    recipientName: string;
-    recipientPhone: string;
-    body: string;
-    triggerType: string;
-    status: 'DELIVERED' | 'QUEUED' | 'FAILED';
-    sentAt: string;
-    costEthioBirr: number;
-    gatewayUsed?: string;
-    attemptsCount?: number;
-    encoding?: string;
-    segmentCount?: number;
-  }> = [
-    {
-      id: 'sms-log-1',
-      recipientName: 'Ari Kaplan',
-      recipientPhone: '251911550182',
-      body: 'Dear Ari Kaplan, reminder: Your property site visit to Harbor Point Towers is scheduled for today at 2:30 PM. Agent: Maya Johnson.',
-      triggerType: 'SITE_VISIT_REMINDER',
-      status: 'DELIVERED',
-      sentAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
-      costEthioBirr: 0.35,
-      gatewayUsed: 'Ethio Telecom Gateway Sandbox',
-      attemptsCount: 1,
-      encoding: 'GSM-7 (English)',
-      segmentCount: 1,
-    },
-    {
-      id: 'sms-log-2',
-      recipientName: 'Priya Shah',
-      recipientPhone: '251922550144',
-      body: 'Dear Priya Shah, urgent notice: Your 14-day hold reservation on Unit A-1803 (Harbor Point) expires in 24 hours. Contact BetFlow Sales.',
-      triggerType: 'HOLD_EXPIRY_ALERT',
-      status: 'DELIVERED',
-      sentAt: new Date(Date.now() - 5 * 3600 * 1000).toISOString(),
-      costEthioBirr: 0.35,
-      gatewayUsed: 'Ethio Telecom Gateway Sandbox',
-      attemptsCount: 1,
-      encoding: 'GSM-7 (English)',
-      segmentCount: 1,
-    },
-    {
-      id: 'sms-log-3',
-      recipientName: 'Marcus Bell',
-      recipientPhone: '251933550118',
-      body: 'Dear Marcus Bell, installment reminder: Your 30% Downpayment payment of ETB 2,500,000 for Unit N-0905 is due on 2026-08-01. CBE Acc: 1000123456789.',
-      triggerType: 'PAYMENT_DUE_ALERT',
-      status: 'DELIVERED',
-      sentAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-      costEthioBirr: 0.35,
-      gatewayUsed: 'Ethio Telecom Gateway Sandbox',
-      attemptsCount: 1,
-      encoding: 'GSM-7 (English)',
-      segmentCount: 1,
-    },
-  ];
+
 
   // In-memory Automated Trigger Rules
   private rules = {
@@ -367,8 +310,9 @@ export class EthioTelecomSmsService {
    * Format any phone number into canonical Ethio Telecom format (e.g. 251911234567)
    */
   formatEthioPhone(raw: string): string {
-    if (!raw) return '251911234567';
+    if (!raw) return '';
     const cleaned = raw.replace(/\D/g, '');
+    if (!cleaned) return '';
     if (cleaned.startsWith('251')) return cleaned;
     if (cleaned.startsWith('09') || cleaned.startsWith('07')) {
       return `251${cleaned.substring(1)}`;
@@ -376,7 +320,7 @@ export class EthioTelecomSmsService {
     if (cleaned.length === 9) {
       return `251${cleaned}`;
     }
-    return cleaned.length >= 9 ? cleaned : `2519${cleaned.padStart(8, '1')}`;
+    return cleaned;
   }
 
   /**
@@ -412,7 +356,7 @@ export class EthioTelecomSmsService {
       return {
         id: l.id,
         name: fullName,
-        phone: this.formatEthioPhone(l.phone || '0911550182'),
+        phone: this.formatEthioPhone(l.phone || ''),
         email: l.email || '',
         type: 'LEAD',
         segment,
@@ -428,7 +372,7 @@ export class EthioTelecomSmsService {
       return {
         id: c.id,
         name: fullName,
-        phone: this.formatEthioPhone(c.phone || '0922550118'),
+        phone: this.formatEthioPhone(c.phone || ''),
         email: c.email || '',
         type: 'CUSTOMER',
         segment: 'RESERVATION_CLIENTS',
@@ -481,11 +425,6 @@ export class EthioTelecomSmsService {
           phone: cust.phone,
         });
       }
-    }
-
-    if (recipientsMap.size === 0) {
-      recipientsMap.set('demo-1', { name: 'Ari Kaplan', phone: '0911550182' });
-      recipientsMap.set('demo-2', { name: 'Priya Shah', phone: '0922550144' });
     }
 
     const templateObj = LOCALIZED_TEMPLATES.constructionUpdate;
@@ -597,7 +536,13 @@ export class EthioTelecomSmsService {
       if (!process.env.AFROMESSAGE_API_KEY) return false;
       const apiKey = process.env.AFROMESSAGE_API_KEY.trim();
       const senderId = process.env.AFROMESSAGE_SENDER_ID || '';
-      const url = `https://api.afromessage.com/api/send?to=${formattedPhone}&message=${encodeURIComponent(dto.body)}${senderId ? `&sender=${encodeURIComponent(senderId)}` : ''}`;
+      const baseUrl =
+        process.env.API_BASE_URL ||
+        process.env.APP_BASE_URL ||
+        'https://api.betflow.et';
+      const callbackUrl = `${baseUrl}/sms/afromessage/callback`;
+
+      const url = `https://api.afromessage.com/api/send?to=${formattedPhone}&message=${encodeURIComponent(dto.body)}${senderId ? `&sender=${encodeURIComponent(senderId)}` : ''}&callback=${encodeURIComponent(callbackUrl)}`;
 
       this.logger.log(
         `[Gateway Dispatch] Primary attempt via AfroMessage to +${formattedPhone}...`,
@@ -714,22 +659,23 @@ export class EthioTelecomSmsService {
       status = 'FAILED';
     }
 
-    const logEntry = {
-      id: `sms-log-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-      recipientName: dto.recipientName,
-      recipientPhone: formattedPhone,
-      body: dto.body,
-      triggerType,
-      status,
-      sentAt: new Date().toISOString(),
-      costEthioBirr: Number((0.35 * metadata.segmentCount).toFixed(2)),
-      gatewayUsed,
-      attemptsCount,
-      encoding: metadata.encoding,
-      segmentCount: metadata.segmentCount,
-    };
-
-    this.smsOutboxLogs.unshift(logEntry);
+    const createdLog = await this.prisma.smsOutbox.create({
+      data: {
+        recipientName: dto.recipientName,
+        phone: formattedPhone,
+        body: dto.body,
+        channel: 'SMS',
+        triggerType,
+        status,
+        costEthioBirr: 0.35 * metadata.segmentCount,
+        gatewayUsed,
+        attemptsCount,
+        encoding: metadata.encoding,
+        segmentCount: metadata.segmentCount,
+        sentAt: new Date(),
+        deliveredAt: status === 'DELIVERED' ? new Date() : null,
+      },
+    });
 
     // Record activity in CRM system database audit log
     try {
@@ -743,41 +689,190 @@ export class EthioTelecomSmsService {
       // Activity logging optional
     }
 
-    return logEntry;
+    return {
+      id: createdLog.id,
+      recipientName: createdLog.recipientName,
+      recipientPhone: createdLog.phone,
+      body: createdLog.body,
+      triggerType: createdLog.triggerType as any,
+      status: createdLog.status as any,
+      sentAt: createdLog.sentAt.toISOString(),
+      costEthioBirr: Number(createdLog.costEthioBirr || 0),
+      gatewayUsed: createdLog.gatewayUsed || undefined,
+      attemptsCount: createdLog.attemptsCount,
+      encoding: createdLog.encoding || undefined,
+      segmentCount: createdLog.segmentCount,
+    };
+  }
+
+  /**
+   * Handle AfroMessage delivery callback updates
+   */
+  async handleAfroMessageCallback(payload: {
+    id?: string;
+    message_id?: string;
+    messageId?: string;
+    to?: string;
+    status?: string;
+    reason?: string;
+  }) {
+    const messageId = payload.message_id || payload.messageId || payload.id;
+    const rawStatus = String(payload.status || '').toUpperCase();
+    const phone = payload.to ? this.formatEthioPhone(payload.to) : undefined;
+
+    this.logger.log(
+      `[AfroMessage Delivery Callback Received] ID: ${messageId || 'N/A'}, Status: ${rawStatus || 'UNKNOWN'}, Phone: ${phone || 'N/A'}`,
+    );
+
+    let status: 'DELIVERED' | 'QUEUED' | 'FAILED' = 'DELIVERED';
+    if (
+      rawStatus.includes('FAIL') ||
+      rawStatus.includes('REJECT') ||
+      rawStatus.includes('UNDELIV') ||
+      rawStatus.includes('EXPIRE')
+    ) {
+      status = 'FAILED';
+    } else if (
+      rawStatus.includes('PENDING') ||
+      rawStatus.includes('SENT') ||
+      rawStatus.includes('QUEUE')
+    ) {
+      status = 'QUEUED';
+    } else {
+      status = 'DELIVERED';
+    }
+
+    let targetId = messageId;
+    if (!targetId && phone) {
+      const recent = await this.prisma.smsOutbox.findFirst({
+        where: { phone },
+        orderBy: { sentAt: 'desc' },
+      });
+      if (recent) targetId = recent.id;
+    }
+
+    if (targetId) {
+      await this.prisma.smsOutbox.updateMany({
+        where: { id: targetId },
+        data: {
+          status,
+          deliveredAt: status === 'DELIVERED' ? new Date() : undefined,
+        },
+      });
+      this.logger.log(
+        `Updated SMS log ${targetId} status to ${status} via AfroMessage delivery callback`,
+      );
+    }
+
+    return {
+      acknowledged: true,
+      messageId: targetId,
+      updatedStatus: status,
+    };
   }
 
   /**
    * Get all SMS Outbox Logs
    */
   async getOutboxLogs() {
-    return this.smsOutboxLogs;
+    const logs = await this.prisma.smsOutbox.findMany({
+      orderBy: { sentAt: 'desc' },
+      take: 100,
+    });
+
+    return logs.map((l) => ({
+      id: l.id,
+      recipientName: l.recipientName,
+      recipientPhone: l.phone,
+      body: l.body,
+      triggerType: l.triggerType as any,
+      status: l.status as any,
+      sentAt: l.sentAt.toISOString(),
+      costEthioBirr: Number(l.costEthioBirr || 0),
+      gatewayUsed: l.gatewayUsed || undefined,
+      attemptsCount: l.attemptsCount,
+      encoding: l.encoding || undefined,
+      segmentCount: l.segmentCount,
+    }));
+  }
+
+  /**
+   * Fetch real remaining account balance from AfroMessage API
+   */
+  async getAfroMessageBalance(): Promise<{ balance: number | null; isReal: boolean }> {
+    if (!process.env.AFROMESSAGE_API_KEY) {
+      return { balance: null, isReal: false };
+    }
+
+    try {
+      const apiKey = process.env.AFROMESSAGE_API_KEY.trim();
+      const response = await fetch('https://api.afromessage.com/api/balance', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          Accept: 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        this.logger.warn(`AfroMessage balance API query HTTP ${response.status}`);
+        return { balance: null, isReal: false };
+      }
+
+      const data = (await response.json().catch(() => null)) as any;
+      const balanceNum =
+        typeof data?.balance === 'number'
+          ? data.balance
+          : typeof data?.response?.balance === 'number'
+            ? data.response.balance
+            : typeof data?.data?.balance === 'number'
+              ? data.data.balance
+              : null;
+
+      if (balanceNum !== null) {
+        return { balance: balanceNum, isReal: true };
+      }
+    } catch (err: any) {
+      this.logger.error(`Error querying AfroMessage balance: ${err?.message || err}`);
+    }
+
+    return { balance: null, isReal: false };
   }
 
   /**
    * Get SMS Gateway Analytics & System Status
    */
   async getSmsStats() {
-    const totalSent = this.smsOutboxLogs.length;
-    const delivered = this.smsOutboxLogs.filter(
-      (l) => l.status === 'DELIVERED',
-    ).length;
-    const totalCostBirr = this.smsOutboxLogs.reduce(
-      (acc, curr) => acc + (curr.costEthioBirr || 0),
-      0,
-    );
-    const totalSegments = this.smsOutboxLogs.reduce(
-      (acc, curr) => acc + (curr.segmentCount || 1),
-      0,
-    );
-    const unicodeCount = this.smsOutboxLogs.filter((l) =>
-      l.encoding?.includes('Amharic'),
-    ).length;
-    const activeCampaigns = this.dripCampaigns.filter(
-      (c) => c.status === 'ACTIVE',
-    ).length;
+    const totalSent = await this.prisma.smsOutbox.count();
+    const delivered = await this.prisma.smsOutbox.count({
+      where: { status: 'DELIVERED' },
+    });
+    const failed = await this.prisma.smsOutbox.count({
+      where: { status: 'FAILED' },
+    });
+
+    const aggregateCost = await this.prisma.smsOutbox.aggregate({
+      _sum: { costEthioBirr: true, segmentCount: true },
+    });
+
+    const totalCostBirr = Number(aggregateCost._sum.costEthioBirr || 0);
+    const totalSegments = Number(aggregateCost._sum.segmentCount || 0);
+
+    const unicodeCount = await this.prisma.smsOutbox.count({
+      where: { encoding: { contains: 'Amharic' } },
+    });
+
+    const lastLog = await this.prisma.smsOutbox.findFirst({
+      orderBy: { sentAt: 'desc' },
+      select: { gatewayUsed: true },
+    });
+
+    const balanceInfo = await this.getAfroMessageBalance();
 
     let gatewayProvider = 'Ethio Telecom Gateway Sandbox';
-    if (process.env.AFROMESSAGE_API_KEY && process.env.ETHIO_SMS_API_URL) {
+    if (lastLog?.gatewayUsed) {
+      gatewayProvider = lastLog.gatewayUsed;
+    } else if (process.env.AFROMESSAGE_API_KEY && process.env.ETHIO_SMS_API_URL) {
       gatewayProvider = 'Dual Gateway (AfroMessage + Ethio Telecom Direct)';
     } else if (process.env.AFROMESSAGE_API_KEY) {
       gatewayProvider = 'AfroMessage Live Gateway (Ethiopia)';
@@ -788,18 +883,21 @@ export class EthioTelecomSmsService {
     return {
       totalSent,
       delivered,
-      failed: totalSent - delivered,
+      failed,
       totalSegments,
       unicodeCount,
       deliveryRate:
         totalSent > 0 ? Math.round((delivered / totalSent) * 100) : 100,
       totalCostBirr: Math.round(totalCostBirr * 100) / 100,
+      accountBalanceBirr: balanceInfo.balance,
       gatewayProvider,
       shortcode: process.env.ETHIO_SMS_SHORTCODE || '8844',
       isLive: !!(
         process.env.AFROMESSAGE_API_KEY || process.env.ETHIO_SMS_API_URL
       ),
-      activeCampaignsCount: activeCampaigns,
+      activeCampaignsCount: this.dripCampaigns.filter(
+        (c) => c.status === 'ACTIVE',
+      ).length,
     };
   }
 
