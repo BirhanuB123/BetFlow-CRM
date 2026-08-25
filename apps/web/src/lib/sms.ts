@@ -55,6 +55,7 @@ export type SmsStats = {
   failed: number;
   deliveryRate: number;
   totalCostBirr: number;
+  accountBalanceBirr?: number | null;
   gatewayProvider: string;
   shortcode: string;
   isLive: boolean;
