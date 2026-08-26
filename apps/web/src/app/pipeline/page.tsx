@@ -37,13 +37,13 @@ function PipelineContent() {
   return (
     <div className="space-y-4">
       {/* Shared Header Chrome & Tab Switcher */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-slate-200/80 pb-3">
-        <div className="flex items-center gap-2">
+      <div className="border-b border-slate-200/80 pb-3">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
           <button
             type="button"
             onClick={() => setTab("leads")}
             className={cn(
-              "px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-2",
+              "px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-2 shrink-0",
               activeTab === "leads"
                 ? "bg-primary text-white shadow-sm"
                 : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
@@ -57,7 +57,7 @@ function PipelineContent() {
             type="button"
             onClick={() => setTab("customers")}
             className={cn(
-              "px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-2",
+              "px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-2 shrink-0",
               activeTab === "customers"
                 ? "bg-primary text-white shadow-sm"
                 : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",
@@ -71,7 +71,7 @@ function PipelineContent() {
             type="button"
             onClick={() => setTab("deals")}
             className={cn(
-              "px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-2",
+              "px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-2 shrink-0",
               activeTab === "deals"
                 ? "bg-primary text-white shadow-sm"
                 : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50",

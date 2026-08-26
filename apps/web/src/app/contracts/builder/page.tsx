@@ -42,6 +42,23 @@ type UnitOption = {
   };
 };
 
+type KycRequirement = {
+  category: string;
+  label: string;
+  status: "VERIFIED" | "PENDING_REVIEW" | "EXPIRED" | "MISSING";
+};
+
+type KycStatusResult = {
+  customerId: string;
+  customerName: string;
+  buyerType: "LOCAL" | "DIASPORA";
+  isKycComplete: boolean;
+  completionPercentage: number;
+  verifiedCount: number;
+  totalRequired: number;
+  requirements: KycRequirement[];
+};
+
 export default function ContractBuilderPage() {
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
   const [units, setUnits] = useState<UnitOption[]>([]);
@@ -61,6 +78,30 @@ export default function ContractBuilderPage() {
 
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
   const [signatures, setSignatures] = useState<SignatureAuditItem[]>([]);
+  const [kycStatus, setKycStatus] = useState<KycStatusResult | null>(null);
+  const [loadingKyc, setLoadingKyc] = useState(false);
+
+  useEffect(() => {
+    if (!selectedCustomerId) {
+      setKycStatus(null);
+      return;
+    }
+    let active = true;
+    setLoadingKyc(true);
+    apiFetch<KycStatusResult>(`/documents/kyc-status/${selectedCustomerId}`)
+      .then((res) => {
+        if (active) setKycStatus(res);
+      })
+      .catch(() => {
+        if (active) setKycStatus(null);
+      })
+      .finally(() => {
+        if (active) setLoadingKyc(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [selectedCustomerId]);
 
   const loadFormData = useCallback(async () => {
     setLoading(true);
@@ -178,28 +219,28 @@ export default function ContractBuilderPage() {
     >
       <div className="space-y-6">
         {/* Navigation Breadcrumb Bar with Back Options */}
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200/90 bg-white p-3.5 shadow-2xs">
-          <div className="flex items-center gap-2.5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-slate-200/90 bg-white p-3.5 shadow-2xs">
+          <div className="flex flex-wrap items-center gap-2 min-w-0">
             <Link
               href="/transactions"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-[#233b66] transition-all shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-[#233b66] transition-all shadow-2xs cursor-pointer"
             >
-              <ArrowLeft className="size-3.5 text-slate-500" />
-              <span>Back to Transactions</span>
+              <ArrowLeft className="size-3.5 text-slate-500 shrink-0" />
+              <span>Transactions</span>
             </Link>
             <span className="text-slate-300 font-bold">•</span>
             <Link
               href="/transactions?tab=contracts"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-3.5 py-1.5 text-xs font-bold text-primary hover:bg-primary/20 transition-all shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/20 transition-all shadow-2xs cursor-pointer truncate"
             >
-              <ScrollText className="size-3.5 text-primary" />
-              <span>Back to Sales Contracts</span>
+              <ScrollText className="size-3.5 text-primary shrink-0" />
+              <span>Back to Contracts</span>
             </Link>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1 text-[11px] font-extrabold text-success border border-success/20">
-              <span className="size-2 rounded-full bg-success animate-pulse" />
+              <span className="size-2 rounded-full bg-success animate-pulse shrink-0" />
               SHA-256 PDF Engine Ready
             </span>
           </div>
@@ -208,7 +249,7 @@ export default function ContractBuilderPage() {
         <div className="grid gap-6 lg:grid-cols-12">
         {/* Left Input Configuration Column */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-2xs space-y-4">
+          <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 shadow-2xs space-y-4">
             <h2 className="text-base font-bold text-zinc-900 border-b border-zinc-100 pb-3">
               Agreement Configuration
             </h2>
@@ -228,6 +269,38 @@ export default function ContractBuilderPage() {
                   </option>
                 ))}
               </select>
+
+              {/* Non-blocking KYC Warning / Status Banner */}
+              {kycStatus && !kycStatus.isKycComplete && (
+                <div className="mt-2.5 rounded-lg border border-warning/30 bg-warning/10 p-2.5 text-xs text-slate-800 flex items-start gap-2 shadow-2xs">
+                  <AlertCircle className="size-4 text-warning shrink-0 mt-0.5" />
+                  <div className="flex-1 space-y-0.5">
+                    <div className="flex flex-wrap items-center justify-between gap-1">
+                      <span className="font-bold text-slate-900 text-[11px]">
+                        Notice: KYC Incomplete ({kycStatus.buyerType === "DIASPORA" ? "✈️ Diaspora" : "🇪🇹 Local"})
+                      </span>
+                      <span className="font-bold text-warning text-[10px] bg-warning/20 px-1.5 py-0.5 rounded border border-warning/30">
+                        {kycStatus.verifiedCount}/{kycStatus.totalRequired} Verified
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-600">
+                      Pending documents: {kycStatus.requirements.filter((r) => r.status !== "VERIFIED").map((r) => r.label).join(", ")}. You may proceed with draft generation.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {kycStatus && kycStatus.isKycComplete && (
+                <div className="mt-2.5 rounded-lg border border-success/30 bg-success/10 p-2 text-xs text-success flex items-center justify-between shadow-2xs">
+                  <div className="flex items-center gap-1.5">
+                    <ShieldCheck className="size-3.5 text-success" />
+                    <span className="font-bold text-[11px]">
+                      ✓ KYC Fully Verified ({kycStatus.buyerType === "DIASPORA" ? "Diaspora" : "Local"})
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-semibold">100% Complete</span>
+                </div>
+              )}
             </div>
 
             <div>

@@ -64,8 +64,15 @@ import {
   updateRuleApi,
   fetchSmsTemplatesApi,
   broadcastConstructionApi,
+  fetchSiteVisitsForSms,
+  fetchReservationsForSms,
+  fetchPaymentSchedulesForSms,
   type LocalizedTemplate,
+  type SiteVisitOption,
+  type ReservationOption,
+  type PaymentScheduleOption,
 } from "@/lib/sms";
+import { interpolateTemplate } from "@/lib/sms-template";
 import { SmsCampaignModal } from "@/features/automation/sms-campaign-modal";
 import { cn } from "@/lib/utils";
 
@@ -154,6 +161,17 @@ export function SmsAutomationView() {
     "siteVisit" | "holdExpiry" | "paymentDue" | null
   >(null);
 
+  // Record lists for template pickers
+  const [siteVisitsList, setSiteVisitsList] = useState<SiteVisitOption[]>([]);
+  const [reservationsList, setReservationsList] = useState<ReservationOption[]>(
+    [],
+  );
+  const [paymentSchedulesList, setPaymentSchedulesList] = useState<
+    PaymentScheduleOption[]
+  >([]);
+  const [selectedRecordId, setSelectedRecordId] = useState<string>("");
+  const [missingFields, setMissingFields] = useState<string[]>([]);
+
   // Form States
   const [composerForm, setComposerForm] = useState({
     selectedContactId: "",
@@ -217,6 +235,9 @@ export function SmsAutomationView() {
       fetchDripCampaigns(),
       fetchRulesApi(),
       fetchSmsTemplatesApi(),
+      fetchSiteVisitsForSms(),
+      fetchReservationsForSms(),
+      fetchPaymentSchedulesForSms(),
     ]);
 
     const errors: typeof sectionErrors = {};
@@ -238,6 +259,11 @@ export function SmsAutomationView() {
 
     if (results[5].status === "fulfilled") setTemplates(results[5].value);
     else errors.templates = true;
+
+    if (results[6].status === "fulfilled") setSiteVisitsList(results[6].value);
+    if (results[7].status === "fulfilled") setReservationsList(results[7].value);
+    if (results[8].status === "fulfilled")
+      setPaymentSchedulesList(results[8].value);
 
     setSectionErrors(errors);
     if (isRefresh) showToast("SMS & Drip Gateway synced with Ethio Telecom");
@@ -281,22 +307,150 @@ export function SmsAutomationView() {
   };
 
   const handleTemplateSelect = (key: string) => {
-    let body = "";
-    if (key === "SITE_VISIT_REMINDER") body = rules.siteVisit.template;
-    else if (key === "HOLD_EXPIRY_ALERT") body = rules.holdExpiry.template;
-    else if (key === "PAYMENT_DUE_ALERT") body = rules.paymentDue.template;
+    setSelectedRecordId("");
+    let rawTemplate = "";
+    if (key === "SITE_VISIT_REMINDER") rawTemplate = rules.siteVisit.template;
+    else if (key === "HOLD_EXPIRY_ALERT")
+      rawTemplate = rules.holdExpiry.template;
+    else if (key === "PAYMENT_DUE_ALERT")
+      rawTemplate = rules.paymentDue.template;
+
+    if (key === "CUSTOM") {
+      setComposerForm((prev) => ({
+        ...prev,
+        templateKey: key,
+        body: "",
+      }));
+      setMissingFields([]);
+    } else {
+      const { missing } = interpolateTemplate(rawTemplate, {});
+      setComposerForm((prev) => ({
+        ...prev,
+        templateKey: key,
+        body: rawTemplate,
+      }));
+      setMissingFields(missing);
+    }
+  };
+
+  const handleSiteVisitSelect = (visitId: string) => {
+    setSelectedRecordId(visitId);
+    const visit = siteVisitsList.find((v) => v.id === visitId);
+    if (!visit) {
+      const { missing } = interpolateTemplate(rules.siteVisit.template, {});
+      setComposerForm((prev) => ({
+        ...prev,
+        body: rules.siteVisit.template,
+      }));
+      setMissingFields(missing);
+      return;
+    }
+
+    const { body, missing } = interpolateTemplate(rules.siteVisit.template, {
+      clientName: visit.clientName,
+      projectName: visit.projectName,
+      visitDate: visit.visitDate,
+      visitTime: visit.visitTime,
+      agentName: visit.agentName,
+      agentPhone: visit.agentPhone,
+    });
 
     setComposerForm((prev) => ({
       ...prev,
-      templateKey: key,
-      body: body || prev.body,
+      selectedContactId: visit.id,
+      recipientName: visit.clientName,
+      recipientPhone: visit.phone,
+      body,
     }));
+    setMissingFields(missing);
   };
+
+  const handleReservationSelect = (resId: string) => {
+    setSelectedRecordId(resId);
+    const res = reservationsList.find((r) => r.id === resId);
+    if (!res) {
+      const { missing } = interpolateTemplate(rules.holdExpiry.template, {});
+      setComposerForm((prev) => ({
+        ...prev,
+        body: rules.holdExpiry.template,
+      }));
+      setMissingFields(missing);
+      return;
+    }
+
+    const { body, missing } = interpolateTemplate(rules.holdExpiry.template, {
+      clientName: res.clientName,
+      unitNumber: res.unitNumber,
+      projectName: res.projectName,
+      hoursLeft: res.hoursLeft,
+    });
+
+    setComposerForm((prev) => ({
+      ...prev,
+      selectedContactId: res.id,
+      recipientName: res.clientName,
+      recipientPhone: res.phone,
+      body,
+    }));
+    setMissingFields(missing);
+  };
+
+  const handlePaymentScheduleSelect = (schedId: string) => {
+    setSelectedRecordId(schedId);
+    const sched = paymentSchedulesList.find((s) => s.id === schedId);
+    if (!sched) {
+      const { missing } = interpolateTemplate(rules.paymentDue.template, {});
+      setComposerForm((prev) => ({
+        ...prev,
+        body: rules.paymentDue.template,
+      }));
+      setMissingFields(missing);
+      return;
+    }
+
+    const { body, missing } = interpolateTemplate(rules.paymentDue.template, {
+      clientName: sched.clientName,
+      milestoneName: sched.milestoneName,
+      amount: sched.amount,
+      dueDate: sched.dueDate,
+      unitNumber: sched.unitNumber,
+      projectName: sched.projectName,
+    });
+
+    setComposerForm((prev) => ({
+      ...prev,
+      selectedContactId: sched.id,
+      recipientName: sched.clientName,
+      recipientPhone: sched.phone,
+      body,
+    }));
+    setMissingFields(missing);
+  };
+
+  const handleBodyChange = (newBody: string) => {
+    setComposerForm((prev) => ({ ...prev, body: newBody }));
+    const rawMatches = Array.from(
+      new Set(
+        (newBody.match(/\{([a-zA-Z0-9_]+)\}/g) || []).map((m) =>
+          m.slice(1, -1),
+        ),
+      ),
+    );
+    setMissingFields(rawMatches);
+  };
+
+  const [sendingSms, setSendingSms] = useState(false);
 
   const handleSendSms = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!composerForm.recipientPhone || !composerForm.body.trim()) return;
+    if (
+      !composerForm.recipientPhone ||
+      !composerForm.body.trim() ||
+      sendingSms
+    )
+      return;
 
+    setSendingSms(true);
     try {
       const newLog = await sendSmsApi({
         recipientName: composerForm.recipientName.trim() || "Recipient",
@@ -309,16 +463,18 @@ export function SmsAutomationView() {
       });
 
       setLogs((prev) => [newLog, ...prev]);
-      setStats((prev) => ({
-        ...prev,
-        totalSent: prev.totalSent + 1,
-        delivered: prev.delivered + 1,
-        totalCostBirr: Math.round((prev.totalCostBirr + 0.35) * 100) / 100,
-      }));
 
-      showToast(
-        `SMS sent to +${formatEthioPhone(composerForm.recipientPhone)} via Shortcode 8844!`,
-      );
+      if (newLog.status === "FAILED") {
+        showToast(
+          `SMS dispatch failed on gateway. Please verify the phone number (+${formatEthioPhone(composerForm.recipientPhone)}) or AfroMessage credit.`,
+        );
+      } else {
+        showToast(
+          `SMS successfully sent to +${formatEthioPhone(composerForm.recipientPhone)}!`,
+        );
+      }
+
+      void loadData(false);
       setShowComposer(false);
       setComposerForm({
         selectedContactId: "",
@@ -327,8 +483,12 @@ export function SmsAutomationView() {
         templateKey: "CUSTOM",
         body: "",
       });
+      setSelectedRecordId("");
+      setMissingFields([]);
     } catch (err: any) {
-      showToast(`Failed to send SMS: ${err.message}`);
+      showToast(`Failed to send SMS: ${err.message || "Network error"}`);
+    } finally {
+      setSendingSms(false);
     }
   };
 
@@ -625,13 +785,13 @@ export function SmsAutomationView() {
             </div>
           )}
 
-          <div className="flex items-center justify-between border-b border-slate-200">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between border-b border-slate-200 overflow-x-auto">
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 type="button"
                 onClick={() => setActiveTab("rules")}
                 className={cn(
-                  "flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-bold transition-all",
+                  "flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-bold transition-all shrink-0 cursor-pointer",
                   activeTab === "rules"
                     ? "border-primary text-primary"
                     : "border-transparent text-slate-500 hover:text-slate-900",
@@ -645,7 +805,7 @@ export function SmsAutomationView() {
                 type="button"
                 onClick={() => setActiveTab("drip")}
                 className={cn(
-                  "flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-bold transition-all",
+                  "flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-bold transition-all shrink-0 cursor-pointer",
                   activeTab === "drip"
                     ? "border-primary text-primary"
                     : "border-transparent text-slate-500 hover:text-slate-900",
@@ -659,7 +819,7 @@ export function SmsAutomationView() {
                 type="button"
                 onClick={() => setActiveTab("templates")}
                 className={cn(
-                  "flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-bold transition-all",
+                  "flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-bold transition-all shrink-0 cursor-pointer",
                   activeTab === "templates"
                     ? "border-primary text-primary"
                     : "border-transparent text-slate-500 hover:text-slate-900",
@@ -673,7 +833,7 @@ export function SmsAutomationView() {
                 type="button"
                 onClick={() => setActiveTab("outbox")}
                 className={cn(
-                  "flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-bold transition-all",
+                  "flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-bold transition-all shrink-0 cursor-pointer",
                   activeTab === "outbox"
                     ? "border-primary text-primary"
                     : "border-transparent text-slate-500 hover:text-slate-900",
@@ -694,7 +854,7 @@ export function SmsAutomationView() {
                   <span>Couldn't load live trigger rules from server.</span>
                 </div>
               )}
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {/* Rule 1: Site Visit Reminder */}
                 <div className="flex flex-col justify-between rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-primary/30">
                   <div>
@@ -1197,23 +1357,121 @@ export function SmsAutomationView() {
                 </div>
 
                 <form onSubmit={handleSendSms} className="space-y-4">
+                  {/* Template Selection */}
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Select Contact from CRM Database
+                      SMS Template Preset
                     </label>
                     <select
-                      value={composerForm.selectedContactId}
-                      onChange={(e) => handleContactSelect(e.target.value)}
-                      className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
+                      value={composerForm.templateKey}
+                      onChange={(e) => handleTemplateSelect(e.target.value)}
+                      className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary bg-white"
                     >
-                      <option value="">Custom Manual Phone Entry…</option>
-                      {contacts.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name} ({c.phone || "No Phone"})
-                        </option>
-                      ))}
+                      <option value="CUSTOM">Custom Free-Text Message</option>
+                      <option value="SITE_VISIT_REMINDER">
+                        Site Visit Reminder ({rules.siteVisit.timing})
+                      </option>
+                      <option value="HOLD_EXPIRY_ALERT">
+                        14-Day Hold Expiry Alert ({rules.holdExpiry.timing})
+                      </option>
+                      <option value="PAYMENT_DUE_ALERT">
+                        Payment Milestone Due Alert ({rules.paymentDue.timing})
+                      </option>
                     </select>
                   </div>
+
+                  {/* Dynamic Record Picker */}
+                  {composerForm.templateKey === "CUSTOM" && (
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Select Contact from CRM Database
+                      </label>
+                      <select
+                        value={composerForm.selectedContactId}
+                        onChange={(e) => handleContactSelect(e.target.value)}
+                        className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
+                      >
+                        <option value="">Custom Manual Phone Entry…</option>
+                        {contacts.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name} ({c.phone || "No Phone"})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {composerForm.templateKey === "SITE_VISIT_REMINDER" && (
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Select Scheduled Site Visit *
+                      </label>
+                      <select
+                        required
+                        value={selectedRecordId}
+                        onChange={(e) => handleSiteVisitSelect(e.target.value)}
+                        className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary bg-white"
+                      >
+                        <option value="">Choose a scheduled site visit…</option>
+                        {siteVisitsList.map((v) => (
+                          <option key={v.id} value={v.id}>
+                            {v.clientName} — {v.projectName} ({v.visitDate}{" "}
+                            {v.visitTime})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {composerForm.templateKey === "HOLD_EXPIRY_ALERT" && (
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Select Active Hold Reservation *
+                      </label>
+                      <select
+                        required
+                        value={selectedRecordId}
+                        onChange={(e) =>
+                          handleReservationSelect(e.target.value)
+                        }
+                        className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary bg-white"
+                      >
+                        <option value="">Choose an active reservation…</option>
+                        {reservationsList.map((r) => (
+                          <option key={r.id} value={r.id}>
+                            {r.clientName} — Unit {r.unitNumber} (
+                            {r.projectName}) · {r.hoursLeft}h left
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {composerForm.templateKey === "PAYMENT_DUE_ALERT" && (
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Select Due Payment Schedule *
+                      </label>
+                      <select
+                        required
+                        value={selectedRecordId}
+                        onChange={(e) =>
+                          handlePaymentScheduleSelect(e.target.value)
+                        }
+                        className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary bg-white"
+                      >
+                        <option value="">
+                          Choose a due payment schedule…
+                        </option>
+                        {paymentSchedulesList.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.clientName} — {s.milestoneName}: ETB {s.amount}{" "}
+                            (Due {s.dueDate})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -1262,12 +1520,7 @@ export function SmsAutomationView() {
                       required
                       rows={4}
                       value={composerForm.body}
-                      onChange={(e) =>
-                        setComposerForm({
-                          ...composerForm,
-                          body: e.target.value,
-                        })
-                      }
+                      onChange={(e) => handleBodyChange(e.target.value)}
                       className="w-full rounded-lg border border-slate-300 p-3 text-xs outline-none focus:border-primary font-mono"
                     />
                     <div className="flex items-center justify-between text-[11px] text-slate-400 mt-1">
@@ -1277,6 +1530,26 @@ export function SmsAutomationView() {
                       <span>ETB {(segmentCount * 0.35).toFixed(2)}</span>
                     </div>
                   </div>
+
+                  {/* Missing variables alert */}
+                  {missingFields.length > 0 && (
+                    <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 flex items-start gap-2.5">
+                      <AlertTriangle className="size-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold">
+                          Unfilled template placeholder(s) detected:
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-amber-800">
+                          Missing values for:{" "}
+                          <span className="font-mono font-bold text-amber-950">
+                            {missingFields.map((f) => `{${f}}`).join(", ")}
+                          </span>
+                          . Please select a record with complete data or fill in
+                          the placeholders before sending.
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
                     <Button
@@ -1290,9 +1563,15 @@ export function SmsAutomationView() {
                     <Button
                       type="submit"
                       size="sm"
-                      className="font-bold text-xs px-5 shadow-xs"
+                      disabled={
+                        sendingSms ||
+                        missingFields.length > 0 ||
+                        !composerForm.recipientPhone ||
+                        !composerForm.body.trim()
+                      }
+                      className="font-bold text-xs px-5 shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Send SMS (ETB 0.35)
+                      {sendingSms ? "Sending..." : "Send SMS (ETB 0.35)"}
                     </Button>
                   </div>
                 </form>
@@ -1458,6 +1737,24 @@ export function SmsAutomationView() {
                     <label className="block text-xs font-bold text-slate-700 mb-1">
                       Step SMS Body *
                     </label>
+                    <p className="text-[11px] text-slate-500 mb-1.5">
+                      Available dynamic placeholders:{" "}
+                      <span className="font-mono font-semibold text-primary">
+                        {`{clientName}`}
+                      </span>
+                      ,{" "}
+                      <span className="font-mono font-semibold text-primary">
+                        {`{projectName}`}
+                      </span>
+                      ,{" "}
+                      <span className="font-mono font-semibold text-primary">
+                        {`{agentPhone}`}
+                      </span>
+                      ,{" "}
+                      <span className="font-mono font-semibold text-primary">
+                        {`{unitNumber}`}
+                      </span>
+                    </p>
                     <textarea
                       required
                       rows={3}
@@ -1468,7 +1765,7 @@ export function SmsAutomationView() {
                           body: e.target.value,
                         })
                       }
-                      placeholder="Write message text for this step..."
+                      placeholder="e.g. Selam {clientName}! Thank you for inquiring about {projectName}..."
                       className="w-full rounded-lg border border-slate-300 p-3 text-xs outline-none focus:border-primary font-mono"
                     />
                   </div>

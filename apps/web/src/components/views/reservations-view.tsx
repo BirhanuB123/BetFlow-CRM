@@ -402,10 +402,13 @@ export function ReservationsView() {
                               #
                             </div>
                             <div>
-                              <p className="font-extrabold text-[#233b66]">
+                              <Link
+                                href={`/reservations/${reservation.id}`}
+                                className="font-extrabold text-[#233b66] hover:underline"
+                              >
                                 {reservation.reservationNumber ||
                                   `BF-RES-${reservation.id.slice(0, 8)}`}
-                              </p>
+                              </Link>
                               <p className="text-[10px] text-slate-400">
                                 {fmtDate(reservation.date)}
                               </p>
@@ -509,14 +512,13 @@ export function ReservationsView() {
                         {/* Actions */}
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => setActiveVoucher(reservation)}
-                              className="rounded-lg bg-slate-100 p-1.5 text-slate-600 hover:bg-primary hover:text-primary-foreground transition-colors"
-                              title="View Unit Lock Voucher"
+                            <Link
+                              href={`/reservations/${reservation.id}`}
+                              className="rounded-lg bg-slate-100 p-1.5 text-slate-600 hover:bg-primary hover:text-primary-foreground transition-colors inline-flex items-center justify-center"
+                              title="View Full Reservation Details & Documents"
                             >
                               <Eye className="size-3.5" />
-                            </button>
+                            </Link>
 
                             {reservation.status === "PENDING" && (
                               <Button

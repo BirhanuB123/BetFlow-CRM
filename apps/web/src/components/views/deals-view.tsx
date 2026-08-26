@@ -406,33 +406,33 @@ export function DealsView() {
           />
         </label>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           {/* View Mode Toggle Button */}
-          <div className="flex items-center rounded-lg border border-slate-200 bg-slate-100 p-0.5">
+          <div className="flex items-center rounded-lg border border-slate-200 bg-slate-100 p-0.5 w-full sm:w-auto justify-between sm:justify-start">
             <button
               type="button"
               onClick={() => setViewMode("KANBAN")}
               className={cn(
-                "flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-bold transition-colors cursor-pointer",
+                "flex-1 sm:flex-none flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 sm:py-1 text-xs font-bold transition-colors cursor-pointer",
                 viewMode === "KANBAN"
                   ? "bg-white text-primary shadow-xs"
                   : "text-slate-600 hover:text-slate-900",
               )}
             >
-              <LayoutGrid className="size-3.5" />
+              <LayoutGrid className="size-3.5 shrink-0" />
               <span>Full Pipeline</span>
             </button>
             <button
               type="button"
               onClick={() => setViewMode("BOARD")}
               className={cn(
-                "flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-bold transition-colors cursor-pointer",
+                "flex-1 sm:flex-none flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 sm:py-1 text-xs font-bold transition-colors cursor-pointer",
                 viewMode === "BOARD"
                   ? "bg-white text-primary shadow-xs"
                   : "text-slate-600 hover:text-slate-900",
               )}
             >
-              <List className="size-3.5" />
+              <List className="size-3.5 shrink-0" />
               <span>Compact Board</span>
             </button>
           </div>
@@ -440,14 +440,14 @@ export function DealsView() {
           <Button
             onClick={() => setShowForm((value) => !value)}
             disabled={customers.length === 0 || stages.length === 0}
-            className="h-9 text-xs font-semibold"
+            className="w-full sm:w-auto h-9 text-xs font-semibold"
           >
             {showForm ? (
-              <X className="size-4 mr-1.5" />
+              <X className="size-4 mr-1.5 shrink-0" />
             ) : (
-              <Plus className="size-4 mr-1.5" />
+              <Plus className="size-4 mr-1.5 shrink-0" />
             )}
-            {showForm ? "Cancel" : "New Deal Opportunity"}
+            <span>{showForm ? "Cancel" : "New Deal Opportunity"}</span>
           </Button>
         </div>
       </div>

@@ -21,6 +21,8 @@ import {
   ChevronDown,
   ChevronRight,
   History,
+  AlertCircle,
+  ShieldCheck,
 } from "lucide-react";
 
 import { useToast } from "@/components/ui/toast";
@@ -34,6 +36,23 @@ import { cn } from "@/lib/utils";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useTranslation } from "@/lib/i18n/language-context";
 import type { ApiContract, CustomerOption } from "@betflow/shared";
+
+type KycRequirement = {
+  category: string;
+  label: string;
+  status: "VERIFIED" | "PENDING_REVIEW" | "EXPIRED" | "MISSING";
+};
+
+type KycStatusResult = {
+  customerId: string;
+  customerName: string;
+  buyerType: "LOCAL" | "DIASPORA";
+  isKycComplete: boolean;
+  completionPercentage: number;
+  verifiedCount: number;
+  totalRequired: number;
+  requirements: KycRequirement[];
+};
 
 type UnitOption = {
   id: string;
@@ -91,6 +110,8 @@ export function ContractsView() {
   const [expandedRevisions, setExpandedRevisions] = useState<
     Record<string, boolean>
   >({});
+  const [kycStatus, setKycStatus] = useState<KycStatusResult | null>(null);
+  const [loadingKyc, setLoadingKyc] = useState(false);
 
   const [form, setForm] = useState({
     contractNumber: "",
@@ -105,6 +126,28 @@ export function ContractsView() {
     paymentPlan: "INSTALLMENTS_24M",
     notes: "",
   });
+
+  useEffect(() => {
+    if (!form.customerId) {
+      setKycStatus(null);
+      return;
+    }
+    let active = true;
+    setLoadingKyc(true);
+    apiFetch<KycStatusResult>(`/documents/kyc-status/${form.customerId}`)
+      .then((res) => {
+        if (active) setKycStatus(res);
+      })
+      .catch(() => {
+        if (active) setKycStatus(null);
+      })
+      .finally(() => {
+        if (active) setLoadingKyc(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [form.customerId]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -408,7 +451,7 @@ export function ContractsView() {
             </div>
 
             <form onSubmit={handleCreate} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
                     Contract Agreement #
@@ -445,7 +488,7 @@ export function ContractsView() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
                     Property Buyer / Customer *
@@ -489,7 +532,39 @@ export function ContractsView() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {/* Non-blocking KYC Warning / Status Notice */}
+              {kycStatus && !kycStatus.isKycComplete && (
+                <div className="rounded-xl border border-warning/30 bg-warning/10 p-3 text-xs text-slate-800 flex items-start gap-2.5 shadow-2xs">
+                  <AlertCircle className="size-4 text-warning shrink-0 mt-0.5" />
+                  <div className="flex-1 space-y-1">
+                    <div className="flex flex-wrap items-center justify-between gap-1">
+                      <span className="font-bold text-slate-900">
+                        Notice: Customer KYC Incomplete ({kycStatus.buyerType === "DIASPORA" ? "✈️ Diaspora Preset" : "🇪🇹 Local Preset"})
+                      </span>
+                      <span className="font-bold text-warning text-[11px] bg-warning/20 px-2 py-0.5 rounded-md border border-warning/30">
+                        {kycStatus.verifiedCount}/{kycStatus.totalRequired} Verified
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-600">
+                      Unverified documents: {kycStatus.requirements.filter((r) => r.status !== "VERIFIED").map((r) => r.label).join(", ")}. You may still proceed with generating the contract.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {kycStatus && kycStatus.isKycComplete && (
+                <div className="rounded-xl border border-success/30 bg-success/10 p-2.5 text-xs text-success flex items-center justify-between shadow-2xs">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="size-4 text-success" />
+                    <span className="font-bold">
+                      ✓ Customer KYC Fully Verified ({kycStatus.buyerType === "DIASPORA" ? "Diaspora Preset" : "Local Preset"})
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-semibold">100% Complete</span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
                     Total Contract Price (ETB) *
@@ -526,7 +601,7 @@ export function ContractsView() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
                     Payment Plan Schedule *
@@ -649,10 +724,13 @@ export function ContractsView() {
                             📜
                           </div>
                           <div>
-                            <p className="font-extrabold text-[#233b66]">
+                            <Link
+                              href={`/contracts/${primary.id}`}
+                              className="font-extrabold text-[#233b66] hover:underline"
+                            >
                               {primary.contractNumber ||
                                 `CNT-${primary.id.slice(0, 8)}`}
-                            </p>
+                            </Link>
                             <p className="text-[10px] text-slate-400">
                               Date: {fmtDate(primary.startDate)}
                             </p>
@@ -692,14 +770,13 @@ export function ContractsView() {
 
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => setActiveModalContract(primary)}
-                            className="rounded-lg bg-slate-100 p-1.5 text-slate-600 hover:bg-primary hover:text-primary-foreground transition-colors"
-                            title="View Full Contract Document"
+                          <Link
+                            href={`/contracts/${primary.id}`}
+                            className="rounded-lg bg-slate-100 p-1.5 text-slate-600 hover:bg-primary hover:text-primary-foreground transition-colors inline-flex items-center justify-center"
+                            title="View Full Contract Details & Documents"
                           >
                             <Eye className="size-3.5" />
-                          </button>
+                          </Link>
 
                           {primary.status === "PENDING_SIGNATURE" && (
                             <Button

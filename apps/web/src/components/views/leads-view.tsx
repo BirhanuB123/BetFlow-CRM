@@ -416,13 +416,13 @@ export function LeadsView() {
   return (
     <div className="space-y-4">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-t-lg border border-zinc-200 bg-white px-4 py-3 h-[60px]">
-        <div className="flex items-center gap-1">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 rounded-t-lg border border-zinc-200 bg-white p-3 sm:p-4 shadow-2xs">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 w-full lg:w-auto custom-scrollbar">
           <button
             type="button"
             onClick={() => setOriginFilter("ALL")}
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-semibold transition-colors border",
+              "rounded-md px-3 py-1.5 text-xs sm:text-sm font-semibold transition-colors border shrink-0 cursor-pointer",
               originFilter === "ALL"
                 ? "bg-primary/10 text-primary border-primary/20"
                 : "bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50",
@@ -434,7 +434,7 @@ export function LeadsView() {
             type="button"
             onClick={() => setOriginFilter("DIASPORA")}
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-semibold transition-colors border flex items-center gap-1",
+              "rounded-md px-3 py-1.5 text-xs sm:text-sm font-semibold transition-colors border flex items-center gap-1 shrink-0 cursor-pointer",
               originFilter === "DIASPORA"
                 ? "bg-warning/10 text-warning border-warning/30 font-bold"
                 : "bg-warning/10/60 text-warning border-warning/20 hover:bg-warning/10/70",
@@ -446,7 +446,7 @@ export function LeadsView() {
             type="button"
             onClick={() => setOriginFilter("LOCAL")}
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-semibold transition-colors border flex items-center gap-1",
+              "rounded-md px-3 py-1.5 text-xs sm:text-sm font-semibold transition-colors border flex items-center gap-1 shrink-0 cursor-pointer",
               originFilter === "LOCAL"
                 ? "bg-success/10 text-success border-success/30 font-bold"
                 : "bg-success/10/60 text-success border-success/20 hover:bg-success/10/70",
@@ -458,7 +458,7 @@ export function LeadsView() {
             type="button"
             onClick={() => setShowSocialDrawer((prev) => !prev)}
             className={cn(
-              "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-semibold transition-colors border ml-1",
+              "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs sm:text-sm font-semibold transition-colors border shrink-0 cursor-pointer",
               showSocialDrawer
                 ? "bg-info text-white border-info shadow-sm"
                 : "bg-info/10 text-info border-info/20 hover:bg-info/10",
@@ -467,13 +467,13 @@ export function LeadsView() {
             <Webhook className="size-3.5" />
             Social Webhooks
           </button>
-          <div className="mx-1 h-5 w-px bg-zinc-200" />
+          <div className="mx-1 h-5 w-px bg-zinc-200 shrink-0" />
           <button
             type="button"
             onClick={() => setShowFilters((v) => !v)}
             className={cn(
-              "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm hover:bg-zinc-100 transition-colors font-medium",
-              showFilters ? "text-primary bg-primary/10" : "text-zinc-600",
+              "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs sm:text-sm hover:bg-zinc-100 transition-colors font-medium shrink-0 cursor-pointer",
+              showFilters ? "text-primary bg-primary/10 font-bold" : "text-zinc-600",
             )}
           >
             <FilterIcon className="size-4" />
@@ -492,26 +492,26 @@ export function LeadsView() {
               setStatusFilter(new Set());
               setSourceFilter(new Set());
             }}
-            className="text-xs text-zinc-400 hover:text-zinc-600 px-1"
+            className="text-xs text-zinc-400 hover:text-zinc-600 px-1 shrink-0 cursor-pointer"
           >
             Reset
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full lg:w-auto">
           {selected.size > 0 ? (
             <Button
               variant="destructive"
               size="sm"
               onClick={handleBatchDelete}
               disabled={busy}
-              className="h-9 gap-1.5"
+              className="h-9 gap-1.5 shrink-0"
             >
               <Trash2 className="size-4" />
               Delete ({selected.size})
             </Button>
           ) : null}
-          <div className="relative w-64">
+          <div className="relative flex-1 sm:w-64 min-w-[140px]">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
             <input
               type="text"
@@ -521,13 +521,13 @@ export function LeadsView() {
                 setSearch(e.target.value);
                 setPage(0);
               }}
-              className="w-full rounded-md border border-zinc-200 bg-white py-1.5 pl-9 pr-3 text-sm placeholder:text-zinc-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full rounded-md border border-zinc-200 bg-white py-1.5 pl-9 pr-3 text-xs sm:text-sm placeholder:text-zinc-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
             />
             {search ? (
               <button
                 type="button"
                 onClick={() => setSearch("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 cursor-pointer"
               >
                 <X className="size-3.5" />
               </button>
@@ -536,10 +536,10 @@ export function LeadsView() {
           <Button
             size="sm"
             onClick={() => setCreateOpen(true)}
-            className="h-9 gap-1.5 font-semibold"
+            className="h-9 gap-1.5 font-semibold shrink-0"
           >
             <Plus className="size-4" />
-            Create Lead
+            <span>Create Lead</span>
           </Button>
         </div>
       </div>
@@ -571,7 +571,7 @@ export function LeadsView() {
                   setCopiedUrl(true);
                   setTimeout(() => setCopiedUrl(false), 2000);
                 }}
-                className="flex items-center gap-1.5 rounded-md border border-info/20 bg-white px-3 py-1.5 text-xs font-semibold text-info hover:bg-info/10 shadow-2xs transition-colors"
+                className="flex items-center gap-1.5 rounded-md border border-info/20 bg-white px-3 py-1.5 text-xs font-semibold text-info hover:bg-info/10 shadow-2xs transition-colors cursor-pointer"
               >
                 {copiedUrl ? (
                   <>
@@ -588,7 +588,7 @@ export function LeadsView() {
               <button
                 type="button"
                 onClick={() => setShowSocialDrawer(false)}
-                className="text-zinc-400 hover:text-zinc-600 p-1"
+                className="text-zinc-400 hover:text-zinc-600 p-1 cursor-pointer"
               >
                 <X className="size-4" />
               </button>
@@ -598,10 +598,10 @@ export function LeadsView() {
       ) : null}
 
       {/* Main Grid: Filters + Table */}
-      <div className="flex gap-4">
+      <div className="flex flex-col md:flex-row gap-4 items-start">
         {/* Filter Panel */}
         {showFilters ? (
-          <div className="w-56 shrink-0 rounded-lg border border-zinc-200 bg-white p-3 space-y-4 shadow-xs">
+          <div className="w-full md:w-56 shrink-0 rounded-lg border border-zinc-200 bg-white p-3 space-y-4 shadow-xs">
             <div>
               <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2 flex items-center justify-between">
                 <span>Lead Status</span>
@@ -609,13 +609,13 @@ export function LeadsView() {
                   <button
                     type="button"
                     onClick={() => setStatusFilter(new Set())}
-                    className="text-[10px] text-primary hover:underline font-normal normal-case"
+                    className="text-[10px] text-primary hover:underline font-normal normal-case cursor-pointer"
                   >
                     Clear
                   </button>
                 ) : null}
               </h4>
-              <div className="space-y-1.5">
+              <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
                 {LEAD_STATUSES.map((status) => {
                   const active = statusFilter.has(status);
                   return (
@@ -624,7 +624,7 @@ export function LeadsView() {
                       type="button"
                       onClick={() => toggleSet(setStatusFilter, status)}
                       className={cn(
-                        "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors text-left",
+                        "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors text-left cursor-pointer",
                         active
                           ? "bg-primary/10 text-primary font-semibold"
                           : "text-zinc-600 hover:bg-zinc-50",
@@ -632,7 +632,7 @@ export function LeadsView() {
                     >
                       <span>{titleCase(status)}</span>
                       {active ? (
-                        <span className="size-1.5 rounded-full bg-primary" />
+                        <span className="size-1.5 rounded-full bg-primary shrink-0 ml-1" />
                       ) : null}
                     </button>
                   );
@@ -647,13 +647,13 @@ export function LeadsView() {
                   <button
                     type="button"
                     onClick={() => setSourceFilter(new Set())}
-                    className="text-[10px] text-primary hover:underline font-normal normal-case"
+                    className="text-[10px] text-primary hover:underline font-normal normal-case cursor-pointer"
                   >
                     Clear
                   </button>
                 ) : null}
               </h4>
-              <div className="space-y-1.5">
+              <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
                 {sources.map((src) => {
                   const active = sourceFilter.has(src.id);
                   return (
@@ -662,7 +662,7 @@ export function LeadsView() {
                       type="button"
                       onClick={() => toggleSet(setSourceFilter, src.id)}
                       className={cn(
-                        "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors text-left truncate",
+                        "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors text-left truncate cursor-pointer",
                         active
                           ? "bg-primary/10 text-primary font-semibold"
                           : "text-zinc-600 hover:bg-zinc-50",
@@ -681,7 +681,7 @@ export function LeadsView() {
         ) : null}
 
         {/* Table Panel */}
-        <div className="min-w-0 flex-1 rounded-lg border border-zinc-200 bg-white shadow-xs overflow-hidden">
+        <div className="min-w-0 w-full flex-1 rounded-lg border border-zinc-200 bg-white shadow-xs overflow-hidden">
           {error ? (
             isForbidden || error.toLowerCase().includes("permission") || error.toLowerCase().includes("forbidden") ? (
               <div className="p-6">
@@ -695,7 +695,7 @@ export function LeadsView() {
           ) : null}
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full min-w-[760px] text-left text-xs">
               <thead className="border-b border-zinc-200 bg-zinc-50/80 text-zinc-600 font-semibold">
                 <tr>
                   <th className="w-10 px-3 py-3">
