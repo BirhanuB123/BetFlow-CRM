@@ -52,7 +52,24 @@ export class PaymentsService {
                 phone: true,
               },
             },
-            unit: { select: { id: true, unitNumber: true, type: true } },
+            unit: {
+              select: {
+                id: true,
+                unitNumber: true,
+                type: true,
+                floor: {
+                  select: {
+                    building: {
+                      select: {
+                        project: {
+                          select: { id: true, name: true },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
         payments: true,

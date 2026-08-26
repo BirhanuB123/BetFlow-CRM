@@ -28,17 +28,32 @@ import {
   type ReviewDocumentBody,
 } from './documents.service';
 
+import { DocumentsCronService } from './documents-cron.service';
+
 type ResponseHeaders = { setHeader(name: string, value: string): void };
 
 @Controller('documents')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @RequirePermission('documents.manage')
 export class DocumentsController {
-  constructor(private readonly documents: DocumentsService) {}
+  constructor(
+    private readonly documents: DocumentsService,
+    private readonly cron: DocumentsCronService,
+  ) {}
 
   @Get('kyc-status/:customerId')
   getKycStatus(@Param('customerId') customerId: string) {
     return this.documents.getKycStatus(customerId);
+  }
+
+  @Get('contract-status/:contractId')
+  getContractStatus(@Param('contractId') contractId: string) {
+    return this.documents.getContractDocumentStatus(contractId);
+  }
+
+  @Post('check-expiries')
+  checkExpiries() {
+    return this.cron.runAudit();
   }
 
   @Get()

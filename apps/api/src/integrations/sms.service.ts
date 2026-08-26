@@ -8,6 +8,7 @@ import {
 } from 'class-validator';
 import { PrismaService } from '../database/prisma.service';
 import { InMemoryService } from '../database/in-memory.service';
+import { interpolateTemplate } from './sms-template.util';
 
 export class SmsSendDto {
   @IsString()
@@ -433,9 +434,10 @@ export class EthioTelecomSmsService {
     const dispatchedLogs = [];
 
     for (const recipient of Array.from(recipientsMap.values())) {
-      const body = rawTemplate
-        .replace('{projectName}', projectName)
-        .replace('{stageName}', stageName.replace(/_/g, ' '));
+      const { body } = interpolateTemplate(rawTemplate, {
+        projectName,
+        stageName: stageName.replace(/_/g, ' '),
+      });
 
       const log = await this.sendSms({
         recipientName: recipient.name,
@@ -535,22 +537,35 @@ export class EthioTelecomSmsService {
     const tryAfroMessage = async (): Promise<boolean> => {
       if (!process.env.AFROMESSAGE_API_KEY) return false;
       const apiKey = process.env.AFROMESSAGE_API_KEY.trim();
-      const senderId = process.env.AFROMESSAGE_SENDER_ID || '';
+      const senderName = process.env.AFROMESSAGE_SENDER_ID?.trim() || '';
+      const identifier = process.env.AFROMESSAGE_IDENTIFIER?.trim() || '';
       const baseUrl =
         process.env.API_BASE_URL ||
         process.env.APP_BASE_URL ||
-        'https://api.betflow.et';
-      const callbackUrl = `${baseUrl}/sms/afromessage/callback`;
-
-      const url = `https://api.afromessage.com/api/send?to=${formattedPhone}&message=${encodeURIComponent(dto.body)}${senderId ? `&sender=${encodeURIComponent(senderId)}` : ''}&callback=${encodeURIComponent(callbackUrl)}`;
+        '';
 
       this.logger.log(
         `[Gateway Dispatch] Primary attempt via AfroMessage to +${formattedPhone}...`,
       );
       attemptsCount++;
 
+      const params = new URLSearchParams();
+      params.set('to', formattedPhone);
+      params.set('message', dto.body);
+      if (senderName) {
+        params.set('sender', senderName);
+      }
+      if (identifier) {
+        params.set('from', identifier);
+      }
+      if (baseUrl && baseUrl.startsWith('https://')) {
+        params.set('callback', `${baseUrl}/sms/afromessage/callback`);
+      }
+
+      const primaryUrl = `https://api.afromessage.com/api/send?${params.toString()}`;
+
       try {
-        const response = await this.fetchWithRetry(url, {
+        let response = await this.fetchWithRetry(primaryUrl, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${apiKey}`,
@@ -558,23 +573,57 @@ export class EthioTelecomSmsService {
           },
         });
 
-        const data = (await response.json().catch(() => null)) as {
-          acknowledge?: string;
-          response?: { code?: number };
-        } | null;
+        let data = (await response.json().catch(() => null)) as any;
+
+        // If primary attempt failed, retry with direct sender parameter
+        if (
+          !response.ok ||
+          (data?.acknowledge !== 'success' &&
+            data?.response?.code !== 200 &&
+            data?.status !== 'success' &&
+            !data?.response?.message_id)
+        ) {
+          this.logger.warn(
+            `[AfroMessage Primary Request] HTTP ${response.status}: ${JSON.stringify(data)}. Retrying with direct sender parameter...`,
+          );
+
+          const fallbackParams = new URLSearchParams({
+            to: formattedPhone,
+            message: dto.body,
+          });
+          if (senderName) fallbackParams.set('sender', senderName);
+
+          const cleanUrl = `https://api.afromessage.com/api/send?${fallbackParams.toString()}`;
+
+          response = await this.fetchWithRetry(cleanUrl, {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              Accept: 'application/json',
+            },
+          });
+          data = (await response.json().catch(() => null)) as any;
+        }
 
         if (
           response.ok &&
-          (data?.acknowledge === 'success' || data?.response?.code === 200)
+          (data?.acknowledge === 'success' ||
+            data?.response?.code === 200 ||
+            data?.status === 'success' ||
+            data?.success === true ||
+            data?.response?.message_id ||
+            data?.response?.status === 'sent' ||
+            data?.response?.status === 'Send is in progress...')
         ) {
           this.logger.log(
-            `[AfroMessage SMS Success] Delivered to +${formattedPhone}`,
+            `[AfroMessage SMS Success] Delivered to +${formattedPhone} (Message ID: ${data?.response?.message_id || 'N/A'})`,
           );
           gatewayUsed = 'AfroMessage Live Gateway';
           return true;
         }
+
         this.logger.warn(
-          `[AfroMessage SMS Failed] HTTP ${response.status}: ${JSON.stringify(data)}`,
+          `[AfroMessage SMS Final Status] HTTP ${response.status}: ${JSON.stringify(data)}`,
         );
       } catch (err: any) {
         this.logger.error(
@@ -1014,15 +1063,32 @@ export class EthioTelecomSmsService {
     // Immediately dispatch step 1 SMS if step 1 delay is 0
     const step1 = campaign.steps.find((s) => s.stepNumber === 1);
     if (step1 && step1.delayDays === 0) {
-      await this.sendSms(
-        {
-          recipientName: dto.clientName,
-          recipientPhone: dto.clientPhone,
-          body: step1.smsTemplate.replaceAll('{clientName}', dto.clientName),
-          triggerType: 'DRIP_CAMPAIGN',
-        },
-        actorUserId,
-      );
+      let agentPhone = process.env.AFROMESSAGE_SENDER_ID || '0911223344';
+      let projectName = 'BetFlow Luxury Properties';
+      let unitNumber = 'N/A';
+
+      const { body, missing } = interpolateTemplate(step1.smsTemplate, {
+        clientName: dto.clientName,
+        projectName,
+        agentPhone,
+        unitNumber,
+      });
+
+      if (missing.length === 0) {
+        await this.sendSms(
+          {
+            recipientName: dto.clientName,
+            recipientPhone: dto.clientPhone,
+            body,
+            triggerType: 'DRIP_CAMPAIGN',
+          },
+          actorUserId,
+        );
+      } else {
+        this.logger.warn(
+          `Skipped immediate drip send for ${dto.clientName}: missing placeholder(s) ${missing.join(', ')}`,
+        );
+      }
     }
 
     return {
