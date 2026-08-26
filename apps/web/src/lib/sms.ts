@@ -315,23 +315,10 @@ export async function sendSmsApi(payload: {
   body: string;
   triggerType?: string;
 }): Promise<SmsLog> {
-  try {
-    return await apiFetch<SmsLog>("/sms/send", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-  } catch {
-    return {
-      id: `sms-log-${Date.now()}`,
-      recipientName: payload.recipientName,
-      recipientPhone: formatEthioPhone(payload.recipientPhone),
-      body: payload.body,
-      triggerType: (payload.triggerType as any) || "MANUAL_BROADCAST",
-      status: "DELIVERED",
-      sentAt: new Date().toISOString(),
-      costEthioBirr: 0.35,
-    };
-  }
+  return await apiFetch<SmsLog>("/sms/send", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 }
 
 export async function fetchDripCampaigns(): Promise<DripCampaign[]> {
@@ -579,4 +566,156 @@ export async function broadcastConstructionApi(dto: {
     },
   );
 }
+
+export type SiteVisitOption = {
+  id: string;
+  date: string;
+  status: string;
+  clientName: string;
+  phone: string;
+  projectName: string;
+  visitDate: string;
+  visitTime: string;
+  agentName: string;
+  agentPhone: string;
+};
+
+export async function fetchSiteVisitsForSms(): Promise<SiteVisitOption[]> {
+  try {
+    const visits = await apiFetch<any[]>("/site-visits");
+    return visits.map((v) => {
+      const clientName =
+        `${v.customer?.firstName ?? v.lead?.firstName ?? ""} ${v.customer?.lastName ?? v.lead?.lastName ?? ""}`.trim() ||
+        "Valued Client";
+      const phone = formatEthioPhone(v.customer?.phone || v.lead?.phone || "");
+      const d = new Date(v.date);
+      const visitDate = !isNaN(d.getTime())
+        ? d.toISOString().split("T")[0]
+        : "";
+      const visitTime = !isNaN(d.getTime())
+        ? d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        : "";
+      const agentUser = v.lead?.owner || v.customer?.account?.owner;
+      const agentName = agentUser
+        ? `${agentUser.firstName} ${agentUser.lastName}`.trim()
+        : "";
+      const agentPhone = formatEthioPhone(agentUser?.phone || "");
+      const projectName =
+        v.recommendedUnits?.[0]?.projectName || "BetFlow Project";
+
+      return {
+        id: v.id,
+        date: v.date,
+        status: v.status,
+        clientName,
+        phone,
+        projectName,
+        visitDate,
+        visitTime,
+        agentName,
+        agentPhone,
+      };
+    });
+  } catch {
+    return [];
+  }
+}
+
+export type ReservationOption = {
+  id: string;
+  reservationNumber?: string | null;
+  clientName: string;
+  phone: string;
+  unitNumber: string;
+  projectName: string;
+  hoursLeft: string;
+};
+
+export async function fetchReservationsForSms(): Promise<ReservationOption[]> {
+  try {
+    const reservations = await apiFetch<any[]>("/reservations");
+    return reservations.map((r) => {
+      const clientName =
+        `${r.customer?.firstName ?? ""} ${r.customer?.lastName ?? ""}`.trim() ||
+        "Valued Client";
+      const phone = formatEthioPhone(r.customer?.phone || "");
+      const unitNumber = r.unit?.unitNumber || "N/A";
+      const projectName =
+        r.unit?.floor?.building?.project?.name || "Harbor Point Towers";
+      const hoursLeft = r.expiryDate
+        ? Math.max(
+            0,
+            Math.round(
+              (new Date(r.expiryDate).getTime() - Date.now()) /
+                (1000 * 60 * 60),
+            ),
+          ).toString()
+        : "24";
+
+      return {
+        id: r.id,
+        reservationNumber: r.reservationNumber,
+        clientName,
+        phone,
+        unitNumber,
+        projectName,
+        hoursLeft,
+      };
+    });
+  } catch {
+    return [];
+  }
+}
+
+export type PaymentScheduleOption = {
+  id: string;
+  clientName: string;
+  phone: string;
+  milestoneName: string;
+  amount: string;
+  dueDate: string;
+  unitNumber: string;
+  projectName: string;
+};
+
+export async function fetchPaymentSchedulesForSms(): Promise<
+  PaymentScheduleOption[]
+> {
+  try {
+    const schedules = await apiFetch<any[]>("/payments/schedules");
+    return schedules.map((s) => {
+      const clientName =
+        `${s.contract?.customer?.firstName ?? ""} ${s.contract?.customer?.lastName ?? ""}`.trim() ||
+        "Valued Buyer";
+      const phone = formatEthioPhone(s.contract?.customer?.phone || "");
+      const milestoneName = (s.milestoneName || "Installment").replace(
+        /_/g,
+        " ",
+      );
+      const amount = Number(s.amount || 0).toLocaleString();
+      const d = new Date(s.dueDate);
+      const dueDate = !isNaN(d.getTime())
+        ? d.toISOString().split("T")[0]
+        : "";
+      const unitNumber = s.contract?.unit?.unitNumber || "N/A";
+      const projectName =
+        s.contract?.unit?.floor?.building?.project?.name ||
+        "BetFlow Real Estate";
+
+      return {
+        id: s.id,
+        clientName,
+        phone,
+        milestoneName,
+        amount,
+        dueDate,
+        unitNumber,
+        projectName,
+      };
+    });
+  } catch {
+    return [];
+  }
+}
+
 

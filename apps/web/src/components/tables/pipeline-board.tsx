@@ -46,14 +46,14 @@ export function PipelineBoard() {
   }
 
   return (
-    <div className="grid gap-4 overflow-x-auto xl:grid-cols-5">
+    <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
       {stages.map((stage) => {
         const stageDeals = deals.filter((deal) => deal.stageId === stage.id);
 
         return (
           <section
             key={stage.id}
-            className="min-w-64 rounded-lg border border-zinc-200 bg-white"
+            className="w-72 shrink-0 rounded-lg border border-zinc-200 bg-white"
           >
             <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
               <h2 className="text-sm font-semibold">{stage.name}</h2>

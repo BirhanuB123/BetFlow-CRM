@@ -20,6 +20,7 @@ import {
   CheckCircle2,
   Briefcase,
   UserCheck,
+  ShieldCheck,
   Sparkles,
   ExternalLink,
 } from "lucide-react";
@@ -34,6 +35,24 @@ import { formatCurrency } from "@/lib/currency";
 import { printReportDocument } from "@/lib/print";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+
+type KycRequirement = {
+  category: string;
+  label: string;
+  status: "VERIFIED" | "PENDING_REVIEW" | "EXPIRED" | "MISSING";
+  document: any | null;
+};
+
+type KycStatusResult = {
+  customerId: string;
+  customerName: string;
+  buyerType: "LOCAL" | "DIASPORA";
+  isKycComplete: boolean;
+  completionPercentage: number;
+  verifiedCount: number;
+  totalRequired: number;
+  requirements: KycRequirement[];
+};
 
 type UnitRef = { id: string; unitNumber: string } | null;
 
@@ -116,6 +135,7 @@ export default function CustomerDetailPage() {
   const router = useRouter();
   const id = params.id;
   const [customer, setCustomer] = useState<CustomerDetail | null>(null);
+  const [kycStatus, setKycStatus] = useState<KycStatusResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -127,8 +147,26 @@ export default function CustomerDetailPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiFetch<CustomerDetail>(`/customers/${id}`);
-      setCustomer(data);
+      const [customerRes, kycRes] = await Promise.allSettled([
+        apiFetch<CustomerDetail>(`/customers/${id}`),
+        apiFetch<KycStatusResult>(`/documents/kyc-status/${id}`),
+      ]);
+
+      if (customerRes.status === "fulfilled") {
+        setCustomer(customerRes.value);
+      } else {
+        throw new Error(
+          customerRes.reason instanceof Error
+            ? customerRes.reason.message
+            : "Failed to load customer details",
+        );
+      }
+
+      if (kycRes.status === "fulfilled") {
+        setKycStatus(kycRes.value);
+      } else {
+        setKycStatus(null);
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to load customer details",
@@ -273,25 +311,25 @@ export default function CustomerDetailPage() {
       active="Contacts"
     >
       <div className="space-y-6">
-        {/* Back Navigation Bar */}
-        <div className="flex items-center justify-between">
+        {/* Navigation Breadcrumb Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-slate-200/90 bg-white p-3.5 shadow-2xs">
           <Link
-            href="/pipeline?tab=customers"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-primary transition-colors"
+            href="/customers"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-primary transition-all shadow-2xs cursor-pointer w-fit"
           >
             <ArrowLeft className="size-4" />
             Back to Customer Directory
           </Link>
 
           {customer && (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handlePrint}
-                className="h-8.5 text-xs font-semibold border-slate-200 text-slate-700 hover:bg-slate-50"
+                className="flex-1 sm:flex-none h-8.5 text-xs font-semibold border-slate-200 text-slate-700 hover:bg-slate-50"
               >
-                <Printer className="size-3.5 mr-1.5 text-slate-500" />
+                <Printer className="size-3.5 mr-1.5 text-slate-500 shrink-0" />
                 Print Record
               </Button>
               <Button
@@ -299,9 +337,9 @@ export default function CustomerDetailPage() {
                 size="sm"
                 disabled={deleting}
                 onClick={handleDelete}
-                className="h-8.5 text-xs font-semibold text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
+                className="flex-1 sm:flex-none h-8.5 text-xs font-semibold text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
               >
-                <Trash2 className="size-3.5 mr-1.5" />
+                <Trash2 className="size-3.5 mr-1.5 shrink-0" />
                 {deleting ? "Deleting..." : "Delete Contact"}
               </Button>
             </div>
@@ -340,7 +378,7 @@ export default function CustomerDetailPage() {
                     </div>
 
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
                           {customer.firstName} {customer.lastName}
                         </h2>
@@ -348,6 +386,21 @@ export default function CustomerDetailPage() {
                           <UserCheck className="size-3 text-success" />
                           Active Client
                         </span>
+                        {kycStatus && (
+                          <span
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold border shadow-2xs",
+                              kycStatus.isKycComplete
+                                ? "bg-success/10 text-success border-success/20"
+                                : "bg-warning/10 text-warning border-warning/20",
+                            )}
+                          >
+                            <ShieldCheck className="size-3" />
+                            {kycStatus.isKycComplete
+                              ? `KYC Complete (${kycStatus.buyerType === "DIASPORA" ? "Diaspora" : "Local"})`
+                              : `KYC: ${kycStatus.verifiedCount}/${kycStatus.totalRequired} Verified (${kycStatus.buyerType === "DIASPORA" ? "Diaspora" : "Local"})`}
+                          </span>
+                        )}
                       </div>
 
                       {/* Contact Info Pills */}
@@ -591,18 +644,23 @@ export default function CustomerDetailPage() {
                     columns={["Unit", "Total Amount", "Start Date", "Status"]}
                     rows={customer.contracts.map((contract) => [
                       contract.unit ? (
-                        <span
+                        <Link
                           key="u"
-                          className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700"
+                          href={`/contracts/${contract.id}`}
+                          className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700 hover:bg-primary/10 hover:text-primary transition-colors"
                         >
                           Unit {contract.unit.unitNumber}
-                        </span>
+                        </Link>
                       ) : (
                         "—"
                       ),
-                      <span key="t" className="font-extrabold text-slate-900">
+                      <Link
+                        key="t"
+                        href={`/contracts/${contract.id}`}
+                        className="font-extrabold text-slate-900 hover:text-primary hover:underline"
+                      >
                         {money(contract.totalAmt)}
-                      </span>,
+                      </Link>,
                       new Date(contract.startDate).toLocaleDateString(),
                       <StatusBadge key="s" status={contract.status} />,
                     ])}
@@ -635,18 +693,23 @@ export default function CustomerDetailPage() {
                     columns={["Unit", "Deposit Amount", "Date", "Status"]}
                     rows={customer.reservations.map((reservation) => [
                       reservation.unit ? (
-                        <span
+                        <Link
                           key="u"
-                          className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700"
+                          href={`/reservations/${reservation.id}`}
+                          className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700 hover:bg-primary/10 hover:text-primary transition-colors"
                         >
                           Unit {reservation.unit.unitNumber}
-                        </span>
+                        </Link>
                       ) : (
                         "—"
                       ),
-                      <span key="a" className="font-bold text-slate-900">
+                      <Link
+                        key="a"
+                        href={`/reservations/${reservation.id}`}
+                        className="font-bold text-slate-900 hover:text-primary hover:underline"
+                      >
                         {money(reservation.amount)}
-                      </span>,
+                      </Link>,
                       new Date(reservation.date).toLocaleDateString(),
                       <StatusBadge key="s" status={reservation.status} />,
                     ])}
@@ -708,6 +771,116 @@ export default function CustomerDetailPage() {
 
             {/* Right Side Panel: Documents, Notes, Activity */}
             <div className="space-y-6 lg:col-span-1">
+              {/* KYC Compliance Status Panel */}
+              {kycStatus && (
+                <div className="rounded-xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
+                  <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/70 p-4">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="size-4 text-primary" />
+                      <h3 className="text-sm font-bold text-slate-900">
+                        KYC Compliance
+                      </h3>
+                    </div>
+                    <span
+                      className={cn(
+                        "rounded-md px-2 py-0.5 text-[10px] font-extrabold border",
+                        kycStatus.buyerType === "DIASPORA"
+                          ? "bg-purple-50 text-purple-700 border-purple-200"
+                          : "bg-blue-50 text-blue-700 border-blue-200",
+                      )}
+                    >
+                      {kycStatus.buyerType === "DIASPORA"
+                        ? "✈️ Diaspora Preset"
+                        : "🇪🇹 Local Preset"}
+                    </span>
+                  </div>
+
+                  <div className="p-4 space-y-3">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-slate-600">
+                        Verification Status
+                      </span>
+                      <span
+                        className={cn(
+                          "font-bold px-2 py-0.5 rounded-md text-[11px] border",
+                          kycStatus.isKycComplete
+                            ? "bg-success/10 text-success border-success/20"
+                            : "bg-warning/10 text-warning border-warning/20",
+                        )}
+                      >
+                        {kycStatus.isKycComplete
+                          ? "✓ Verified"
+                          : `${kycStatus.verifiedCount}/${kycStatus.totalRequired} Verified`}
+                      </span>
+                    </div>
+
+                    <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className={cn(
+                          "h-full rounded-full transition-all",
+                          kycStatus.isKycComplete ? "bg-success" : "bg-primary",
+                        )}
+                        style={{ width: `${kycStatus.completionPercentage}%` }}
+                      />
+                    </div>
+
+                    {/* Requirements Breakdown */}
+                    <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                      {kycStatus.requirements.map((req) => (
+                        <div
+                          key={req.category}
+                          className="flex items-center justify-between text-xs py-1.5 px-2.5 rounded-lg bg-slate-50 border border-slate-100"
+                        >
+                          <div className="truncate pr-2">
+                            <p
+                              className="font-semibold text-slate-800 truncate"
+                              title={req.label}
+                            >
+                              {req.label}
+                            </p>
+                          </div>
+                          <span
+                            className={cn(
+                              "text-[10px] font-bold px-2 py-0.5 rounded border shrink-0",
+                              req.status === "VERIFIED" &&
+                                "bg-success/10 text-success border-success/20",
+                              req.status === "PENDING_REVIEW" &&
+                                "bg-warning/10 text-warning border-warning/20",
+                              req.status === "EXPIRED" &&
+                                "bg-destructive/10 text-destructive border-destructive/20",
+                              req.status === "MISSING" &&
+                                "bg-slate-200/70 text-slate-500 border-slate-300/70",
+                            )}
+                          >
+                            {req.status === "VERIFIED"
+                              ? "✓ Verified"
+                              : req.status === "PENDING_REVIEW"
+                                ? "Pending"
+                                : req.status === "EXPIRED"
+                                  ? "Expired"
+                                  : "Missing"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="pt-1 flex items-center justify-between border-t border-slate-100">
+                      <span className="text-[11px] text-slate-500">
+                        {kycStatus.buyerType === "DIASPORA"
+                          ? "Foreign passport & MoFA POA required"
+                          : "Kebele ID, Passport & TIN required"}
+                      </span>
+                      <Link
+                        href="/documents"
+                        className="text-[11px] font-semibold text-primary hover:underline shrink-0"
+                      >
+                        Manage Hub →
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="rounded-xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
                 <DocumentsPanel
                   entityType="CUSTOMER"

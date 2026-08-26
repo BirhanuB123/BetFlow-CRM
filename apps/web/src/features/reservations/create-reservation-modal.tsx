@@ -1,7 +1,36 @@
-import { type FormEvent } from "react";
-import { Sparkles, Receipt, User, Building, Coins, CalendarDays, Banknote } from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
+import {
+  Sparkles,
+  Receipt,
+  User,
+  Building,
+  Coins,
+  CalendarDays,
+  Banknote,
+  AlertCircle,
+  ShieldCheck,
+} from "lucide-react";
 import { formatCurrency } from "@/lib/currency";
 import { OfflineDraftBanner } from "@/components/ui/offline-draft-banner";
+import { apiFetch } from "@/lib/api";
+import { cn } from "@/lib/utils";
+
+type KycRequirement = {
+  category: string;
+  label: string;
+  status: "VERIFIED" | "PENDING_REVIEW" | "EXPIRED" | "MISSING";
+};
+
+type KycStatusResult = {
+  customerId: string;
+  customerName: string;
+  buyerType: "LOCAL" | "DIASPORA";
+  isKycComplete: boolean;
+  completionPercentage: number;
+  verifiedCount: number;
+  totalRequired: number;
+  requirements: KycRequirement[];
+};
 
 export type CustomerOption = { id: string; firstName: string; lastName: string };
 export type UnitOption = {
@@ -49,6 +78,31 @@ export function CreateReservationModal({
   onRestoreDraft,
   onClearDraft,
 }: CreateReservationModalProps) {
+  const [kycStatus, setKycStatus] = useState<KycStatusResult | null>(null);
+  const [loadingKyc, setLoadingKyc] = useState(false);
+
+  useEffect(() => {
+    if (!form.customerId) {
+      setKycStatus(null);
+      return;
+    }
+    let active = true;
+    setLoadingKyc(true);
+    apiFetch<KycStatusResult>(`/documents/kyc-status/${form.customerId}`)
+      .then((res) => {
+        if (active) setKycStatus(res);
+      })
+      .catch(() => {
+        if (active) setKycStatus(null);
+      })
+      .finally(() => {
+        if (active) setLoadingKyc(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [form.customerId]);
+
   return (
     <form
       onSubmit={onSubmit}
@@ -72,6 +126,38 @@ export function CreateReservationModal({
           </span>
         )}
       </div>
+
+      {/* Non-blocking KYC Warning / Status Banner */}
+      {kycStatus && !kycStatus.isKycComplete && (
+        <div className="mb-4 rounded-xl border border-warning/30 bg-warning/10 p-3 text-xs text-slate-800 flex items-start gap-2.5 shadow-2xs">
+          <AlertCircle className="size-4 text-warning shrink-0 mt-0.5" />
+          <div className="flex-1 space-y-1">
+            <div className="flex flex-wrap items-center justify-between gap-1">
+              <span className="font-bold text-slate-900">
+                Notice: Customer KYC Incomplete ({kycStatus.buyerType === "DIASPORA" ? "✈️ Diaspora Preset" : "🇪🇹 Local Preset"})
+              </span>
+              <span className="font-bold text-warning text-[11px] bg-warning/20 px-2 py-0.5 rounded-md border border-warning/30">
+                {kycStatus.verifiedCount}/{kycStatus.totalRequired} Verified
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-600">
+              Unverified documents: {kycStatus.requirements.filter((r) => r.status !== "VERIFIED").map((r) => r.label).join(", ")}. You may proceed with unit holding, but documents should be verified before final contract signing.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {kycStatus && kycStatus.isKycComplete && (
+        <div className="mb-4 rounded-xl border border-success/30 bg-success/10 p-2.5 text-xs text-success flex items-center justify-between shadow-2xs">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="size-4 text-success" />
+            <span className="font-bold">
+              ✓ Customer KYC Fully Verified ({kycStatus.buyerType === "DIASPORA" ? "Diaspora Preset" : "Local Preset"})
+            </span>
+          </div>
+          <span className="text-[11px] font-semibold">100% Complete</span>
+        </div>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div>
@@ -250,11 +336,11 @@ export function CreateReservationModal({
         </div>
       </div>
 
-      <div className="mt-5 flex justify-end gap-2 border-t border-[#233b66]/10 pt-3">
+      <div className="mt-5 flex flex-col sm:flex-row justify-end gap-2 border-t border-[#233b66]/10 pt-3">
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg px-5 py-2 text-xs font-semibold shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+          className="w-full sm:w-auto rounded-lg px-5 py-2.5 sm:py-2 text-xs font-semibold shadow-sm transition-all disabled:opacity-50 cursor-pointer text-center"
         >
           {saving ? "Locking Inventory..." : "Lock Unit & Issue Hold"}
         </button>
