@@ -189,6 +189,120 @@ export class DocumentsService {
     };
   }
 
+  async getContractDocumentStatus(contractId: string) {
+    const contract = await this.prisma.contract.findFirst({
+      where: { id: contractId },
+      include: {
+        customer: true,
+        unit: true,
+        signatures: true,
+      },
+    });
+
+    if (!contract) {
+      throw new NotFoundException(`Contract ${contractId} was not found`);
+    }
+
+    const requiredPreset = [
+      {
+        category: 'CONTRACT',
+        label: 'Signed Sales Contract (የሽያጭ ውል)',
+      },
+      {
+        category: 'RECEIPT',
+        label: 'Down Payment Bank Receipt (የቅድመ ክፍያ ደረሰኝ)',
+      },
+      {
+        category: 'ID',
+        label: 'Buyer ID / Kebele / Passport Copy (የመታወቂያ ኮፒ)',
+      },
+      {
+        category: 'FLOOR_PLAN',
+        label: 'Unit Floor Plan & Architectural Annex (የፕላን አባሪ)',
+      },
+    ];
+
+    const [contractDocs, customerDocs, unitDocs] = await Promise.all([
+      this.prisma.document.findMany({
+        where: { entityType: 'CONTRACT', entityId: contractId },
+        include: documentInclude,
+      }),
+      this.prisma.document.findMany({
+        where: { entityType: 'CUSTOMER', entityId: contract.customerId },
+        include: documentInclude,
+      }),
+      this.prisma.document.findMany({
+        where: { entityType: 'UNIT', entityId: contract.unitId },
+        include: documentInclude,
+      }),
+    ]);
+
+    const allDocs = [...contractDocs, ...customerDocs, ...unitDocs];
+    const now = new Date();
+
+    const requirements = requiredPreset.map((req) => {
+      let doc = allDocs.find((d) => {
+        const cat = d.category.toUpperCase();
+        if (req.category === 'ID') {
+          return [
+            'ID',
+            'KEBELE_ID',
+            'PASSPORT',
+            'FOREIGN_PASSPORT',
+            'YELLOW_CARD',
+          ].includes(cat);
+        }
+        return cat === req.category;
+      });
+
+      let status: 'VERIFIED' | 'PENDING_REVIEW' | 'EXPIRED' | 'MISSING' =
+        'MISSING';
+      if (doc) {
+        if (doc.expiresAt && doc.expiresAt < now) {
+          status = 'EXPIRED';
+        } else if (doc.status === 'VERIFIED') {
+          status = 'VERIFIED';
+        } else {
+          status = 'PENDING_REVIEW';
+        }
+      } else if (
+        req.category === 'CONTRACT' &&
+        (contract.status === 'SIGNED' ||
+          (contract.signatures && contract.signatures.length > 0))
+      ) {
+        status = 'VERIFIED';
+      }
+
+      return {
+        category: req.category,
+        label: req.label,
+        status,
+        document: doc ? this.serialize(doc) : null,
+      };
+    });
+
+    const verifiedCount = requirements.filter(
+      (r) => r.status === 'VERIFIED',
+    ).length;
+    const completionPercentage = Math.round(
+      (verifiedCount / requirements.length) * 100,
+    );
+    const isComplete = verifiedCount === requirements.length;
+
+    return {
+      contractId: contract.id,
+      contractNumber:
+        contract.contractNumber || `CNT-${contract.id.slice(0, 8)}`,
+      buyerName: `${contract.customer.firstName} ${contract.customer.lastName}`,
+      unitNumber: contract.unit.unitNumber,
+      isComplete,
+      completionPercentage,
+      verifiedCount,
+      totalRequired: requirements.length,
+      requirements,
+    };
+  }
+
   async upload(
     user: AuthenticatedUser,
     input: CreateDocumentBody,

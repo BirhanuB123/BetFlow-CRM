@@ -20,7 +20,25 @@ const reservationInclude = {
   customer: {
     select: { id: true, firstName: true, lastName: true, phone: true },
   },
-  unit: { select: { id: true, unitNumber: true, type: true, status: true } },
+  unit: {
+    select: {
+      id: true,
+      unitNumber: true,
+      type: true,
+      status: true,
+      floor: {
+        select: {
+          building: {
+            select: {
+              project: {
+                select: { id: true, name: true },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
   _count: { select: { payments: true } },
 } as const;
 

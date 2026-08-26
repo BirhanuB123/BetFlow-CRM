@@ -13,8 +13,44 @@ import {
 } from './site-visits.types';
 
 const siteVisitInclude = {
-  lead: { select: { id: true, firstName: true, lastName: true } },
-  customer: { select: { id: true, firstName: true, lastName: true } },
+  lead: {
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      phone: true,
+      email: true,
+      owner: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+        },
+      },
+    },
+  },
+  customer: {
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      phone: true,
+      email: true,
+      account: {
+        select: {
+          owner: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
+        },
+      },
+    },
+  },
 } as const;
 
 @Injectable()
