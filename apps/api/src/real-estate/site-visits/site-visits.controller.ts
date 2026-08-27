@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { SiteVisitsService } from './site-visits.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
+import { RequirePermission, Roles } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
@@ -22,6 +22,7 @@ import type {
 } from './site-visits.types';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
+@RequirePermission('site-visits.manage')
 @Roles('Owner', 'Admin', 'Sales Manager', 'Agent')
 @Controller('site-visits')
 export class SiteVisitsController {

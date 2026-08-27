@@ -5,6 +5,7 @@ export type JwtPayload = {
   email: string;
   roles?: string[];
   permissions?: string[];
+  mustChangePassword?: boolean;
   type?: 'access' | 'refresh';
   iat: number;
   exp: number;

@@ -12,10 +12,13 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import { CallsService } from './calls.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { RequirePermission } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@RequirePermission('leads.manage')
 @Controller('calls')
 export class CallsController {
   constructor(private readonly callsService: CallsService) {}

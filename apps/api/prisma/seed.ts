@@ -15,6 +15,12 @@ if (!process.env.DATABASE_URL) {
     'postgresql://betflow:betflowpassword@localhost:5432/betflow_db?schema=public';
 }
 
+// Production safety guard
+if (process.env.NODE_ENV === 'production' && !process.env.ALLOW_PROD_SEED) {
+  console.error('⛔ FATAL: Database seeding is prohibited in production mode. Aborting to protect tenant data.');
+  process.exit(1);
+}
+
 const prisma = new PrismaClient({
   adapter: new PrismaPg(process.env.DATABASE_URL),
 });

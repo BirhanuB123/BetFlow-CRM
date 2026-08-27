@@ -20,6 +20,7 @@ model User {
   lastName           String
   avatarUrl          String?
   isActive           Boolean   @default(true)
+  mustChangePassword Boolean   @default(false)
   failedLoginAttempts Int       @default(0)
   lockoutUntil       DateTime?
   resetToken         String?

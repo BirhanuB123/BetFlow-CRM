@@ -678,6 +678,14 @@ export function DashboardShell({
     user.name ||
     user.email ||
     "Birhanu Baynesagn";
+
+  useEffect(() => {
+    if (!session?.accessToken) return;
+    const usr = session?.user as { mustChangePassword?: boolean } | undefined;
+    if (usr?.mustChangePassword) {
+      router.replace("/auth");
+    }
+  }, [session, router]);
   const initials =
     displayName
       .split(" ")

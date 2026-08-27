@@ -12,11 +12,17 @@ import { useTranslation } from "@/lib/i18n/language-context";
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
 
-type Mode = "login" | "register" | "forgot" | "reset";
+type Mode = "login" | "register" | "forgot" | "reset" | "force_change_password";
 
 type LoginState = {
   email: string;
   password: string;
+};
+
+type ForceChangeState = {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 };
 
 type RegisterState = {
@@ -90,6 +96,12 @@ export default function AuthPage() {
     newPassword: "",
   });
 
+  const [forceChangeState, setForceChangeState] = useState<ForceChangeState>({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -105,10 +117,20 @@ export default function AuthPage() {
     fetch(`${API_BASE_URL}/auth/me`, {
       headers: { Authorization: `Bearer ${session.accessToken}` },
     })
-      .then((response) => {
+      .then(async (response) => {
         if (cancelled) return;
         if (response.ok) {
-          router.replace("/dashboard");
+          const data = (await response.json()) as {
+            user?: { mustChangePassword?: boolean };
+          };
+          if (data?.user?.mustChangePassword) {
+            setMode("force_change_password");
+            setFeedback(
+              "Initial login: Please set a new secure password before accessing the workspace.",
+            );
+          } else {
+            router.replace("/dashboard");
+          }
         } else {
           clearSession();
         }
@@ -165,11 +187,102 @@ export default function AuthPage() {
         );
       }
 
-      persistSession(await response.json());
+      const resData = (await response.json()) as {
+        accessToken: string;
+        tenant: unknown;
+        user: { mustChangePassword?: boolean };
+      };
+
+      persistSession(resData);
+
+      if (resData?.user?.mustChangePassword) {
+        setForceChangeState({
+          currentPassword: loginState.password,
+          newPassword: "",
+          confirmPassword: "",
+        });
+        setMode("force_change_password");
+        setFeedback(
+          "Initial login detected: You must set a new personal password before accessing the system.",
+        );
+        return;
+      }
+
       setFeedback("Signed in. Redirecting…");
       router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForceChangePassword = async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+    setFeedback(null);
+
+    if (forceChangeState.newPassword !== forceChangeState.confirmPassword) {
+      setError("New password and confirmation do not match.");
+      setLoading(false);
+      return;
+    }
+
+    const session = getSession();
+    if (!session?.accessToken) {
+      setError("Session expired. Please sign in again.");
+      setMode("login");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+        body: JSON.stringify({
+          currentPassword: forceChangeState.currentPassword,
+          newPassword: forceChangeState.newPassword,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          await readErrorMessage(
+            response,
+            "Failed to update password. Please check password criteria.",
+          ),
+        );
+      }
+
+      // Update stored session so user.mustChangePassword is false
+      const store = remember ? window.localStorage : window.sessionStorage;
+      const existing = getSession();
+      if (existing && existing.user && typeof existing.user === "object") {
+        store.setItem(
+          "betflow-auth",
+          JSON.stringify({
+            ...existing,
+            user: {
+              ...(existing.user as Record<string, unknown>),
+              mustChangePassword: false,
+            },
+          }),
+        );
+      }
+
+      setFeedback("Password updated securely! Redirecting to workspace…");
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 700);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Password update failed.");
     } finally {
       setLoading(false);
     }
@@ -707,6 +820,95 @@ export default function AuthPage() {
                   <button
                     type="button"
                     onClick={() => {
+                      setMode("login");
+                      setError(null);
+                      setFeedback(null);
+                    }}
+                    className="font-medium text-primary hover:text-primary/90 hover:underline"
+                  >
+                    {t("auth.backToSignIn")}
+                  </button>
+                </p>
+              </form>
+            ) : mode === "force_change_password" ? (
+              <form className="mt-5 grid gap-4" onSubmit={handleForceChangePassword}>
+                <div className="rounded-xl bg-amber-500/10 p-3.5 text-xs text-amber-600 border border-amber-500/20">
+                  <p className="font-bold flex items-center gap-1.5 text-amber-700">
+                    <Lock className="size-4" /> {t("auth.forceChangePassword")}
+                  </p>
+                  <p className="mt-1 text-slate-600 font-medium">
+                    {t("auth.changePasswordPrompt")}
+                  </p>
+                </div>
+
+                <label className="block">
+                  <span className={labelClass}>{t("auth.currentPassword")}</span>
+                  <input
+                    className={inputClass}
+                    type="password"
+                    placeholder="••••••••"
+                    value={forceChangeState.currentPassword}
+                    onChange={(e) =>
+                      setForceChangeState((s) => ({
+                        ...s,
+                        currentPassword: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                </label>
+
+                <label className="block">
+                  <span className={labelClass}>{t("auth.newPassword")}</span>
+                  <input
+                    className={inputClass}
+                    type="password"
+                    placeholder="••••••••"
+                    value={forceChangeState.newPassword}
+                    onChange={(e) =>
+                      setForceChangeState((s) => ({
+                        ...s,
+                        newPassword: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                  <span className="mt-1 block text-[10px] text-zinc-400 font-medium">
+                    Must be at least 8 characters with upper, lowercase, and a number or symbol.
+                  </span>
+                </label>
+
+                <label className="block">
+                  <span className={labelClass}>{t("auth.confirmPassword")}</span>
+                  <input
+                    className={inputClass}
+                    type="password"
+                    placeholder="••••••••"
+                    value={forceChangeState.confirmPassword}
+                    onChange={(e) =>
+                      setForceChangeState((s) => ({
+                        ...s,
+                        confirmPassword: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                </label>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white transition hover:bg-primary/90 disabled:opacity-60 cursor-pointer shadow-sm"
+                >
+                  {loading ? t("auth.signingIn") : t("auth.changePasswordBtn")}
+                  {!loading && <ArrowRight className="size-4" />}
+                </button>
+
+                <p className="pt-2 text-center text-[13px] text-zinc-500">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      clearSession();
                       setMode("login");
                       setError(null);
                       setFeedback(null);

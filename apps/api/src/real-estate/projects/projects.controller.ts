@@ -10,11 +10,14 @@ import {
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { RequirePermission } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
 import type { CreateProjectInput, UpdateProjectInput } from './projects.types';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@RequirePermission('inventory.manage')
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projects: ProjectsService) {}

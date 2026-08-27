@@ -31,6 +31,7 @@ import { useToast } from "@/components/ui/toast";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/language-context";
 import { toEthiopianDate } from "@betflow/shared";
 
 type PersonRef = { id: string; firstName: string; lastName: string } | null;
@@ -138,6 +139,7 @@ const PAYMENT_METHODS = [
 ];
 
 export function SiteVisitsView() {
+  const { t } = useTranslation();
   const { success, error: toastError } = useToast();
   const [visits, setVisits] = useState<ApiSiteVisit[]>([]);
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
@@ -355,12 +357,11 @@ export function SiteVisitsView() {
             <div className="flex items-center gap-2">
               <Building2 className="size-5 text-[#233b66]" />
               <h2 className="text-lg font-bold text-slate-900">
-                Site Visits & Bookings
+                {t("siteVisits.title")}
               </h2>
             </div>
             <p className="mt-1 text-sm text-slate-500">
-              Book physical property tours, track client transport details,
-              and record exact unit specifications requested.
+              {t("siteVisits.subtitle")}
             </p>
           </div>
           <Button
@@ -375,7 +376,7 @@ export function SiteVisitsView() {
             ) : (
               <CalendarPlus className="size-4 mr-1.5" />
             )}
-            {showForm ? "Cancel Intake" : "Book Site Visit"}
+            {showForm ? t("actions.cancel") : t("siteVisits.newVisit")}
           </Button>
         </div>
 
@@ -850,10 +851,10 @@ export function SiteVisitsView() {
             {/* Legend */}
             <div className="mt-4 flex flex-wrap items-center gap-3 text-[11px] font-semibold">
               {([
-                ["SCHEDULED",  "bg-info/10 text-info",    "Scheduled"],
-                ["COMPLETED",  "bg-success/10 text-success", "Completed"],
-                ["CANCELLED",  "bg-destructive/10 text-destructive",    "Cancelled"],
-                ["NO_SHOW",    "bg-warning/10 text-warning",  "No Show"],
+                ["SCHEDULED",  "bg-info/10 text-info",    t("siteVisits.statusScheduled")],
+                ["COMPLETED",  "bg-success/10 text-success", t("siteVisits.statusCompleted")],
+                ["CANCELLED",  "bg-destructive/10 text-destructive",    t("siteVisits.statusCancelled")],
+                ["NO_SHOW",    "bg-warning/10 text-warning",  t("siteVisits.statusNoShow")],
               ] as const).map(([, cls, labelText]) => (
                 <span
                   key={labelText}
@@ -871,11 +872,10 @@ export function SiteVisitsView() {
               <Building2 className="size-6 text-slate-400" />
             </div>
             <p className="text-sm font-semibold text-slate-800">
-              No site visits recorded yet
+              {t("siteVisits.noVisitsFound")}
             </p>
             <p className="text-xs text-slate-500 max-w-sm mt-1">
-              Click "Book Site Visit" to log your first Ethiopian
-              real estate customer site visit with detailed buying demands.
+              {t("siteVisits.subtitle")}
             </p>
           </div>
         ) : (
@@ -883,13 +883,13 @@ export function SiteVisitsView() {
             <table className="w-full text-left text-xs whitespace-nowrap">
               <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
                 <tr>
-                  <th className="px-5 py-3">Client / Visitor</th>
-                  <th className="px-5 py-3">Date & Time</th>
-                  <th className="px-5 py-3">Demand Specs (Sqm & Beds)</th>
-                  <th className="px-5 py-3">Placement & Facing</th>
-                  <th className="px-5 py-3">Budget & Payment</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3 text-right">Actions</th>
+                  <th className="px-5 py-3">{t("siteVisits.client")}</th>
+                  <th className="px-5 py-3">{t("siteVisits.scheduledTime")}</th>
+                  <th className="px-5 py-3">{t("units.area")}</th>
+                  <th className="px-5 py-3">{t("units.floor")}</th>
+                  <th className="px-5 py-3">{t("units.price")}</th>
+                  <th className="px-5 py-3">{t("dashboard.status")}</th>
+                  <th className="px-5 py-3 text-right">{t("actions.status")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
