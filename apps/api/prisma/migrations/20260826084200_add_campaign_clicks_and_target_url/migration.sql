@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Campaign" ADD COLUMN "clicks" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN "targetUrl" TEXT;

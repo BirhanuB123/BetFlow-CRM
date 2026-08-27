@@ -1,9 +1,11 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // --------------------------------------
@@ -534,14 +536,17 @@ model Activity {
 }
 
 model Campaign {
-  id        String    @id @default(uuid())
-  name      String
-  type      String
-  status    String    @default("DRAFT")
-  startDate DateTime?
-  endDate   DateTime?
-  budget    Decimal?  @db.Decimal(10, 2)
-  cost      Decimal?  @db.Decimal(10, 2)
+  id             String    @id @default(uuid())
+  name           String
+  type           String
+  status         String    @default("DRAFT")
+  startDate      DateTime?
+  endDate        DateTime?
+  budget         Decimal?  @db.Decimal(10, 2)
+  cost           Decimal?  @db.Decimal(10, 2)
+  recipientCount Int?
+  clicks         Int       @default(0)
+  targetUrl      String?
 }
 
 model Notification {

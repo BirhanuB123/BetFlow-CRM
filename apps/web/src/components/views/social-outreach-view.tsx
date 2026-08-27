@@ -7,6 +7,8 @@ import {
   Sparkles,
   MessageSquare,
   CheckCircle2,
+  AlertCircle,
+  Clock,
   Plus,
   X,
   Megaphone,
@@ -29,11 +31,102 @@ type BroadcastCampaign = {
   recipients: number;
   sentAt: string;
   clicks: number;
-  status: "SENT" | "SCHEDULED" | "DRAFT";
+  status: "SENT" | "SCHEDULED" | "DRAFT" | "FAILED";
   messagePreview?: string;
 };
 
 
+
+const BROADCAST_TEMPLATES = [
+  {
+    id: "launch",
+    label: "🏢 Project Launch",
+    title: "Kera Luxury Residences Launch Announcement",
+    message: `🏢 <b>Kera Luxury Residences — Exclusive Units Now Selling!</b>
+
+✨ Experience premium modern living in the heart of Addis Ababa with unmatched panoramic city views.
+
+📍 <b>Location:</b> Kera / Bole Corridor, Addis Ababa
+🛏️ <b>Units Available:</b> 1, 2, & 3 Bedroom Contemporary Apartments
+💰 <b>Payment Terms:</b> 15% Downpayment with 24-Month Milestone Schedule
+🏊 <b>Amenities:</b> Modern Fitness Center, Underground Parking, 24/7 Power Backup & Security
+
+📞 <b>Contact Sales Desk:</b> +251 911 234 567 / +251 922 345 678
+🌐 <b>Explore Floor Plans & Reserve:</b> https://betflow.et`,
+  },
+  {
+    id: "promo",
+    label: "🔥 10% Discount Offer",
+    title: "Limited Time 10% Downpayment Discount Promotion",
+    message: `🔥 <b>SPECIAL PROMOTION: 10% Off Advance Downpayments!</b>
+
+Take advantage of our exclusive seasonal investor discount available for the next 10 buyers only.
+
+📍 <b>Site Location:</b> Kera Luxury Residences
+🔑 <b>Estimated Delivery:</b> 2026
+💵 <b>Starting Price:</b> Special diaspora & local investor rates available on request
+
+📲 <b>Lock in Your Discount Today:</b>
+📞 +251 911 234 567
+🌐 https://betflow.et`,
+  },
+  {
+    id: "visit",
+    label: "📍 Site Visit Walkthrough",
+    title: "Exclusive Weekend Property Walkthrough Invitation",
+    message: `📍 <b>INVITATION: Exclusive Weekend Site Walkthrough!</b>
+
+Join our property consultants this Saturday & Sunday for an in-person walkthrough of our ongoing construction and show units.
+
+📅 <b>Schedule:</b> Saturday & Sunday | 9:00 AM – 4:00 PM
+📍 <b>Venue:</b> Kera Main Project Site Office
+☕ <i>Complimentary refreshments & 1-on-1 financing advisory provided.</i>
+
+👉 <b>Confirm Your Attendance:</b> Call +251 911 234 567 or reply directly!`,
+  },
+  {
+    id: "amharic",
+    label: "🇪🇹 አማርኛ የቤት ሽያጭ",
+    title: "በቄራ ሳይት የተዘጋጁ ዘመናዊ አፓርታማዎች ሽያጭ",
+    message: `🇪🇹 <b>ለተከበራችሁ ደንበኞቻችን — በቄራ ሳይት የቀረቡ ዘመናዊ አፓርታማዎች!</b>
+
+በተመጣጣኝ ዋጋ እና ምቹ የክፍያ አማራጭ በከተማው ማዕከል የራስዎን ቤት ባለቤት ይሁኑ።
+
+📍 <b>አድራሻ:</b> ቄራ ሳይት፣ አዲስ አበባ
+🏷️ <b>የክፍል ብዛት:</b> 1፣ 2 እና 3 መኝታ ቤቶች
+💳 <b>የክፍያ ሁኔታ:</b> እስከ 2 ዓመት የተራዘመ ምቹ የክፍያ ስምምነት
+⚡ <b>አገልግሎቶች:</b> የከርሰ ምድር መኪና ማቆሚያ፣ 24/7 አስተማማኝ ጀነሬተር እና ዘመናዊ ሊፍት
+
+ለበለጠ መረጃ እና ለቦታ ምዝገባ በስልክ ይደውሉልን፡
+📞 0911 234 567 / 0922 345 678
+🌐 https://betflow.et`,
+  },
+];
+
+function formatTelegramPreview(text: string) {
+  if (!text) return "";
+  let formatted = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+  formatted = formatted
+    .replace(/&lt;b&gt;/gi, "<b>")
+    .replace(/&lt;\/b&gt;/gi, "</b>")
+    .replace(/&lt;i&gt;/gi, "<i>")
+    .replace(/&lt;\/i&gt;/gi, "</i>")
+    .replace(/&lt;u&gt;/gi, "<u>")
+    .replace(/&lt;\/u&gt;/gi, "</u>")
+    .replace(/&lt;code&gt;/gi, "<code class='bg-slate-800 text-amber-300 px-1 rounded text-[11px]'>")
+    .replace(/&lt;\/code&gt;/gi, "</code>");
+
+  formatted = formatted.replace(
+    /(https?:\/\/[^\s<]+)/g,
+    '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-sky-400 underline hover:text-sky-300">$1</a>',
+  );
+
+  return formatted;
+}
 
 const channelConfig: Record<
   BroadcastCampaign["channel"],
@@ -93,6 +186,13 @@ export function SocialOutreachView() {
             ? (rawChannel as BroadcastCampaign["channel"])
             : "TELEGRAM";
 
+          const rawStatus = String(item.status || "SENT").toUpperCase();
+          const validStatus: BroadcastCampaign["status"] = (
+            ["SENT", "SCHEDULED", "DRAFT", "FAILED"] as const
+          ).includes(rawStatus as any)
+            ? (rawStatus as BroadcastCampaign["status"])
+            : "SENT";
+
           return {
             id: item.id || `bc-api-${idx}`,
             title: item.title || item.name || "Untitled Broadcast",
@@ -101,7 +201,7 @@ export function SocialOutreachView() {
             recipients: typeof item.recipients === "number" ? item.recipients : 0,
             sentAt: item.sentAt || item.createdAt || new Date().toISOString(),
             clicks: typeof item.clicks === "number" ? item.clicks : 0,
-            status: item.status === "DRAFT" || item.status === "SCHEDULED" ? item.status : "SENT",
+            status: validStatus,
             messagePreview: item.messagePreview || item.content || "",
           };
         });
@@ -157,6 +257,13 @@ export function SocialOutreachView() {
         ? (rawChannel as BroadcastCampaign["channel"])
         : form.channel;
 
+      const rawStatus = String(res?.status || "SENT").toUpperCase();
+      const validStatus: BroadcastCampaign["status"] = (
+        ["SENT", "SCHEDULED", "DRAFT", "FAILED"] as const
+      ).includes(rawStatus as any)
+        ? (rawStatus as BroadcastCampaign["status"])
+        : "SENT";
+
       const created: BroadcastCampaign = {
         id: res?.id || `bc-${Date.now()}`,
         title: res?.title || res?.name || form.title,
@@ -165,7 +272,7 @@ export function SocialOutreachView() {
         recipients: typeof res?.recipients === "number" ? res.recipients : 0,
         sentAt: res?.sentAt || new Date().toISOString(),
         clicks: typeof res?.clicks === "number" ? res.clicks : 0,
-        status: res?.status === "DRAFT" || res?.status === "SCHEDULED" ? res.status : "SENT",
+        status: validStatus,
         messagePreview: res?.messagePreview || form.message,
       };
 
@@ -180,6 +287,7 @@ export function SocialOutreachView() {
       success("Broadcast campaign published successfully!");
     } catch (err) {
       toastError("Failed to send broadcast", err instanceof Error ? err.message : undefined);
+      void load();
     } finally {
       setSending(false);
     }
@@ -267,14 +375,19 @@ export function SocialOutreachView() {
 
       {/* Composer Modal */}
       {showComposer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl transition-all">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs overflow-y-auto">
+          <div className="w-full max-w-4xl rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-2xl transition-all my-auto max-h-[90vh] flex flex-col">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <Sparkles className="size-5 text-primary" />
-                <h3 className="text-base font-bold text-slate-900">
-                  Compose Channel Broadcast Message
-                </h3>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">
+                    Compose Channel Broadcast Message
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Format with rich text, emojis, and live real estate templates for your Telegram channel.
+                  </p>
+                </div>
               </div>
               <button
                 onClick={() => setShowComposer(false)}
@@ -284,90 +397,222 @@ export function SocialOutreachView() {
               </button>
             </div>
 
-            <form onSubmit={handleSendBroadcast} className="mt-4 space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Campaign Title / Internal Subject *
-                </label>
-                <input
-                  required
-                  type="text"
-                  placeholder="e.g. Kazanchis Penthouse Launch Announcement"
-                  value={form.title}
-                  onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Target Channel *
-                  </label>
-                  <select
-                    value={form.channel}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        channel: e.target.value as BroadcastCampaign["channel"],
-                      })
-                    }
-                    className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
-                  >
-                    <option value="TELEGRAM">Telegram Official Channel</option>
-                    <option value="SMS">Ethio Telecom SMS Bulk</option>
-                    <option value="FACEBOOK">Meta Lead Form Audience</option>
-                    <option value="WHATSAPP">WhatsApp Business Broadcast</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Recipient Segment *
-                  </label>
-                  <input
-                    type="text"
-                    value={form.segment}
-                    onChange={(e) => setForm({ ...form, segment: e.target.value })}
-                    className="w-full h-9.5 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Broadcast Message Body (Amharic & English) *
-                </label>
-                <textarea
-                  required
-                  rows={4}
-                  placeholder="Write message copy with emojis and unit details..."
-                  value={form.message}
-                  onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  className="w-full rounded-lg border border-slate-300 p-3 text-xs outline-none focus:border-primary"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-                <Button
+            {/* Template Selector Bar */}
+            <div className="pt-3 pb-2 flex flex-wrap items-center gap-1.5 border-b border-slate-100">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mr-1">
+                Quick Templates:
+              </span>
+              {BROADCAST_TEMPLATES.map((tmpl) => (
+                <button
+                  key={tmpl.id}
                   type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowComposer(false)}
+                  onClick={() => {
+                    setForm({
+                      ...form,
+                      title: tmpl.title,
+                      message: tmpl.message,
+                    });
+                  }}
+                  className="rounded-md border border-slate-200 bg-slate-50 hover:bg-primary/10 hover:border-primary/30 hover:text-primary px-2.5 py-1 text-xs font-semibold text-slate-700 transition-colors cursor-pointer"
                 >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  size="sm"
-                  disabled={sending}
-                  className="font-semibold text-xs px-5 shadow-sm gap-1.5"
-                >
-                  <Send className="size-3.5" />
-                  {sending ? "Publishing..." : "Publish Broadcast"}
-                </Button>
+                  {tmpl.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pt-4 overflow-y-auto pr-1">
+              {/* Form Input Column */}
+              <form onSubmit={handleSendBroadcast} className="lg:col-span-7 space-y-3.5 flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Campaign Title / Internal Subject *
+                    </label>
+                    <input
+                      required
+                      type="text"
+                      placeholder="e.g. Kera Luxury Residences Launch"
+                      value={form.title}
+                      onChange={(e) => setForm({ ...form, title: e.target.value })}
+                      className="w-full h-9 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Target Channel *
+                      </label>
+                      <select
+                        value={form.channel}
+                        onChange={(e) =>
+                          setForm({
+                            ...form,
+                            channel: e.target.value as BroadcastCampaign["channel"],
+                          })
+                        }
+                        className="w-full h-9 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
+                      >
+                        <option value="TELEGRAM">Telegram Official Channel</option>
+                        <option value="SMS">Ethio Telecom SMS Bulk</option>
+                        <option value="FACEBOOK">Meta Lead Form Audience</option>
+                        <option value="WHATSAPP">WhatsApp Business Broadcast</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Recipient Segment *
+                      </label>
+                      <input
+                        type="text"
+                        value={form.segment}
+                        onChange={(e) => setForm({ ...form, segment: e.target.value })}
+                        className="w-full h-9 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-bold text-slate-700">
+                        Broadcast Message Body (HTML & Emojis supported) *
+                      </label>
+                      <span className="text-[11px] text-slate-400">
+                        {form.message.length} chars
+                      </span>
+                    </div>
+
+                    {/* Quick Emojis and Tag Inserters */}
+                    <div className="flex flex-wrap items-center gap-1 mb-1.5 p-1 bg-slate-50 rounded-md border border-slate-200 text-[11px]">
+                      <span className="text-[10px] text-slate-400 font-bold px-1 uppercase">Insert:</span>
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, message: form.message + "<b>Bold Text</b>" })}
+                        className="px-1.5 py-0.5 rounded bg-white hover:bg-slate-200 border border-slate-200 font-bold text-slate-700"
+                        title="Bold Text"
+                      >
+                        B
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, message: form.message + "<i>Italic Text</i>" })}
+                        className="px-1.5 py-0.5 rounded bg-white hover:bg-slate-200 border border-slate-200 italic font-serif text-slate-700"
+                        title="Italic Text"
+                      >
+                        I
+                      </button>
+                      {[
+                        { icon: "🏢", label: "🏢 Project" },
+                        { icon: "📍", label: "📍 Location" },
+                        { icon: "💰", label: "💰 Price" },
+                        { icon: "📞", label: "📞 Phone" },
+                        { icon: "✨", label: "✨ Luxury" },
+                        { icon: "🔥", label: "🔥 Promo" },
+                        { icon: "🔑", label: "🔑 Keys" },
+                        { icon: "🌐", label: "🌐 Link" },
+                      ].map((item) => (
+                        <button
+                          key={item.label}
+                          type="button"
+                          onClick={() => setForm({ ...form, message: form.message + " " + item.icon + " " })}
+                          className="px-1.5 py-0.5 rounded bg-white hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs"
+                        >
+                          {item.icon}
+                        </button>
+                      ))}
+                    </div>
+
+                    <textarea
+                      required
+                      rows={8}
+                      placeholder="Write message copy with emojis and details..."
+                      value={form.message}
+                      onChange={(e) => setForm({ ...form, message: e.target.value })}
+                      className="w-full rounded-lg border border-slate-300 p-3 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 font-mono leading-relaxed"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowComposer(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    size="sm"
+                    disabled={sending}
+                    className="font-semibold text-xs px-5 shadow-sm gap-1.5"
+                  >
+                    <Send className="size-3.5" />
+                    {sending ? "Publishing to Telegram..." : "Publish Broadcast"}
+                  </Button>
+                </div>
+              </form>
+
+              {/* Live Telegram Channel Preview */}
+              <div className="lg:col-span-5 flex flex-col">
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                  <span>Live Telegram Channel Preview</span>
+                  <span className="text-[10px] text-sky-600 bg-sky-50 border border-sky-200 px-1.5 py-0.5 rounded font-medium">
+                    WYSIWYG
+                  </span>
+                </label>
+
+                {/* Telegram App Container */}
+                <div className="flex-1 rounded-xl bg-[#0e1621] text-white p-3.5 flex flex-col justify-between border border-slate-800 shadow-inner min-h-[300px]">
+                  <div>
+                    {/* Telegram Header */}
+                    <div className="flex items-center gap-2.5 pb-3 border-b border-slate-800/80 mb-3">
+                      <div className="size-8 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-xs text-white shadow-xs">
+                        UE
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-slate-100 flex items-center gap-1">
+                          Ultima Real Estate
+                          <CheckCircle2 className="size-3 text-sky-400 fill-sky-400" />
+                        </p>
+                        <p className="text-[10px] text-slate-400">channel · 3 subscribers</p>
+                      </div>
+                    </div>
+
+                    {/* Telegram Post Bubble */}
+                    <div className="bg-[#182533] rounded-xl p-3 text-xs leading-relaxed border border-slate-800 shadow-sm max-w-full">
+                      {form.message ? (
+                        <div
+                          className="whitespace-pre-line text-slate-200 break-words"
+                          dangerouslySetInnerHTML={{
+                            __html: formatTelegramPreview(form.message),
+                          }}
+                        />
+                      ) : (
+                        <p className="text-slate-500 italic text-xs">
+                          Your formatted message will appear here in real-time...
+                        </p>
+                      )}
+
+                      {/* Post Metadata Footer */}
+                      <div className="flex items-center justify-end gap-1.5 mt-2 text-[10px] text-slate-400">
+                        <span className="flex items-center gap-1">
+                          👁️ 1
+                        </span>
+                        <span>·</span>
+                        <span>Just now</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 text-[10px] text-slate-400 text-center border-t border-slate-800/80 mt-3">
+                    Subscribers will receive instant push notifications for this post.
+                  </div>
+                </div>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
@@ -443,14 +688,30 @@ export function SocialOutreachView() {
                       </td>
 
                       <td className="px-4 py-3 font-medium text-slate-500">
-                        {c.clicks > 0 ? `${c.clicks} clicks` : "Not tracked"}
+                        {c.clicks > 0 ? `${c.clicks.toLocaleString()} Link Clicks` : "0 clicks"}
                       </td>
 
                       <td className="px-4 py-3">
-                        <span className="inline-flex items-center gap-1 rounded-md bg-success/10 border border-success/20 px-2 py-0.5 text-[11px] font-bold text-success">
-                          <CheckCircle2 className="size-3 text-success" />
-                          {c.status}
-                        </span>
+                        {c.status === "SENT" ? (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-success/10 border border-success/20 px-2 py-0.5 text-[11px] font-bold text-success">
+                            <CheckCircle2 className="size-3 text-success" />
+                            SENT
+                          </span>
+                        ) : c.status === "FAILED" ? (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-destructive/10 border border-destructive/20 px-2 py-0.5 text-[11px] font-bold text-destructive">
+                            <AlertCircle className="size-3 text-destructive" />
+                            FAILED
+                          </span>
+                        ) : c.status === "SCHEDULED" ? (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-warning/10 border border-warning/20 px-2 py-0.5 text-[11px] font-bold text-warning">
+                            <Clock className="size-3 text-warning" />
+                            SCHEDULED
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 border border-slate-200 px-2 py-0.5 text-[11px] font-bold text-slate-600">
+                            DRAFT
+                          </span>
+                        )}
                       </td>
 
                       <td className="px-4 py-3 text-right">
@@ -501,7 +762,7 @@ export function SocialOutreachView() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="rounded-xl bg-slate-50 p-3 border border-slate-200/80">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                     Channel
@@ -512,11 +773,33 @@ export function SocialOutreachView() {
                 </div>
                 <div className="rounded-xl bg-slate-50 p-3 border border-slate-200/80">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Total Audience
+                    Audience
                   </p>
                   <p className="text-xs font-bold text-slate-800 mt-0.5">
-                    {activePreviewModal.recipients.toLocaleString()} Buyers
+                    {activePreviewModal.recipients.toLocaleString()}
                   </p>
+                </div>
+                <div className="rounded-xl bg-slate-50 p-3 border border-slate-200/80">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Outcome Status
+                  </p>
+                  <div className="mt-0.5">
+                    {activePreviewModal.status === "SENT" ? (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-success/10 border border-success/20 px-1.5 py-0.5 text-[10px] font-bold text-success">
+                        <CheckCircle2 className="size-3 text-success" />
+                        SENT
+                      </span>
+                    ) : activePreviewModal.status === "FAILED" ? (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-destructive/10 border border-destructive/20 px-1.5 py-0.5 text-[10px] font-bold text-destructive">
+                        <AlertCircle className="size-3 text-destructive" />
+                        FAILED
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 border border-slate-200 px-1.5 py-0.5 text-[10px] font-bold text-slate-600">
+                        {activePreviewModal.status}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -535,11 +818,11 @@ export function SocialOutreachView() {
                   <p className="text-[11px] font-bold text-slate-900">Link Engagement</p>
                   <p className="text-xs text-slate-500">
                     {activePreviewModal.clicks > 0
-                      ? `${activePreviewModal.clicks} Measured Clicks`
-                      : "Webhook link tracking not configured for this channel"}
+                      ? `${activePreviewModal.clicks.toLocaleString()} Link Clicks`
+                      : "0 link clicks recorded"}
                   </p>
                 </div>
-                {activePreviewModal.clicks > 0 && (
+                {activePreviewModal.clicks > 0 && activePreviewModal.recipients > 0 && (
                   <span className="text-base font-bold text-slate-900">
                     {Math.round(
                       (activePreviewModal.clicks /
