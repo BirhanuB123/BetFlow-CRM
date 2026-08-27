@@ -28,7 +28,7 @@ export class PrismaService
 {
   constructor() {
     super({
-      adapter: new PrismaPg(pool),
+      adapter: new PrismaPg(pool) as any,
     });
   }
   async onModuleInit() {

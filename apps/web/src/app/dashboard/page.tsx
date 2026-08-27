@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   BarChart3,
@@ -18,6 +18,15 @@ import {
   Sparkles,
   ArrowUpRight,
 } from "lucide-react";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+} from "recharts";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { ActivityTimeline } from "@/components/activity/activity-timeline";
@@ -168,30 +177,68 @@ function customerLink(person: NonNullable<PersonRef>) {
 
 function Card({
   title,
+  subtitle,
   icon: Icon,
+  badge,
   href,
+  variant = "primary",
+  className,
   children,
 }: {
   title: string;
+  subtitle?: string;
   icon: any;
+  badge?: React.ReactNode;
   href: string;
+  variant?: "primary" | "secondary";
+  className?: string;
   children: React.ReactNode;
 }) {
   const { t } = useTranslation();
   return (
-    <section className="flex flex-col min-w-0 rounded-xl border border-slate-200/80 bg-white shadow-sm overflow-hidden transition-all hover:shadow-md h-[340px]">
-      <div className="flex h-13 items-center justify-between border-b border-slate-200/80 bg-slate-50/60 px-5">
-        <div className="flex items-center gap-2.5">
-          <Icon className="size-4.5 text-primary" />
-          <h2 className="text-[14px] font-bold text-slate-800 tracking-tight">
-            {title}
-          </h2>
+    <section
+      className={cn(
+        "flex flex-col min-w-0 rounded-xl border bg-white shadow-sm overflow-hidden transition-all hover:shadow-md",
+        variant === "primary"
+          ? "border-slate-200/90 min-h-[340px] ring-1 ring-slate-900/5"
+          : "border-slate-200/70 min-h-[290px]",
+        className,
+      )}
+    >
+      <div
+        className={cn(
+          "flex h-13 items-center justify-between border-b px-4 sm:px-5",
+          variant === "primary"
+            ? "border-slate-200/80 bg-slate-50/80"
+            : "border-slate-100 bg-slate-50/40",
+        )}
+      >
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div
+            className={cn(
+              "flex size-7 items-center justify-center rounded-lg shrink-0",
+              variant === "primary" ? "bg-primary/10 text-primary" : "bg-slate-100 text-slate-500",
+            )}
+          >
+            <Icon className="size-4" />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h2 className="text-[13.5px] font-bold text-slate-800 tracking-tight truncate">
+                {title}
+              </h2>
+              {badge}
+            </div>
+            {subtitle && (
+              <p className="text-[11px] text-slate-500 truncate">{subtitle}</p>
+            )}
+          </div>
         </div>
         <Link
           href={href}
-          className="flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary transition-colors"
+          className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline shrink-0 ml-2"
         >
-          {t("dashboard.viewAll")}
+          <span>{t("dashboard.viewAll")}</span>
           <ArrowUpRight className="size-3.5" />
         </Link>
       </div>
@@ -213,192 +260,259 @@ function Empty({ label }: { label: string }) {
 
 function OperationalGrid({ tasks, visits, todaysLeads, deals }: any) {
   const { t } = useTranslation();
+  const openTasks = tasks.filter((t: any) => t.status !== "DONE" && t.status !== "CANCELLED");
+
   return (
-    <div className="grid gap-6 xl:grid-cols-2">
-      {/* 1. Open Tasks */}
-      <Card title={t("dashboard.openTasks")} icon={ClipboardList} href="/tasks">
-        {tasks.length === 0 ? (
-          <Empty label={t("dashboard.noTasks")} />
-        ) : (
-          <div className="flex flex-col h-full">
-            <table className="w-full text-left text-xs whitespace-nowrap">
-              <thead className="bg-slate-50/80 text-slate-600 font-semibold border-b border-slate-200 sticky top-0">
-                <tr>
-                  <th className="px-5 py-3">{t("dashboard.taskTitle")}</th>
-                  <th className="px-5 py-3">{t("dashboard.dueDate")}</th>
-                  <th className="px-5 py-3">{t("dashboard.status")}</th>
-                  <th className="px-5 py-3">{t("dashboard.assignee")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {tasks.slice(0, 5).map((task: any) => (
-                  <tr
-                    key={task.id}
-                    className="hover:bg-slate-50/50 transition-colors"
-                  >
-                    <td className="px-5 py-3 font-semibold text-slate-800">
-                      {task.title}
-                    </td>
-                    <td className="px-5 py-3 text-slate-500 font-medium">
-                      {fmtDate(task.dueDate)}
-                    </td>
-                    <td className="px-5 py-3">
-                      <StatusBadge status={task.status} />
-                    </td>
-                    <td className="px-5 py-3 text-slate-600">
-                      {task.assignee
-                        ? `${task.assignee.firstName} ${task.assignee.lastName}`
-                        : t("dashboard.unassigned")}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
+    <div className="space-y-6">
+      {/* Tier 1: High-Priority Time-Sensitive Action Items */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-primary animate-pulse" />
+            Time-Sensitive Action Items
+          </h2>
+          <span className="text-xs text-slate-400 font-medium">
+            {openTasks.length} pending · {visits.length} scheduled
+          </span>
+        </div>
 
-      {/* 2. Scheduled Meetings */}
-      <Card
-        title={t("dashboard.scheduledMeetings")}
-        icon={CalendarDays}
-        href="/site-visits"
-      >
-        {visits.length === 0 ? (
-          <Empty label={t("dashboard.noVisits")} />
-        ) : (
-          <div className="flex flex-col h-full">
-            <table className="w-full text-left text-xs whitespace-nowrap">
-              <thead className="bg-slate-50/80 text-slate-600 font-semibold border-b border-slate-200 sticky top-0">
-                <tr>
-                  <th className="px-5 py-3">{t("dashboard.meetingVisit")}</th>
-                  <th className="px-5 py-3">{t("dashboard.date")}</th>
-                  <th className="px-5 py-3">{t("dashboard.status")}</th>
-                  <th className="px-5 py-3">{t("dashboard.client")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {visits.slice(0, 5).map((visit: any) => (
-                  <tr
-                    key={visit.id}
-                    className="hover:bg-slate-50/50 transition-colors"
-                  >
-                    <td className="px-5 py-3 font-semibold text-slate-800">
-                      Site Visit with{" "}
-                      {visit.customer?.firstName ||
-                        visit.lead?.firstName ||
-                        t("dashboard.client")}
-                    </td>
-                    <td className="px-5 py-3 text-slate-500 font-medium">
-                      {fmtDate(visit.date)}
-                    </td>
-                    <td className="px-5 py-3">
-                      <StatusBadge status={visit.status} />
-                    </td>
-                    <td className="px-5 py-3">
-                      {visit.customer ? (
-                        customerLink(visit.customer)
-                      ) : visit.lead ? (
-                        <span className="font-semibold text-primary">
-                          {visit.lead.firstName} {visit.lead.lastName}
-                        </span>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
-
-      {/* 3. Recent Leads */}
-      <Card title={t("dashboard.todaysLeads")} icon={UserRoundCheck} href="/pipeline?tab=leads">
-        {todaysLeads.length === 0 && leadsCount(todaysLeads, deals) === 0 ? (
-          <Empty label={t("dashboard.noLeads")} />
-        ) : (
-          <div className="flex flex-col h-full">
-            <table className="w-full text-left text-xs whitespace-nowrap">
-              <thead className="bg-slate-50/80 text-slate-600 font-semibold border-b border-slate-200 sticky top-0">
-                <tr>
-                  <th className="px-5 py-3">{t("dashboard.leadName")}</th>
-                  <th className="px-5 py-3">{t("dashboard.company")}</th>
-                  <th className="px-5 py-3">{t("dashboard.source")}</th>
-                  <th className="px-5 py-3">{t("dashboard.status")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {(todaysLeads.length > 0 ? todaysLeads : deals.slice(0, 5)).map(
-                  (item: any) => (
-                    <tr
-                      key={item.id}
-                      className="hover:bg-slate-50/50 transition-colors"
-                    >
-                      <td className="px-5 py-3 font-semibold text-primary hover:underline">
-                        {item.firstName
-                          ? `${item.firstName} ${item.lastName}`
-                          : item.name}
-                      </td>
-                      <td className="px-5 py-3 text-slate-600">
-                        {item.company || "—"}
-                      </td>
-                      <td className="px-5 py-3 text-slate-500 font-medium">
-                        {item.source?.name || "Direct Referral"}
-                      </td>
-                      <td className="px-5 py-3">
-                        <StatusBadge status={item.status || "NEW"} />
-                      </td>
+        <div className="grid gap-5 lg:grid-cols-2">
+          {/* 1. Open Tasks (Primary Time-Sensitive) */}
+          <Card
+            title={t("dashboard.openTasks")}
+            subtitle="Requires immediate agent follow-up & action"
+            icon={ClipboardList}
+            href="/tasks"
+            variant="primary"
+            badge={
+              openTasks.length > 0 ? (
+                <span className="rounded-full bg-warning/15 px-2 py-0.5 text-[10px] font-bold text-warning border border-warning/30">
+                  {openTasks.length} Pending
+                </span>
+              ) : (
+                <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-bold text-success border border-success/30">
+                  All Done
+                </span>
+              )
+            }
+          >
+            {tasks.length === 0 ? (
+              <Empty label={t("dashboard.noTasks")} />
+            ) : (
+              <div className="flex flex-col h-full">
+                <table className="w-full text-left text-xs whitespace-nowrap">
+                  <thead className="bg-slate-50/80 text-slate-600 font-semibold border-b border-slate-200 sticky top-0">
+                    <tr>
+                      <th className="px-4 py-2.5">{t("dashboard.taskTitle")}</th>
+                      <th className="px-4 py-2.5">{t("dashboard.dueDate")}</th>
+                      <th className="px-4 py-2.5">{t("dashboard.status")}</th>
+                      <th className="px-4 py-2.5">{t("dashboard.assignee")}</th>
                     </tr>
-                  ),
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {tasks.slice(0, 6).map((task: any) => (
+                      <tr
+                        key={task.id}
+                        className="hover:bg-slate-50/50 transition-colors"
+                      >
+                        <td className="px-4 py-2.5 font-semibold text-slate-800">
+                          {task.title}
+                        </td>
+                        <td className="px-4 py-2.5 text-slate-500 font-medium">
+                          {fmtDate(task.dueDate)}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <StatusBadge status={task.status} />
+                        </td>
+                        <td className="px-4 py-2.5 text-slate-600">
+                          {task.assignee
+                            ? `${task.assignee.firstName} ${task.assignee.lastName}`
+                            : t("dashboard.unassigned")}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
 
-      {/* 4. Top Active Deals */}
-      <Card title={t("dashboard.topDeals")} icon={WalletCards} href="/pipeline?tab=deals">
-        {deals.length === 0 ? (
-          <Empty label={t("dashboard.noDeals")} />
-        ) : (
-          <div className="flex flex-col h-full">
-            <table className="w-full text-left text-xs whitespace-nowrap">
-              <thead className="bg-slate-50/80 text-slate-600 font-semibold border-b border-slate-200 sticky top-0">
-                <tr>
-                  <th className="px-5 py-3">{t("dashboard.dealName")}</th>
-                  <th className="px-5 py-3">{t("dashboard.value")}</th>
-                  <th className="px-5 py-3">{t("dashboard.stage")}</th>
-                  <th className="px-5 py-3">{t("dashboard.customer")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {deals.slice(0, 5).map((deal: Deal) => (
-                  <tr
-                    key={deal.id}
-                    className="hover:bg-slate-50/50 transition-colors"
-                  >
-                    <td className="px-5 py-3 font-semibold text-slate-800">
-                      {deal.name}
-                    </td>
-                    <td className="px-5 py-3 font-bold text-primary">
-                      {money(deal.value)}
-                    </td>
-                    <td className="px-5 py-3">
-                      <span className="inline-flex items-center rounded-md bg-primary/10 border border-primary/20 px-2 py-0.5 text-xs font-semibold text-primary">
-                        {deal.stage.name}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3">{customerLink(deal.customer)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
+          {/* 2. Scheduled Meetings & Site Visits (Primary Time-Sensitive) */}
+          <Card
+            title={t("dashboard.scheduledMeetings")}
+            subtitle="Today's property walkthroughs & buyer meetings"
+            icon={CalendarDays}
+            href="/site-visits"
+            variant="primary"
+            badge={
+              visits.length > 0 ? (
+                <span className="rounded-full bg-info/15 px-2 py-0.5 text-[10px] font-bold text-info border border-info/30">
+                  {visits.length} Scheduled
+                </span>
+              ) : null
+            }
+          >
+            {visits.length === 0 ? (
+              <Empty label={t("dashboard.noVisits")} />
+            ) : (
+              <div className="flex flex-col h-full">
+                <table className="w-full text-left text-xs whitespace-nowrap">
+                  <thead className="bg-slate-50/80 text-slate-600 font-semibold border-b border-slate-200 sticky top-0">
+                    <tr>
+                      <th className="px-4 py-2.5">{t("dashboard.meetingVisit")}</th>
+                      <th className="px-4 py-2.5">{t("dashboard.date")}</th>
+                      <th className="px-4 py-2.5">{t("dashboard.status")}</th>
+                      <th className="px-4 py-2.5">{t("dashboard.client")}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {visits.slice(0, 6).map((visit: any) => (
+                      <tr
+                        key={visit.id}
+                        className="hover:bg-slate-50/50 transition-colors"
+                      >
+                        <td className="px-4 py-2.5 font-semibold text-slate-800">
+                          Site Visit with{" "}
+                          {visit.customer?.firstName ||
+                            visit.lead?.firstName ||
+                            t("dashboard.client")}
+                        </td>
+                        <td className="px-4 py-2.5 text-slate-500 font-medium">
+                          {fmtDate(visit.date)}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <StatusBadge status={visit.status} />
+                        </td>
+                        <td className="px-4 py-2.5">
+                          {visit.customer ? (
+                            customerLink(visit.customer)
+                          ) : visit.lead ? (
+                            <span className="font-semibold text-primary">
+                              {visit.lead.firstName} {visit.lead.lastName}
+                            </span>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+        </div>
+      </div>
+
+      {/* Tier 2: Pipeline Quick References & Record Shortcuts */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            Pipeline Activity & Quick Reference
+          </h2>
+          <span className="text-xs text-slate-400">
+            {todaysLeads.length} leads today · {deals.length} active opportunities
+          </span>
+        </div>
+
+        <div className="grid gap-5 lg:grid-cols-2">
+          {/* 3. Recent Leads */}
+          <Card
+            title={t("dashboard.todaysLeads")}
+            icon={UserRoundCheck}
+            href="/pipeline?tab=leads"
+            variant="secondary"
+          >
+            {todaysLeads.length === 0 && leadsCount(todaysLeads, deals) === 0 ? (
+              <Empty label={t("dashboard.noLeads")} />
+            ) : (
+              <div className="flex flex-col h-full">
+                <table className="w-full text-left text-xs whitespace-nowrap">
+                  <thead className="bg-slate-50/60 text-slate-600 font-semibold border-b border-slate-200 sticky top-0">
+                    <tr>
+                      <th className="px-4 py-2.5">{t("dashboard.leadName")}</th>
+                      <th className="px-4 py-2.5">{t("dashboard.company")}</th>
+                      <th className="px-4 py-2.5">{t("dashboard.source")}</th>
+                      <th className="px-4 py-2.5">{t("dashboard.status")}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {(todaysLeads.length > 0 ? todaysLeads : deals.slice(0, 5)).map(
+                      (item: any) => (
+                        <tr
+                          key={item.id}
+                          className="hover:bg-slate-50/50 transition-colors"
+                        >
+                          <td className="px-4 py-2.5 font-semibold text-primary hover:underline">
+                            {item.firstName
+                              ? `${item.firstName} ${item.lastName}`
+                              : item.name}
+                          </td>
+                          <td className="px-4 py-2.5 text-slate-600">
+                            {item.company || "—"}
+                          </td>
+                          <td className="px-4 py-2.5 text-slate-500 font-medium">
+                            {item.source?.name || "Direct Referral"}
+                          </td>
+                          <td className="px-4 py-2.5">
+                            <StatusBadge status={item.status || "NEW"} />
+                          </td>
+                        </tr>
+                      ),
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+
+          {/* 4. Top Active Deals */}
+          <Card
+            title={t("dashboard.topDeals")}
+            icon={WalletCards}
+            href="/pipeline?tab=deals"
+            variant="secondary"
+          >
+            {deals.length === 0 ? (
+              <Empty label={t("dashboard.noDeals")} />
+            ) : (
+              <div className="flex flex-col h-full">
+                <table className="w-full text-left text-xs whitespace-nowrap">
+                  <thead className="bg-slate-50/60 text-slate-600 font-semibold border-b border-slate-200 sticky top-0">
+                    <tr>
+                      <th className="px-4 py-2.5">{t("dashboard.dealName")}</th>
+                      <th className="px-4 py-2.5">{t("dashboard.value")}</th>
+                      <th className="px-4 py-2.5">{t("dashboard.stage")}</th>
+                      <th className="px-4 py-2.5">{t("dashboard.customer")}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {deals.slice(0, 5).map((deal: Deal) => (
+                      <tr
+                        key={deal.id}
+                        className="hover:bg-slate-50/50 transition-colors"
+                      >
+                        <td className="px-4 py-2.5 font-semibold text-slate-800">
+                          {deal.name}
+                        </td>
+                        <td className="px-4 py-2.5 font-bold text-primary">
+                          {money(deal.value)}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <span className="inline-flex items-center rounded-md bg-primary/10 border border-primary/20 px-2 py-0.5 text-xs font-semibold text-primary">
+                            {deal.stage.name}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2.5">{customerLink(deal.customer)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
@@ -416,8 +530,9 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Role details
+  // Role & user details
   const [userRoles, setUserRoles] = useState<string[]>([]);
+  const [firstName, setFirstName] = useState<string>("");
   const [salesMetrics, setSalesMetrics] = useState<ReportMetric[]>([]);
 
   const load = useCallback(async () => {
@@ -434,6 +549,9 @@ export default function DashboardPage() {
     if (raw) {
       try {
         const parsed = JSON.parse(raw);
+        const name = parsed.user?.firstName || parsed.firstName || "";
+        if (name) setFirstName(name);
+
         const token = parsed.accessToken;
         if (token) {
           const base64Url = token.split(".")[1];
@@ -497,10 +615,38 @@ export default function DashboardPage() {
     0,
   );
 
+  const pipelineByStage = useMemo(() => {
+    const stageMap = new Map<string, { stage: string; value: number; count: number }>();
+    for (const deal of deals) {
+      const stageName = deal.stage?.name || "Unassigned";
+      const current = stageMap.get(stageName) || { stage: stageName, value: 0, count: 0 };
+      current.value += Number(deal.value) || 0;
+      current.count += 1;
+      stageMap.set(stageName, current);
+    }
+    return Array.from(stageMap.values());
+  }, [deals]);
+
+  const hour = new Date().getHours();
+  let timeGreeting = t("dashboard.greetingEvening");
+  if (hour < 12) {
+    timeGreeting = t("dashboard.greetingMorning");
+  } else if (hour < 18) {
+    timeGreeting = t("dashboard.greetingAfternoon");
+  }
+
+  const greetingLine = firstName ? `${timeGreeting}, ${firstName}` : timeGreeting;
+  const todayFormatted = new Date().toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
   return (
     <DashboardShell
-      title={t("dashboard.commandCenter")}
-      description={`${t("dashboard.overviewForRole")} ${primaryRole}.`}
+      title={t("dashboard.home")}
+      description={`${greetingLine} · ${todayFormatted} — ${t("dashboard.overviewForRole")} ${primaryRole}.`}
       active="Dashboard"
     >
       {error && (
@@ -518,6 +664,75 @@ export default function DashboardPage() {
         </>
       ) : (
         <div className="space-y-6">
+          {/* Pipeline Stage Distribution Chart */}
+          {pipelineByStage.length > 0 && (
+            <div className="rounded-xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-sm space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <BarChart3 className="size-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                      Pipeline Volume by Deal Stage
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Live commercial breakdown of active deal opportunities across sales pipeline stages.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/pipeline?tab=deals"
+                  className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+                >
+                  <span>{t("dashboard.viewAll")}</span>
+                  <ArrowUpRight className="size-3.5" />
+                </Link>
+              </div>
+
+              <div className="h-56 sm:h-64 w-full pt-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={pipelineByStage} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis
+                      dataKey="stage"
+                      tickLine={false}
+                      axisLine={{ stroke: "#e2e8f0" }}
+                      tick={{ fontSize: 12, fill: "#64748b" }}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={{ stroke: "#e2e8f0" }}
+                      tick={{ fontSize: 11, fill: "#64748b" }}
+                      tickFormatter={(val) =>
+                        val >= 1_000_000
+                          ? `${(val / 1_000_000).toFixed(0)}M`
+                          : val >= 1_000
+                          ? `${(val / 1_000).toFixed(0)}k`
+                          : String(val)
+                      }
+                    />
+                    <Tooltip
+                      formatter={(value) => [money(Number(value) || 0), "Pipeline Volume"]}
+                      labelFormatter={(label) => `Stage: ${label}`}
+                      contentStyle={{
+                        backgroundColor: "#0f172a",
+                        borderColor: "#334155",
+                        borderRadius: "8px",
+                        color: "#fff",
+                        fontSize: "12px",
+                      }}
+                    />
+                    <Bar
+                      dataKey="value"
+                      fill="#4f46e5"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
 
           {/* Operational Grid Cards */}
           <OperationalGrid

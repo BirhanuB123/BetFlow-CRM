@@ -66,7 +66,9 @@ async function bootstrap() {
   app.useGlobalFilters(new PrismaExceptionFilter(), new HttpExceptionFilter());
   app.useGlobalInterceptors(new LoggingInterceptor());
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api', {
+    exclude: ['r/(.*)'],
+  });
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('BetFlow Real Estate CRM API')

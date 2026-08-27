@@ -5,6 +5,7 @@ import { SocialLeadsController } from './social-leads.controller';
 import { TelegramBotController } from './telegram-bot.controller';
 import { SmsController } from './sms.controller';
 import { CampaignsController } from './campaigns.controller';
+import { LinkTrackingController } from './link-tracking.controller';
 import { IntegrationsService } from './integrations.service';
 import { EthioTelecomSmsService } from './sms.service';
 import { CampaignsService } from './campaigns.service';
@@ -16,6 +17,7 @@ import { CampaignsService } from './campaigns.service';
     TelegramBotController,
     SmsController,
     CampaignsController,
+    LinkTrackingController,
   ],
   providers: [IntegrationsService, EthioTelecomSmsService, CampaignsService],
   exports: [IntegrationsService, EthioTelecomSmsService, CampaignsService],
