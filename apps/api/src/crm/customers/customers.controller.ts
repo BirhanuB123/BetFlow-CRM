@@ -10,14 +10,17 @@ import {
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { RequirePermission } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
 import type {
   CreateCustomerInput,
   UpdateCustomerInput,
 } from './customers.types';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@RequirePermission('leads.manage')
 @Controller('customers')
 export class CustomersController {
   constructor(private readonly customers: CustomersService) {}

@@ -1098,3 +1098,5 @@ export class EthioTelecomSmsService {
     };
   }
 }
+
+export { EthioTelecomSmsService as SmsService };

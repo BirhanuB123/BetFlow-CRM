@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { TableSkeleton } from "@/components/ui/skeleton-loaders";
+import { useTranslation } from "@/lib/i18n/language-context";
 import type {
   CallLogItem,
   CallType,
@@ -41,6 +42,7 @@ interface CustomerOption {
 }
 
 export function CallsView() {
+  const { t } = useTranslation();
   const [calls, setCalls] = useState<CallLogItem[]>([]);
   const [leads, setLeads] = useState<LeadOption[]>([]);
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
@@ -214,7 +216,7 @@ export function CallsView() {
           <div className="flex items-center gap-2.5">
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <PhoneCall className="size-5 text-[#233b66]" />
-              Call Logs & Telephony
+              {t("calls.title")}
             </h2>
             {socketConnected && (
               <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-0.5 text-[11px] font-semibold text-success border border-success/20">
@@ -224,7 +226,7 @@ export function CallsView() {
             )}
           </div>
           <p className="mt-1 text-xs text-slate-500">
-            Track outbound client outreach, inbound inquiries, and Telegram/WhatsApp call logs with instant WebSockets sync.
+            {t("calls.subtitle")}
           </p>
         </div>
 
@@ -233,7 +235,7 @@ export function CallsView() {
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-xs hover:bg-primary/90 transition-colors"
         >
           <Plus className="size-4" />
-          Log / Schedule Call
+          {t("calls.newCall")}
         </button>
       </div>
 
@@ -243,7 +245,7 @@ export function CallsView() {
           <Search className="absolute left-3 top-2.5 size-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Search call subject, client name, or notes…"
+            placeholder={t("calls.searchCalls")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full h-9 rounded-xl border border-slate-300 bg-slate-50/50 pl-9 pr-4 text-xs text-slate-900 placeholder:text-slate-400 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66]"
@@ -257,9 +259,9 @@ export function CallsView() {
             onChange={(e) => setTypeFilter(e.target.value)}
             className="h-9 rounded-xl border border-slate-300 bg-white px-3 text-xs text-slate-700 focus:border-[#233b66] focus:outline-none"
           >
-            <option value="ALL">All Call Types</option>
-            <option value="OUTBOUND">Outbound Calls</option>
-            <option value="INBOUND">Inbound Calls</option>
+            <option value="ALL">{t("calls.callType")}: {t("calls.allCalls")}</option>
+            <option value="OUTBOUND">{t("calls.outbound")}</option>
+            <option value="INBOUND">{t("calls.inbound")}</option>
             <option value="TELEGRAM">Telegram Calls</option>
             <option value="WHATSAPP">WhatsApp Calls</option>
           </select>
@@ -270,10 +272,10 @@ export function CallsView() {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="h-9 rounded-xl border border-slate-300 bg-white px-3 text-xs text-slate-700 focus:border-[#233b66] focus:outline-none"
           >
-            <option value="ALL">All Statuses</option>
-            <option value="PENDING">Pending</option>
-            <option value="COMPLETED">Completed</option>
-            <option value="OVERDUE">Overdue</option>
+            <option value="ALL">{t("dashboard.status")}: {t("calls.allCalls")}</option>
+            <option value="PENDING">{t("payments.statusPending")}</option>
+            <option value="COMPLETED">{t("siteVisits.statusCompleted")}</option>
+            <option value="OVERDUE">{t("payments.statusOverdue")}</option>
           </select>
         </div>
       </div>
@@ -284,9 +286,9 @@ export function CallsView() {
       ) : filteredCalls.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center">
           <PhoneCall className="size-12 text-slate-300 mb-3" />
-          <h3 className="text-sm font-bold text-slate-800">No Call Logs Found</h3>
+          <h3 className="text-sm font-bold text-slate-800">{t("calls.noCallsFound")}</h3>
           <p className="mt-1 text-xs text-slate-500 max-w-sm">
-            No call records match your search or filter criteria. Click "Log / Schedule Call" to add a new activity.
+            {t("calls.subtitle")}
           </p>
         </div>
       ) : (
@@ -295,13 +297,13 @@ export function CallsView() {
             <table className="w-full text-left text-xs whitespace-nowrap">
               <thead className="border-b border-slate-200/80 bg-slate-50/70 text-slate-500 font-semibold">
                 <tr>
-                  <th className="py-3.5 px-4">Subject & Purpose</th>
-                  <th className="py-3.5 px-4">Client / Contact</th>
-                  <th className="py-3.5 px-4">Type</th>
-                  <th className="py-3.5 px-4">Outcome / Result</th>
-                  <th className="py-3.5 px-4">Scheduled Date</th>
-                  <th className="py-3.5 px-4">Status</th>
-                  <th className="py-3.5 px-4 text-right">Actions</th>
+                  <th className="py-3.5 px-4">{t("calls.callNotes")}</th>
+                  <th className="py-3.5 px-4">{t("calls.clientName")}</th>
+                  <th className="py-3.5 px-4">{t("calls.callType")}</th>
+                  <th className="py-3.5 px-4">{t("calls.outcome")}</th>
+                  <th className="py-3.5 px-4">{t("calls.scheduledAt")}</th>
+                  <th className="py-3.5 px-4">{t("dashboard.status")}</th>
+                  <th className="py-3.5 px-4 text-right">{t("actions.status")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">

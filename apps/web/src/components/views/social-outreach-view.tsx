@@ -22,6 +22,7 @@ import { useToast } from "@/components/ui/toast";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 type BroadcastCampaign = {
   id: string;
@@ -130,31 +131,36 @@ function formatTelegramPreview(text: string) {
 
 const channelConfig: Record<
   BroadcastCampaign["channel"],
-  { label: string; badge: string; icon: typeof Send }
+  { label: string; badge: string; icon: typeof Send; connected: boolean }
 > = {
   TELEGRAM: {
     label: "Telegram Channel",
     badge: "bg-info/10 text-info border-info/20 font-bold",
     icon: Send,
+    connected: true,
   },
   SMS: {
     label: "SMS Direct Alert",
-    badge: "bg-info/10 text-info border-info font-medium",
+    badge: "bg-amber-50 text-amber-700 border-amber-200 font-medium",
     icon: Smartphone,
+    connected: false,
   },
   FACEBOOK: {
     label: "Meta Lead Broadcast",
-    badge: "bg-info/10 text-info border-info/20 font-medium",
+    badge: "bg-slate-100 text-slate-500 border-slate-200 font-medium",
     icon: Share2,
+    connected: false,
   },
   WHATSAPP: {
     label: "WhatsApp Business Bot",
-    badge: "bg-success/10 text-success border-success/20 font-medium",
+    badge: "bg-slate-100 text-slate-500 border-slate-200 font-medium",
     icon: MessageSquare,
+    connected: false,
   },
 };
 
 export function SocialOutreachView() {
+  const { t } = useTranslation();
   const { success, error: toastError } = useToast();
   const [campaigns, setCampaigns] = useState<BroadcastCampaign[]>([]);
   const [loading, setLoading] = useState(true);
@@ -217,9 +223,7 @@ export function SocialOutreachView() {
   }, []);
 
   useEffect(() => {
-    queueMicrotask(() => {
-      void load();
-    });
+    void load();
   }, [load]);
 
   const filteredCampaigns = useMemo(() => {
@@ -305,10 +309,10 @@ export function SocialOutreachView() {
               </div>
               <div>
                 <h2 className="text-lg font-bold text-slate-900">
-                  Social & Channel Lead Outreach Broadcasts
+                  {t("socialOutreach.title")}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Publish construction updates, launch announcements, and pro-forma deadlines directly to Telegram, WhatsApp, and Meta lead lists.
+                  {t("socialOutreach.subtitle")}
                 </p>
               </div>
             </div>
@@ -320,7 +324,7 @@ export function SocialOutreachView() {
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search broadcast title…"
+                placeholder={t("socialOutreach.searchBroadcasts")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="h-9.5 w-full rounded-lg border border-slate-200 bg-slate-50/50 pl-9 pr-8 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-primary focus:ring-primary transition-all"
@@ -340,7 +344,7 @@ export function SocialOutreachView() {
             <div className="flex items-center rounded-lg border border-slate-200 bg-slate-100 p-1">
               {(
                 [
-                  { id: "ALL", label: "All Channels" },
+                  { id: "ALL", label: t("socialOutreach.allBroadcasts") },
                   { id: "TELEGRAM", label: "Telegram" },
                   { id: "SMS", label: "SMS" },
                   { id: "FACEBOOK", label: "Meta Leads" },
@@ -367,7 +371,7 @@ export function SocialOutreachView() {
               className="h-9.5 font-semibold text-xs px-4 shadow-sm gap-1.5"
             >
               <Plus className="size-4" />
-              New Broadcast Post
+              {t("socialOutreach.newBroadcast")}
             </Button>
           </div>
         </div>
@@ -445,18 +449,23 @@ export function SocialOutreachView() {
                       </label>
                       <select
                         value={form.channel}
-                        onChange={(e) =>
+                        onChange={(e) => {
+                          const newChan = e.target.value as BroadcastCampaign["channel"];
                           setForm({
                             ...form,
-                            channel: e.target.value as BroadcastCampaign["channel"],
-                          })
-                        }
+                            channel: newChan,
+                            segment:
+                              newChan === "TELEGRAM"
+                                ? "All Telegram Channel Subscribers"
+                                : `${newChan} Audience (Not Connected)`,
+                          });
+                        }}
                         className="w-full h-9 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
                       >
-                        <option value="TELEGRAM">Telegram Official Channel</option>
-                        <option value="SMS">Ethio Telecom SMS Bulk</option>
-                        <option value="FACEBOOK">Meta Lead Form Audience</option>
-                        <option value="WHATSAPP">WhatsApp Business Broadcast</option>
+                        <option value="TELEGRAM">Telegram Official Channel (Active)</option>
+                        <option value="FACEBOOK">Meta / Facebook Audience (Not Connected)</option>
+                        <option value="WHATSAPP">WhatsApp Business Broadcast (Not Connected)</option>
+                        <option value="SMS">Ethio Telecom SMS Broadcast (Use SMS Module)</option>
                       </select>
                     </div>
 
@@ -472,6 +481,23 @@ export function SocialOutreachView() {
                       />
                     </div>
                   </div>
+
+                  {form.channel !== "TELEGRAM" && (
+                    <div className="rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-800 flex items-start gap-2">
+                      <AlertCircle className="size-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold">Channel Integration Not Connected</p>
+                        <p className="text-[11px] text-amber-700 mt-0.5">
+                          {form.channel === "FACEBOOK"
+                            ? "Meta / Facebook Marketing API is not configured yet."
+                            : form.channel === "WHATSAPP"
+                              ? "WhatsApp Business Cloud API is not configured yet."
+                              : "SMS broadcasts must be sent via the dedicated SMS Outbox module."}{" "}
+                          Direct live broadcasting is currently active for Telegram Official Channel.
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   <div>
                     <div className="flex items-center justify-between mb-1">
@@ -546,11 +572,15 @@ export function SocialOutreachView() {
                   <Button
                     type="submit"
                     size="sm"
-                    disabled={sending}
+                    disabled={sending || form.channel !== "TELEGRAM"}
                     className="font-semibold text-xs px-5 shadow-sm gap-1.5"
                   >
                     <Send className="size-3.5" />
-                    {sending ? "Publishing to Telegram..." : "Publish Broadcast"}
+                    {sending
+                      ? "Publishing to Telegram..."
+                      : form.channel !== "TELEGRAM"
+                        ? "Channel Not Connected"
+                        : "Publish Broadcast"}
                   </Button>
                 </div>
               </form>
@@ -633,13 +663,13 @@ export function SocialOutreachView() {
             <table className="w-full text-left text-xs">
               <thead className="border-b border-slate-200 bg-slate-50/70 text-slate-700 font-bold uppercase tracking-wider text-[11px]">
                 <tr>
-                  <th className="px-4 py-3">Campaign Title</th>
-                  <th className="px-4 py-3">Channel</th>
-                  <th className="px-4 py-3">Audience Segment</th>
-                  <th className="px-4 py-3">Recipients</th>
-                  <th className="px-4 py-3">Engagement</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
+                  <th className="px-4 py-3">{t("socialOutreach.campaignTitle")}</th>
+                  <th className="px-4 py-3">{t("socialOutreach.channel")}</th>
+                  <th className="px-4 py-3">{t("socialOutreach.audience")}</th>
+                  <th className="px-4 py-3">{t("dashboard.client")}</th>
+                  <th className="px-4 py-3">{t("socialOutreach.linkClicks")}</th>
+                  <th className="px-4 py-3">{t("dashboard.status")}</th>
+                  <th className="px-4 py-3 text-right">{t("actions.status")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
@@ -684,7 +714,11 @@ export function SocialOutreachView() {
                       </td>
 
                       <td className="px-4 py-3 font-bold text-slate-900">
-                        {c.recipients.toLocaleString()}
+                        {c.channel === "TELEGRAM" || c.recipients > 0 ? (
+                          c.recipients.toLocaleString()
+                        ) : (
+                          <span className="text-slate-400 font-normal text-xs">— (Not Connected)</span>
+                        )}
                       </td>
 
                       <td className="px-4 py-3 font-medium text-slate-500">
@@ -776,7 +810,9 @@ export function SocialOutreachView() {
                     Audience
                   </p>
                   <p className="text-xs font-bold text-slate-800 mt-0.5">
-                    {activePreviewModal.recipients.toLocaleString()}
+                    {activePreviewModal.channel === "TELEGRAM" || activePreviewModal.recipients > 0
+                      ? activePreviewModal.recipients.toLocaleString()
+                      : "Not Connected (0)"}
                   </p>
                 </div>
                 <div className="rounded-xl bg-slate-50 p-3 border border-slate-200/80">

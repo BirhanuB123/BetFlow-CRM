@@ -303,6 +303,7 @@ export class AuthService {
         email: user.email,
         roles,
         permissions: permissionNames,
+        mustChangePassword: user.mustChangePassword ?? false,
         type: 'access',
       },
       expiresIn,
@@ -328,6 +329,7 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
         avatarUrl: user.avatarUrl,
+        mustChangePassword: user.mustChangePassword ?? false,
         roles,
         permissions,
       },
@@ -359,7 +361,8 @@ export class AuthService {
       );
     }
 
-    const { roles, permissions, permissionNames } = extractUserRolesAndPermissions(user.roles);
+    const { roles, permissions, permissionNames } =
+      extractUserRolesAndPermissions(user.roles);
     const expiresIn = 900; // 15 minutes
     const refreshExpiresIn = 604800; // 7 days
 
@@ -369,6 +372,7 @@ export class AuthService {
         email: user.email,
         roles,
         permissions: permissionNames,
+        mustChangePassword: user.mustChangePassword ?? false,
         type: 'access',
       },
       expiresIn,
@@ -394,6 +398,7 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
         avatarUrl: user.avatarUrl,
+        mustChangePassword: user.mustChangePassword ?? false,
         roles,
         permissions,
       },
@@ -422,6 +427,7 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
         avatarUrl: user.avatarUrl,
+        mustChangePassword: user.mustChangePassword ?? false,
         roles,
         permissions,
       },
@@ -515,7 +521,12 @@ export class AuthService {
     const hashed = await this.passwords.hash(body.newPassword.trim());
     await this.prisma.user.update({
       where: { id: userId },
-      data: { password: hashed },
+      data: {
+        password: hashed,
+        mustChangePassword: false,
+        failedLoginAttempts: 0,
+        lockoutUntil: null,
+      },
     });
 
     await this.prisma.auditLog.create({

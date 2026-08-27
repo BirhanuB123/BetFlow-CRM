@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
+import { RequirePermission, Roles } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
@@ -19,6 +19,7 @@ import type { CreatePaymentInput, UpdatePaymentInput } from './payments.types';
 import type { PaymentPlanInput } from '@betflow/shared';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
+@RequirePermission('payments.approve')
 @Roles('Owner', 'Finance', 'Sales Manager', 'Admin', 'Agent')
 @Controller('payments')
 export class PaymentsController {

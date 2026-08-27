@@ -11,7 +11,9 @@ import {
 } from '@nestjs/common';
 import { UnitsService } from './units.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { RequirePermission } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
 import type {
   CreateUnitInput,
@@ -19,7 +21,8 @@ import type {
   UpdateUnitStatusInput,
 } from './units.types';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@RequirePermission('inventory.manage')
 @Controller('units')
 export class UnitsController {
   constructor(private readonly units: UnitsService) {}

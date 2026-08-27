@@ -23,6 +23,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/language-context";
 import type { ApiCustomer, NewCustomer } from "@betflow/shared";
 
 const EMPTY_FORM: NewCustomer = {
@@ -129,6 +130,7 @@ function FilterAccordion({
 }
 
 export function CustomersView() {
+  const { t } = useTranslation();
   const [customers, setCustomers] = useState<ApiCustomer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -521,7 +523,7 @@ export function CustomersView() {
             className="h-8 rounded shadow-sm text-[13px] px-4 font-medium"
           >
             <Plus className="size-3.5 mr-1" />
-            {showForm ? "Cancel" : "Create Customer"}
+            {showForm ? t("actions.cancel") : t("customers.newCustomer")}
           </Button>
         </div>
 
@@ -529,7 +531,7 @@ export function CustomersView() {
         {selectedFilters.size > 0 && (
           <div className="flex items-center flex-wrap gap-2 px-4 py-2 bg-primary/5 border-b border-zinc-200 text-xs">
             <span className="font-semibold text-zinc-600">
-              Active Filters:
+              {t("customers.filterTitle")}:
             </span>
             {Array.from(selectedFilters).map((item) => (
               <span
@@ -549,7 +551,7 @@ export function CustomersView() {
               onClick={clearAllFilters}
               className="text-primary hover:text-primary font-semibold ml-2 underline underline-offset-2"
             >
-              Clear All ({selectedFilters.size})
+              {t("actions.reset")} ({selectedFilters.size})
             </button>
           </div>
         )}
@@ -566,27 +568,27 @@ export function CustomersView() {
               onChange={(e) =>
                 setForm({ ...form, firstName: e.target.value })
               }
-              placeholder="First name"
+              placeholder={t("auth.firstName")}
               className="h-9 rounded border border-zinc-300 bg-white px-3 text-[13px] shadow-sm"
             />
             <input
               required
               value={form.lastName}
               onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-              placeholder="Last name"
+              placeholder={t("auth.lastName")}
               className="h-9 rounded border border-zinc-300 bg-white px-3 text-[13px] shadow-sm"
             />
             <input
               type="email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
-              placeholder="Email"
+              placeholder={t("customers.email")}
               className="h-9 rounded border border-zinc-300 bg-white px-3 text-[13px] shadow-sm"
             />
             <input
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              placeholder="Phone"
+              placeholder={t("customers.phone")}
               className="h-9 rounded border border-zinc-300 bg-white px-3 text-[13px] shadow-sm"
             />
             <div className="sm:col-span-4 flex justify-end">
@@ -596,7 +598,7 @@ export function CustomersView() {
                 size="sm"
                 className=""
               >
-                {saving ? "Saving..." : "Save Customer"}
+                {saving ? t("actions.save") + "..." : t("actions.save")}
               </Button>
             </div>
           </form>
@@ -620,14 +622,10 @@ export function CustomersView() {
                 <Search className="size-6 text-zinc-300" />
               </div>
               <h3 className="text-[15px] font-semibold text-zinc-900">
-                {selectedFilters.size > 0 || filterSearch
-                  ? "No matching contacts found"
-                  : "No contacts found"}
+                {t("customers.noCustomersFound")}
               </h3>
               <p className="text-[13px] text-zinc-500 mt-1 max-w-sm">
-                {selectedFilters.size > 0 || filterSearch
-                  ? "Try clearing or adjusting your sidebar filters to see more contact records."
-                  : "You haven't created any contacts yet. Click the 'Create Contact' button to add your first record."}
+                {t("customers.subtitle")}
               </p>
               {(selectedFilters.size > 0 || filterSearch) && (
                 <Button
@@ -636,7 +634,7 @@ export function CustomersView() {
                   size="sm"
                   className="mt-4 border-primary/20 text-primary hover:bg-primary/10"
                 >
-                  Clear Filters
+                  {t("actions.reset")}
                 </Button>
               )}
             </div>
@@ -654,16 +652,16 @@ export function CustomersView() {
                   </th>
                   <th className="px-4 py-2.5">
                     <div className="flex items-center group cursor-pointer hover:text-primary">
-                      Contact Name{" "}
+                      {t("customers.customerName")}{" "}
                       <span className="text-zinc-300 ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                         ↓
                       </span>
                     </div>
                   </th>
-                  <th className="px-4 py-2.5">Account Name</th>
-                  <th className="px-4 py-2.5">Email</th>
-                  <th className="px-4 py-2.5">Phone</th>
-                  <th className="px-4 py-2.5">Contact Owner</th>
+                  <th className="px-4 py-2.5">{t("dashboard.company")}</th>
+                  <th className="px-4 py-2.5">{t("customers.email")}</th>
+                  <th className="px-4 py-2.5">{t("customers.phone")}</th>
+                  <th className="px-4 py-2.5">{t("dashboard.assignee")}</th>
                   <th className="px-4 py-2.5 w-10"></th>
                 </tr>
               </thead>
@@ -726,23 +724,25 @@ export function CustomersView() {
                               e.stopPropagation();
                               setEditingCustomer(customer);
                               setEditCustomerForm({
-                                firstName: customer.firstName || "",
-                                lastName: customer.lastName || "",
+                                firstName: customer.firstName,
+                                lastName: customer.lastName,
                                 email: customer.email || "",
                                 phone: customer.phone || "",
                               });
                             }}
-                            className="text-zinc-400 hover:text-primary p-1.5 rounded hover:bg-primary/10 transition-colors"
-                            title="Edit contact details"
-                            aria-label="Edit contact details"
+                            className="p-1 text-zinc-400 hover:text-primary hover:bg-primary/10 rounded transition-colors"
+                            title={t("customers.editCustomer")}
                           >
                             <Pencil className="size-3.5" />
                           </button>
                           <button
-                            onClick={(e) => handleDelete(customer.id, e)}
-                            className="text-zinc-400 hover:text-destructive p-1.5 rounded hover:bg-destructive/10 transition-colors"
-                            title="Delete contact"
-                            aria-label="Delete contact"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleDelete(customer.id);
+                            }}
+                            className="p-1 text-zinc-400 hover:text-destructive hover:bg-destructive/10 rounded transition-colors"
+                            title={t("customers.deleteCustomer")}
                           >
                             <Trash2 className="size-3.5" />
                           </button>
@@ -779,20 +779,18 @@ export function CustomersView() {
 
       {/* Edit Customer Modal */}
       {editingCustomer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-zinc-100 pb-3 mb-4">
-              <h3 className="text-base font-bold text-zinc-900">
-                Edit Contact Details
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-5 shadow-xl">
+            <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+              <h3 className="text-sm font-bold text-zinc-900">{t("customers.editCustomer")}</h3>
               <button
-                type="button"
                 onClick={() => setEditingCustomer(null)}
-                className="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
+                className="text-zinc-400 hover:text-zinc-600"
               >
                 <X className="size-4" />
               </button>
             </div>
+
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
@@ -817,7 +815,7 @@ export function CustomersView() {
             >
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-zinc-700 mb-1">First Name *</label>
+                  <label className="block font-semibold text-zinc-700 mb-1">{t("auth.firstName")} *</label>
                   <input
                     type="text"
                     required
@@ -827,7 +825,7 @@ export function CustomersView() {
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-zinc-700 mb-1">Last Name *</label>
+                  <label className="block font-semibold text-zinc-700 mb-1">{t("auth.lastName")} *</label>
                   <input
                     type="text"
                     required
@@ -839,7 +837,7 @@ export function CustomersView() {
               </div>
 
               <div>
-                <label className="block font-semibold text-zinc-700 mb-1">Email Address</label>
+                <label className="block font-semibold text-zinc-700 mb-1">{t("customers.email")}</label>
                 <input
                   type="email"
                   value={editCustomerForm.email || ""}
@@ -849,7 +847,7 @@ export function CustomersView() {
               </div>
 
               <div>
-                <label className="block font-semibold text-zinc-700 mb-1">Phone Number</label>
+                <label className="block font-semibold text-zinc-700 mb-1">{t("customers.phone")}</label>
                 <input
                   type="tel"
                   value={editCustomerForm.phone || ""}
@@ -865,7 +863,7 @@ export function CustomersView() {
                   size="sm"
                   onClick={() => setEditingCustomer(null)}
                 >
-                  Cancel
+                  {t("actions.cancel")}
                 </Button>
                 <Button
                   type="submit"
@@ -873,7 +871,7 @@ export function CustomersView() {
                   size="sm"
                   className=""
                 >
-                  {saving ? "Saving Changes…" : "Update Contact"}
+                  {saving ? t("actions.save") + "…" : t("actions.save")}
                 </Button>
               </div>
             </form>

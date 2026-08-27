@@ -31,6 +31,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 const TASK_STATUSES = ["TODO", "IN_PROGRESS", "DONE"] as const;
 type TaskStatus = (typeof TASK_STATUSES)[number];
@@ -111,6 +112,7 @@ function fmtDate(iso: string | null) {
 }
 
 export function TasksView() {
+  const { t } = useTranslation();
   const [tasks, setTasks] = useState<ApiTask[]>([]);
   const [users, setUsers] = useState<UserOption[]>([]);
   const [loading, setLoading] = useState(true);
@@ -387,10 +389,10 @@ export function TasksView() {
           </div>
           <div>
             <h2 className="text-base font-bold text-slate-900">
-              Tasks & Follow-Ups
+              {t("tasks.title")}
             </h2>
             <p className="text-xs text-slate-500">
-              Manage client actions, site visit preps, and contract workflows.
+              {t("tasks.subtitle")}
             </p>
           </div>
         </div>
@@ -401,11 +403,11 @@ export function TasksView() {
         >
           {showForm ? (
             <>
-              <X className="size-4" /> Cancel
+              <X className="size-4" /> {t("actions.cancel")}
             </>
           ) : (
             <>
-              <Plus className="size-4" /> New Task
+              <Plus className="size-4" /> {t("tasks.newTask")}
             </>
           )}
         </Button>
@@ -415,7 +417,7 @@ export function TasksView() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs">
           <div className="flex items-center justify-between text-slate-500 text-xs mb-1 font-medium">
-            <span>Open Tasks</span>
+            <span>{t("tasks.pendingTasks")}</span>
             <Clock className="size-4 text-info" />
           </div>
           <p className="text-xl font-extrabold text-slate-900 font-mono">
@@ -425,7 +427,7 @@ export function TasksView() {
 
         <div className="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs">
           <div className="flex items-center justify-between text-slate-500 text-xs mb-1 font-medium">
-            <span>High Priority</span>
+            <span>{t("tasks.priorityHigh")}</span>
             <AlertTriangle className="size-4 text-destructive" />
           </div>
           <p className="text-xl font-extrabold text-destructive font-mono">
@@ -435,7 +437,7 @@ export function TasksView() {
 
         <div className="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs">
           <div className="flex items-center justify-between text-slate-500 text-xs mb-1 font-medium">
-            <span>Due Today</span>
+            <span>{t("dashboard.openTasks")}</span>
             <Sparkles className="size-4 text-warning" />
           </div>
           <p className="text-xl font-extrabold text-warning font-mono">
@@ -445,7 +447,7 @@ export function TasksView() {
 
         <div className="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs">
           <div className="flex items-center justify-between text-slate-500 text-xs mb-1 font-medium">
-            <span>Completed</span>
+            <span>{t("tasks.completedTasks")}</span>
             <CheckCircle2 className="size-4 text-success" />
           </div>
           <p className="text-xl font-extrabold text-success font-mono">
@@ -587,14 +589,14 @@ export function TasksView() {
               size="sm"
               onClick={() => setShowForm(false)}
             >
-              Cancel
+              {t("actions.cancel")}
             </Button>
             <Button
               type="submit"
               disabled={saving}
               className="size-sm text-xs"
             >
-              {saving ? "Saving..." : "Save Task"}
+              {saving ? t("actions.save") + "..." : t("actions.save")}
             </Button>
           </div>
         </form>
@@ -608,24 +610,24 @@ export function TasksView() {
           <div className="flex items-center gap-1 bg-slate-200/60 p-1 rounded-lg self-start">
             {(
               [
-                { id: "OPEN", label: "Open" },
-                { id: "HIGH_PRIORITY", label: "High Priority" },
-                { id: "DUE_TODAY", label: "Due Today" },
-                { id: "DONE", label: "Completed" },
-                { id: "ALL", label: "All Tasks" },
+                { id: "OPEN", label: t("tasks.pendingTasks") },
+                { id: "HIGH_PRIORITY", label: t("tasks.priorityHigh") },
+                { id: "DUE_TODAY", label: t("dashboard.openTasks") },
+                { id: "DONE", label: t("tasks.completedTasks") },
+                { id: "ALL", label: t("tasks.allTasks") },
               ] as const
-            ).map((t) => (
+            ).map((tTab) => (
               <button
-                key={t.id}
-                onClick={() => setFilter(t.id)}
+                key={tTab.id}
+                onClick={() => setFilter(tTab.id)}
                 className={cn(
                   "px-3 py-1.5 rounded-md text-xs font-semibold transition-all",
-                  filter === t.id
+                  filter === tTab.id
                     ? "bg-white text-slate-900 shadow-2xs"
                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/50",
                 )}
               >
-                {t.label}
+                {tTab.label}
               </button>
             ))}
           </div>
@@ -636,7 +638,7 @@ export function TasksView() {
               <Search className="size-3.5 absolute left-2.5 top-2.5 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search tasks..."
+                placeholder={t("tasks.searchTasks")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-8 pr-3 py-1.5 text-xs bg-white rounded-lg border border-slate-200 text-slate-800 focus:outline-none focus:border-[#233b66] w-40 sm:w-48"
@@ -648,10 +650,10 @@ export function TasksView() {
               onChange={(e) => setPriorityFilter(e.target.value)}
               className="px-2.5 py-1.5 text-xs bg-white rounded-lg border border-slate-200 text-slate-700 focus:outline-none focus:border-[#233b66]"
             >
-              <option value="ALL">Priority: All</option>
-              <option value="HIGH">High Priority</option>
-              <option value="MEDIUM">Medium Priority</option>
-              <option value="LOW">Low Priority</option>
+              <option value="ALL">{t("tasks.priority")}: {t("tasks.allTasks")}</option>
+              <option value="HIGH">{t("tasks.priorityHigh")}</option>
+              <option value="MEDIUM">{t("tasks.priorityMedium")}</option>
+              <option value="LOW">{t("tasks.priorityLow")}</option>
             </select>
 
             <select
@@ -659,8 +661,8 @@ export function TasksView() {
               onChange={(e) => setAssigneeFilter(e.target.value)}
               className="px-2.5 py-1.5 text-xs bg-white rounded-lg border border-slate-200 text-slate-700 focus:outline-none focus:border-[#233b66]"
             >
-              <option value="ALL">Assignee: All</option>
-              <option value="UNASSIGNED">Unassigned</option>
+              <option value="ALL">{t("tasks.assignee")}: {t("tasks.allTasks")}</option>
+              <option value="UNASSIGNED">{t("dashboard.unassigned")}</option>
               {users.map((u) => (
                 <option key={u?.id} value={u?.id}>
                   {u?.firstName} {u?.lastName}
@@ -692,7 +694,7 @@ export function TasksView() {
                 onClick={() => void handleBulkDelete()}
                 className="bg-white hover:bg-destructive/10 hover:text-destructive border-slate-300 text-destructive text-[11px]"
               >
-                <Trash2 className="size-3 mr-1" /> Delete Selected
+                <Trash2 className="size-3 mr-1" /> {t("actions.delete")}
               </Button>
             </div>
           </div>
@@ -711,7 +713,7 @@ export function TasksView() {
           </div>
         ) : visible.length === 0 ? (
           <div className="p-12 text-center text-xs text-slate-500">
-            No tasks found matching the criteria.
+            {t("tasks.noTasksFound")}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -726,12 +728,12 @@ export function TasksView() {
                       className="rounded border-slate-300 text-primary focus:ring-primary"
                     />
                   </th>
-                  <th className="px-5 py-3">Task / Category</th>
-                  <th className="px-5 py-3">Assignee</th>
-                  <th className="px-5 py-3">Priority</th>
-                  <th className="px-5 py-3">Due Date</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3 text-right">Actions</th>
+                  <th className="px-5 py-3">{t("tasks.taskTitle")}</th>
+                  <th className="px-5 py-3">{t("tasks.assignee")}</th>
+                  <th className="px-5 py-3">{t("tasks.priority")}</th>
+                  <th className="px-5 py-3">{t("tasks.dueDate")}</th>
+                  <th className="px-5 py-3">{t("dashboard.status")}</th>
+                  <th className="px-5 py-3 text-right">{t("actions.status")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">

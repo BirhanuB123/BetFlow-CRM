@@ -102,4 +102,66 @@ describe('RolesGuard', () => {
     const agentContext = createMockContext(['Agent']);
     expect(guard.canActivate(agentContext)).toBe(false);
   });
+
+  describe('Granular Permissions (@RequirePermission)', () => {
+    function createPermissionMockContext(
+      permissions: string[] = [],
+      roles: string[] = [],
+    ): ExecutionContext {
+      return {
+        getHandler: () => ({}),
+        getClass: () => ({}),
+        switchToHttp: () => ({
+          getRequest: () => ({
+            user: {
+              id: 'test_user_id',
+              email: 'test@example.com',
+              roles,
+              permissions,
+            },
+          }),
+        }),
+      } as unknown as ExecutionContext;
+    }
+
+    it('should allow access if user has the required permission', () => {
+      jest.spyOn(reflector, 'getAllAndOverride').mockImplementation((key) => {
+        if (key === 'permissions') return ['leads.manage'];
+        return undefined;
+      });
+
+      const context = createPermissionMockContext(['leads.manage']);
+      expect(guard.canActivate(context)).toBe(true);
+    });
+
+    it('should deny access if user lacks the required permission', () => {
+      jest.spyOn(reflector, 'getAllAndOverride').mockImplementation((key) => {
+        if (key === 'permissions') return ['payments.approve'];
+        return undefined;
+      });
+
+      const context = createPermissionMockContext(['leads.manage', 'reports.view']);
+      expect(guard.canActivate(context)).toBe(false);
+    });
+
+    it('should allow access if user matches either permission or role in side-by-side mode', () => {
+      jest.spyOn(reflector, 'getAllAndOverride').mockImplementation((key) => {
+        if (key === 'permissions') return ['campaigns.manage'];
+        if (key === 'roles') return ['Owner', 'Marketing'];
+        return undefined;
+      });
+
+      // User has the role
+      const roleMatchContext = createPermissionMockContext([], ['Marketing']);
+      expect(guard.canActivate(roleMatchContext)).toBe(true);
+
+      // User has the permission
+      const permMatchContext = createPermissionMockContext(['campaigns.manage'], []);
+      expect(guard.canActivate(permMatchContext)).toBe(true);
+
+      // User has neither
+      const neitherContext = createPermissionMockContext(['other.perm'], ['Agent']);
+      expect(guard.canActivate(neitherContext)).toBe(false);
+    });
+  });
 });

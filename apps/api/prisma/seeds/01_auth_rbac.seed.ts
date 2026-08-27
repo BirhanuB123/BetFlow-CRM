@@ -209,6 +209,7 @@ export async function seedAuthAndRbac(prisma: PrismaClient) {
     firstName: string;
     lastName: string;
     roleId: string;
+    mustChangePassword?: boolean;
   }) {
     const passwordHash = await hashPassword('admin123');
     const user = await prisma.user.upsert({
@@ -218,6 +219,7 @@ export async function seedAuthAndRbac(prisma: PrismaClient) {
         firstName: input.firstName,
         lastName: input.lastName,
         isActive: true,
+        mustChangePassword: input.mustChangePassword ?? true,
       },
       create: {
         id: input.id,
@@ -225,6 +227,7 @@ export async function seedAuthAndRbac(prisma: PrismaClient) {
         password: passwordHash,
         firstName: input.firstName,
         lastName: input.lastName,
+        mustChangePassword: input.mustChangePassword ?? true,
       },
     });
 

@@ -21,31 +21,38 @@ export class CampaignsService {
       orderBy: { startDate: 'desc' },
     });
 
-    // Query live recipient counts from PostgreSQL
-    const leadCount = await this.prisma.lead.count();
-    const customerCount = await this.prisma.customer.count();
-    const actualRecipientCount = leadCount + customerCount;
-
     return campaigns.map((c) => {
       const channel = (c.type || 'TELEGRAM') as
-        'TELEGRAM' | 'FACEBOOK' | 'SMS' | 'WHATSAPP';
+        | 'TELEGRAM'
+        | 'FACEBOOK'
+        | 'SMS'
+        | 'WHATSAPP';
 
-      const recipients =
-        channel === 'TELEGRAM'
-          ? (c.recipientCount ?? actualRecipientCount)
-          : actualRecipientCount;
+      const isConnected = channel === 'TELEGRAM';
+      const recipients = c.recipientCount ?? 0;
+
+      let segment = 'Targeted Audience';
+      if (channel === 'TELEGRAM') {
+        segment = `Telegram Channel Subscribers (${recipients.toLocaleString()})`;
+      } else if (channel === 'FACEBOOK') {
+        segment = 'Meta Lead Audience (Channel Not Connected)';
+      } else if (channel === 'WHATSAPP') {
+        segment = 'WhatsApp Audience (Channel Not Connected)';
+      } else if (channel === 'SMS') {
+        segment = `SMS Contacts (${recipients.toLocaleString()})`;
+      }
 
       return {
         id: c.id,
         title: c.name,
         channel,
-        segment: `${channel === 'TELEGRAM' ? 'Telegram Channel Subscribers' : 'Targeted Leads & Buyers'} (${recipients.toLocaleString()})`,
+        segment,
         recipients,
         sentAt: c.startDate
           ? c.startDate.toISOString()
           : new Date().toISOString(),
         clicks: channel === 'TELEGRAM' ? (c.clicks ?? 0) : 0,
-        status: (c.status || 'SENT') as
+        status: (c.status || (isConnected ? 'SENT' : 'DRAFT')) as
           | 'SENT'
           | 'SCHEDULED'
           | 'DRAFT'
@@ -63,12 +70,20 @@ export class CampaignsService {
       throw new BadRequestException('message is required');
     }
 
-    // Query live recipient counts from PostgreSQL database
-    const leadCount = await this.prisma.lead.count();
-    const customerCount = await this.prisma.customer.count();
-    const recipients = leadCount + customerCount;
-
     const channel = input.channel || 'TELEGRAM';
+
+    if (channel !== 'TELEGRAM') {
+      const channelName =
+        channel === 'FACEBOOK'
+          ? 'Meta / Facebook Marketing API'
+          : channel === 'WHATSAPP'
+            ? 'WhatsApp Business API'
+            : 'SMS Gateway';
+
+      throw new BadRequestException(
+        `${channelName} integration is not connected. Broadcasts are currently active for Telegram Official Channel.`,
+      );
+    }
     const campaignId = randomUUID();
 
     let campaignStatus: 'SENT' | 'FAILED' = 'SENT';
@@ -193,7 +208,7 @@ export class CampaignsService {
     }
 
     const effectiveRecipients =
-      channel === 'TELEGRAM' ? (realRecipientCount ?? recipients) : recipients;
+      channel === 'TELEGRAM' ? (realRecipientCount ?? 0) : 0;
 
     const campaign = await this.prisma.campaign.create({
       data: {
@@ -201,7 +216,7 @@ export class CampaignsService {
         name: input.title.trim(),
         type: channel,
         status: campaignStatus,
-        recipientCount: channel === 'TELEGRAM' ? realRecipientCount : recipients,
+        recipientCount: channel === 'TELEGRAM' ? realRecipientCount : 0,
         targetUrl: targetUrl || null,
         clicks: 0,
         startDate: new Date(),

@@ -22,6 +22,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/language-context";
 import { toEthiopianDate } from "@betflow/shared";
 
 type PersonRef = { id: string; firstName: string; lastName: string } | null;
@@ -84,6 +85,7 @@ function toIso(local: string) {
 }
 
 export function MeetingsView() {
+  const { t } = useTranslation();
   const [meetings, setMeetings] = useState<ApiMeeting[]>([]);
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
   const [leads, setLeads] = useState<LeadOption[]>([]);
@@ -207,12 +209,11 @@ export function MeetingsView() {
             <div className="flex items-center gap-2">
               <CalendarDays className="size-5 text-[#233b66]" />
               <h2 className="text-lg font-bold text-slate-900">
-                Meeting Calendar & Appointments
+                {t("meetings.title")}
               </h2>
             </div>
             <p className="mt-1 text-sm text-slate-500">
-              Book client consultations, deal negotiations, or virtual Zoom
-              meetings with prospects.
+              {t("meetings.subtitle")}
             </p>
           </div>
           <Button
@@ -227,7 +228,7 @@ export function MeetingsView() {
             ) : (
               <Plus className="size-4 mr-1.5" />
             )}
-            {showForm ? "Cancel Schedule" : "Schedule Meeting"}
+            {showForm ? t("actions.cancel") : t("meetings.newMeeting")}
           </Button>
         </div>
 
@@ -430,11 +431,10 @@ export function MeetingsView() {
               <CalendarDays className="size-6 text-slate-400" />
             </div>
             <p className="text-sm font-semibold text-slate-800">
-              No meetings scheduled yet
+              {t("meetings.noMeetingsFound")}
             </p>
             <p className="text-xs text-slate-500 max-w-sm mt-1">
-              Click "Schedule Meeting" to book your first client consultation,
-              office negotiation, or Zoom call.
+              {t("meetings.subtitle")}
             </p>
           </div>
         ) : (
@@ -442,13 +442,13 @@ export function MeetingsView() {
             <table className="w-full text-left text-xs whitespace-nowrap">
               <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
                 <tr>
-                  <th className="px-5 py-3">Meeting Title</th>
-                  <th className="px-5 py-3">Participant</th>
-                  <th className="px-5 py-3">Format</th>
-                  <th className="px-5 py-3">Date & Duration</th>
-                  <th className="px-5 py-3">Location / Link</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3 text-right">Actions</th>
+                  <th className="px-5 py-3">{t("meetings.meetingTitle")}</th>
+                  <th className="px-5 py-3">{t("meetings.attendees")}</th>
+                  <th className="px-5 py-3">{t("calls.callType")}</th>
+                  <th className="px-5 py-3">{t("meetings.meetingDate")}</th>
+                  <th className="px-5 py-3">{t("meetings.location")}</th>
+                  <th className="px-5 py-3">{t("dashboard.status")}</th>
+                  <th className="px-5 py-3 text-right">{t("actions.status")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">

@@ -33,6 +33,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { formatDate as fmtDate, daysRemaining } from "@/lib/date";
 import { CreateReservationModal } from "@/features/reservations/create-reservation-modal";
 import { ReservationVoucherModal } from "@/features/reservations/reservation-voucher-modal";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 type ApiReservation = {
   id: string;
@@ -88,6 +89,7 @@ function getInitials(firstName?: string, lastName?: string) {
 }
 
 export function ReservationsView() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { success, error: toastError } = useToast();
   const [search, setSearch] = useState("");
@@ -253,10 +255,10 @@ export function ReservationsView() {
               </div>
               <div>
                 <h2 className="text-lg font-bold text-slate-900">
-                  Unit Reservation Agreements & Holding Deposits
+                  {t("reservations.title")}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Lock unit inventory, generate official ETB deposit vouchers, track validity deadlines, and transition to sales contracts.
+                  {t("reservations.subtitle")}
                 </p>
               </div>
             </div>
@@ -268,7 +270,7 @@ export function ReservationsView() {
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search buyer, unit #, ref…"
+                placeholder={t("reservations.searchReservations")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="h-9.5 w-full rounded-lg border border-slate-200 bg-slate-50/50 pl-9 pr-8 text-xs text-slate-900 placeholder:text-slate-400 focus:border-[#233b66] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#233b66] transition-all"
@@ -288,10 +290,10 @@ export function ReservationsView() {
             <div className="flex items-center rounded-lg border border-slate-200 bg-slate-100 p-1">
               {(
                 [
-                  { id: "ACTIVE", label: "Active Holds" },
-                  { id: "APPROVED", label: "Approved" },
-                  { id: "EXPIRED", label: "Expired/Released" },
-                  { id: "ALL", label: "All" },
+                  { id: "ACTIVE", label: t("reservations.activeReservations") },
+                  { id: "APPROVED", label: t("siteVisits.statusCompleted") },
+                  { id: "EXPIRED", label: t("reservations.expiredReservations") },
+                  { id: "ALL", label: t("reservations.allReservations") },
                 ] as const
               ).map((item) => (
                 <button
@@ -316,7 +318,7 @@ export function ReservationsView() {
               className="h-9.5 font-semibold text-xs px-4 shadow-sm gap-1.5"
             >
               <Plus className="size-4" />
-              New Unit Reservation
+              {t("reservations.newReservation")}
             </Button>
           </div>
         </div>
@@ -362,9 +364,9 @@ export function ReservationsView() {
         ) : visible.length === 0 ? (
           <div className="p-8">
             <EmptyState
-              title="No Unit Reservations Found"
-              description="No holding deposit records match your current filter or search query."
-              actionText="Create Reservation"
+              title={t("reservations.noReservationsFound")}
+              description={t("reservations.subtitle")}
+              actionText={t("reservations.newReservation")}
               onAction={() => setShowForm(true)}
             />
           </div>
@@ -374,13 +376,13 @@ export function ReservationsView() {
               <table className="w-full text-left text-xs">
                 <thead className="border-b border-slate-200 bg-slate-50/70 text-slate-700 font-bold uppercase tracking-wider text-[11px]">
                   <tr>
-                    <th className="px-4 py-3">Reservation Ref</th>
-                    <th className="px-4 py-3">Buyer / Customer</th>
-                    <th className="px-4 py-3">Property Unit</th>
-                    <th className="px-4 py-3">Deposit Amount (ETB)</th>
-                    <th className="px-4 py-3">Hold Expiry Window</th>
-                    <th className="px-4 py-3">Status</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
+                    <th className="px-4 py-3">{t("reservations.unitNumber")}</th>
+                    <th className="px-4 py-3">{t("reservations.buyerName")}</th>
+                    <th className="px-4 py-3">{t("units.type")}</th>
+                    <th className="px-4 py-3">{t("reservations.depositPaid")}</th>
+                    <th className="px-4 py-3">{t("reservations.expiryDate")}</th>
+                    <th className="px-4 py-3">{t("dashboard.status")}</th>
+                    <th className="px-4 py-3 text-right">{t("actions.status")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium">
