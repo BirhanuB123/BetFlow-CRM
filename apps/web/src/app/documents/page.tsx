@@ -688,7 +688,7 @@ export default function DocumentsPage() {
         {/* Document Preview Drawer / Modal */}
         {previewDoc && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-xs">
-            <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl border border-slate-200">
+            <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-2xl border border-slate-200">
               <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                 <div className="flex items-center gap-2">
                   <FileText className="size-5 text-primary" />

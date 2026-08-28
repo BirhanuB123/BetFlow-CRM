@@ -47,7 +47,7 @@ export function SmsCampaignModal({
 }: SmsCampaignModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl border border-slate-200 relative">
+      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-xl border border-slate-200 relative">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
           <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
             <Send className="size-4 text-[#233b66]" />

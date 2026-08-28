@@ -220,7 +220,7 @@ export function UnitsView({ projectId }: UnitsViewProps) {
     <div className="space-y-6">
       {/* Top Header & View Mode Selector */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant={viewMode === "STACKING_PLAN" ? "default" : "outline"}
             onClick={() => setViewMode("STACKING_PLAN")}
@@ -240,7 +240,7 @@ export function UnitsView({ projectId }: UnitsViewProps) {
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-3 text-xs font-semibold">
+        <div className="flex flex-wrap items-center gap-3 text-xs font-semibold">
           <span className="flex items-center gap-1 text-success">
             <span className="size-2.5 rounded-full bg-success" />
             {t("units.statusAvailable")} ({counts.AVAILABLE})
@@ -479,7 +479,7 @@ export function UnitsView({ projectId }: UnitsViewProps) {
       {/* Payment Plan Estimator Modal */}
       {calcUnit && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl space-y-4">
+          <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <Calculator className="size-5 text-[#233b66]" />

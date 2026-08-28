@@ -18,6 +18,8 @@ import {
   ChevronRight,
   Filter,
   RotateCcw,
+  Mail,
+  Phone,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -639,85 +641,166 @@ export function CustomersView() {
               )}
             </div>
           ) : (
-            <table className="w-full text-left text-[13px] whitespace-nowrap">
-              <thead className="bg-[#f8f9fa] text-zinc-700 font-semibold sticky top-0 border-b border-zinc-200 shadow-sm z-10">
-                <tr>
-                  <th className="px-4 py-2.5 w-10 text-center">
-                    <input
-                      type="checkbox"
-                      checked={allRowsSelected}
-                      onChange={toggleSelectAllRows}
-                      className="rounded border-zinc-300 text-primary focus:ring-primary size-3.5 cursor-pointer accent-primary"
-                    />
-                  </th>
-                  <th className="px-4 py-2.5">
-                    <div className="flex items-center group cursor-pointer hover:text-primary">
-                      {t("customers.customerName")}{" "}
-                      <span className="text-zinc-300 ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        ↓
-                      </span>
-                    </div>
-                  </th>
-                  <th className="px-4 py-2.5">{t("dashboard.company")}</th>
-                  <th className="px-4 py-2.5">{t("customers.email")}</th>
-                  <th className="px-4 py-2.5">{t("customers.phone")}</th>
-                  <th className="px-4 py-2.5">{t("dashboard.assignee")}</th>
-                  <th className="px-4 py-2.5 w-10"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-100">
+            <>
+              {/* Desktop Table (md and above) */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full min-w-[700px] text-left text-[13px] whitespace-nowrap">
+                  <thead className="bg-[#f8f9fa] text-zinc-700 font-semibold sticky top-0 border-b border-zinc-200 shadow-sm z-10">
+                    <tr>
+                      <th className="px-4 py-2.5 w-10 text-center">
+                        <input
+                          type="checkbox"
+                          checked={allRowsSelected}
+                          onChange={toggleSelectAllRows}
+                          className="rounded border-zinc-300 text-primary focus:ring-primary size-3.5 cursor-pointer accent-primary"
+                        />
+                      </th>
+                      <th className="px-4 py-2.5">
+                        <div className="flex items-center group cursor-pointer hover:text-primary">
+                          {t("customers.customerName")}{" "}
+                          <span className="text-zinc-300 ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            ↓
+                          </span>
+                        </div>
+                      </th>
+                      <th className="px-4 py-2.5">{t("dashboard.company")}</th>
+                      <th className="px-4 py-2.5">{t("customers.email")}</th>
+                      <th className="px-4 py-2.5">{t("customers.phone")}</th>
+                      <th className="px-4 py-2.5">{t("dashboard.assignee")}</th>
+                      <th className="px-4 py-2.5 w-10"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-100">
+                    {filteredCustomers.map((customer) => {
+                      const isSelected = selectedRowIds.has(customer.id);
+                      return (
+                        <tr
+                          key={customer.id}
+                          className={cn(
+                            "transition-colors group cursor-pointer",
+                            isSelected ? "bg-primary/5" : "hover:bg-[#f8f9fa]",
+                          )}
+                        >
+                          <td className="px-4 py-2.5 text-center">
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => toggleSelectRow(customer.id)}
+                              className={cn(
+                                "rounded border-zinc-300 text-primary focus:ring-primary size-3.5 cursor-pointer accent-primary transition-opacity",
+                                isSelected
+                                  ? "opacity-100"
+                                  : "opacity-0 group-hover:opacity-100",
+                              )}
+                            />
+                          </td>
+                          <td className="px-4 py-2.5">
+                            <Link
+                              href={`/customers/${customer.id}`}
+                              className="font-medium text-primary hover:text-primary hover:underline inline-flex items-center gap-1.5"
+                            >
+                              <div className="size-6 rounded-full bg-primary/10 border border-primary/10 flex items-center justify-center text-primary text-[10px] font-bold">
+                                {customer.firstName[0]}
+                                {customer.lastName[0]}
+                              </div>
+                              {customer.firstName} {customer.lastName}
+                            </Link>
+                          </td>
+                          <td className="px-4 py-2.5 text-zinc-700">
+                            BetFlow Deals
+                          </td>
+                          <td className="px-4 py-2.5 text-zinc-600">
+                            {customer.email ?? "—"}
+                          </td>
+                          <td className="px-4 py-2.5 text-zinc-600">
+                            {customer.phone ?? "—"}
+                          </td>
+                          <td className="px-4 py-2.5 text-zinc-700 flex items-center gap-1.5">
+                            <div className="size-5 rounded-full bg-zinc-200 flex items-center justify-center text-zinc-600 text-[9px] font-bold overflow-hidden">
+                              BB
+                            </div>
+                            Birhanu Baynesagn
+                          </td>
+                          <td className="px-4 py-2.5 text-right opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center justify-end gap-1">
+                              <button
+                                onClick={(e) => {
+                                 e.preventDefault();
+                                  e.stopPropagation();
+                                  setEditingCustomer(customer);
+                                  setEditCustomerForm({
+                                    firstName: customer.firstName,
+                                    lastName: customer.lastName,
+                                    email: customer.email || "",
+                                    phone: customer.phone || "",
+                                  });
+                                }}
+                                className="p-1 text-zinc-400 hover:text-primary hover:bg-primary/10 rounded transition-colors"
+                                title={t("customers.editCustomer")}
+                              >
+                                <Pencil className="size-3.5" />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleDelete(customer.id);
+                                }}
+                                className="p-1 text-zinc-400 hover:text-destructive hover:bg-destructive/10 rounded transition-colors"
+                                title={t("customers.deleteCustomer")}
+                              >
+                                <Trash2 className="size-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card List (below md) */}
+              <div className="block md:hidden p-3 space-y-3">
                 {filteredCustomers.map((customer) => {
                   const isSelected = selectedRowIds.has(customer.id);
                   return (
-                    <tr
+                    <div
                       key={customer.id}
                       className={cn(
-                        "transition-colors group cursor-pointer",
-                        isSelected ? "bg-primary/5" : "hover:bg-[#f8f9fa]",
+                        "rounded-xl border border-zinc-200/90 bg-white p-3.5 shadow-2xs space-y-2.5 transition-all",
+                        isSelected && "border-primary/40 bg-primary/5",
                       )}
                     >
-                      <td className="px-4 py-2.5 text-center">
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleSelectRow(customer.id)}
-                          className={cn(
-                            "rounded border-zinc-300 text-primary focus:ring-primary size-3.5 cursor-pointer accent-primary transition-opacity",
-                            isSelected
-                              ? "opacity-100"
-                              : "opacity-0 group-hover:opacity-100",
-                          )}
-                        />
-                      </td>
-                      <td className="px-4 py-2.5">
-                        <Link
-                          href={`/customers/${customer.id}`}
-                          className="font-medium text-primary hover:text-primary hover:underline inline-flex items-center gap-1.5"
-                        >
-                          <div className="size-6 rounded-full bg-primary/10 border border-primary/10 flex items-center justify-center text-primary text-[10px] font-bold">
-                            {customer.firstName[0]}
-                            {customer.lastName[0]}
-                          </div>
-                          {customer.firstName} {customer.lastName}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-2.5 text-zinc-700">
-                        BetFlow Deals
-                      </td>
-                      <td className="px-4 py-2.5 text-zinc-600">
-                        {customer.email ?? "—"}
-                      </td>
-                      <td className="px-4 py-2.5 text-zinc-600">
-                        {customer.phone ?? "—"}
-                      </td>
-                      <td className="px-4 py-2.5 text-zinc-700 flex items-center gap-1.5">
-                        <div className="size-5 rounded-full bg-zinc-200 flex items-center justify-center text-zinc-600 text-[9px] font-bold overflow-hidden">
-                          BB
+                      {/* Top Header: Avatar, Name, Checkbox, Actions */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleSelectRow(customer.id)}
+                            className="rounded border-zinc-300 text-primary focus:ring-primary size-4 cursor-pointer accent-primary shrink-0"
+                          />
+                          <Link
+                            href={`/customers/${customer.id}`}
+                            className="font-bold text-zinc-900 hover:text-primary transition-colors flex items-center gap-2 min-w-0"
+                          >
+                            <div className="size-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xs font-bold shrink-0">
+                              {customer.firstName[0]}
+                              {customer.lastName[0]}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-bold text-zinc-900 leading-tight">
+                                {customer.firstName} {customer.lastName}
+                              </p>
+                              <span className="text-[11px] text-zinc-400 font-medium">
+                                BetFlow Deals
+                              </span>
+                            </div>
+                          </Link>
                         </div>
-                        Birhanu Baynesagn
-                      </td>
-                      <td className="px-4 py-2.5 text-right opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="flex items-center justify-end gap-1">
+
+                        <div className="flex items-center gap-1 shrink-0">
                           <button
                             onClick={(e) => {
                               e.preventDefault();
@@ -730,7 +813,7 @@ export function CustomersView() {
                                 phone: customer.phone || "",
                               });
                             }}
-                            className="p-1 text-zinc-400 hover:text-primary hover:bg-primary/10 rounded transition-colors"
+                            className="p-1.5 text-zinc-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                             title={t("customers.editCustomer")}
                           >
                             <Pencil className="size-3.5" />
@@ -741,18 +824,57 @@ export function CustomersView() {
                               e.stopPropagation();
                               handleDelete(customer.id);
                             }}
-                            className="p-1 text-zinc-400 hover:text-destructive hover:bg-destructive/10 rounded transition-colors"
+                            className="p-1.5 text-zinc-400 hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                             title={t("customers.deleteCustomer")}
                           >
                             <Trash2 className="size-3.5" />
                           </button>
                         </div>
-                      </td>
-                    </tr>
+                      </div>
+
+                      {/* Contact Channels */}
+                      <div className="grid grid-cols-1 gap-1.5 pt-1 text-xs text-zinc-600">
+                        {customer.phone && (
+                          <div className="flex items-center gap-2 text-zinc-600">
+                            <Phone className="size-3.5 text-zinc-400 shrink-0" />
+                            <a
+                              href={`tel:${customer.phone}`}
+                              className="font-mono text-zinc-700 hover:text-primary hover:underline text-xs"
+                            >
+                              {customer.phone}
+                            </a>
+                          </div>
+                        )}
+                        {customer.email && (
+                          <div className="flex items-center gap-2 text-zinc-600 truncate">
+                            <Mail className="size-3.5 text-zinc-400 shrink-0" />
+                            <a
+                              href={`mailto:${customer.email}`}
+                              className="truncate text-zinc-700 hover:text-primary hover:underline text-xs"
+                            >
+                              {customer.email}
+                            </a>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Bottom Footer: Assignee */}
+                      <div className="flex items-center justify-between border-t border-zinc-100 pt-2 text-[11px] text-zinc-500">
+                        <span className="font-medium text-zinc-400">
+                          {t("dashboard.assignee")}:
+                        </span>
+                        <div className="flex items-center gap-1.5 text-zinc-700 font-medium">
+                          <div className="size-4 rounded-full bg-zinc-200 flex items-center justify-center text-zinc-600 text-[8px] font-bold">
+                            BB
+                          </div>
+                          Birhanu Baynesagn
+                        </div>
+                      </div>
+                    </div>
                   );
                 })}
-              </tbody>
-            </table>
+              </div>
+            </>
           )}
         </div>
 
@@ -780,7 +902,7 @@ export function CustomersView() {
       {/* Edit Customer Modal */}
       {editingCustomer && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-5 shadow-xl">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-lg border border-zinc-200 bg-white p-5 shadow-xl">
             <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
               <h3 className="text-sm font-bold text-zinc-900">{t("customers.editCustomer")}</h3>
               <button

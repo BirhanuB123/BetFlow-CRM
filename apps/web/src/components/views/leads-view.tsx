@@ -22,6 +22,9 @@ import {
   Webhook,
   Copy,
   Check,
+  Mail,
+  Phone,
+  Sparkles,
 } from "lucide-react";
 
 import { AccessRestricted } from "@/components/ui/access-restricted";
@@ -694,7 +697,7 @@ export function LeadsView() {
             )
           ) : null}
 
-          <div className="overflow-x-auto">
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full min-w-[760px] text-left text-xs">
               <thead className="border-b border-zinc-200 bg-zinc-50/80 text-zinc-600 font-semibold">
                 <tr>
@@ -945,6 +948,161 @@ export function LeadsView() {
             </table>
           </div>
 
+          {/* Mobile Card List (below md) */}
+          <div className="block md:hidden p-3 space-y-3">
+            {loading ? (
+              <div className="py-12 text-center text-xs text-zinc-500 bg-white rounded-xl border border-zinc-200">
+                Loading demand pipeline...
+              </div>
+            ) : pageRows.length === 0 ? (
+              <div className="py-12 text-center text-xs text-zinc-500 bg-white rounded-xl border border-zinc-200">
+                No leads match the active filters or search criteria.
+              </div>
+            ) : (
+              pageRows.map((lead) => {
+                const isSelected = selected.has(lead.id);
+                const isDiaspora = lead.diasporaTag?.isDiaspora;
+
+                return (
+                  <div
+                    key={lead.id}
+                    className={cn(
+                      "rounded-xl border border-zinc-200/90 bg-white p-3.5 shadow-2xs space-y-2.5 transition-all",
+                      isSelected && "border-primary/40 bg-primary/5",
+                    )}
+                  >
+                    {/* Top Row: Avatar, Name, Company, Checkbox, Actions */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSet(setSelected, lead.id)}
+                          className="rounded border-zinc-300 text-primary focus:ring-primary size-4 cursor-pointer accent-primary shrink-0"
+                        />
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-extrabold shrink-0 border border-primary/20">
+                            {initials(fullName(lead))}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-bold text-zinc-900 leading-tight">
+                              {fullName(lead)}
+                            </p>
+                            <span className="text-[11px] text-zinc-400 font-medium truncate block">
+                              {lead.company || "Individual Buyer"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1 shrink-0">
+                        {!lead.convertedCustomerId ? (
+                          <button
+                            type="button"
+                            title="Convert to Customer"
+                            onClick={() => setConvertLead(lead)}
+                            className="p-1.5 text-success hover:bg-success/10 rounded-lg transition-colors"
+                          >
+                            <UserRoundCheck className="size-4" />
+                          </button>
+                        ) : null}
+                        <button
+                          type="button"
+                          title="Edit Lead"
+                          onClick={(e) => handleEditOpen(lead, e)}
+                          className="p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 rounded-lg transition-colors"
+                        >
+                          <Pencil className="size-4" />
+                        </button>
+                        <button
+                          type="button"
+                          title="Delete Lead"
+                          onClick={() => handleDelete(lead.id, fullName(lead))}
+                          className="p-1.5 text-zinc-400 hover:bg-destructive/10 hover:text-destructive rounded-lg transition-colors"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Badges Row: Status Stage, Diaspora/Local, Source, AI Score */}
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                      <span
+                        className={cn(
+                          "inline-block rounded-md px-2 py-0.5 text-[11px] font-bold border border-current/20",
+                          statusClass[lead.status] || "bg-zinc-100 text-zinc-700",
+                        )}
+                      >
+                        {titleCase(lead.status)}
+                      </span>
+
+                      {isDiaspora ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2 py-0.5 text-[10px] font-bold text-warning border border-warning/20">
+                          <span>{lead.diasporaTag?.flag || "🌍"}</span>
+                          <span>{lead.diasporaTag?.originCountry}</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success border border-success/20">
+                          <span>🇪🇹</span> Local
+                        </span>
+                      )}
+
+                      <SocialSourceBadge sourceName={lead.source?.name} />
+
+                      {lead.aiScore ? (
+                        <button
+                          type="button"
+                          onClick={() => setAiInsightLead(lead)}
+                          className="inline-flex items-center gap-1 rounded-md bg-purple-50 px-2 py-0.5 text-[10px] font-bold text-purple-700 border border-purple-200 hover:bg-purple-100 transition-colors"
+                        >
+                          <Sparkles className="size-3 text-purple-500" />
+                          <span>Score: {lead.aiScore.score}</span>
+                          <span className="opacity-75">({lead.aiScore.intent})</span>
+                        </button>
+                      ) : null}
+                    </div>
+
+                    {/* Contact Info */}
+                    {(lead.phone || lead.email) && (
+                      <div className="grid grid-cols-1 gap-1 text-xs text-zinc-600 pt-0.5">
+                        {lead.phone && (
+                          <div className="flex items-center gap-2">
+                            <Phone className="size-3 text-zinc-400 shrink-0" />
+                            <a
+                              href={`tel:${lead.phone}`}
+                              className="font-mono text-zinc-700 hover:text-primary hover:underline text-[11px]"
+                            >
+                              {lead.phone}
+                            </a>
+                          </div>
+                        )}
+                        {lead.email && (
+                          <div className="flex items-center gap-2 truncate">
+                            <Mail className="size-3 text-zinc-400 shrink-0" />
+                            <a
+                              href={`mailto:${lead.email}`}
+                              className="truncate text-zinc-700 hover:text-primary hover:underline text-[11px]"
+                            >
+                              {lead.email}
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Bottom Row: Assignee */}
+                    <div className="flex items-center justify-between border-t border-zinc-100 pt-2 text-[11px] text-zinc-500">
+                      <span className="font-medium text-zinc-400">Assignee:</span>
+                      <span className="font-semibold text-zinc-700">
+                        {ownerName(lead)}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
           {/* Pagination Footer */}
           <div className="flex items-center justify-between border-t border-zinc-200 bg-zinc-50/50 px-4 py-3 text-xs text-zinc-600">
             <p>
@@ -982,7 +1140,7 @@ export function LeadsView() {
       {/* Create Lead Modal */}
       {createOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-lg rounded-xl border border-zinc-200 bg-white p-6 shadow-xl space-y-4">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl border border-zinc-200 bg-white p-6 shadow-xl space-y-4">
             <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
               <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2">
                 <Plus className="size-5 text-primary" />
@@ -1126,7 +1284,7 @@ export function LeadsView() {
       {/* Edit Lead Modal */}
       {editingLead ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-lg rounded-xl border border-zinc-200 bg-white p-6 shadow-xl space-y-4">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl border border-zinc-200 bg-white p-6 shadow-xl space-y-4">
             <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
               <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2">
                 <Pencil className="size-4 text-primary" />
@@ -1344,7 +1502,7 @@ function LeadConvertModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 animate-in fade-in duration-150">
-      <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-xl space-y-4">
+      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl border border-zinc-200 bg-white p-6 shadow-xl space-y-4">
         <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
           <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2">
             <UserRoundCheck className="size-5 text-success" />

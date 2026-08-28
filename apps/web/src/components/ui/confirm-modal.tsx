@@ -50,7 +50,7 @@ export function ConfirmModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-xs animate-in fade-in duration-150">
       <div
-        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-slate-200/90 animate-in zoom-in-95 duration-150 relative overflow-hidden"
+        className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl border border-slate-200/90 animate-in zoom-in-95 duration-150 relative overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
