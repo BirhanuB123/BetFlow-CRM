@@ -457,15 +457,17 @@ export function SocialOutreachView() {
                             segment:
                               newChan === "TELEGRAM"
                                 ? "All Telegram Channel Subscribers"
-                                : `${newChan} Audience (Not Connected)`,
+                                : newChan === "SMS"
+                                  ? "All CRM Phone Contacts"
+                                  : `${newChan} Audience (Not Connected)`,
                           });
                         }}
                         className="w-full h-9 rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-primary"
                       >
                         <option value="TELEGRAM">Telegram Official Channel (Active)</option>
+                        <option value="SMS">Ethio Telecom SMS Broadcast (Active)</option>
                         <option value="FACEBOOK">Meta / Facebook Audience (Not Connected)</option>
                         <option value="WHATSAPP">WhatsApp Business Broadcast (Not Connected)</option>
-                        <option value="SMS">Ethio Telecom SMS Broadcast (Use SMS Module)</option>
                       </select>
                     </div>
 
@@ -482,7 +484,7 @@ export function SocialOutreachView() {
                     </div>
                   </div>
 
-                  {form.channel !== "TELEGRAM" && (
+                  {form.channel !== "TELEGRAM" && form.channel !== "SMS" && (
                     <div className="rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-800 flex items-start gap-2">
                       <AlertCircle className="size-4 text-amber-600 shrink-0 mt-0.5" />
                       <div>
@@ -490,10 +492,20 @@ export function SocialOutreachView() {
                         <p className="text-[11px] text-amber-700 mt-0.5">
                           {form.channel === "FACEBOOK"
                             ? "Meta / Facebook Marketing API is not configured yet."
-                            : form.channel === "WHATSAPP"
-                              ? "WhatsApp Business Cloud API is not configured yet."
-                              : "SMS broadcasts must be sent via the dedicated SMS Outbox module."}{" "}
-                          Direct live broadcasting is currently active for Telegram Official Channel.
+                            : "WhatsApp Business Cloud API is not configured yet."}{" "}
+                          Direct live broadcasting is currently active for Telegram Official Channel and Ethio Telecom SMS Gateway.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {form.channel === "SMS" && (
+                    <div className="rounded-lg border border-emerald-200 bg-emerald-50/80 p-2.5 text-xs text-emerald-800 flex items-start gap-2">
+                      <Sparkles className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold text-emerald-900">Ethio Telecom & AfroMessage SMS Gateway Active</p>
+                        <p className="text-[11px] text-emerald-700 mt-0.5">
+                          Broadcast SMS will be dispatched directly to your CRM phone contacts with live status logging in the SMS Outbox.
                         </p>
                       </div>
                     </div>
@@ -770,7 +782,7 @@ export function SocialOutreachView() {
       {/* Broadcast Preview Modal */}
       {activePreviewModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl transition-all">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl transition-all">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <Megaphone className="size-5 text-primary" />

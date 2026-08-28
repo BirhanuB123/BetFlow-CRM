@@ -4,6 +4,7 @@ import {
   Post,
   Patch,
   Put,
+  Delete,
   Body,
   Param,
   Query,
@@ -133,5 +134,18 @@ export class SmsController {
     @Body() dto: EnrollLeadDto,
   ) {
     return this.smsService.enrollLead(campaignId, dto, user?.id);
+  }
+
+  @Delete('drip-campaigns/:id')
+  async deleteDripCampaign(@Param('id') id: string) {
+    return this.smsService.deleteDripCampaign(id);
+  }
+
+  @Delete('drip-campaigns/:id/steps/:stepId')
+  async deleteDripStep(
+    @Param('id') campaignId: string,
+    @Param('stepId') stepId: string,
+  ) {
+    return this.smsService.deleteDripStep(campaignId, stepId);
   }
 }

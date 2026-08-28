@@ -250,7 +250,7 @@ export function DealsView() {
       {/* Edit Deal Modal */}
       {editingDeal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-          <div className="w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-150">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl border border-slate-200 bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <Pencil className="size-4 text-primary" />
@@ -528,7 +528,7 @@ export function DealsView() {
         <PipelineSkeleton columns={4} />
       ) : (
         <>
-          <div className="grid gap-4 overflow-x-auto xl:grid-cols-4 pb-2">
+          <div className="flex flex-col md:flex-row md:overflow-x-auto gap-4 pb-2">
             {stages.map((stage) => {
               const stageDeals = dealsByStage.get(stage.id) ?? [];
               const stageTotalVal = stageDeals.reduce(
@@ -549,7 +549,7 @@ export function DealsView() {
                       setDraggingDealId(null);
                     }
                   }}
-                  className="min-w-72 flex-1 rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 flex flex-col shadow-xs"
+                  className="w-full md:w-72 md:min-w-72 md:shrink-0 rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 flex flex-col shadow-xs"
                 >
                   {/* Stage Header */}
                   <div className="flex items-center justify-between border-b border-slate-200 pb-2.5 mb-3 px-1">

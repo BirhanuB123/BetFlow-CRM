@@ -1,6 +1,8 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../database/prisma.service';
+import { EthioTelecomSmsService } from './sms.service';
+import { interpolateTemplate } from './sms-template.util';
 
 export type CreateCampaignInput = {
   title: string;
@@ -14,7 +16,10 @@ export type CreateCampaignInput = {
 export class CampaignsService {
   private readonly logger = new Logger(CampaignsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly smsService: EthioTelecomSmsService,
+  ) {}
 
   async listCampaigns() {
     const campaigns = await this.prisma.campaign.findMany({
@@ -28,7 +33,7 @@ export class CampaignsService {
         | 'SMS'
         | 'WHATSAPP';
 
-      const isConnected = channel === 'TELEGRAM';
+      const isConnected = channel === 'TELEGRAM' || channel === 'SMS';
       const recipients = c.recipientCount ?? 0;
 
       let segment = 'Targeted Audience';
@@ -72,16 +77,14 @@ export class CampaignsService {
 
     const channel = input.channel || 'TELEGRAM';
 
-    if (channel !== 'TELEGRAM') {
+    if (channel !== 'TELEGRAM' && channel !== 'SMS') {
       const channelName =
         channel === 'FACEBOOK'
           ? 'Meta / Facebook Marketing API'
-          : channel === 'WHATSAPP'
-            ? 'WhatsApp Business API'
-            : 'SMS Gateway';
+          : 'WhatsApp Business API';
 
       throw new BadRequestException(
-        `${channelName} integration is not connected. Broadcasts are currently active for Telegram Official Channel.`,
+        `${channelName} integration is not connected. Broadcasts are currently active for Telegram Official Channel and Ethio Telecom SMS Gateway.`,
       );
     }
     const campaignId = randomUUID();
@@ -207,8 +210,67 @@ export class CampaignsService {
       }
     }
 
+    if (channel === 'SMS') {
+      try {
+        const allContacts = await this.smsService.getSmsContacts();
+
+        let targetContacts = allContacts;
+        if (
+          input.segment &&
+          input.segment.trim() !== '' &&
+          !input.segment.toLowerCase().includes('all')
+        ) {
+          const segNormalized = input.segment.trim().toUpperCase().replace(/\s+/g, '_');
+          const filtered = allContacts.filter(
+            (c) =>
+              c.segment === segNormalized ||
+              c.type === segNormalized ||
+              (c.details && c.details.toUpperCase().includes(segNormalized)),
+          );
+          if (filtered.length > 0) {
+            targetContacts = filtered;
+          }
+        }
+
+        const validPhoneContacts = targetContacts.filter((c) => !!c.phone);
+        let sentCount = 0;
+
+        for (const contact of validPhoneContacts) {
+          const { body } = interpolateTemplate(messageToSend, {
+            clientName: contact.name,
+            projectName: 'BetFlow Properties',
+            agentPhone: process.env.AFROMESSAGE_SENDER_ID || '0911223344',
+          });
+
+          await this.smsService.sendSms(
+            {
+              recipientName: contact.name,
+              recipientPhone: contact.phone,
+              body,
+              triggerType: 'MANUAL_BROADCAST',
+            },
+            userId,
+          );
+          sentCount++;
+        }
+
+        realRecipientCount = sentCount;
+        campaignStatus = 'SENT';
+        this.logger.log(
+          `Successfully dispatched SMS Campaign "${input.title}" to ${sentCount} recipient(s).`,
+        );
+      } catch (err) {
+        campaignStatus = 'FAILED';
+        errorMessage =
+          err instanceof Error ? err.message : 'Failed to dispatch SMS campaign';
+        this.logger.error(`SMS campaign broadcast failed: ${errorMessage}`);
+      }
+    }
+
     const effectiveRecipients =
-      channel === 'TELEGRAM' ? (realRecipientCount ?? 0) : 0;
+      channel === 'TELEGRAM' || channel === 'SMS'
+        ? (realRecipientCount ?? 0)
+        : 0;
 
     const campaign = await this.prisma.campaign.create({
       data: {
@@ -216,7 +278,8 @@ export class CampaignsService {
         name: input.title.trim(),
         type: channel,
         status: campaignStatus,
-        recipientCount: channel === 'TELEGRAM' ? realRecipientCount : 0,
+        recipientCount:
+          channel === 'TELEGRAM' || channel === 'SMS' ? realRecipientCount : 0,
         targetUrl: targetUrl || null,
         clicks: 0,
         startDate: new Date(),
@@ -226,7 +289,7 @@ export class CampaignsService {
     await this.prisma.auditLog.create({
       data: {
         userId: userId || null,
-        action: 'social_campaign.created',
+        action: channel === 'SMS' ? 'sms_campaign.created' : 'social_campaign.created',
         entityType: 'Campaign',
         entityId: campaign.id,
         newValues: {
@@ -243,6 +306,12 @@ export class CampaignsService {
     if (channel === 'TELEGRAM' && campaignStatus === 'FAILED') {
       throw new BadRequestException(
         `Telegram broadcast failed: ${errorMessage || 'Unknown error'}`,
+      );
+    }
+
+    if (channel === 'SMS' && campaignStatus === 'FAILED') {
+      throw new BadRequestException(
+        `SMS broadcast failed: ${errorMessage || 'Unknown error'}`,
       );
     }
 

@@ -1097,6 +1097,32 @@ export class EthioTelecomSmsService {
       campaign,
     };
   }
+
+  async deleteDripCampaign(id: string): Promise<{ success: boolean; id: string }> {
+    const idx = this.dripCampaigns.findIndex((c) => c.id === id);
+    if (idx === -1) {
+      throw new NotFoundException(`Drip Campaign ${id} not found`);
+    }
+    this.dripCampaigns.splice(idx, 1);
+    this.logger.log(`Deleted SMS Drip Campaign: ${id}`);
+    return { success: true, id };
+  }
+
+  async deleteDripStep(
+    campaignId: string,
+    stepId: string,
+  ): Promise<DripCampaign> {
+    const campaign = this.dripCampaigns.find((c) => c.id === campaignId);
+    if (!campaign) {
+      throw new NotFoundException(`Drip Campaign ${campaignId} not found`);
+    }
+    campaign.steps = campaign.steps.filter((s) => s.id !== stepId);
+    campaign.steps.forEach((s, idx) => {
+      s.stepNumber = idx + 1;
+    });
+    this.logger.log(`Deleted step ${stepId} from Drip Campaign ${campaignId}`);
+    return campaign;
+  }
 }
 
 export { EthioTelecomSmsService as SmsService };

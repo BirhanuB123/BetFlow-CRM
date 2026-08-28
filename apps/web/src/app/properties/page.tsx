@@ -294,7 +294,7 @@ export default function PropertiesPage() {
       {/* EDIT MILESTONE & TRIGGER PAYMENT MODAL */}
       {editingMilestone ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl border border-zinc-100">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-2xl border border-zinc-100">
             <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
               <div className="flex items-center gap-2">
                 <HardHat className="size-5 text-warning" />
