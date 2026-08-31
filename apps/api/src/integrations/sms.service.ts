@@ -214,8 +214,6 @@ export type SmsContact = {
 export class EthioTelecomSmsService {
   private readonly logger = new Logger(EthioTelecomSmsService.name);
 
-
-
   // In-memory Automated Trigger Rules
   private rules = {
     siteVisit: {
@@ -540,9 +538,7 @@ export class EthioTelecomSmsService {
       const senderName = process.env.AFROMESSAGE_SENDER_ID?.trim() || '';
       const identifier = process.env.AFROMESSAGE_IDENTIFIER?.trim() || '';
       const baseUrl =
-        process.env.API_BASE_URL ||
-        process.env.APP_BASE_URL ||
-        '';
+        process.env.API_BASE_URL || process.env.APP_BASE_URL || '';
 
       this.logger.log(
         `[Gateway Dispatch] Primary attempt via AfroMessage to +${formattedPhone}...`,
@@ -573,7 +569,7 @@ export class EthioTelecomSmsService {
           },
         });
 
-        let data = (await response.json().catch(() => null)) as any;
+        let data = await response.json().catch(() => null);
 
         // If primary attempt failed, retry with direct sender parameter
         if (
@@ -602,7 +598,7 @@ export class EthioTelecomSmsService {
               Accept: 'application/json',
             },
           });
-          data = (await response.json().catch(() => null)) as any;
+          data = await response.json().catch(() => null);
         }
 
         if (
@@ -848,7 +844,10 @@ export class EthioTelecomSmsService {
   /**
    * Fetch real remaining account balance from AfroMessage API
    */
-  async getAfroMessageBalance(): Promise<{ balance: number | null; isReal: boolean }> {
+  async getAfroMessageBalance(): Promise<{
+    balance: number | null;
+    isReal: boolean;
+  }> {
     if (!process.env.AFROMESSAGE_API_KEY) {
       return { balance: null, isReal: false };
     }
@@ -864,11 +863,13 @@ export class EthioTelecomSmsService {
       });
 
       if (!response.ok) {
-        this.logger.warn(`AfroMessage balance API query HTTP ${response.status}`);
+        this.logger.warn(
+          `AfroMessage balance API query HTTP ${response.status}`,
+        );
         return { balance: null, isReal: false };
       }
 
-      const data = (await response.json().catch(() => null)) as any;
+      const data = await response.json().catch(() => null);
       const balanceNum =
         typeof data?.balance === 'number'
           ? data.balance
@@ -882,7 +883,9 @@ export class EthioTelecomSmsService {
         return { balance: balanceNum, isReal: true };
       }
     } catch (err: any) {
-      this.logger.error(`Error querying AfroMessage balance: ${err?.message || err}`);
+      this.logger.error(
+        `Error querying AfroMessage balance: ${err?.message || err}`,
+      );
     }
 
     return { balance: null, isReal: false };
@@ -921,7 +924,10 @@ export class EthioTelecomSmsService {
     let gatewayProvider = 'Ethio Telecom Gateway Sandbox';
     if (lastLog?.gatewayUsed) {
       gatewayProvider = lastLog.gatewayUsed;
-    } else if (process.env.AFROMESSAGE_API_KEY && process.env.ETHIO_SMS_API_URL) {
+    } else if (
+      process.env.AFROMESSAGE_API_KEY &&
+      process.env.ETHIO_SMS_API_URL
+    ) {
       gatewayProvider = 'Dual Gateway (AfroMessage + Ethio Telecom Direct)';
     } else if (process.env.AFROMESSAGE_API_KEY) {
       gatewayProvider = 'AfroMessage Live Gateway (Ethiopia)';
@@ -1063,9 +1069,9 @@ export class EthioTelecomSmsService {
     // Immediately dispatch step 1 SMS if step 1 delay is 0
     const step1 = campaign.steps.find((s) => s.stepNumber === 1);
     if (step1 && step1.delayDays === 0) {
-      let agentPhone = process.env.AFROMESSAGE_SENDER_ID || '0911223344';
-      let projectName = 'BetFlow Luxury Properties';
-      let unitNumber = 'N/A';
+      const agentPhone = process.env.AFROMESSAGE_SENDER_ID || '0911223344';
+      const projectName = 'BetFlow Luxury Properties';
+      const unitNumber = 'N/A';
 
       const { body, missing } = interpolateTemplate(step1.smsTemplate, {
         clientName: dto.clientName,
@@ -1098,7 +1104,9 @@ export class EthioTelecomSmsService {
     };
   }
 
-  async deleteDripCampaign(id: string): Promise<{ success: boolean; id: string }> {
+  async deleteDripCampaign(
+    id: string,
+  ): Promise<{ success: boolean; id: string }> {
     const idx = this.dripCampaigns.findIndex((c) => c.id === id);
     if (idx === -1) {
       throw new NotFoundException(`Drip Campaign ${id} not found`);

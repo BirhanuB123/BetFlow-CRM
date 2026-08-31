@@ -134,7 +134,9 @@ export class RolesService {
       where: { id },
       data: {
         ...(body.name ? { name: body.name } : {}),
-        ...(body.description !== undefined ? { description: body.description } : {}),
+        ...(body.description !== undefined
+          ? { description: body.description }
+          : {}),
       },
     });
 

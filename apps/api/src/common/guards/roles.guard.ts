@@ -58,7 +58,8 @@ export class RolesGuard implements CanActivate {
             userId: request.user.id,
             action: 'auth.forbidden_access',
             entityType: 'Endpoint',
-            entityId: (request as any).url || (request as any).originalUrl || 'unknown',
+            entityId:
+              (request as any).url || (request as any).originalUrl || 'unknown',
             newValues: {
               userRoles,
               userPermissions,

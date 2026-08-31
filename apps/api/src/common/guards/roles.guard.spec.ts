@@ -140,7 +140,10 @@ describe('RolesGuard', () => {
         return undefined;
       });
 
-      const context = createPermissionMockContext(['leads.manage', 'reports.view']);
+      const context = createPermissionMockContext([
+        'leads.manage',
+        'reports.view',
+      ]);
       expect(guard.canActivate(context)).toBe(false);
     });
 
@@ -156,11 +159,17 @@ describe('RolesGuard', () => {
       expect(guard.canActivate(roleMatchContext)).toBe(true);
 
       // User has the permission
-      const permMatchContext = createPermissionMockContext(['campaigns.manage'], []);
+      const permMatchContext = createPermissionMockContext(
+        ['campaigns.manage'],
+        [],
+      );
       expect(guard.canActivate(permMatchContext)).toBe(true);
 
       // User has neither
-      const neitherContext = createPermissionMockContext(['other.perm'], ['Agent']);
+      const neitherContext = createPermissionMockContext(
+        ['other.perm'],
+        ['Agent'],
+      );
       expect(guard.canActivate(neitherContext)).toBe(false);
     });
   });

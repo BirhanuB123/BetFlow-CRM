@@ -132,7 +132,8 @@ export class DocumentsCronService {
             const cust = await this.prisma.customer.findUnique({
               where: { id: doc.entityId },
             });
-            if (cust) entityDesc = `Customer ${cust.firstName} ${cust.lastName}`;
+            if (cust)
+              entityDesc = `Customer ${cust.firstName} ${cust.lastName}`;
           } else if (doc.entityType === 'CONTRACT') {
             const cnt = await this.prisma.contract.findUnique({
               where: { id: doc.entityId },

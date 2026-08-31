@@ -10,7 +10,10 @@ import {
 } from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { RequirePermission, Roles } from '../../common/decorators/roles.decorator';
+import {
+  RequirePermission,
+  Roles,
+} from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';

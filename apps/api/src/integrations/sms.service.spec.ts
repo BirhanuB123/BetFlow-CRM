@@ -36,7 +36,9 @@ describe('SmsService - Send Path, Gateways & Fallbacks', () => {
         findFirst: jest.fn().mockResolvedValue(null),
         updateMany: jest.fn().mockResolvedValue({ count: 1 }),
         count: jest.fn().mockResolvedValue(0),
-        aggregate: jest.fn().mockResolvedValue({ _sum: { costEthioBirr: 0, segmentCount: 0 } }),
+        aggregate: jest
+          .fn()
+          .mockResolvedValue({ _sum: { costEthioBirr: 0, segmentCount: 0 } }),
       },
       lead: {
         findMany: jest.fn().mockResolvedValue([]),
@@ -128,7 +130,9 @@ describe('SmsService - Send Path, Gateways & Fallbacks', () => {
 
       const [calledUrl, calledOptions] = mockFetch.mock.calls[0];
       expect(calledUrl).toContain('afromessage.com');
-      expect(calledOptions.headers.Authorization).toBe('Bearer test-afro-key-123');
+      expect(calledOptions.headers.Authorization).toBe(
+        'Bearer test-afro-key-123',
+      );
 
       expect(prisma.smsOutbox.create).toHaveBeenCalledWith(
         expect.objectContaining({

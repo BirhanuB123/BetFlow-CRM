@@ -28,10 +28,7 @@ export class CampaignsService {
 
     return campaigns.map((c) => {
       const channel = (c.type || 'TELEGRAM') as
-        | 'TELEGRAM'
-        | 'FACEBOOK'
-        | 'SMS'
-        | 'WHATSAPP';
+        'TELEGRAM' | 'FACEBOOK' | 'SMS' | 'WHATSAPP';
 
       const isConnected = channel === 'TELEGRAM' || channel === 'SMS';
       const recipients = c.recipientCount ?? 0;
@@ -58,10 +55,7 @@ export class CampaignsService {
           : new Date().toISOString(),
         clicks: channel === 'TELEGRAM' ? (c.clicks ?? 0) : 0,
         status: (c.status || (isConnected ? 'SENT' : 'DRAFT')) as
-          | 'SENT'
-          | 'SCHEDULED'
-          | 'DRAFT'
-          | 'FAILED',
+          'SENT' | 'SCHEDULED' | 'DRAFT' | 'FAILED',
         messagePreview: c.name,
       };
     });
@@ -137,14 +131,22 @@ export class CampaignsService {
             `https://api.telegram.org/bot${botToken}/getChatMemberCount?chat_id=${encodeURIComponent(channelId)}`,
           );
           const countJson = await countRes.json();
-          if (countRes.ok && countJson.ok === true && typeof countJson.result === 'number') {
+          if (
+            countRes.ok &&
+            countJson.ok === true &&
+            typeof countJson.result === 'number'
+          ) {
             realRecipientCount = countJson.result;
           } else {
             const fallbackRes = await fetch(
               `https://api.telegram.org/bot${botToken}/getChatMembersCount?chat_id=${encodeURIComponent(channelId)}`,
             );
             const fallbackJson = await fallbackRes.json();
-            if (fallbackRes.ok && fallbackJson.ok === true && typeof fallbackJson.result === 'number') {
+            if (
+              fallbackRes.ok &&
+              fallbackJson.ok === true &&
+              typeof fallbackJson.result === 'number'
+            ) {
               realRecipientCount = fallbackJson.result;
             }
           }
@@ -220,7 +222,10 @@ export class CampaignsService {
           input.segment.trim() !== '' &&
           !input.segment.toLowerCase().includes('all')
         ) {
-          const segNormalized = input.segment.trim().toUpperCase().replace(/\s+/g, '_');
+          const segNormalized = input.segment
+            .trim()
+            .toUpperCase()
+            .replace(/\s+/g, '_');
           const filtered = allContacts.filter(
             (c) =>
               c.segment === segNormalized ||
@@ -262,7 +267,9 @@ export class CampaignsService {
       } catch (err) {
         campaignStatus = 'FAILED';
         errorMessage =
-          err instanceof Error ? err.message : 'Failed to dispatch SMS campaign';
+          err instanceof Error
+            ? err.message
+            : 'Failed to dispatch SMS campaign';
         this.logger.error(`SMS campaign broadcast failed: ${errorMessage}`);
       }
     }
@@ -289,7 +296,10 @@ export class CampaignsService {
     await this.prisma.auditLog.create({
       data: {
         userId: userId || null,
-        action: channel === 'SMS' ? 'sms_campaign.created' : 'social_campaign.created',
+        action:
+          channel === 'SMS'
+            ? 'sms_campaign.created'
+            : 'social_campaign.created',
         entityType: 'Campaign',
         entityId: campaign.id,
         newValues: {
@@ -320,7 +330,8 @@ export class CampaignsService {
       title: campaign.name,
       channel,
       segment:
-        input.segment || `${channel} Audience (${effectiveRecipients.toLocaleString()})`,
+        input.segment ||
+        `${channel} Audience (${effectiveRecipients.toLocaleString()})`,
       recipients: effectiveRecipients,
       sentAt: campaign.startDate?.toISOString() || new Date().toISOString(),
       clicks: 0,

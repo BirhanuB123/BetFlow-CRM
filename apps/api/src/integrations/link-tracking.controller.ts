@@ -7,10 +7,7 @@ export class LinkTrackingController {
   constructor(private readonly prisma: PrismaService) {}
 
   @Get(':id')
-  async trackAndRedirect(
-    @Param('id') id: string,
-    @Res() res: Response,
-  ) {
+  async trackAndRedirect(@Param('id') id: string, @Res() res: Response) {
     const campaign = await this.prisma.campaign.findUnique({
       where: { id },
     });
