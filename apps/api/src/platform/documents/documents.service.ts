@@ -241,7 +241,7 @@ export class DocumentsService {
     const now = new Date();
 
     const requirements = requiredPreset.map((req) => {
-      let doc = allDocs.find((d) => {
+      const doc = allDocs.find((d) => {
         const cat = d.category.toUpperCase();
         if (req.category === 'ID') {
           return [

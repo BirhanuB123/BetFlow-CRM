@@ -293,7 +293,8 @@ export class AuthService {
       },
     });
 
-    const { roles, permissions, permissionNames } = extractUserRolesAndPermissions(user.roles);
+    const { roles, permissions, permissionNames } =
+      extractUserRolesAndPermissions(user.roles);
     const expiresIn = 900; // 15 minutes
     const refreshExpiresIn = 604800; // 7 days
 
@@ -452,7 +453,7 @@ export class AuthService {
 
     const avatarUrl =
       body?.avatarUrl !== undefined
-        ? body.avatarUrl && body.avatarUrl.trim() !== ""
+        ? body.avatarUrl && body.avatarUrl.trim() !== ''
           ? body.avatarUrl.trim()
           : null
         : user.avatarUrl;

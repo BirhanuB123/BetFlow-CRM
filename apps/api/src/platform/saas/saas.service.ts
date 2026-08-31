@@ -17,7 +17,13 @@ export class SaasService {
 
   async updateTenant(
     id: string,
-    body: { name?: string; currency?: string; region?: string; plan?: string; status?: string },
+    body: {
+      name?: string;
+      currency?: string;
+      region?: string;
+      plan?: string;
+      status?: string;
+    },
   ) {
     const existing = await this.prisma.tenant.findUnique({ where: { id } });
     let targetId = id;
@@ -52,7 +58,9 @@ export class SaasService {
     value: string,
     status?: 'live' | 'draft',
   ) {
-    const setting = await this.prisma.brandingSetting.findUnique({ where: { id } });
+    const setting = await this.prisma.brandingSetting.findUnique({
+      where: { id },
+    });
     if (!setting) {
       throw new NotFoundException(`Branding setting ${id} was not found`);
     }
@@ -93,7 +101,9 @@ export class SaasService {
   }
 
   async deleteTenantDomain(id: string) {
-    const existing = await this.prisma.tenantDomain.findUnique({ where: { id } });
+    const existing = await this.prisma.tenantDomain.findUnique({
+      where: { id },
+    });
     if (existing) {
       await this.prisma.tenantDomain.delete({ where: { id } });
     }
@@ -127,15 +137,23 @@ export class SaasService {
       await Promise.all([
         this.prisma.subscriptionPlan.findMany({ orderBy: { price: 'asc' } }),
         this.prisma.featureLimit.findMany(),
-        this.prisma.tenantBillingItem.findMany({ orderBy: { createdAt: 'desc' } }),
+        this.prisma.tenantBillingItem.findMany({
+          orderBy: { createdAt: 'desc' },
+        }),
         this.prisma.trialPeriod.findFirst(),
         this.prisma.billingAccount.findFirst(),
       ]);
 
     return {
-      plans: plans.map((p) => ({ ...p, price: p.price ? Number(p.price) : null })),
+      plans: plans.map((p) => ({
+        ...p,
+        price: p.price ? Number(p.price) : null,
+      })),
       limits,
-      billingItems: billingItems.map((b) => ({ ...b, amount: Number(b.amount) })),
+      billingItems: billingItems.map((b) => ({
+        ...b,
+        amount: Number(b.amount),
+      })),
       trialPeriod: trialPeriod || {
         status: 'Active',
         startedAt: '2026-07-01T00:00:00.000Z',
@@ -168,7 +186,8 @@ export class SaasService {
         accountName: input.accountName || 'BetFlow Realty Ethiopia PLC',
         billingEmail: input.billingEmail || 'finance@betflow.et',
         taxId: input.taxId || 'ET-TIN-99482104',
-        paymentMethod: input.paymentMethod || 'CBE Commercial Bank Direct Debit (*4821)',
+        paymentMethod:
+          input.paymentMethod || 'CBE Commercial Bank Direct Debit (*4821)',
         collectionMode: input.collectionMode || 'Invoice',
         nextCharge: input.nextCharge || 'Aug 1, 2026',
       },

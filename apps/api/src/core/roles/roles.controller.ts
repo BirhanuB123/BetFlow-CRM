@@ -37,7 +37,8 @@ export class RolesController {
   update(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
-    @Body() body: { name?: string; description?: string; permissionKeys?: string[] },
+    @Body()
+    body: { name?: string; description?: string; permissionKeys?: string[] },
   ) {
     return this.roles.updateRole(id, body);
   }

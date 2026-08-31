@@ -93,10 +93,7 @@ export class NotificationsController {
   }
 
   @Patch(':id/status')
-  updateStatus(
-    @Param('id') id: string,
-    @Body('status') status: string,
-  ) {
+  updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.notifications.updateNotificationStatus(id, status);
   }
 

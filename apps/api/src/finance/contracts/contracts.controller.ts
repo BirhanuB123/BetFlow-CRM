@@ -14,7 +14,10 @@ import { Throttle } from '@nestjs/throttler';
 import type { Response, Request } from 'express';
 import { ContractsService } from './contracts.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { RequirePermission, Roles } from '../../common/decorators/roles.decorator';
+import {
+  RequirePermission,
+  Roles,
+} from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';

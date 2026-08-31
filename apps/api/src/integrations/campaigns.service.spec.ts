@@ -95,7 +95,8 @@ describe('CampaignsService - Multi-Channel Campaigns & SMS Broadcasting', () => 
         title: 'Bole Tower VIP Invitation',
         channel: 'SMS',
         segment: 'All Contacts',
-        message: 'Dear {clientName}, you are invited to our luxury penthouse launch!',
+        message:
+          'Dear {clientName}, you are invited to our luxury penthouse launch!',
       });
 
       expect(smsService.getSmsContacts).toHaveBeenCalled();
