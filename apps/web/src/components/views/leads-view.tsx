@@ -1053,9 +1053,9 @@ export function LeadsView() {
                         <button
                           type="button"
                           onClick={() => setAiInsightLead(lead)}
-                          className="inline-flex items-center gap-1 rounded-md bg-purple-50 px-2 py-0.5 text-[10px] font-bold text-purple-700 border border-purple-200 hover:bg-purple-100 transition-colors"
+                          className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary border border-primary/20 hover:bg-primary/15 transition-colors"
                         >
-                          <Sparkles className="size-3 text-purple-500" />
+                          <Sparkles className="size-3 text-primary" />
                           <span>Score: {lead.aiScore.score}</span>
                           <span className="opacity-75">({lead.aiScore.intent})</span>
                         </button>

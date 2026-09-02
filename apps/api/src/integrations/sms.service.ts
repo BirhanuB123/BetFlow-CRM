@@ -515,6 +515,30 @@ export class EthioTelecomSmsService {
     throw lastError || new Error('Gateway request failed after retries');
   }
 
+  private getAfroApiKey(): string {
+    return (
+      process.env.AFROMESSAGE_API_KEY ||
+      process.env.AFRO_TOKEN ||
+      ''
+    ).trim();
+  }
+
+  private getAfroSender(): string {
+    return (
+      process.env.AFROMESSAGE_SENDER_ID ||
+      process.env.AFRO_SENDER ||
+      ''
+    ).trim();
+  }
+
+  private getAfroIdentifier(): string {
+    return (
+      process.env.AFROMESSAGE_IDENTIFIER ||
+      process.env.AFRO_IDENTIFIER ||
+      ''
+    ).trim();
+  }
+
   /**
    * Send an SMS alert via AfroMessage or Ethio Telecom API Gateway with Dual-Gateway Failover
    */
@@ -533,10 +557,10 @@ export class EthioTelecomSmsService {
 
     // Helper: AfroMessage Gateway
     const tryAfroMessage = async (): Promise<boolean> => {
-      if (!process.env.AFROMESSAGE_API_KEY) return false;
-      const apiKey = process.env.AFROMESSAGE_API_KEY.trim();
-      const senderName = process.env.AFROMESSAGE_SENDER_ID?.trim() || '';
-      const identifier = process.env.AFROMESSAGE_IDENTIFIER?.trim() || '';
+      const apiKey = this.getAfroApiKey();
+      if (!apiKey) return false;
+      const senderName = this.getAfroSender();
+      const identifier = this.getAfroIdentifier();
       const baseUrl =
         process.env.API_BASE_URL || process.env.APP_BASE_URL || '';
 
@@ -545,72 +569,76 @@ export class EthioTelecomSmsService {
       );
       attemptsCount++;
 
-      const params = new URLSearchParams();
-      params.set('to', formattedPhone);
-      params.set('message', dto.body);
-      if (senderName) {
-        params.set('sender', senderName);
-      }
-      if (identifier) {
-        params.set('from', identifier);
-      }
-      if (baseUrl && baseUrl.startsWith('https://')) {
-        params.set('callback', `${baseUrl}/sms/afromessage/callback`);
-      }
+      const sendCandidate = async (
+        sendSender?: string,
+        sendFrom?: string,
+      ) => {
+        const params = new URLSearchParams();
+        params.set('to', formattedPhone);
+        params.set('message', dto.body);
+        if (sendSender) params.set('sender', sendSender);
+        if (sendFrom) params.set('from', sendFrom);
+        if (baseUrl && baseUrl.startsWith('https://')) {
+          params.set('callback', `${baseUrl}/sms/afromessage/callback`);
+        }
 
-      const primaryUrl = `https://api.afromessage.com/api/send?${params.toString()}`;
-
-      try {
-        let response = await this.fetchWithRetry(primaryUrl, {
+        const url = `https://api.afromessage.com/api/send?${params.toString()}`;
+        const response = await this.fetchWithRetry(url, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${apiKey}`,
             Accept: 'application/json',
           },
         });
+        const data = await response.json().catch(() => null);
+        return { response, data };
+      };
 
-        let data = await response.json().catch(() => null);
+      const isSuccess = (resp: Response, d: any) =>
+        resp.ok &&
+        (d?.acknowledge === 'success' ||
+          d?.response?.code === 200 ||
+          d?.status === 'success' ||
+          d?.success === true ||
+          d?.response?.message_id ||
+          d?.response?.status === 'sent' ||
+          d?.response?.status === 'Send is in progress...');
 
-        // If primary attempt failed, retry with direct sender parameter
-        if (
-          !response.ok ||
-          (data?.acknowledge !== 'success' &&
-            data?.response?.code !== 200 &&
-            data?.status !== 'success' &&
-            !data?.response?.message_id)
-        ) {
+      try {
+        // Attempt 1: with configured sender + from
+        let { response, data } = await sendCandidate(senderName, identifier);
+
+        // If attempt 1 failed, try sender-only
+        if (!isSuccess(response, data) && senderName && identifier) {
           this.logger.warn(
-            `[AfroMessage Primary Request] HTTP ${response.status}: ${JSON.stringify(data)}. Retrying with direct sender parameter...`,
+            `[AfroMessage Primary Request] HTTP ${response.status}: ${JSON.stringify(data)}. Retrying with sender only...`,
           );
-
-          const fallbackParams = new URLSearchParams({
-            to: formattedPhone,
-            message: dto.body,
-          });
-          if (senderName) fallbackParams.set('sender', senderName);
-
-          const cleanUrl = `https://api.afromessage.com/api/send?${fallbackParams.toString()}`;
-
-          response = await this.fetchWithRetry(cleanUrl, {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${apiKey}`,
-              Accept: 'application/json',
-            },
-          });
-          data = await response.json().catch(() => null);
+          const candidate2 = await sendCandidate(senderName, undefined);
+          response = candidate2.response;
+          data = candidate2.data;
         }
 
-        if (
-          response.ok &&
-          (data?.acknowledge === 'success' ||
-            data?.response?.code === 200 ||
-            data?.status === 'success' ||
-            data?.success === true ||
-            data?.response?.message_id ||
-            data?.response?.status === 'sent' ||
-            data?.response?.status === 'Send is in progress...')
-        ) {
+        // If still failed, try from-only
+        if (!isSuccess(response, data) && identifier) {
+          this.logger.warn(
+            `[AfroMessage Retry] HTTP ${response.status}: ${JSON.stringify(data)}. Retrying with identifier only...`,
+          );
+          const candidate3 = await sendCandidate(undefined, identifier);
+          response = candidate3.response;
+          data = candidate3.data;
+        }
+
+        // If still failed, try default
+        if (!isSuccess(response, data)) {
+          this.logger.warn(
+            `[AfroMessage Retry] HTTP ${response.status}: ${JSON.stringify(data)}. Retrying with default gateway credentials...`,
+          );
+          const candidate4 = await sendCandidate(undefined, undefined);
+          response = candidate4.response;
+          data = candidate4.data;
+        }
+
+        if (isSuccess(response, data)) {
           this.logger.log(
             `[AfroMessage SMS Success] Delivered to +${formattedPhone} (Message ID: ${data?.response?.message_id || 'N/A'})`,
           );
@@ -618,10 +646,19 @@ export class EthioTelecomSmsService {
           return true;
         }
 
+        const errorDetail =
+          data?.response?.errors?.[0] ||
+          data?.error ||
+          data?.message ||
+          data?.response?.message ||
+          `HTTP ${response.status} (${response.statusText || 'Error'})`;
+        gatewayUsed = `AfroMessage Gateway (${errorDetail})`;
+
         this.logger.warn(
           `[AfroMessage SMS Final Status] HTTP ${response.status}: ${JSON.stringify(data)}`,
         );
       } catch (err: any) {
+        gatewayUsed = `AfroMessage Connection Failed (${err?.message || 'Network error'})`;
         this.logger.error(
           `AfroMessage API connection error: ${err?.message || err}`,
         );
@@ -661,8 +698,10 @@ export class EthioTelecomSmsService {
           gatewayUsed = 'Ethio Telecom Direct Shortcode (8844)';
           return true;
         }
+        gatewayUsed = `Ethio Telecom Gateway (HTTP ${response.status} ${response.statusText || 'Error'})`;
         this.logger.warn(`Ethio Telecom HTTP Error: ${response.statusText}`);
       } catch (err: any) {
+        gatewayUsed = `Ethio Telecom Connection Failed (${err?.message || 'Network error'})`;
         this.logger.error(
           `Ethio Telecom API connection error: ${err?.message || err}`,
         );
@@ -673,7 +712,8 @@ export class EthioTelecomSmsService {
     // Dual-Gateway Failover Engine Pipeline
     let success = false;
 
-    if (process.env.AFROMESSAGE_API_KEY) {
+    const afroApiKey = this.getAfroApiKey();
+    if (afroApiKey) {
       success = await tryAfroMessage();
       if (!success && process.env.ETHIO_SMS_API_URL) {
         this.logger.warn(
@@ -683,7 +723,7 @@ export class EthioTelecomSmsService {
       }
     } else if (process.env.ETHIO_SMS_API_URL) {
       success = await tryEthioTelecom();
-      if (!success && process.env.AFROMESSAGE_API_KEY) {
+      if (!success && afroApiKey) {
         this.logger.warn(
           `[Dual-Gateway Failover] Ethio Telecom failed. Automatically failing over to AfroMessage...`,
         );
@@ -694,7 +734,7 @@ export class EthioTelecomSmsService {
     if (success) {
       status = 'DELIVERED';
     } else if (
-      !process.env.AFROMESSAGE_API_KEY &&
+      !afroApiKey &&
       !process.env.ETHIO_SMS_API_URL
     ) {
       status = 'DELIVERED';
@@ -848,12 +888,12 @@ export class EthioTelecomSmsService {
     balance: number | null;
     isReal: boolean;
   }> {
-    if (!process.env.AFROMESSAGE_API_KEY) {
+    const apiKey = this.getAfroApiKey();
+    if (!apiKey) {
       return { balance: null, isReal: false };
     }
 
     try {
-      const apiKey = process.env.AFROMESSAGE_API_KEY.trim();
       const response = await fetch('https://api.afromessage.com/api/balance', {
         method: 'GET',
         headers: {
@@ -920,16 +960,17 @@ export class EthioTelecomSmsService {
     });
 
     const balanceInfo = await this.getAfroMessageBalance();
+    const afroKey = this.getAfroApiKey();
 
     let gatewayProvider = 'Ethio Telecom Gateway Sandbox';
     if (lastLog?.gatewayUsed) {
       gatewayProvider = lastLog.gatewayUsed;
     } else if (
-      process.env.AFROMESSAGE_API_KEY &&
+      afroKey &&
       process.env.ETHIO_SMS_API_URL
     ) {
       gatewayProvider = 'Dual Gateway (AfroMessage + Ethio Telecom Direct)';
-    } else if (process.env.AFROMESSAGE_API_KEY) {
+    } else if (afroKey) {
       gatewayProvider = 'AfroMessage Live Gateway (Ethiopia)';
     } else if (process.env.ETHIO_SMS_API_URL) {
       gatewayProvider = 'Ethio Telecom Live Shortcode';
@@ -948,7 +989,7 @@ export class EthioTelecomSmsService {
       gatewayProvider,
       shortcode: process.env.ETHIO_SMS_SHORTCODE || '8844',
       isLive: !!(
-        process.env.AFROMESSAGE_API_KEY || process.env.ETHIO_SMS_API_URL
+        afroKey || process.env.ETHIO_SMS_API_URL
       ),
       activeCampaignsCount: this.dripCampaigns.filter(
         (c) => c.status === 'ACTIVE',

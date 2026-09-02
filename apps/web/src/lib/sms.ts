@@ -16,6 +16,7 @@ export type SmsLog = {
   status: SmsStatus;
   sentAt: string;
   costEthioBirr?: number;
+  gatewayUsed?: string;
 };
 
 export type DripStep = {

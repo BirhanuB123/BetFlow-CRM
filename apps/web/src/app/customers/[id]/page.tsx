@@ -785,8 +785,8 @@ export default function CustomerDetailPage() {
                       className={cn(
                         "rounded-md px-2 py-0.5 text-[10px] font-extrabold border",
                         kycStatus.buyerType === "DIASPORA"
-                          ? "bg-purple-50 text-purple-700 border-purple-200"
-                          : "bg-blue-50 text-blue-700 border-blue-200",
+                          ? "bg-primary/10 text-primary border-primary/20"
+                          : "bg-secondary text-secondary-foreground border-border",
                       )}
                     >
                       {kycStatus.buyerType === "DIASPORA"

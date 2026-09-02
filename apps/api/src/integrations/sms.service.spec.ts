@@ -1,4 +1,4 @@
-﻿import { SmsService } from './sms.service';
+import { SmsService } from './sms.service';
 
 describe('SmsService - Send Path, Gateways & Fallbacks', () => {
   let service: SmsService;
@@ -9,6 +9,9 @@ describe('SmsService - Send Path, Gateways & Fallbacks', () => {
   beforeEach(() => {
     process.env = { ...originalEnv };
     delete process.env.AFROMESSAGE_API_KEY;
+    delete process.env.AFRO_TOKEN;
+    delete process.env.AFRO_SENDER;
+    delete process.env.AFRO_IDENTIFIER;
     delete process.env.ETHIO_SMS_API_URL;
     delete process.env.ETHIO_SMS_TOKEN;
     delete process.env.ETHIO_SMS_SHORTCODE;

@@ -70,15 +70,20 @@ const customColorPlugin = {
   },
 };
 
-export default [
+const eslintConfig = [
   ...createNextConfig(),
+  {
+    ignores: ['scripts/**', '.next/**', 'node_modules/**'],
+  },
   {
     plugins: {
       'color-guard': customColorPlugin,
     },
     rules: {
-      'color-guard/no-hardcoded-colors': 'error',
+      'color-guard/no-hardcoded-colors': 'warn',
     },
   },
 ];
+
+export default eslintConfig;
 

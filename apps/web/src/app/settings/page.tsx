@@ -37,6 +37,8 @@ import {
   CheckCircle2,
   Mail,
   ArrowRight,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
@@ -124,6 +126,9 @@ export default function SettingsPage() {
     newPassword: "",
     confirmPassword: "",
   });
+  const [showSettingsCurrentPassword, setShowSettingsCurrentPassword] = useState(false);
+  const [showSettingsNewPassword, setShowSettingsNewPassword] = useState(false);
+  const [showSettingsConfirmPassword, setShowSettingsConfirmPassword] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
   const [passwordFeedback, setPasswordFeedback] = useState<{
     type: "success" | "error";
@@ -1077,52 +1082,94 @@ function compressImageFile(file: File, maxDimension = 256): Promise<string> {
                   <form onSubmit={savePassword} className="grid gap-4">
                     <label className="grid gap-1.5 text-xs font-bold text-slate-700">
                       Current password
-                      <input
-                        className={inputClass}
-                        type="password"
-                        placeholder="••••••••"
-                        value={passwordForm.currentPassword}
-                        onChange={(e) =>
-                          setPasswordForm({
-                            ...passwordForm,
-                            currentPassword: e.target.value,
-                          })
-                        }
-                        required
-                      />
+                      <div className="relative flex items-center">
+                        <input
+                          className={`${inputClass} pr-10`}
+                          type={showSettingsCurrentPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={passwordForm.currentPassword}
+                          onChange={(e) =>
+                            setPasswordForm({
+                              ...passwordForm,
+                              currentPassword: e.target.value,
+                            })
+                          }
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowSettingsCurrentPassword((prev) => !prev)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
+                          aria-label={showSettingsCurrentPassword ? "Hide password" : "Show password"}
+                        >
+                          {showSettingsCurrentPassword ? (
+                            <EyeOff className="size-4" />
+                          ) : (
+                            <Eye className="size-4" />
+                          )}
+                        </button>
+                      </div>
                     </label>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <label className="grid gap-1.5 text-xs font-bold text-slate-700">
                         New password
-                        <input
-                          className={inputClass}
-                          type="password"
-                          placeholder="Min 8 characters"
-                          value={passwordForm.newPassword}
-                          onChange={(e) =>
-                            setPasswordForm({
-                              ...passwordForm,
-                              newPassword: e.target.value,
-                            })
-                          }
-                          required
-                        />
+                        <div className="relative flex items-center">
+                          <input
+                            className={`${inputClass} pr-10`}
+                            type={showSettingsNewPassword ? "text" : "password"}
+                            placeholder="Min 8 characters"
+                            value={passwordForm.newPassword}
+                            onChange={(e) =>
+                              setPasswordForm({
+                                ...passwordForm,
+                                newPassword: e.target.value,
+                              })
+                            }
+                            required
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowSettingsNewPassword((prev) => !prev)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
+                            aria-label={showSettingsNewPassword ? "Hide password" : "Show password"}
+                          >
+                            {showSettingsNewPassword ? (
+                              <EyeOff className="size-4" />
+                            ) : (
+                              <Eye className="size-4" />
+                            )}
+                          </button>
+                        </div>
                       </label>
                       <label className="grid gap-1.5 text-xs font-bold text-slate-700">
                         Confirm new password
-                        <input
-                          className={inputClass}
-                          type="password"
-                          placeholder="Re-type password"
-                          value={passwordForm.confirmPassword}
-                          onChange={(e) =>
-                            setPasswordForm({
-                              ...passwordForm,
-                              confirmPassword: e.target.value,
-                            })
-                          }
-                          required
-                        />
+                        <div className="relative flex items-center">
+                          <input
+                            className={`${inputClass} pr-10`}
+                            type={showSettingsConfirmPassword ? "text" : "password"}
+                            placeholder="Re-type password"
+                            value={passwordForm.confirmPassword}
+                            onChange={(e) =>
+                              setPasswordForm({
+                                ...passwordForm,
+                                confirmPassword: e.target.value,
+                              })
+                            }
+                            required
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowSettingsConfirmPassword((prev) => !prev)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
+                            aria-label={showSettingsConfirmPassword ? "Hide password" : "Show password"}
+                          >
+                            {showSettingsConfirmPassword ? (
+                              <EyeOff className="size-4" />
+                            ) : (
+                              <Eye className="size-4" />
+                            )}
+                          </button>
+                        </div>
                       </label>
                     </div>
 

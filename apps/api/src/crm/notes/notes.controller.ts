@@ -11,10 +11,11 @@ import {
 import { NotesService } from './notes.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
 import type { CreateNoteInput } from './notes.types';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('notes')
 export class NotesController {
   constructor(private readonly notes: NotesService) {}

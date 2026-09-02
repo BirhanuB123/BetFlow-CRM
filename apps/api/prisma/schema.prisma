@@ -126,6 +126,8 @@ model Building {
   floorsCount Int     @default(1)
 
   floors Floor[]
+
+  @@index([projectId])
 }
 
 model Floor {
@@ -136,6 +138,8 @@ model Floor {
   name        String?
 
   units Unit[]
+
+  @@index([buildingId])
 }
 
 model Unit {
@@ -287,6 +291,7 @@ model Deal {
   @@index([accountId])
   @@index([stageId, value])
   @@index([customerId, stageId])
+  @@index([unitId])
 }
 
 // --------------------------------------
@@ -336,6 +341,9 @@ model Meeting {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([status, date])
+  @@index([leadId, customerId])
 }
 
 model CallLog {
@@ -357,6 +365,9 @@ model CallLog {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([status, dueDate])
+  @@index([leadId, customerId])
 }
 
 model Reservation {
@@ -458,6 +469,7 @@ model PaymentSchedule {
   payments Payment[]
 
   @@index([contractId, status])
+  @@index([status, dueDate])
 }
 
 // --------------------------------------

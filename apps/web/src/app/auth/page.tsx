@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, UserPlus, LogIn, KeyRound, Lock, Building2 } from "lucide-react";
+import { ArrowRight, UserPlus, LogIn, KeyRound, Lock, Building2, Eye, EyeOff } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -101,6 +101,13 @@ export default function AuthPage() {
     newPassword: "",
     confirmPassword: "",
   });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showResetNewPassword, setShowResetNewPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -604,17 +611,31 @@ export default function AuthPage() {
                 </label>
                 <label className="block">
                   <span className={labelClass}>{t("auth.password")}</span>
-                  <input
-                    className={inputClass}
-                    type="password"
-                    autoComplete="current-password"
-                    placeholder="••••••••"
-                    value={loginState.password}
-                    onChange={(e) =>
-                      setLoginState((s) => ({ ...s, password: e.target.value }))
-                    }
-                    required
-                  />
+                  <div className="relative flex items-center">
+                    <input
+                      className={`${inputClass} pr-10`}
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="current-password"
+                      placeholder="••••••••"
+                      value={loginState.password}
+                      onChange={(e) =>
+                        setLoginState((s) => ({ ...s, password: e.target.value }))
+                      }
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer mt-0.5"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
+                    </button>
+                  </div>
                 </label>
 
                 <div className="flex items-center justify-between pt-1">
@@ -722,20 +743,34 @@ export default function AuthPage() {
 
                 <label className="block">
                   <span className={labelClass}>{t("auth.password")}</span>
-                  <input
-                    className={inputClass}
-                    type="password"
-                    autoComplete="new-password"
-                    placeholder="••••••••"
-                    value={registerState.password}
-                    onChange={(e) =>
-                      setRegisterState((s) => ({
-                        ...s,
-                        password: e.target.value,
-                      }))
-                    }
-                    required
-                  />
+                  <div className="relative flex items-center">
+                    <input
+                      className={`${inputClass} pr-10`}
+                      type={showRegisterPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      placeholder="••••••••"
+                      value={registerState.password}
+                      onChange={(e) =>
+                        setRegisterState((s) => ({
+                          ...s,
+                          password: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowRegisterPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer mt-0.5"
+                      aria-label={showRegisterPassword ? "Hide password" : "Show password"}
+                    >
+                      {showRegisterPassword ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
+                    </button>
+                  </div>
                 </label>
 
                 <label className="block">
@@ -832,47 +867,75 @@ export default function AuthPage() {
               </form>
             ) : mode === "force_change_password" ? (
               <form className="mt-5 grid gap-4" onSubmit={handleForceChangePassword}>
-                <div className="rounded-xl bg-amber-500/10 p-3.5 text-xs text-amber-600 border border-amber-500/20">
-                  <p className="font-bold flex items-center gap-1.5 text-amber-700">
+                <div className="rounded-xl bg-warning/10 p-3.5 text-xs text-warning border border-warning/20">
+                  <p className="font-bold flex items-center gap-1.5 text-warning">
                     <Lock className="size-4" /> {t("auth.forceChangePassword")}
                   </p>
-                  <p className="mt-1 text-slate-600 font-medium">
+                  <p className="mt-1 text-muted-foreground font-medium">
                     {t("auth.changePasswordPrompt")}
                   </p>
                 </div>
 
                 <label className="block">
                   <span className={labelClass}>{t("auth.currentPassword")}</span>
-                  <input
-                    className={inputClass}
-                    type="password"
-                    placeholder="••••••••"
-                    value={forceChangeState.currentPassword}
-                    onChange={(e) =>
-                      setForceChangeState((s) => ({
-                        ...s,
-                        currentPassword: e.target.value,
-                      }))
-                    }
-                    required
-                  />
+                  <div className="relative flex items-center">
+                    <input
+                      className={`${inputClass} pr-10`}
+                      type={showCurrentPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={forceChangeState.currentPassword}
+                      onChange={(e) =>
+                        setForceChangeState((s) => ({
+                          ...s,
+                          currentPassword: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer mt-0.5"
+                      aria-label={showCurrentPassword ? "Hide password" : "Show password"}
+                    >
+                      {showCurrentPassword ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
+                    </button>
+                  </div>
                 </label>
 
                 <label className="block">
                   <span className={labelClass}>{t("auth.newPassword")}</span>
-                  <input
-                    className={inputClass}
-                    type="password"
-                    placeholder="••••••••"
-                    value={forceChangeState.newPassword}
-                    onChange={(e) =>
-                      setForceChangeState((s) => ({
-                        ...s,
-                        newPassword: e.target.value,
-                      }))
-                    }
-                    required
-                  />
+                  <div className="relative flex items-center">
+                    <input
+                      className={`${inputClass} pr-10`}
+                      type={showNewPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={forceChangeState.newPassword}
+                      onChange={(e) =>
+                        setForceChangeState((s) => ({
+                          ...s,
+                          newPassword: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer mt-0.5"
+                      aria-label={showNewPassword ? "Hide password" : "Show password"}
+                    >
+                      {showNewPassword ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
+                    </button>
+                  </div>
                   <span className="mt-1 block text-[10px] text-zinc-400 font-medium">
                     Must be at least 8 characters with upper, lowercase, and a number or symbol.
                   </span>
@@ -880,19 +943,33 @@ export default function AuthPage() {
 
                 <label className="block">
                   <span className={labelClass}>{t("auth.confirmPassword")}</span>
-                  <input
-                    className={inputClass}
-                    type="password"
-                    placeholder="••••••••"
-                    value={forceChangeState.confirmPassword}
-                    onChange={(e) =>
-                      setForceChangeState((s) => ({
-                        ...s,
-                        confirmPassword: e.target.value,
-                      }))
-                    }
-                    required
-                  />
+                  <div className="relative flex items-center">
+                    <input
+                      className={`${inputClass} pr-10`}
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={forceChangeState.confirmPassword}
+                      onChange={(e) =>
+                        setForceChangeState((s) => ({
+                          ...s,
+                          confirmPassword: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer mt-0.5"
+                      aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
+                    </button>
+                  </div>
                 </label>
 
                 <button
@@ -960,16 +1037,30 @@ export default function AuthPage() {
 
                 <label className="block">
                   <span className={labelClass}>{t("auth.newPassword")}</span>
-                  <input
-                    className={inputClass}
-                    type="password"
-                    placeholder="••••••••"
-                    value={resetState.newPassword}
-                    onChange={(e) =>
-                      setResetState((s) => ({ ...s, newPassword: e.target.value }))
-                    }
-                    required
-                  />
+                  <div className="relative flex items-center">
+                    <input
+                      className={`${inputClass} pr-10`}
+                      type={showResetNewPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={resetState.newPassword}
+                      onChange={(e) =>
+                        setResetState((s) => ({ ...s, newPassword: e.target.value }))
+                      }
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowResetNewPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer mt-0.5"
+                      aria-label={showResetNewPassword ? "Hide password" : "Show password"}
+                    >
+                      {showResetNewPassword ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
+                    </button>
+                  </div>
                 </label>
 
                 <button

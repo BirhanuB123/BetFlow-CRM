@@ -11,17 +11,22 @@ jobs:
     name: Build & Test Workspace
     runs-on: ubuntu-latest
 
+    env:
+      DATABASE_URL: postgresql://betflow:betflowpassword@localhost:5432/betflow_db?schema=public
+      JWT_SECRET: super-secret-betflow-jwt-key
+      NODE_ENV: test
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: Install Monorepo Dependencies
         run: npm ci
 
       - name: Validate Prisma Schema
@@ -30,8 +35,14 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate --schema=apps/api/prisma/schema.prisma
 
-      - name: Type Check & Build API
-        run: npm run build --workspace=apps/api
+      - name: Run Workspace Linting
+        run: npm run lint
+
+      - name: Enforce Design System Color Tokens Guard
+        run: node apps/web/scripts/check-color-tokens.js
 
       - name: Run Backend Unit & Integration Tests
         run: npm run test --workspace=apps/api
+
+      - name: Run Full Production Monorepo Build
+        run: npm run build

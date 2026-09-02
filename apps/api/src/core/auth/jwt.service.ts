@@ -39,7 +39,7 @@ export class JwtService {
     }
   }
 
-  sign(payload: Omit<JwtPayload, 'iat' | 'exp'>, expiresInSeconds = 3600) {
+  sign(payload: Omit<JwtPayload, 'iat' | 'exp'>, expiresInSeconds = 43200) {
     const now = Math.floor(Date.now() / 1000);
     const body: JwtPayload = {
       ...payload,

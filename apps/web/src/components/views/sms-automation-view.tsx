@@ -1315,18 +1315,28 @@ export function SmsAutomationView() {
                             {new Date(log.sentAt).toLocaleString()}
                           </td>
                           <td className="px-4 py-3">
-                            <span
-                              className={cn(
-                                "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase border",
-                                log.status === "DELIVERED"
-                                  ? "bg-success/10 text-success border-success/20"
-                                  : log.status === "FAILED"
-                                    ? "bg-destructive/10 text-destructive border-destructive/20"
-                                    : "bg-warning/10 text-warning border-warning/20",
-                              )}
-                            >
-                              {log.status}
-                            </span>
+                            <div className="flex flex-col items-start gap-0.5">
+                              <span
+                                className={cn(
+                                  "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase border",
+                                  log.status === "DELIVERED"
+                                    ? "bg-success/10 text-success border-success/20"
+                                    : log.status === "FAILED"
+                                      ? "bg-destructive/10 text-destructive border-destructive/20"
+                                      : "bg-warning/10 text-warning border-warning/20",
+                                )}
+                              >
+                                {log.status}
+                              </span>
+                              {log.gatewayUsed ? (
+                                <span
+                                  className="text-[10px] text-slate-400 font-medium max-w-[170px] truncate"
+                                  title={log.gatewayUsed}
+                                >
+                                  {log.gatewayUsed}
+                                </span>
+                              ) : null}
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -1533,15 +1543,15 @@ export function SmsAutomationView() {
 
                   {/* Missing variables alert */}
                   {missingFields.length > 0 && (
-                    <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 flex items-start gap-2.5">
-                      <AlertTriangle className="size-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div className="rounded-lg border border-warning/30 bg-warning/10 p-3 text-xs text-warning flex items-start gap-2.5">
+                      <AlertTriangle className="size-4 text-warning shrink-0 mt-0.5" />
                       <div>
-                        <p className="font-bold">
+                        <p className="font-bold text-warning">
                           Unfilled template placeholder(s) detected:
                         </p>
-                        <p className="mt-0.5 text-[11px] text-amber-800">
+                        <p className="mt-0.5 text-[11px] text-muted-foreground">
                           Missing values for:{" "}
-                          <span className="font-mono font-bold text-amber-950">
+                          <span className="font-mono font-bold text-foreground">
                             {missingFields.map((f) => `{${f}}`).join(", ")}
                           </span>
                           . Please select a record with complete data or fill in

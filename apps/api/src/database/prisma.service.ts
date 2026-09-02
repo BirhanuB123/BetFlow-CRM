@@ -14,11 +14,18 @@ if (!process.env.DATABASE_URL) {
 }
 
 const poolMax = parseInt(process.env.DB_POOL_MAX || '20', 10);
+const isSsl =
+  process.env.DB_SSL === 'true' ||
+  (process.env.DATABASE_URL &&
+    (process.env.DATABASE_URL.includes('sslmode=require') ||
+      process.env.DATABASE_URL.includes('sslmode=no-verify')));
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   max: poolMax,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
+  ...(isSsl ? { ssl: { rejectUnauthorized: false } } : {}),
 });
 
 @Injectable()
@@ -37,6 +44,12 @@ export class PrismaService
 
   async onModuleDestroy() {
     await this.$disconnect();
-    await pool.end();
+    if (!pool.ending && !pool.ended) {
+      try {
+        await pool.end();
+      } catch {
+        // pool already terminated
+      }
+    }
   }
 }

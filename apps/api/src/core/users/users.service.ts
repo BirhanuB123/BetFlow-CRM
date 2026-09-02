@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -14,8 +13,6 @@ export type InviteUserBody = {
   roleId: string;
   password?: string;
 };
-
-type UserResult = any;
 
 @Injectable()
 export class UsersService {
@@ -237,7 +234,7 @@ export class UsersService {
       await this.prisma.user.delete({ where: { id } });
 
       return { id, deleted: true };
-    } catch (err) {
+    } catch {
       // Fallback: set isActive to false if foreign key constraints still prevent hard deletion
       await this.prisma.user.update({
         where: { id },

@@ -31,18 +31,18 @@ export class ReservationsController {
   constructor(private readonly reservations: ReservationsService) {}
 
   @Get()
-  list(@CurrentUser() user: AuthenticatedUser) {
+  list() {
     return this.reservations.list();
   }
 
   @Get(':id')
-  get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+  get(@Param('id') id: string) {
     return this.reservations.get(id);
   }
 
   @Post('process-expirations')
   @Roles('Owner', 'Finance', 'Sales Manager')
-  async processExpirations(@CurrentUser() user: AuthenticatedUser) {
+  async processExpirations() {
     const count = await this.reservations.processExpiredReservations();
     return { success: true, expiredReservationsCount: count };
   }

@@ -48,6 +48,7 @@ import {
   UserRoundCheck,
   UsersRound,
 } from "lucide-react";
+import { apiFetch } from "@/lib/api";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -251,28 +252,12 @@ const sectionTitleMap: Record<string, string> = {
   "System & Assets": "ሲስተም እና ሰነዶች",
 };
 
-const itemBadges: Record<string, { label: string; cls: string }> = {
-  Pipeline: {
-    label: "12",
-    cls: "bg-success/25 text-success border-success",
-  },
-  Leads: {
-    label: "12",
-    cls: "bg-success/25 text-success border-success",
-  },
-  Tasks: {
-    label: "5",
-    cls: "bg-warning/25 text-warning border-warning/40/40",
-  },
-  Deals: {
-    label: "New",
-    cls: "bg-info/25 text-info border-info",
-  },
-  "Social Outreach": {
-    label: "Live",
-    cls: "bg-info/25 text-info border-info",
-  },
+type SidebarCounts = {
+  leadsCount?: number;
+  tasksCount?: number;
 };
+
+const SidebarCountsContext = createContext<SidebarCounts>({});
 
 function SidebarLink({
   item,
@@ -284,10 +269,38 @@ function SidebarLink({
   onNavigate?: () => void;
 }) {
   const { t } = useTranslation();
+  const counts = useContext(SidebarCountsContext);
   const Icon = item.icon;
   const isActive = isActiveItem(item, active);
   const displayLabel = navKeyMap[item.label] ? t(navKeyMap[item.label]) : item.label;
-  const badge = itemBadges[item.label];
+
+  const badge = useMemo(() => {
+    if (item.label === "Pipeline" || item.label === "Leads") {
+      if (counts.leadsCount !== undefined && counts.leadsCount > 0) {
+        return {
+          label: String(counts.leadsCount),
+          cls: "bg-success/25 text-success border-success",
+        };
+      }
+      return null;
+    }
+    if (item.label === "Activities" || item.label === "Tasks") {
+      if (counts.tasksCount !== undefined && counts.tasksCount > 0) {
+        return {
+          label: String(counts.tasksCount),
+          cls: "bg-warning/25 text-warning border-warning/40",
+        };
+      }
+      return null;
+    }
+    if (item.label === "Social Outreach") {
+      return {
+        label: "Live",
+        cls: "bg-info/25 text-info border-info",
+      };
+    }
+    return null;
+  }, [item.label, counts]);
 
   return (
     <div className="relative group/link">
@@ -466,7 +479,7 @@ function Dropdown({
         <DropdownCloseContext.Provider value={() => setOpen(false)}>
           <div
             className={cn(
-              "absolute top-full z-40 mt-2 min-w-[220px] rounded-lg border border-[#dbe2ee] bg-white p-1.5 shadow-[0_14px_34px_rgba(15,32,60,0.16)]",
+              "absolute top-full z-50 mt-2 min-w-[220px] rounded-lg border border-[#dbe2ee] bg-white p-1.5 shadow-[0_14px_34px_rgba(15,32,60,0.16)]",
               align === "end" ? "right-0" : "left-0",
               panelClassName,
             )}
@@ -785,6 +798,28 @@ export function DashboardShell({
     window.addEventListener("pointerup", onUp);
   };
 
+  const [counts, setCounts] = useState<SidebarCounts>({});
+
+  useEffect(() => {
+    if (!session?.accessToken) return;
+    let cancelled = false;
+
+    Promise.all([
+      apiFetch<unknown[]>("/leads", { suppressAuthRedirect: true }).catch(() => []),
+      apiFetch<unknown[]>("/tasks?open=true", { suppressAuthRedirect: true }).catch(() => []),
+    ]).then(([leadsData, tasksData]) => {
+      if (cancelled) return;
+      setCounts({
+        leadsCount: Array.isArray(leadsData) ? leadsData.length : 0,
+        tasksCount: Array.isArray(tasksData) ? tasksData.length : 0,
+      });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.accessToken]);
+
   const nudgeWidth = (delta: number) => {
     setSidebarWidth((w) => {
       const next = clampWidth(w + delta);
@@ -794,13 +829,14 @@ export function DashboardShell({
   };
 
   return (
-    <div
-      ref={shellRef}
-      className={cn(
-        "min-h-screen bg-[#e9edf5] text-[#071426]",
-        resizing && "cursor-col-resize select-none",
-      )}
-    >
+    <SidebarCountsContext.Provider value={counts}>
+      <div
+        ref={shellRef}
+        className={cn(
+          "min-h-screen bg-[#e9edf5] text-[#071426]",
+          resizing && "cursor-col-resize select-none",
+        )}
+      >
       {navOpen ? (
         <button
           type="button"
@@ -1127,9 +1163,11 @@ export function DashboardShell({
         </header>
 
         {active === "Dashboard" ? (
-          <div className="relative overflow-hidden bg-gradient-to-r from-[#172744] via-[#233b66] to-[#1e345b] text-white px-4 py-4 sm:px-6 shadow-sm border-b border-[#2e477a]">
+          <div className="relative z-20 bg-gradient-to-r from-[#172744] via-[#233b66] to-[#1e345b] text-white px-4 py-4 sm:px-6 shadow-sm border-b border-[#2e477a]">
             {/* Subtle visual glow accent */}
-            <div className="pointer-events-none absolute -right-10 -top-10 size-48 rounded-full bg-primary/10 blur-2xl" />
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+              <div className="absolute -right-10 -top-10 size-48 rounded-full bg-primary/10 blur-2xl" />
+            </div>
 
             <div className="relative z-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex min-w-0 items-center gap-3.5">
@@ -1214,5 +1252,6 @@ export function DashboardShell({
         <main className="px-3 py-4 sm:px-6 lg:px-8 w-full max-w-full overflow-x-hidden">{children}</main>
       </div>
     </div>
+    </SidebarCountsContext.Provider>
   );
 }

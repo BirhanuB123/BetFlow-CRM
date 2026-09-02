@@ -104,12 +104,12 @@ export class ContractsController {
   }
 
   @Get()
-  list(@CurrentUser() user: AuthenticatedUser) {
+  list() {
     return this.contracts.list();
   }
 
   @Get(':id')
-  get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+  get(@Param('id') id: string) {
     return this.contracts.get(id);
   }
 

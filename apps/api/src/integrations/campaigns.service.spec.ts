@@ -1,6 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
 import { CampaignsService } from './campaigns.service';
-import { describe, beforeEach, it } from 'node:test';
 
 describe('CampaignsService - Multi-Channel Campaigns & SMS Broadcasting', () => {
   let service: CampaignsService;
