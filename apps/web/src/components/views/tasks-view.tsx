@@ -149,8 +149,8 @@ export function TasksView() {
       setError(null);
 
       const [resTasks, resUsers] = await Promise.all([
-        apiFetch("/crm/tasks"),
-        apiFetch("/core/users").catch(() => []),
+        apiFetch("/tasks"),
+        apiFetch("/users").catch(() => []),
       ]);
 
       if (Array.isArray(resTasks)) {
@@ -180,7 +180,7 @@ export function TasksView() {
       prev.map((t) => (t.id === id ? { ...t, status: newStatus } : t)),
     );
     try {
-      await apiFetch(`/crm/tasks/${id}`, {
+      await apiFetch(`/tasks/${id}`, {
         method: "PATCH",
         body: JSON.stringify({ status: newStatus }),
       });
@@ -201,7 +201,7 @@ export function TasksView() {
     });
 
     try {
-      await apiFetch(`/crm/tasks/${id}`, { method: "DELETE" });
+      await apiFetch(`/tasks/${id}`, { method: "DELETE" });
     } catch {
       void fetchTasks();
     }
@@ -223,7 +223,7 @@ export function TasksView() {
     try {
       await Promise.all(
         idsArr.map((id) =>
-          apiFetch(`/crm/tasks/${id}`, { method: "DELETE" }).catch(() => null),
+          apiFetch(`/tasks/${id}`, { method: "DELETE" }).catch(() => null),
         ),
       );
     } finally {
@@ -245,7 +245,7 @@ export function TasksView() {
     try {
       await Promise.all(
         idsArr.map((id) =>
-          apiFetch(`/crm/tasks/${id}`, {
+          apiFetch(`/tasks/${id}`, {
             method: "PATCH",
             body: JSON.stringify({ status: newStatus }),
           }).catch(() => null),
@@ -271,7 +271,7 @@ export function TasksView() {
         assigneeId: form.assigneeId || null,
       };
 
-      const newTask = await apiFetch<ApiTask>("/crm/tasks", {
+      const newTask = await apiFetch<ApiTask>("/tasks", {
         method: "POST",
         body: JSON.stringify(payload),
       });

@@ -15,8 +15,10 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Roles } from '../../common/decorators/roles.decorator';
-import { RequirePermission } from '../../common/decorators/roles.decorator';
+import {
+  RequirePermission,
+  Roles,
+} from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import type { AuthenticatedUser } from '../../core/auth/auth.types';
@@ -57,10 +59,7 @@ export class DocumentsController {
   }
 
   @Get()
-  list(
-    @CurrentUser() user: AuthenticatedUser,
-    @Query() filters: DocumentFilters,
-  ) {
+  list(@Query() filters: DocumentFilters) {
     return this.documents.list(filters);
   }
 
@@ -78,7 +77,6 @@ export class DocumentsController {
 
   @Get(':id/download')
   async download(
-    @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
     @Res({ passthrough: true }) response: ResponseHeaders,
   ) {

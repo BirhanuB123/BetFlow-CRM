@@ -28,7 +28,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 4000
-      DATABASE_URL: postgres://${POSTGRES_USER:-betflow}:${POSTGRES_PASSWORD:-betflow_secret_pass}@postgres:5432/${POSTGRES_DB:-betflow_crm}?schema=public
+      DATABASE_URL: postgres://${POSTGRES_USER:-betflow}:${POSTGRES_PASSWORD:-betflowpassword}@postgres:5432/${POSTGRES_DB:-betflow_db}?schema=public
       JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_betflow_prod}
       JWT_EXPIRES_IN: 7d
     depends_on:

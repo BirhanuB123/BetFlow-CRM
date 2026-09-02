@@ -295,7 +295,7 @@ export class AuthService {
 
     const { roles, permissions, permissionNames } =
       extractUserRolesAndPermissions(user.roles);
-    const expiresIn = 900; // 15 minutes
+    const expiresIn = 43200; // 12 hours
     const refreshExpiresIn = 604800; // 7 days
 
     const accessToken = this.jwt.sign(
@@ -364,7 +364,7 @@ export class AuthService {
 
     const { roles, permissions, permissionNames } =
       extractUserRolesAndPermissions(user.roles);
-    const expiresIn = 900; // 15 minutes
+    const expiresIn = 43200; // 12 hours
     const refreshExpiresIn = 604800; // 7 days
 
     const accessToken = this.jwt.sign(

@@ -23,12 +23,12 @@ export class AccountsController {
   constructor(private readonly accounts: AccountsService) {}
 
   @Get()
-  list(@CurrentUser() user: AuthenticatedUser) {
+  list() {
     return this.accounts.list();
   }
 
   @Get(':id')
-  get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+  get(@Param('id') id: string) {
     return this.accounts.get(id);
   }
 

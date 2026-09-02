@@ -49,7 +49,10 @@ export class PrismaExceptionFilter implements ExceptionFilter {
           `Unhandled Prisma Error [${exception.code}]: ${exception.message}`,
           exception.stack,
         );
-        message = `Database operation failed [code: ${exception.code}]`;
+        message =
+          process.env.NODE_ENV === 'production'
+            ? 'Database operation failed'
+            : `Database operation failed [code: ${exception.code}]`;
         break;
       }
     }

@@ -110,8 +110,8 @@ export function DocumentsPanel({
                         document.status === "VERIFIED"
                           ? "bg-success/10 text-success border-success/20"
                           : document.status === "EXPIRED"
-                            ? "bg-rose-500/10 text-rose-600 border-rose-500/20"
-                            : "bg-amber-500/10 text-amber-700 border-amber-500/20",
+                            ? "bg-destructive/10 text-destructive border-destructive/20"
+                            : "bg-warning/10 text-warning border-warning/20",
                       )}
                     >
                       {document.status.replace(/_/g, " ")}

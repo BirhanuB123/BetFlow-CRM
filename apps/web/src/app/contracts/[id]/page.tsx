@@ -448,17 +448,17 @@ export default function ContractDetailPage() {
                               </span>
                             )}
                             {req.status === "PENDING_REVIEW" && (
-                              <span className="inline-flex items-center gap-1 rounded bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold text-amber-700 border border-amber-500/30">
+                              <span className="inline-flex items-center gap-1 rounded bg-warning/15 px-2 py-0.5 text-[10px] font-bold text-warning border border-warning/30">
                                 Review
                               </span>
                             )}
                             {req.status === "EXPIRED" && (
-                              <span className="inline-flex items-center gap-1 rounded bg-rose-500/15 px-2 py-0.5 text-[10px] font-bold text-rose-700 border border-rose-500/30">
+                              <span className="inline-flex items-center gap-1 rounded bg-destructive/15 px-2 py-0.5 text-[10px] font-bold text-destructive border border-destructive/30">
                                 Expired
                               </span>
                             )}
                             {req.status === "MISSING" && (
-                              <span className="inline-flex items-center gap-1 rounded bg-slate-200 px-2 py-0.5 text-[10px] font-bold text-slate-500">
+                              <span className="inline-flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
                                 Missing
                               </span>
                             )}

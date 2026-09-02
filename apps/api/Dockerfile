@@ -4,6 +4,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY apps/api/package*.json ./apps/api/
 COPY packages/shared/package*.json ./packages/shared/
+COPY packages/config/package*.json ./packages/config/
 RUN npm ci
 
 COPY . .
@@ -18,6 +19,7 @@ ENV NODE_ENV=production
 COPY package*.json ./
 COPY apps/api/package*.json ./apps/api/
 COPY packages/shared/package*.json ./packages/shared/
+COPY packages/config/package*.json ./packages/config/
 RUN npm ci --omit=dev
 
 COPY --from=builder /app/apps/api/dist ./apps/api/dist

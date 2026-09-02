@@ -26,12 +26,12 @@ export class CustomersController {
   constructor(private readonly customers: CustomersService) {}
 
   @Get()
-  list(@CurrentUser() user: AuthenticatedUser) {
+  list() {
     return this.customers.list();
   }
 
   @Get(':id')
-  get(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+  get(@Param('id') id: string) {
     return this.customers.get(id);
   }
 

@@ -31,12 +31,12 @@ export class DealsController {
   constructor(private readonly deals: DealsService) {}
 
   @Get()
-  list(@CurrentUser() user: AuthenticatedUser) {
+  list() {
     return this.deals.list();
   }
 
   @Get('stages')
-  stages(@CurrentUser() user: AuthenticatedUser) {
+  stages() {
     return this.deals.listStages();
   }
 

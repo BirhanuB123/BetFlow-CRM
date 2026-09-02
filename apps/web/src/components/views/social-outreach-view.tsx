@@ -118,12 +118,12 @@ function formatTelegramPreview(text: string) {
     .replace(/&lt;\/i&gt;/gi, "</i>")
     .replace(/&lt;u&gt;/gi, "<u>")
     .replace(/&lt;\/u&gt;/gi, "</u>")
-    .replace(/&lt;code&gt;/gi, "<code class='bg-slate-800 text-amber-300 px-1 rounded text-[11px]'>")
+    .replace(/&lt;code&gt;/gi, "<code class='bg-muted text-warning px-1 rounded text-[11px]'>")
     .replace(/&lt;\/code&gt;/gi, "</code>");
 
   formatted = formatted.replace(
     /(https?:\/\/[^\s<]+)/g,
-    '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-sky-400 underline hover:text-sky-300">$1</a>',
+    '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-primary underline hover:text-primary/80">$1</a>',
   );
 
   return formatted;
@@ -141,7 +141,7 @@ const channelConfig: Record<
   },
   SMS: {
     label: "SMS Direct Alert",
-    badge: "bg-amber-50 text-amber-700 border-amber-200 font-medium",
+    badge: "bg-warning/10 text-warning border-warning/20 font-medium",
     icon: Smartphone,
     connected: false,
   },
@@ -485,11 +485,11 @@ export function SocialOutreachView() {
                   </div>
 
                   {form.channel !== "TELEGRAM" && form.channel !== "SMS" && (
-                    <div className="rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-800 flex items-start gap-2">
-                      <AlertCircle className="size-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div className="rounded-lg border border-warning/30 bg-warning/10 p-2.5 text-xs text-warning flex items-start gap-2">
+                      <AlertCircle className="size-4 text-warning shrink-0 mt-0.5" />
                       <div>
-                        <p className="font-bold">Channel Integration Not Connected</p>
-                        <p className="text-[11px] text-amber-700 mt-0.5">
+                        <p className="font-bold text-warning">Channel Integration Not Connected</p>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
                           {form.channel === "FACEBOOK"
                             ? "Meta / Facebook Marketing API is not configured yet."
                             : "WhatsApp Business Cloud API is not configured yet."}{" "}
@@ -500,11 +500,11 @@ export function SocialOutreachView() {
                   )}
 
                   {form.channel === "SMS" && (
-                    <div className="rounded-lg border border-emerald-200 bg-emerald-50/80 p-2.5 text-xs text-emerald-800 flex items-start gap-2">
-                      <Sparkles className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <div className="rounded-lg border border-success/30 bg-success/10 p-2.5 text-xs text-success flex items-start gap-2">
+                      <Sparkles className="size-4 text-success shrink-0 mt-0.5" />
                       <div>
-                        <p className="font-bold text-emerald-900">Ethio Telecom & AfroMessage SMS Gateway Active</p>
-                        <p className="text-[11px] text-emerald-700 mt-0.5">
+                        <p className="font-bold text-success">Ethio Telecom & AfroMessage SMS Gateway Active</p>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
                           Broadcast SMS will be dispatched directly to your CRM phone contacts with live status logging in the SMS Outbox.
                         </p>
                       </div>
@@ -601,7 +601,7 @@ export function SocialOutreachView() {
               <div className="lg:col-span-5 flex flex-col">
                 <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
                   <span>Live Telegram Channel Preview</span>
-                  <span className="text-[10px] text-sky-600 bg-sky-50 border border-sky-200 px-1.5 py-0.5 rounded font-medium">
+                  <span className="text-[10px] text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded font-medium">
                     WYSIWYG
                   </span>
                 </label>
@@ -611,13 +611,13 @@ export function SocialOutreachView() {
                   <div>
                     {/* Telegram Header */}
                     <div className="flex items-center gap-2.5 pb-3 border-b border-slate-800/80 mb-3">
-                      <div className="size-8 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-xs text-white shadow-xs">
+                      <div className="size-8 rounded-full bg-primary flex items-center justify-center font-bold text-xs text-primary-foreground shadow-xs">
                         UE
                       </div>
                       <div>
                         <p className="text-xs font-bold text-slate-100 flex items-center gap-1">
                           Ultima Real Estate
-                          <CheckCircle2 className="size-3 text-sky-400 fill-sky-400" />
+                          <CheckCircle2 className="size-3 text-primary fill-primary" />
                         </p>
                         <p className="text-[10px] text-slate-400">channel · 3 subscribers</p>
                       </div>
