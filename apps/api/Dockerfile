@@ -10,7 +10,7 @@ RUN npm ci
 COPY . .
 RUN npm exec -w apps/api -- prisma generate --schema=prisma/schema.prisma
 RUN npm run build --workspace=packages/shared
-RUN npm run build --workspace=apps/api
+RUN npm exec -w apps/api -- nest build
 
 FROM node:20-alpine AS runner
 WORKDIR /app
