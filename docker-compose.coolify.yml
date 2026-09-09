@@ -1,0 +1,60 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: betflow_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-betflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-betflow_secure_pass_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-betflow_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-betflow} -d ${POSTGRES_DB:-betflow_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: betflow_api
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-betflow}:${POSTGRES_PASSWORD:-betflow_secure_pass_2026}@postgres:5432/${POSTGRES_DB:-betflow_db}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-betflow_super_secret_jwt_key_prod_2026}
+      JWT_EXPIRES_IN: 12h
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://crm.yourdomain.com}
+      DOCUMENTS_STORAGE_PATH: /app/uploads/documents
+      AFROMESSAGE_API_KEY: ${AFROMESSAGE_API_KEY:-}
+      AFROMESSAGE_SENDER_ID: ${AFROMESSAGE_SENDER_ID:-Gebeta Tech}
+      AFROMESSAGE_IDENTIFIER: ${AFROMESSAGE_IDENTIFIER:-}
+    volumes:
+      - api_uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.yourdomain.com/api}
+    container_name: betflow_web
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.yourdomain.com/api}
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  api_uploads:

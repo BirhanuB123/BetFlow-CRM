@@ -1,69 +1,40 @@
 "use client";
 
-import { useState } from "react";
-import { StickyNav } from "@/components/marketing/StickyNav";
-import { Hero } from "@/components/marketing/Hero";
-import { TrustBar } from "@/components/marketing/TrustBar";
-import { LiveWorkspacePreview } from "@/components/marketing/LiveWorkspacePreview";
-import { ShowcaseCards } from "@/components/marketing/ShowcaseCards";
-import { SocialProof } from "@/components/marketing/SocialProof";
-import { CtaBanner } from "@/components/marketing/CtaBanner";
-import { Footer } from "@/components/marketing/Footer";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { getSession } from "@/lib/api";
+import { useBranding } from "@/lib/branding-context";
 
-export default function Home() {
-  const [activeTab, setActiveTab] = useState<
-    "leads" | "units" | "pipeline" | "visits" | "payments"
-  >("leads");
+export default function RootPage() {
+  const router = useRouter();
+  const { systemName } = useBranding();
 
-  const [selectedWorkflows, setSelectedWorkflows] = useState<
-    Record<string, boolean>
-  >({
-    leads: true,
-    units: true,
-    pipeline: true,
-    visits: true,
-    payments: true,
-    contracts: true,
-  });
-
-  const toggleWorkflow = (key: string) => {
-    setSelectedWorkflows((prev) => ({ ...prev, [key]: true }));
-
-    const tabMap: Record<string, typeof activeTab> = {
-      leads: "leads",
-      units: "units",
-      pipeline: "pipeline",
-      visits: "visits",
-      payments: "payments",
-      contracts: "payments",
-    };
-
-    if (tabMap[key]) {
-      setActiveTab(tabMap[key]);
+  useEffect(() => {
+    const session = getSession();
+    if (session?.accessToken) {
+      router.replace("/dashboard");
+    } else {
+      router.replace("/auth");
     }
-
-    const previewSection = document.getElementById("workspace-preview");
-    if (previewSection) {
-      previewSection.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
+  }, [router]);
 
   return (
-    <main className="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-primary selection:text-white">
-      <StickyNav />
-      <Hero
-        selectedWorkflows={selectedWorkflows}
-        onToggleWorkflow={toggleWorkflow}
-      />
-      <TrustBar />
-      <LiveWorkspacePreview
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-      />
-      <ShowcaseCards />
-      <SocialProof />
-      <CtaBanner />
-      <Footer />
-    </main>
+    <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100 selection:bg-primary selection:text-white">
+      <div className="flex flex-col items-center gap-4">
+        <Image
+          src="/betflow-mark.svg"
+          alt={systemName}
+          width={44}
+          height={44}
+          priority
+          className="h-11 w-11 animate-pulse"
+        />
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <div className="h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <span>Loading {systemName}...</span>
+        </div>
+      </div>
+    </div>
   );
 }
