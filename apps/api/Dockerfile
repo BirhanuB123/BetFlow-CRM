@@ -8,7 +8,7 @@ COPY packages/config/package*.json ./packages/config/
 RUN npm ci
 
 COPY . .
-RUN npx prisma generate --schema=apps/api/prisma/schema.prisma
+RUN npm exec -w apps/api -- prisma generate --schema=prisma/schema.prisma
 RUN npm run build --workspace=packages/shared
 RUN npm run build --workspace=apps/api
 
@@ -28,4 +28,4 @@ COPY --from=builder /app/packages/shared ./packages/shared
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 EXPOSE 4000
-CMD ["sh", "-c", "npx prisma migrate deploy --schema=apps/api/prisma/schema.prisma && node apps/api/dist/main.js"]
+CMD ["sh", "-c", "npm exec -w apps/api -- prisma migrate deploy --schema=prisma/schema.prisma && node apps/api/dist/main.js"]
