@@ -54,4 +54,10 @@ export class ReportsController {
   forecasting() {
     return this.reports.forecastingReport();
   }
+
+  @Get('commissions')
+  commissions() {
+    return this.reports.commissionsReport();
+  }
 }
+

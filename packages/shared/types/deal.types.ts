@@ -93,17 +93,5 @@ export type NewDeal = {
 
 // ─── Revenue Forecasting Types ────────────────────────────────────────────────
 
-export type ForecastingStageBucket = {
-  stageId: string;
-  stageName: string;
-  probability: number;
-  dealCount: number;
-  rawVolume: number;
-  weightedVolume: number;
-};
+export * from "./forecasting.types.js";
 
-export type RevenueForecastReport = {
-  totalRawPipeline: number;
-  totalWeightedPipeline: number;
-  stages: ForecastingStageBucket[];
-};

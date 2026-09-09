@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import PDFDocument from 'pdfkit';
 import { createHash } from 'crypto';
 import * as QRCode from 'qrcode';
+import { toEthiopianDate } from '@betflow/shared';
 
 export interface PdfContractData {
   contractId: string;
@@ -128,12 +129,14 @@ export class PdfGeneratorService {
         month: 'long',
         day: 'numeric',
       });
+      const ec = toEthiopianDate(data.createdAt);
+      const dualDateStr = ec ? `${dateStr} (${ec.formattedEnglish})` : dateStr;
 
       doc
         .fontSize(8.5)
         .font('Helvetica-Bold')
         .fillColor(textMuted)
-        .text(`Agreement Date: ${dateStr}`, 40, 158)
+        .text(`Agreement Date: ${dualDateStr}`, 40, 158)
         .text(`Contract ID: ${data.contractId}`, 350, 158, { align: 'right' });
 
       // ─── 1. Parties Section ────────────────────────────────────────────────

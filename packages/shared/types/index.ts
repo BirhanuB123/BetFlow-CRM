@@ -13,3 +13,5 @@ export * from "./payment.types.js";
 export * from "./activity.types.js";
 export * from "./property.types.js";
 export * from "./call.types.js";
+export * from "./commission.types.js";
+export * from "./forecasting.types.js";

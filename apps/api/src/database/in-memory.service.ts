@@ -1164,7 +1164,18 @@ export class InMemoryService {
       lastAccessedAt: null,
       createdBy: null,
     },
+    {
+      id: 'commission-ledger',
+      name: 'Commissions & Brokerage',
+      description:
+        'Agent and external broker commission earnings, milestone payout eligibility, and performance payouts.',
+      folder: 'Sales Metrics Reports',
+      href: '/reports/commissions',
+      lastAccessedAt: '2026-09-08',
+      createdBy: null,
+    },
   ];
+
 
   private readonly salesDashboardReport: ReportMetric[] = [
     {

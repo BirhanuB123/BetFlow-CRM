@@ -1,8 +1,21 @@
-export function formatDate(iso: string | Date | null | undefined): string {
+import { formatDualDate, toEthiopianDate } from "@betflow/shared";
+
+export function formatDate(
+  iso: string | Date | null | undefined,
+  lang: "en" | "am" = "en",
+  options: { dual?: boolean; compact?: boolean; includeTime?: boolean } = { dual: true }
+): string {
   if (!iso) return "—";
+  if (options.dual !== false) {
+    return formatDualDate(iso, lang, options);
+  }
   const date = typeof iso === "string" ? new Date(iso) : iso;
   if (Number.isNaN(date.getTime())) return String(iso);
-  return date.toLocaleDateString(undefined, {
+  if (lang === "am") {
+    const ec = toEthiopianDate(date);
+    return ec ? ec.formattedAmharic : date.toLocaleDateString();
+  }
+  return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",

@@ -569,10 +569,7 @@ export class EthioTelecomSmsService {
       );
       attemptsCount++;
 
-      const sendCandidate = async (
-        sendSender?: string,
-        sendFrom?: string,
-      ) => {
+      const sendCandidate = async (sendSender?: string, sendFrom?: string) => {
         const params = new URLSearchParams();
         params.set('to', formattedPhone);
         params.set('message', dto.body);
@@ -733,10 +730,7 @@ export class EthioTelecomSmsService {
 
     if (success) {
       status = 'DELIVERED';
-    } else if (
-      !afroApiKey &&
-      !process.env.ETHIO_SMS_API_URL
-    ) {
+    } else if (!afroApiKey && !process.env.ETHIO_SMS_API_URL) {
       status = 'DELIVERED';
       gatewayUsed = 'Ethio Telecom Gateway Sandbox';
       attemptsCount = 1;
@@ -965,10 +959,7 @@ export class EthioTelecomSmsService {
     let gatewayProvider = 'Ethio Telecom Gateway Sandbox';
     if (lastLog?.gatewayUsed) {
       gatewayProvider = lastLog.gatewayUsed;
-    } else if (
-      afroKey &&
-      process.env.ETHIO_SMS_API_URL
-    ) {
+    } else if (afroKey && process.env.ETHIO_SMS_API_URL) {
       gatewayProvider = 'Dual Gateway (AfroMessage + Ethio Telecom Direct)';
     } else if (afroKey) {
       gatewayProvider = 'AfroMessage Live Gateway (Ethiopia)';
@@ -988,9 +979,7 @@ export class EthioTelecomSmsService {
       accountBalanceBirr: balanceInfo.balance,
       gatewayProvider,
       shortcode: process.env.ETHIO_SMS_SHORTCODE || '8844',
-      isLive: !!(
-        afroKey || process.env.ETHIO_SMS_API_URL
-      ),
+      isLive: !!(afroKey || process.env.ETHIO_SMS_API_URL),
       activeCampaignsCount: this.dripCampaigns.filter(
         (c) => c.status === 'ACTIVE',
       ).length,

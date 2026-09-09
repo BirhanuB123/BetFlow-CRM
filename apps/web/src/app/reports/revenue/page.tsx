@@ -18,6 +18,7 @@ import { CrmTable } from "@/components/tables/crm-table";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
+import { exportToCsv } from "@/lib/export";
 import { printReportDocument } from "@/lib/print";
 
 type RevenueRow = {
@@ -65,29 +66,25 @@ export default function RevenueReportPage() {
   const handleExportCSV = () => {
     const headers = [
       "Period",
-      "Booked",
-      "Collected",
-      "Outstanding",
-      "Forecast",
+      "Booked Revenue",
+      "Collected Payments",
+      "Outstanding Balance",
+      "Growth Forecast",
     ];
     const csvRows = rows.map((r) => [
-      `"${r.period}"`,
-      `"${r.booked}"`,
-      `"${r.collected}"`,
-      `"${r.outstanding}"`,
-      `"${r.forecast}"`,
+      r.period,
+      r.booked,
+      r.collected,
+      r.outstanding,
+      r.forecast,
     ]);
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...csvRows.map((e) => e.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `betflow_revenue_report.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    exportToCsv({
+      filename: `betflow_revenue_report_${new Date().toISOString().slice(0, 10)}.csv`,
+      headers,
+      rows: csvRows,
+    });
   };
+
 
   const handlePrint = () => {
     printReportDocument({

@@ -22,4 +22,17 @@ export { formatDate, daysRemaining, timeAgo } from "./utils/date.utils.js";
 export { formatStatusLabel, formatCurrencyAmount } from "./utils/format.utils.js";
 export { normalizePhone, classifyLeadOrigin, type LeadOriginInfo } from "./utils/phone.utils.js";
 export { getTransliteratedVariants } from "./utils/transliteration.utils.js";
-export { toEthiopianDate, type EthiopianDateInfo } from "./utils/ethiopian-calendar.utils.js";
+export {
+  toEthiopianDate,
+  toGregorianDate,
+  formatDualDate,
+  getCurrentEthiopianDate,
+  isEthiopianLeapYear,
+  isGregorianLeapYear,
+  getEthiopianDaysInMonth,
+  EC_MONTHS_AMHARIC,
+  EC_MONTHS_ENGLISH,
+  EC_WEEKDAYS_AMHARIC,
+  EC_WEEKDAYS_ENGLISH,
+  type EthiopianDateInfo,
+} from "./utils/ethiopian-calendar.utils.js";

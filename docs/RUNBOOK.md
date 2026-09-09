@@ -1,4 +1,4 @@
-﻿# 🚀 BetFlow Real Estate CRM — Production Operations Runbook
+# 🚀 BetFlow Real Estate CRM — Production Operations Runbook
 
 This document provides complete instructions for operating, configuring, scaling, and recovering the BetFlow Real Estate CRM production environment.
 
@@ -43,9 +43,51 @@ Ensure the following environment variables are securely injected into your produ
 
 ---
 
-## 3. Deployment with Docker Compose
+## 3. Hostinger VPS + Coolify Deployment Guide (Recommended)
 
-To deploy the entire stack locally or on a VPS (Ubuntu / Debian / AWS EC2):
+BetFlow CRM is optimized for automated deployment on **Hostinger VPS** managed by **Coolify**:
+
+### Step 1: Install Coolify on Hostinger VPS
+1. SSH into your Hostinger Ubuntu VPS:
+   ```bash
+   ssh root@YOUR_SERVER_IP
+   ```
+2. Run the official 1-line Coolify installer:
+   ```bash
+   curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
+   ```
+3. Open `http://YOUR_SERVER_IP:8000` in your browser and complete initial admin onboarding.
+
+### Step 2: Configure Domain DNS
+Add `A` records in your DNS provider (Hostinger DNS / Cloudflare):
+- `crm.yourdomain.com` ➔ Points to `YOUR_SERVER_IP` (Web frontend)
+- `api.yourdomain.com` ➔ Points to `YOUR_SERVER_IP` (API backend)
+
+### Step 3: Add Resource in Coolify
+1. In Coolify, click **Projects** ➔ **+ New Resource** ➔ **Docker Compose**.
+2. Select **GitHub** repository (`BirhanuB123/BetFlow-CRM`).
+3. Set the Compose file path to `docker-compose.yml`.
+4. In Coolify Settings, configure your domains:
+   - For `web`: Set domain to `https://crm.yourdomain.com`
+   - For `api`: Set domain to `https://api.yourdomain.com`
+5. Configure Environment Variables in Coolify:
+   ```env
+   NEXT_PUBLIC_API_URL=https://api.yourdomain.com/api
+   JWT_SECRET=YOUR_SECURE_RANDOM_32_CHAR_SECRET
+   ALLOWED_ORIGINS=https://crm.yourdomain.com
+   AFROMESSAGE_API_KEY=your_token
+   AFROMESSAGE_SENDER_ID=Gebeta Tech
+   POSTGRES_USER=betflow
+   POSTGRES_PASSWORD=YOUR_SECURE_DB_PASSWORD
+   POSTGRES_DB=betflow_db
+   ```
+6. Click **Deploy**. Coolify will automatically build the images, deploy Prisma migrations, configure Traefik SSL certificates, and launch the stack.
+
+---
+
+## 4. Manual Deployment with Docker Compose
+
+To deploy the entire stack manually on any VPS:
 
 ```bash
 # 1. Clone repository
@@ -65,7 +107,7 @@ docker compose ps
 
 ---
 
-## 4. Zero-Downtime Database Migration Procedures
+## 5. Zero-Downtime Database Migration Procedures
 
 Prisma migrations are deployed automatically on container startup or manually via CLI:
 

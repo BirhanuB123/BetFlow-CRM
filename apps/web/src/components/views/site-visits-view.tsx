@@ -28,11 +28,12 @@ import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { TableSkeleton } from "@/components/ui/skeleton-loaders";
 import { useToast } from "@/components/ui/toast";
+import { DualDatePicker } from "@/components/ui/dual-date-picker";
 import { apiFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/i18n/language-context";
-import { toEthiopianDate } from "@betflow/shared";
+import { toEthiopianDate, formatDualDate } from "@betflow/shared";
 
 type PersonRef = { id: string; firstName: string; lastName: string } | null;
 
@@ -440,16 +441,29 @@ export function SiteVisitsView() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Date & Time *
-                </label>
-                <input
+                <DualDatePicker
                   required
-                  type="datetime-local"
-                  value={form.date}
-                  onChange={(e) => setForm({ ...form, date: e.target.value })}
-                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
+                  label="Visit Date (የጉብኝት ቀን)"
+                  value={form.date ? form.date.split("T")[0] : ""}
+                  onChange={(iso) => {
+                    const timePart = form.date && form.date.includes("T") ? form.date.split("T")[1] : "10:00";
+                    setForm({ ...form, date: iso ? `${iso}T${timePart}` : "" });
+                  }}
                 />
+                <div className="mt-2">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                    Time (ሰዓት)
+                  </label>
+                  <input
+                    type="time"
+                    value={form.date && form.date.includes("T") ? form.date.split("T")[1].slice(0, 5) : "10:00"}
+                    onChange={(e) => {
+                      const datePart = form.date ? form.date.split("T")[0] : new Date().toISOString().split("T")[0];
+                      setForm({ ...form, date: `${datePart}T${e.target.value}` });
+                    }}
+                    className="w-full h-8 rounded-lg border border-border bg-card px-2.5 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
+                  />
+                </div>
               </div>
             </div>
 

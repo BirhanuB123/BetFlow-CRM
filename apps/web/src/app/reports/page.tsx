@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/i18n/language-context";
+import { exportToCsv } from "@/lib/export";
 
 type ReportCatalogEntry = {
   id: string;
@@ -139,23 +140,19 @@ export default function ReportsCatalogPage() {
       "Created By",
     ];
     const rows = filtered.map((r) => [
-      `"${r.name}"`,
-      `"${r.folder}"`,
-      `"${r.description}"`,
-      `"${formatDate(r.lastAccessedAt)}"`,
-      `"${r.createdBy ?? "System"}"`,
+      r.name,
+      r.folder,
+      r.description,
+      formatDate(r.lastAccessedAt),
+      r.createdBy ?? "System",
     ]);
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `betflow_reports_catalog.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    exportToCsv({
+      filename: `betflow_reports_catalog_${new Date().toISOString().slice(0, 10)}.csv`,
+      headers,
+      rows,
+    });
   };
+
 
   return (
     <DashboardShell

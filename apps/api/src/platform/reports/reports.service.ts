@@ -1,5 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import {
+  formatDualDate,
+  toEthiopianDate,
+  EC_MONTHS_AMHARIC,
+} from '@betflow/shared';
+import type {
+  CommissionReport,
+  CommissionRecord,
+  CommissionPayoutStatus,
+  AgentCommissionSummary,
+  RevenueForecastReport,
+  MonthlyCashFlowForecast,
+} from '@betflow/shared';
 
 @Injectable()
 export class ReportsService {
@@ -389,17 +402,24 @@ export class ReportsService {
   }
 
   // --------------------------------------------------------
-  // 6. WEIGHTED REVENUE FORECASTING
+  // 6. WEIGHTED REVENUE FORECASTING & CASH FLOW PROJECTIONS
   // --------------------------------------------------------
-  async forecastingReport() {
-    const stages = await this.prisma.dealStage.findMany({
-      include: {
-        deals: {
-          select: { value: true },
+  async forecastingReport(): Promise<RevenueForecastReport> {
+    const [stages, paymentSchedules] = await Promise.all([
+      this.prisma.dealStage.findMany({
+        include: {
+          deals: {
+            select: { value: true, createdAt: true },
+          },
         },
-      },
-      orderBy: { order: 'asc' },
-    });
+        orderBy: { order: 'asc' },
+      }),
+      this.prisma.paymentSchedule.findMany({
+        where: { status: { not: 'PAID' } },
+        select: { dueDate: true, amount: true, paidAmount: true },
+        orderBy: { dueDate: 'asc' },
+      }),
+    ]);
 
     let totalRawPipeline = 0;
     let totalWeightedPipeline = 0;
@@ -424,12 +444,327 @@ export class ReportsService {
       };
     });
 
+    // 12-Month Forward Cash Flow Forecast
+    const now = new Date();
+    const monthlyMap = new Map<
+      string,
+      {
+        monthKey: string;
+        gregorianLabel: string;
+        ethiopianLabel: string;
+        scheduledReceivables: number;
+        weightedPipelineInflow: number;
+      }
+    >();
+
+    // Initialize next 12 months
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const gregorianLabel = d.toLocaleDateString('en-US', {
+        month: 'short',
+        year: 'numeric',
+      });
+      const ec = toEthiopianDate(d);
+      const ethiopianLabel = ec
+        ? `${EC_MONTHS_AMHARIC[ec.ecMonth - 1]} ${ec.ecYear} ዓ.ም`
+        : '';
+
+      monthlyMap.set(monthKey, {
+        monthKey,
+        gregorianLabel,
+        ethiopianLabel,
+        scheduledReceivables: 0,
+        weightedPipelineInflow: 0,
+      });
+    }
+
+    let totalScheduledReceivables = 0;
+    for (const schedule of paymentSchedules) {
+      const remainingAmount =
+        Number(schedule.amount) - Number(schedule.paidAmount || 0);
+      if (remainingAmount <= 0) continue;
+      totalScheduledReceivables += remainingAmount;
+
+      const scheduleDate = new Date(schedule.dueDate);
+      const key = `${scheduleDate.getFullYear()}-${String(scheduleDate.getMonth() + 1).padStart(2, '0')}`;
+      const existing = monthlyMap.get(key);
+      if (existing) {
+        existing.scheduledReceivables += remainingAmount;
+      }
+    }
+
+    // Spread weighted pipeline inflow smoothly over next 12 months with bell curve / sales velocity
+    const monthlyBasePipeline =
+      totalWeightedPipeline > 0 ? totalWeightedPipeline / 12 : 0;
+    const months = [...monthlyMap.values()];
+    for (let idx = 0; idx < months.length; idx++) {
+      // Near-term quarter weighting factor
+      const weightingFactor = 1 + Math.sin((idx / 12) * Math.PI) * 0.4;
+      months[idx].weightedPipelineInflow = Math.round(
+        monthlyBasePipeline * weightingFactor,
+      );
+    }
+
+    const monthlyCashFlowForecast: MonthlyCashFlowForecast[] = months.map(
+      (m) => {
+        const totalProjected =
+          m.scheduledReceivables + m.weightedPipelineInflow;
+        return {
+          monthKey: m.monthKey,
+          gregorianLabel: m.gregorianLabel,
+          ethiopianLabel: m.ethiopianLabel,
+          scheduledReceivables: Math.round(m.scheduledReceivables),
+          weightedPipelineInflow: Math.round(m.weightedPipelineInflow),
+          totalProjectedCashIn: Math.round(totalProjected),
+          conservativeScenario: Math.round(totalProjected * 0.7),
+          expectedScenario: Math.round(totalProjected * 1.0),
+          optimisticScenario: Math.round(totalProjected * 1.25),
+        };
+      },
+    );
+
+    const projected12MonthCashIn = monthlyCashFlowForecast.reduce(
+      (sum, m) => sum + m.totalProjectedCashIn,
+      0,
+    );
+
+    // Overdue / delinquency discount factor (5% buffer)
+    const riskAdjustedDelinquencyDiscount = Math.round(
+      totalScheduledReceivables * 0.05,
+    );
+
     return {
       totalRawPipeline,
       totalWeightedPipeline,
+      totalScheduledReceivables,
+      projected12MonthCashIn,
+      riskAdjustedDelinquencyDiscount,
       stages: stageBuckets,
+      monthlyCashFlowForecast,
     };
   }
+
+  // --------------------------------------------------------
+  // 8. COMMISSIONS & BROKERAGE REPORT
+  // --------------------------------------------------------
+  async commissionsReport(): Promise<CommissionReport> {
+    const contracts = await this.prisma.contract.findMany({
+      where: { status: { in: ['ACTIVE', 'SIGNED', 'PENDING_SIGNATURE'] } },
+      include: {
+        customer: true,
+        unit: {
+          include: {
+            floor: {
+              include: {
+                building: {
+                  include: {
+                    project: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        deal: {
+          include: {
+            account: {
+              include: {
+                owner: true,
+              },
+            },
+          },
+        },
+        payments: {
+          where: { status: 'COMPLETED' },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Also get all agents to guarantee lookup even if account owner is null
+    const users = await this.prisma.user.findMany({
+      select: { id: true, firstName: true, lastName: true, email: true },
+    });
+    const userMap = new Map(users.map((u) => [u.id, u]));
+
+    const records: CommissionRecord[] = [];
+    const agentMap = new Map<
+      string,
+      {
+        agentId: string;
+        agentName: string;
+        agentEmail: string;
+        dealsCount: number;
+        totalSalesVolume: number;
+        totalCommissionEarned: number;
+        totalCommissionPaid: number;
+        pendingPayout: number;
+        rates: number[];
+      }
+    >();
+
+    let totalCommissionIncurred = 0;
+    let totalCommissionPaid = 0;
+    let totalCommissionPending = 0;
+    let eligiblePayoutsCount = 0;
+
+    for (const contract of contracts) {
+      const dealValue = Number(contract.totalAmt || 0);
+      const collectedPayment = contract.payments.reduce(
+        (sum, p) => sum + Number(p.amount || 0),
+        0,
+      );
+      const collectionPercent =
+        dealValue > 0
+          ? Math.min(100, Math.round((collectedPayment / dealValue) * 100))
+          : 0;
+
+      // Tiered commission: 2.5% for >= 10M ETB, 2.0% for >= 5M ETB, standard 1.8%
+      let rate = 2.0;
+      if (dealValue >= 10_000_000) rate = 2.5;
+      else if (dealValue >= 5_000_000) rate = 2.0;
+      else rate = 1.8;
+
+      const totalCommission = Math.round(dealValue * (rate / 100));
+
+      // Agent resolution
+      const owner = contract.deal?.account?.owner;
+      const agentId = owner?.id || users[0]?.id || 'agent-default';
+      const agentUser = userMap.get(agentId);
+      const agentName = owner
+        ? `${owner.firstName} ${owner.lastName}`.trim()
+        : agentUser
+          ? `${agentUser.firstName} ${agentUser.lastName}`.trim()
+          : 'Sales Representative';
+      const agentEmail = owner?.email || agentUser?.email || null;
+
+      // Payout status logic:
+      // Minimum 15% collected payment to unlock eligible payout
+      let status: CommissionPayoutStatus = 'PENDING_DOWNPAYMENT';
+      let paidCommission = 0;
+      let pendingCommission = totalCommission;
+
+      if (collectionPercent >= 100) {
+        status = 'PAID';
+        paidCommission = totalCommission;
+        pendingCommission = 0;
+      } else if (collectionPercent >= 50) {
+        status = 'PARTIALLY_PAID';
+        paidCommission = Math.round(totalCommission * 0.5);
+        pendingCommission = totalCommission - paidCommission;
+      } else if (collectionPercent >= 15) {
+        status = 'ELIGIBLE_FOR_PAYOUT';
+        paidCommission = 0;
+        pendingCommission = totalCommission;
+        eligiblePayoutsCount++;
+      }
+
+      totalCommissionIncurred += totalCommission;
+      totalCommissionPaid += paidCommission;
+      totalCommissionPending += pendingCommission;
+
+      const contractDate = contract.createdAt.toISOString();
+      const contractDateDual = formatDualDate(contract.createdAt, 'am');
+
+
+      const customerName =
+        `${contract.customer.firstName} ${contract.customer.lastName}`.trim();
+      const unitNumber = contract.unit?.unitNumber || 'N/A';
+      const projectName =
+        contract.unit?.floor?.building?.project?.name || 'Harbor Point Towers';
+
+      records.push({
+        id: `comm-${contract.id.slice(0, 8)}`,
+        contractId: contract.id,
+        contractNumber:
+          contract.contractNumber ||
+          `CNT-${contract.id.slice(0, 6).toUpperCase()}`,
+        dealId: contract.dealId,
+        dealName: contract.deal?.name || null,
+        agentId,
+        agentName,
+        agentEmail,
+        customerName,
+        unitNumber,
+        projectName,
+        dealValue,
+        commissionRate: rate,
+        totalCommission,
+        collectedPaymentAmount: collectedPayment,
+        collectionProgressPercent: collectionPercent,
+        paidCommission,
+        pendingCommission,
+        status,
+        contractDate,
+        contractDateDual,
+      });
+
+      // Aggregate agent summary
+      const existing = agentMap.get(agentId) || {
+        agentId,
+        agentName,
+        agentEmail: agentEmail || '',
+        dealsCount: 0,
+        totalSalesVolume: 0,
+        totalCommissionEarned: 0,
+        totalCommissionPaid: 0,
+        pendingPayout: 0,
+        rates: [],
+      };
+
+      existing.dealsCount++;
+      existing.totalSalesVolume += dealValue;
+      existing.totalCommissionEarned += totalCommission;
+      existing.totalCommissionPaid += paidCommission;
+      existing.pendingPayout += pendingCommission;
+      existing.rates.push(rate);
+      agentMap.set(agentId, existing);
+    }
+
+    const topEarners: AgentCommissionSummary[] = [...agentMap.values()]
+      .map((a) => ({
+        agentId: a.agentId,
+        agentName: a.agentName,
+        agentEmail: a.agentEmail,
+        dealsCount: a.dealsCount,
+        totalSalesVolume: a.totalSalesVolume,
+        totalCommissionEarned: a.totalCommissionEarned,
+        totalCommissionPaid: a.totalCommissionPaid,
+        pendingPayout: a.pendingPayout,
+        averageCommissionRate:
+          a.rates.length > 0
+            ? Number(
+                (a.rates.reduce((s, r) => s + r, 0) / a.rates.length).toFixed(
+                  2,
+                ),
+              )
+            : 2.0,
+      }))
+      .sort((a, b) => b.totalCommissionEarned - a.totalCommissionEarned);
+
+    const averageCommissionRate =
+      records.length > 0
+        ? Number(
+            (
+              records.reduce((s, r) => s + r.commissionRate, 0) /
+              records.length
+            ).toFixed(2),
+          )
+        : 2.0;
+
+    return {
+      totalCommissionIncurred,
+      totalCommissionPaid,
+      totalCommissionPending,
+      eligiblePayoutsCount,
+      totalDealsCommissioned: records.length,
+      averageCommissionRate,
+      topEarners,
+      records,
+    };
+  }
+
 
   // --------------------------------------------------------
   // 7. INVENTORY POSITION (Real database Prisma queries)

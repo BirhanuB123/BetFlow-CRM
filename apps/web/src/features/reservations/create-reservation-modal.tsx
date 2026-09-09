@@ -14,6 +14,7 @@ import { formatCurrency } from "@/lib/currency";
 import { OfflineDraftBanner } from "@/components/ui/offline-draft-banner";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { formatDualDate } from "@betflow/shared";
 
 type KycRequirement = {
   category: string;
@@ -272,7 +273,7 @@ export function CreateReservationModal({
             onChange={(e) =>
               setForm({ ...form, holdPeriodDays: e.target.value })
             }
-            className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-2xs"
+            className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#233b66] focus:outline-none focus:ring-1 focus:ring-[#233b66] shadow-2xs font-medium"
           >
             <option value="7">7 Days Standard Hold</option>
             <option value="14">
@@ -280,6 +281,14 @@ export function CreateReservationModal({
             </option>
             <option value="30">30 Days Diaspora Buyer Window</option>
           </select>
+          {form.holdPeriodDays && (
+            <p className="mt-1.5 text-[11px] font-medium text-[#233b66] bg-[#233b66]/5 px-2.5 py-1.5 rounded-lg border border-[#233b66]/10 flex items-center gap-1.5">
+              <Sparkles className="size-3 text-[#233b66] shrink-0" />
+              <span>
+                Deadline: {formatDualDate(new Date(Date.now() + Number(form.holdPeriodDays) * 86400000))}
+              </span>
+            </p>
+          )}
         </div>
 
         <div>

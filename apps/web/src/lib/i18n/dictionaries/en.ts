@@ -452,6 +452,23 @@ export const en = {
     english: "English",
     amharic: "አማርኛ",
   },
+  calendar: {
+    selectDate: "Select date",
+    dualCalendar: "Dual Calendar",
+    ethiopian: "Ethiopian (ዓ.ም)",
+    gregorian: "Gregorian (GC)",
+    today: "Today",
+    tomorrow: "Tomorrow",
+    hold14d: "+14d (Reservation Hold)",
+    selected: "Selected",
+    clearDate: "Clear Date",
+    dateAndTime: "Date & Time",
+    deadline: "Deadline",
+    expiryDate: "Expiry Date",
+    dueDate: "Due Date",
+    signingDate: "Signing Date",
+    effectiveDate: "Effective Date",
+  },
 };
 
 export type Dictionary = typeof en;
