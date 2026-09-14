@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   output: "standalone",
-  reactCompiler: true,
+  reactCompiler: process.env.NODE_ENV === "production",
   transpilePackages: ["@betflow/shared"],
 };
 
