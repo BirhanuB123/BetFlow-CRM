@@ -604,6 +604,7 @@ export class EthioTelecomSmsService {
       try {
         // Attempt 1: with configured sender + from
         let { response, data } = await sendCandidate(senderName, identifier);
+        let primaryError = data?.response?.errors?.[0] || data?.error || data?.message || data?.response?.message;
 
         // If attempt 1 failed, try sender-only
         if (!isSuccess(response, data) && senderName && identifier) {
@@ -613,10 +614,20 @@ export class EthioTelecomSmsService {
           const candidate2 = await sendCandidate(senderName, undefined);
           response = candidate2.response;
           data = candidate2.data;
+          if (data?.response?.errors?.[0]) {
+            primaryError = data.response.errors[0];
+          }
         }
 
-        // If still failed, try from-only
-        if (!isSuccess(response, data) && identifier) {
+        // If still failed and no explicit contact/balance/account error, try from-only
+        const isExplicitAccountOrContactError = primaryError && (
+          primaryError.includes('unverified contact') ||
+          primaryError.includes('balance') ||
+          primaryError.includes('blocked') ||
+          primaryError.includes('opt-out')
+        );
+
+        if (!isSuccess(response, data) && identifier && !isExplicitAccountOrContactError) {
           this.logger.warn(
             `[AfroMessage Retry] HTTP ${response.status}: ${JSON.stringify(data)}. Retrying with identifier only...`,
           );
@@ -625,8 +636,8 @@ export class EthioTelecomSmsService {
           data = candidate3.data;
         }
 
-        // If still failed, try default
-        if (!isSuccess(response, data)) {
+        // If still failed and not an explicit account/contact error, try default
+        if (!isSuccess(response, data) && !isExplicitAccountOrContactError) {
           this.logger.warn(
             `[AfroMessage Retry] HTTP ${response.status}: ${JSON.stringify(data)}. Retrying with default gateway credentials...`,
           );
@@ -644,6 +655,7 @@ export class EthioTelecomSmsService {
         }
 
         const errorDetail =
+          primaryError ||
           data?.response?.errors?.[0] ||
           data?.error ||
           data?.message ||

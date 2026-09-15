@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, type ElementType } from "react";
 import {
   MessageSquare,
   Send,
@@ -37,7 +37,6 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
-import { StatCard, StatRow } from "@/components/ui/stat-card";
 import { CardSkeleton } from "@/components/ui/skeleton-loaders";
 import {
   SmsLog,
@@ -75,6 +74,74 @@ import {
 import { interpolateTemplate } from "@/lib/sms-template";
 import { SmsCampaignModal } from "@/features/automation/sms-campaign-modal";
 import { cn } from "@/lib/utils";
+
+type CampaignMetricCardProps = {
+  label: string;
+  value: string;
+  helper: string;
+  icon: ElementType;
+  tone?: "indigo" | "green" | "amber" | "violet";
+  status?: string;
+  statusTone?: "positive" | "attention" | "neutral";
+};
+
+const metricToneClasses = {
+  indigo: "bg-primary/10 text-primary",
+  green: "bg-success/10 text-success",
+  amber: "bg-warning/10 text-warning",
+  violet: "bg-violet-100 text-violet-600",
+};
+
+const metricStatusClasses = {
+  positive: "bg-success/10 text-success",
+  attention: "bg-warning/10 text-warning",
+  neutral: "bg-slate-100 text-slate-600",
+};
+
+function CampaignMetricCard({
+  label,
+  value,
+  helper,
+  icon: Icon,
+  tone = "indigo",
+  status,
+  statusTone = "neutral",
+}: CampaignMetricCardProps) {
+  return (
+    <article className="flex min-h-36 flex-col rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm transition-shadow hover:shadow-md">
+      <div className="flex items-start justify-between gap-4">
+        <p className="text-sm font-medium text-slate-600">{label}</p>
+        <span
+          className={cn(
+            "flex size-9 shrink-0 items-center justify-center rounded-xl",
+            metricToneClasses[tone],
+          )}
+        >
+          <Icon className="size-4" />
+        </span>
+      </div>
+
+      <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
+        {value}
+      </p>
+
+      <div className="mt-auto flex min-h-5 items-center gap-2 pt-3 text-xs">
+        {status && (
+          <span
+            className={cn(
+              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2 py-1 font-medium",
+              metricStatusClasses[statusTone],
+            )}
+          >
+            <span className="size-1.5 rounded-full bg-current" />
+            {status}
+          </span>
+        )}
+        <span className="truncate text-slate-500">{helper}</span>
+      </div>
+    </article>
+  );
+}
 
 export function SmsAutomationView() {
   const { success } = useToast();
@@ -727,55 +794,82 @@ export function SmsAutomationView() {
             </div>
           </section>
 
-          {/* Metric Stat Cards */}
-          <StatRow>
-            <StatCard
-              label="Total SMS Dispatched"
+          {/* Campaign snapshot */}
+          <section
+            aria-label="Campaign snapshot"
+            className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4"
+          >
+            <CampaignMetricCard
+              label="Messages sent"
               value={stats.totalSent.toString()}
-              detail={stats.gatewayProvider}
+              helper="Sent through AfroMessage"
               icon={Send}
-              color="navy"
-              trend={stats.isLive ? "up" : "down"}
-              trendLabel={stats.isLive ? "Active Gateway" : "Inactive"}
+              tone="indigo"
+              status={stats.isLive ? "Gateway connected" : "Gateway offline"}
+              statusTone={stats.isLive ? "positive" : "neutral"}
             />
-            <StatCard
-              label="Delivery Success Rate"
+            <CampaignMetricCard
+              label="Delivery rate"
               value={`${stats.deliveryRate}%`}
-              detail={`${stats.delivered} delivered / ${stats.failed} failed`}
+              helper={
+                stats.totalSent > 0
+                  ? `${stats.delivered} delivered · ${stats.failed} need attention`
+                  : "No messages sent yet"
+              }
               icon={CheckCircle2}
-              color={stats.deliveryRate >= 90 ? "emerald" : "amber"}
-              trend={stats.deliveryRate >= 90 ? "up" : "down"}
-              trendLabel={stats.deliveryRate >= 90 ? "Verified Delivery" : "Pending Callback"}
+              tone={stats.deliveryRate >= 90 ? "green" : "amber"}
+              status={
+                stats.totalSent === 0
+                  ? "Waiting for messages"
+                  : stats.deliveryRate >= 90
+                    ? "Looking good"
+                    : "Needs attention"
+              }
+              statusTone={
+                stats.totalSent === 0
+                  ? "neutral"
+                  : stats.deliveryRate >= 90
+                    ? "positive"
+                    : "attention"
+              }
             />
-            <StatCard
+            <CampaignMetricCard
               label={
                 stats.accountBalanceBirr !== undefined && stats.accountBalanceBirr !== null
-                  ? "AfroMessage Balance"
-                  : "Total Outbox Cost"
+                  ? "Available balance"
+                  : "SMS spend"
               }
               value={
                 stats.accountBalanceBirr !== undefined && stats.accountBalanceBirr !== null
                   ? `ETB ${stats.accountBalanceBirr.toFixed(2)}`
                   : `ETB ${stats.totalCostBirr.toFixed(2)}`
               }
-              detail={
+              helper={
                 stats.accountBalanceBirr !== undefined && stats.accountBalanceBirr !== null
-                  ? "Real-Time Gateway Credit"
-                  : "Estimated Outbox Expenditure"
+                  ? "AfroMessage account credit"
+                  : "Estimated campaign cost"
               }
               icon={Coins}
-              color="amber"
+              tone="amber"
             />
-            <StatCard
-              label="Active Drip Sequences"
+            <CampaignMetricCard
+              label="Live automations"
               value={(stats.activeCampaignsCount ?? dripCampaigns.length).toString()}
-              detail={`${dripCampaigns.reduce((acc, c) => acc + c.enrolledCount, 0)} enrolled buyers`}
+              helper={`${dripCampaigns.reduce((acc, c) => acc + c.enrolledCount, 0)} buyers currently enrolled`}
               icon={Layers}
-              color="indigo"
-              trend="up"
-              trendLabel="Automated"
+              tone="violet"
+              status={
+                (stats.activeCampaignsCount ?? dripCampaigns.length) > 0
+                  ? "Running"
+                  : "Not running"
+              }
+              statusTone={
+                (stats.activeCampaignsCount ?? dripCampaigns.length) > 0
+                  ? "positive"
+                  : "neutral"
+              }
             />
-          </StatRow>
+          </section>
 
           {/* Tab Navigation */}
           {sectionErrors.stats && (
