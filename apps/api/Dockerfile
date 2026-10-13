@@ -3,7 +3,8 @@ WORKDIR /app
 
 # Retry registry downloads when the deployment server briefly loses its npm
 # connection. No runtime secret belongs in this Dockerfile.
-ENV npm_config_fetch_retries=5 \
+ENV NODE_ENV=development \
+    npm_config_fetch_retries=5 \
     npm_config_fetch_retry_mintimeout=20000 \
     npm_config_fetch_retry_maxtimeout=120000 \
     npm_config_fetch_timeout=300000
@@ -14,7 +15,7 @@ COPY package*.json ./
 COPY apps/api/package*.json ./apps/api/
 COPY packages/shared/package*.json ./packages/shared/
 COPY packages/config/package*.json ./packages/config/
-RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund
+RUN --mount=type=cache,target=/root/.npm npm ci --include=dev --no-audit --no-fund
 
 COPY . .
 RUN npm exec -w apps/api -- prisma generate --schema=prisma/schema.prisma
