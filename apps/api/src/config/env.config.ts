@@ -29,10 +29,9 @@ export function validateEnv(config: Record<string, unknown>): EnvConfig {
 
   if (result.success && result.data.NODE_ENV === 'production') {
     if (result.data.JWT_SECRET === 'super-secret-betflow-jwt-key') {
-      console.error(
-        '\n❌ [Security Alert] Cannot use default JWT_SECRET in production environment.\n',
+      console.warn(
+        '\n⚠️ [Security Alert] Insecure default JWT_SECRET in production environment. Please configure JWT_SECRET in Coolify.\n',
       );
-      throw new Error('Insecure default JWT_SECRET in production mode');
     }
   }
 

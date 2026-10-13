@@ -5,12 +5,9 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-import { clearSession, getSession } from "@/lib/api";
+import { clearSession, getSession, API_BASE_URL } from "@/lib/api";
 import { useBranding } from "@/lib/branding-context";
 import { useTranslation } from "@/lib/i18n/language-context";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
 
 type Mode = "login" | "register" | "forgot" | "reset" | "force_change_password";
 

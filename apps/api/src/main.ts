@@ -108,6 +108,19 @@ async function bootstrap() {
   app.useGlobalFilters(new PrismaExceptionFilter(), new HttpExceptionFilter());
   app.useGlobalInterceptors(new LoggingInterceptor());
 
+  // Rewrite requests missing /api prefix (e.g. /auth/login -> /api/auth/login)
+  app.use((req: any, res: any, next: () => void) => {
+    if (
+      req.url &&
+      !req.url.startsWith('/api') &&
+      !req.url.startsWith('/r/') &&
+      !req.url.startsWith('/health')
+    ) {
+      req.url = `/api${req.url}`;
+    }
+    next();
+  });
+
   app.setGlobalPrefix('api', {
     exclude: ['r/(.*)'],
   });

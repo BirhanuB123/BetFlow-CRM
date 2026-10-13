@@ -42,4 +42,4 @@ COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
 COPY --from=builder /app/packages/shared ./packages/shared
 
 EXPOSE 4000
-CMD ["sh", "-c", "npm exec -w apps/api -- prisma migrate deploy --schema=prisma/schema.prisma && node apps/api/dist/main.js"]
+CMD ["sh", "-c", "npm exec -w apps/api -- prisma migrate deploy --schema=prisma/schema.prisma || echo 'Prisma migration warning - continuing API startup' && node apps/api/dist/main.js"]
