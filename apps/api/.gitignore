@@ -14,7 +14,7 @@ node_modules/
 .turbo/
 
 # Uploads — never commit user files
-uploads/
+/uploads/
 
 # Logs
 *.log
