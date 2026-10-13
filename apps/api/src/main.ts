@@ -24,30 +24,72 @@ async function bootstrap() {
     }),
   );
 
-  // Strict CORS Config
-  const allowedOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
-    : [
-        process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-        'http://localhost:3001',
-      ];
+  // Flexible & Production-Ready CORS Config
+  const rawOrigins = [
+    process.env.ALLOWED_ORIGINS,
+    process.env.FRONTEND_URL,
+    process.env.APP_URL,
+    process.env.NEXT_PUBLIC_APP_URL,
+    process.env.CORS_ORIGIN,
+  ]
+    .filter(Boolean)
+    .flatMap((val) => val!.split(','))
+    .map((o) => o.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+
+  const defaultOrigins = [
+    'https://crm.bahirandelivery.cloud',
+    'http://crm.bahirandelivery.cloud',
+    'https://api.crm.bahirandelivery.cloud',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+  ];
+
+  const allowedOrigins = Array.from(new Set([...defaultOrigins, ...rawOrigins]));
+  const allowAll =
+    process.env.ALLOWED_ORIGINS === '*' ||
+    process.env.CORS_ALLOW_ALL === 'true';
 
   app.enableCors({
     origin: (
       origin: string | undefined,
       callback: (err: Error | null, allow?: boolean) => void,
     ) => {
-      if (
-        !origin ||
-        allowedOrigins.includes(origin) ||
-        process.env.NODE_ENV === 'development'
-      ) {
-        callback(null, true);
-      } else {
-        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
+      if (!origin) {
+        return callback(null, true);
       }
+
+      const normalized = origin.trim().replace(/\/$/, '');
+
+      const isAllowed =
+        allowAll ||
+        allowedOrigins.includes(normalized) ||
+        /^https?:\/\/(?:[a-zA-Z0-9-]+\.)*bahirandelivery\.cloud(?::\d+)?$/.test(
+          normalized,
+        ) ||
+        process.env.NODE_ENV === 'development';
+
+      if (isAllowed) {
+        return callback(null, true);
+      }
+
+      callback(null, false);
     },
     credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'X-Requested-With',
+      'X-Tenant-Id',
+      'Range',
+    ],
+    exposedHeaders: ['Content-Range', 'X-Total-Count'],
+    maxAge: 86400,
   });
 
   // Global DTO Validation Pipe & Payload Sanitization
@@ -85,6 +127,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(process.env.PORT ?? 4000);
+  await app.listen(process.env.PORT ?? 4000, '0.0.0.0');
 }
 void bootstrap();

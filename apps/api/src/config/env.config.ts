@@ -17,6 +17,8 @@ export const envSchema = z.object({
     .default('development'),
   DOCUMENTS_STORAGE_PATH: z.string().default('./uploads/documents'),
   ALLOWED_ORIGINS: z.string().optional(),
+  FRONTEND_URL: z.string().optional(),
+  CORS_ORIGIN: z.string().optional(),
   NEXT_PUBLIC_APP_URL: z.string().optional().default('http://localhost:3000'),
 });
 
