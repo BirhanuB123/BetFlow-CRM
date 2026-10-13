@@ -1,31 +1,44 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
+# Retry registry downloads when the deployment server briefly loses its npm
+# connection. No runtime secret belongs in this Dockerfile.
+ENV npm_config_fetch_retries=5 \
+    npm_config_fetch_retry_mintimeout=20000 \
+    npm_config_fetch_retry_maxtimeout=120000 \
+    npm_config_fetch_timeout=300000
+
+# The Docker build context is the repository root, so the API can use the
+# workspace manifests and packages shared with the frontend.
 COPY package*.json ./
 COPY apps/api/package*.json ./apps/api/
 COPY packages/shared/package*.json ./packages/shared/
 COPY packages/config/package*.json ./packages/config/
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund
 
 COPY . .
 RUN npm exec -w apps/api -- prisma generate --schema=prisma/schema.prisma
 RUN npm run build --workspace=packages/shared
-RUN npm exec -w apps/api -- nest build
+RUN npm run build --workspace=apps/api
+
+# Reuse the installed production packages in the final stage instead of
+# downloading them a second time during the same remote build.
+RUN npm prune --omit=dev --no-audit --no-fund
 
 FROM node:20-alpine AS runner
 WORKDIR /app
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+    PORT=4000
 
 COPY package*.json ./
 COPY apps/api/package*.json ./apps/api/
 COPY packages/shared/package*.json ./packages/shared/
 COPY packages/config/package*.json ./packages/config/
-RUN npm ci --omit=dev
 
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
 COPY --from=builder /app/packages/shared ./packages/shared
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 EXPOSE 4000
 CMD ["sh", "-c", "npm exec -w apps/api -- prisma migrate deploy --schema=prisma/schema.prisma && node apps/api/dist/main.js"]
