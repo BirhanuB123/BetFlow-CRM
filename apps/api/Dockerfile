@@ -22,10 +22,6 @@ RUN npm exec -w apps/api -- prisma generate --schema=prisma/schema.prisma
 RUN npm run build --workspace=packages/shared
 RUN npm run build --workspace=apps/api
 
-# Reuse the installed production packages in the final stage instead of
-# downloading them a second time during the same remote build.
-RUN npm prune --omit=dev --no-audit --no-fund
-
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production \
@@ -37,9 +33,8 @@ COPY packages/shared/package*.json ./packages/shared/
 COPY packages/config/package*.json ./packages/config/
 
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/apps/api/dist ./apps/api/dist
-COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
-COPY --from=builder /app/packages/shared ./packages/shared
+COPY --from=builder /app/apps/api ./apps/api
+COPY --from=builder /app/packages ./packages
 
 EXPOSE 4000
-CMD ["sh", "-c", "npm exec -w apps/api -- prisma migrate deploy --schema=prisma/schema.prisma || echo 'Prisma migration warning - continuing API startup' && node apps/api/dist/main.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy --schema=apps/api/prisma/schema.prisma || true; node apps/api/dist/main.js"]
