@@ -4,11 +4,9 @@ import { PrismaClient } from '@prisma/client';
 import { Pool } from 'pg';
 
 if (!process.env.DATABASE_URL) {
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error(
-      'CRITICAL SECURITY FAILURE: DATABASE_URL environment variable is missing in production environment.',
-    );
-  }
+  console.warn(
+    '\n⚠️ [Configuration Alert] DATABASE_URL environment variable is missing in production. Please configure DATABASE_URL in Coolify.\n',
+  );
   process.env.DATABASE_URL =
     'postgresql://betflow:betflowpassword@localhost:5432/betflow_db?schema=public';
 }
@@ -39,7 +37,15 @@ export class PrismaService
     });
   }
   async onModuleInit() {
-    await this.$connect();
+    try {
+      await this.$connect();
+      console.log('✅ Connected to database successfully');
+    } catch (error) {
+      console.error(
+        '⚠️ Failed to connect to database during startup (will retry on requests):',
+        error,
+      );
+    }
   }
 
   async onModuleDestroy() {

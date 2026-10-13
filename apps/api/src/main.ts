@@ -116,7 +116,7 @@ async function bootstrap() {
       !req.url.startsWith('/r/') &&
       !req.url.startsWith('/health')
     ) {
-      req.url = `/api${req.url}`;
+      req.url = req.url === '/' ? '/api' : `/api${req.url}`;
     }
     next();
   });
